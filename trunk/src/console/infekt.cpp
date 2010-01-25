@@ -20,7 +20,12 @@
 
 #ifndef _WIN32
 #define _T(STR) STR
+#define _tprintf printf
+#define _ftprintf fprintf
 #else
+#ifndef _UNICODE
+#error This project requires unicode compiler settings.
+#endif
 #include <tchar.h>
 #endif
 
@@ -176,27 +181,18 @@ int main(int argc, char* argv[])
 #ifdef _WIN32
 	const std::string l_utfOutFileName = CUtil::FromWideStr(l_imgFileName, CP_UTF8);
 	if(cairo_surface_write_to_png(l_surface, l_utfOutFileName.c_str()) != CAIRO_STATUS_SUCCESS)
-	{
-		fwprintf(stderr, L"ERROR: Unable to write to `%s`.", l_imgFileName.c_str());
-		cairo_surface_destroy(l_surface);
-		return 1;
-	}
-	else
-	{
-		wprintf(L"Rendered `%s` to `%s`!", l_nfoFileName.c_str(), l_imgFileName.c_str());
-	}
 #else
 	if(!cairo_surface_write_to_png(l_surface, l_imgFileName.c_str()) != CAIRO_STATUS_SUCCESS)
+#endif
 	{
-		fprintf(stderr, L"ERROR: Unable to write to `%s`.", l_imgFileName.c_str());
+		_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_imgFileName.c_str());
 		cairo_surface_destroy(l_surface);
 		return 1;
 	}
 	else
 	{
-		printf("Rendered `%s` to `%s`!", l_nfoFileName.c_str(), l_imgFileName.c_str());
+		_tprintf(_T("Rendered `%s` to `%s`!"), l_nfoFileName.c_str(), l_imgFileName.c_str());
 	}
-#endif
 
 	cairo_surface_destroy(l_surface);
 
