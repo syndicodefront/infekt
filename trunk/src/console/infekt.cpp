@@ -37,10 +37,13 @@ static const struct option g_longOpts[] = {
 	{ "help",			no_argument,		0,	'h' },
 	{ "version",		no_argument,		0,	'v' },
 
-	{ "text-color",		required_argument,	0,	't' },
-	{ "back-color",		required_argument,	0,	'b' },
-	{ "ascii-color",	required_argument,	0,	'a' },
+	{ "text-color",		required_argument,	0,	'T' },
+	{ "back-color",		required_argument,	0,	'B' },
+	{ "block-color",	required_argument,	0,	'A' },
 	{ "no-glow",		no_argument,		0,	'g' },
+	{ "glow-color",		required_argument,	0,	'G' },
+	{ "block-width",	required_argument,	0,	'W' },
+	{ "block-height",	required_argument,	0,	'H' },
 
 	{0}
 };
@@ -56,14 +59,17 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 		printf("USAGE: %s [options] <input-file.nfo>\n", a_exeNameA);
 
 	printf("Available options:\n");
-	printf("\t-h, --help                 List available command line options and exit.\n");
-	printf("\t-v, --version              Output version information and exit.\n");
+	printf("  -h, --help                  List available command line options and exit.\n");
+	printf("  -v, --version               Output version information and exit.\n");
 
 	printf("Render settings:\n");
-	printf("\t-t, --text-color=<COLOR>   COLOR for regular text. Defaults to black.\n");
-	printf("\t-b, --back-color=<COLOR>   Background COLOR. Defaults to white.\n");
-	printf("\t-a, --ascii-color=<COLOR>  COLOR for ASCII art. Defaults to text-color.\n");
-	printf("\t-g, --no-glow              Disable ASCII art glow effect. Defaults to On.\n");
+	printf("  -T, --text-color <COLOR>    COLOR for regular text. Defaults to black.\n");
+	printf("  -B, --back-color <COLOR>    Background COLOR. Defaults to white.\n");
+	printf("  -A, --block-color <COLOR>   COLOR for ASCII art. Defaults to text-color.\n");
+	printf("  -g, --no-glow               Disable ASCII art glow effect. Defaults to On.\n");
+	printf("  -G, --glow-color <COLOR>    COLOR for glow effect. Defaults to block-color.\n");
+	printf("  -W, --block-width <PIXELS>  Block width. Defaults to 7.\n");
+	printf("  -H, --block-height <PIXELS> Block Height. Defaults to 12.\n");
 }
 
 #ifdef _WIN32
@@ -71,6 +77,18 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 #else
 #define OutputHelp() _OutputHelp(argv[0], NULL)
 #endif
+
+#define _CHECK_COLOR_OPT(CHAR, STRING_NAME, METHOD_NAME, EXTRA_CODE) \
+	case CHAR: \
+	if(!CNFORenderer::ParseColor(::optarg, &l_color)) \
+	{ \
+		fprintf(stderr, "ERROR: Invalid or unsupported " STRING_NAME "."); \
+		return 1; \
+	} \
+	EXTRA_CODE; \
+	l_renderer.METHOD_NAME(l_color); \
+	break;
+
 
 /************************************************************************/
 /* main()                                                               */
@@ -97,11 +115,22 @@ int main(int argc, char* argv[])
 	// Renderer instance that we are going to use:
 	CNFORenderer l_renderer;
 
+	// our defaults:
+	l_renderer.SetTextColor(_S_COLOR_RGB(0, 0, 0));
+	l_renderer.SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
+	l_renderer.SetEnableGaussShadow(true);
+
+	// keep track of changed stuff for advanced defaults:
+	bool bSetBlockColor = false, bSetGlowColor = false;
+
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, "hv", g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, "hvT:B:A:gG:W:H:", g_longOpts, &l_optIdx)) != -1)
 	{
+		S_COLOR_T l_color;
+		int l_int;
+
 		switch(l_arg)
 		{
 		case 'h':
@@ -111,11 +140,46 @@ int main(int argc, char* argv[])
 			printf("VERSION: iNFEKT v%d.%d.%d\n", INFEKT_VERSION_MAJOR, INFEKT_VERSION_MINOR, INFEKT_VERSION_REVISION);
 			printf("using cairo v%d.%d.%d", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO);
 			return 0;
+		_CHECK_COLOR_OPT('T', "text-color", SetTextColor,);
+		_CHECK_COLOR_OPT('B', "back-color", SetBackColor,);
+		_CHECK_COLOR_OPT('A', "block-color", SetArtColor, bSetBlockColor = true);
+		_CHECK_COLOR_OPT('G', "glow-color", SetGaussColor, bSetGlowColor = true);
+		case 'g':
+			l_renderer.SetEnableGaussShadow(false);
+			break;
+		case 'W':
+			l_int = atoi(::optarg);
+			if(l_int < 3 || l_int > 100)
+			{
+				fprintf(stderr, "ERROR: Invalid or unsupported block-width.");
+				return 1;
+			}
+			l_renderer.SetBlockSize(l_int, l_renderer.GetBlockHeight());
+			break;
+		case 'H':
+			l_int = atoi(::optarg);
+			if(l_int < 3 || l_int > 170)
+			{
+				fprintf(stderr, "ERROR: Invalid or unsupported block-height.");
+				return 1;
+			}
+			l_renderer.SetBlockSize(l_renderer.GetBlockWidth(), l_int);
+			break;
 		case '?':
 		default:
 			fprintf(stderr, "Try --help.");
 			return 1;
 		}
+	}
+
+	if(!bSetBlockColor)
+	{
+		l_renderer.SetArtColor(l_renderer.GetTextColor());
+	}
+
+	if(!bSetGlowColor && l_renderer.GetEnableGaussShadow())
+	{
+		l_renderer.SetGaussColor(l_renderer.GetArtColor());
 	}
 
 	// stupid UNIX doesn't have Unicode APIs.
@@ -129,9 +193,9 @@ int main(int argc, char* argv[])
 	if(::optind < argc)
 	{
 #ifdef _WIN32
-		l_nfoFileName = wargv[optind];
+		l_nfoFileName = wargv[::optind];
 #else
-		l_nfoFileName = argv[optind];
+		l_nfoFileName = argv[::optind];
 #endif
 	}
 

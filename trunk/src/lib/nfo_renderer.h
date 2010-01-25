@@ -115,6 +115,11 @@ public:
 	// various other setters & getters:
 	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_gaussShadow == nb); m_gaussShadow = nb; }
 	bool GetEnableGaussShadow() { return m_gaussShadow; }
+	void SetGaussBlurRadius(int r) {
+		if(r > 0) { m_gaussBlurRadius = r; }
+		m_padding = m_gaussBlurRadius * 2; // space for blur/shadow effect near the edges
+	}
+	int GetGaussBlurRadius() { return m_gaussBlurRadius; }
 
 	void SetBlockSize(size_t a_width, size_t a_height) { m_rendered = m_rendered &&
 		a_width == m_blockWidth && a_height == m_blockHeight; m_blockWidth = a_width; m_blockHeight = a_height; }

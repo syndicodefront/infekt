@@ -37,13 +37,14 @@ CNFORenderer::CNFORenderer()
 	m_artColor = _S_COLOR_RGB(0, 0, 0);
 
 	// non-settings derived from settings:
-	m_padding = m_gaussBlurRadius * 2; // space for blur/shadow effect near the edges
+	SetGaussBlurRadius(5);
 }
 
 
 bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 {
 	m_nfo = a_nfo;
+	m_rendered = false;
 
 	return true;
 }
@@ -335,7 +336,7 @@ void CNFORenderer::RenderText()
 		l_fontSize++;
 	}*/
 
-	cairo_text_extents_t **l_extents_cache = new cairo_text_extents_t*[m_gridData->GetRows()];
+	//cairo_text_extents_t **l_extents_cache = new cairo_text_extents_t*[m_gridData->GetRows()];
 	bool l_broken = false;
 
 	do
@@ -344,7 +345,8 @@ void CNFORenderer::RenderText()
 
 		for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
 		{
-			l_extents_cache[row] = new cairo_text_extents_t[m_gridData->GetCols()];
+			// an enabled extents cache needs  && !l_broken ^^^  removed so all rows get allocated no matter what
+			//l_extents_cache[row] = new cairo_text_extents_t[m_gridData->GetCols()];
 
 			for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
 			{
@@ -355,10 +357,11 @@ void CNFORenderer::RenderText()
 					continue;
 				}
 
-				cairo_text_extents(cr, l_block->utf8, &l_extents_cache[row][col]);
+				//cairo_text_extents(cr, l_block->utf8, &l_extents_cache[row][col]);
+				cairo_text_extents_t l_extents;
+				cairo_text_extents(cr, l_block->utf8, &l_extents);
 
-				if(l_extents_cache[row][col].width > m_blockWidth ||
-					l_extents_cache[row][col].height > m_blockHeight)
+				if(l_extents.width > m_blockWidth || l_extents.height > m_blockHeight)
 				{
 					l_broken = true;
 				}
@@ -391,10 +394,10 @@ void CNFORenderer::RenderText()
 
 			cairo_show_text(cr, l_block->utf8);
 		}
-		delete[] l_extents_cache[row];
+		//delete[] l_extents_cache[row];
 	}
 
-	delete[] l_extents_cache;
+	//delete[] l_extents_cache;
 
 	cairo_font_options_destroy(l_fontOptions);
 
@@ -424,8 +427,17 @@ bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
 {
 	int R = 0, G = 0, B = 0, A = 255;
 
-	if(ar && sscanf(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4 ||
-		sscanf(a_str, "%2x%2x%2x", &R, &G, &B) == 3)
+	if(a_str[0] == '#') a_str++;
+
+	if(ar && _stricmp(a_str, "transparent") == 0)
+	{
+		ar->R = ar->G = ar->B = 255;
+		ar->A = 0;
+		return true;
+	}
+
+	if(ar && (strlen(a_str) == 8 && sscanf(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4) ||
+		(strlen(a_str) == 6 && sscanf(a_str, "%2x%2x%2x", &R, &G, &B) == 3))
 	{
 		if(R >= 0 && R <= 255 &&
 			G >= 0 && G <= 255 &&
