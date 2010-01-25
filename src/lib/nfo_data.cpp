@@ -132,16 +132,21 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 		size_t l_prevPos = 0, l_pos = m_textContent.find_first_of(L"\r\n");
 		deque<const wstring> l_lines;
 
+		// read lines:
 		while(l_pos != wstring::npos)
 		{
-			const wstring l_line = m_textContent.substr(l_prevPos, l_pos - l_prevPos);
+			wstring l_line = m_textContent.substr(l_prevPos, l_pos - l_prevPos);
 
+			// remove \n if we found a \r\n:
 			if(m_textContent[l_pos] == L'\r' &&
 				l_pos < m_textContent.size() - 1 &&
 				m_textContent[l_pos + 1] == L'\n')
 			{
 				l_pos++;
 			}
+
+			// trim trailing whitespace:
+			while(l_line.size() && iswspace(l_line[l_line.size() - 1])) l_line.erase(l_line.size() - 1);
 
 			l_lines.push_back(l_line);
 
@@ -154,6 +159,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 			l_pos = m_textContent.find_first_of(L"\r\n", l_pos + 1);
 		}
 
+		// copy lines to grid:
 		delete m_grid;
 
 		m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen + 1, 0);
