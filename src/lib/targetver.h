@@ -2,6 +2,7 @@
 /* to be included from stdafx.h only! */
 
 #ifdef _WIN32
+#define _CRT_SECURE_NO_WARNINGS
 #define NOMINMAX
 #define WINVER		0x0500
 #define _WIN32_WINNT   0x0500

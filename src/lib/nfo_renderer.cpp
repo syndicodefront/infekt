@@ -18,17 +18,26 @@
 
 CNFORenderer::CNFORenderer()
 {
+	// reset internal flags:
 	m_gridData = NULL;
-
-	m_blockWidth = 7;
-	m_blockHeight = 12;
-	m_gaussBlurRadius = 5;
 
 	m_rendered = false;
 	m_imgSurface = NULL;
 
-	m_padding = m_gaussBlurRadius * 2; // space for blur/shadow effect near the edges
+	// default settings:
+	m_blockWidth = 7;
+	m_blockHeight = 12;
+
 	m_gaussShadow = true;
+	m_gaussBlurRadius = 5;
+	m_gaussColor = _S_COLOR_RGB(0, 0, 0xA0);
+
+	m_backColor = _S_COLOR_RGB(0xFF, 0xFF, 0xFF);
+	m_textColor = _S_COLOR_RGB(0, 0, 0);
+	m_artColor = _S_COLOR_RGB(0, 0, 0);
+
+	// non-settings derived from settings:
+	m_padding = m_gaussBlurRadius * 2; // space for blur/shadow effect near the edges
 }
 
 
@@ -189,9 +198,9 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 
 	cairo_t* cr = cairo_create(m_imgSurface);
 
-	if(a_opaqueBg)
+	if(a_opaqueBg && m_backColor.A > 0)
 	{
-		cairo_set_source_rgb(cr, 1, 1, 1);
+		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_backColor), m_backColor.A / 255.0);
 		cairo_paint(cr);
 	}
 
@@ -225,11 +234,13 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 			{
 				if(m_gaussShadow && a_gaussStep)
 				{
-					cairo_set_source_rgba(cr, 0xB6/255.0, 0x17/255.0, 0x17/255.0, l_block->alpha / 255.0);
+					// :TODO: combine alpha value from l_block + m_gaussColor
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_gaussColor), l_block->alpha / 255.0);
 				}
 				else
 				{
-					cairo_set_source_rgba(cr, 0,0,0, l_block->alpha / 255.0);
+					// // :TODO: combine alpha value from l_block + m_artColor
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_artColor), l_block->alpha / 255.0);
 				}
 				l_oldAlpha = l_block->alpha;
 			}
@@ -298,7 +309,7 @@ void CNFORenderer::RenderText()
 	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
 	cairo_font_options_set_hint_style(l_fontOptions, CAIRO_HINT_STYLE_NONE);
 
-	cairo_set_source_rgba(cr, 0, 0, 0, 1);
+	cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_textColor), m_textColor.A / 255.0);
 
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, l_fontOptions);
@@ -409,7 +420,41 @@ size_t CNFORenderer::GetHeight()
 }
 
 
+bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
+{
+	int R = 0, G = 0, B = 0, A = 255;
+
+	if(ar && sscanf(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4 ||
+		sscanf(a_str, "%2x%2x%2x", &R, &G, &B) == 3)
+	{
+		if(R >= 0 && R <= 255 &&
+			G >= 0 && G <= 255 &&
+			B >= 0 && B <= 255 &&
+			A >= 0 && A <= 255)
+		{
+			ar->R = (unsigned char)R;
+			ar->G = (unsigned char)G;
+			ar->B = (unsigned char)B;
+			ar->A = (unsigned char)A;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+bool CNFORenderer::ParseColor(const wchar_t* a_str, S_COLOR_T* ar)
+{
+	const std::string l_color = CUtil::FromWideStr(a_str, CP_UTF8);
+	return ParseColor(l_color.c_str(), ar);
+}
+
+
 CNFORenderer::~CNFORenderer()
 {
 	delete m_gridData;
 }
+
+

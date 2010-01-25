@@ -34,8 +34,14 @@
 /************************************************************************/
 
 static const struct option g_longOpts[] = {
-	{ "help",		no_argument,	0,	'h' },
-	{ "version",	no_argument,	0,	'v' },
+	{ "help",			no_argument,		0,	'h' },
+	{ "version",		no_argument,		0,	'v' },
+
+	{ "text-color",		required_argument,	0,	't' },
+	{ "back-color",		required_argument,	0,	'b' },
+	{ "ascii-color",	required_argument,	0,	'a' },
+	{ "no-glow",		no_argument,		0,	'g' },
+
 	{0}
 };
 
@@ -50,8 +56,14 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 		printf("USAGE: %s [options] <input-file.nfo>\n", a_exeNameA);
 
 	printf("Available options:\n");
-	printf("\t-h, --help\t\tList available command line options and exit\n");
-	printf("\t-v, --version\t\tOutput version information and exit\n");
+	printf("\t-h, --help                 List available command line options and exit.\n");
+	printf("\t-v, --version              Output version information and exit.\n");
+
+	printf("Render settings:\n");
+	printf("\t-t, --text-color=<COLOR>   COLOR for regular text. Defaults to black.\n");
+	printf("\t-b, --back-color=<COLOR>   Background COLOR. Defaults to white.\n");
+	printf("\t-a, --ascii-color=<COLOR>  COLOR for ASCII art. Defaults to text-color.\n");
+	printf("\t-g, --no-glow              Disable ASCII art glow effect. Defaults to On.\n");
 }
 
 #ifdef _WIN32
@@ -125,7 +137,7 @@ int main(int argc, char* argv[])
 
 	if(l_nfoFileName.empty())
 	{
-		fprintf(stderr, "Missing argument: Please specify <input-file.nfo>");
+		fprintf(stderr, "Missing argument: Please specify <input-file.nfo> or try --help");
 		return 1;
 	}
 
