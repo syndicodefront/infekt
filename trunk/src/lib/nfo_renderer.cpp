@@ -29,7 +29,6 @@ CNFORenderer::CNFORenderer()
 	m_blockHeight = 12;
 
 	m_gaussShadow = true;
-	m_gaussBlurRadius = 5;
 	m_gaussColor = _S_COLOR_RGB(0, 0, 0xA0);
 
 	m_backColor = _S_COLOR_RGB(0xFF, 0xFF, 0xFF);
@@ -37,7 +36,7 @@ CNFORenderer::CNFORenderer()
 	m_artColor = _S_COLOR_RGB(0, 0, 0);
 
 	// non-settings derived from settings:
-	SetGaussBlurRadius(5);
+	SetGaussBlurRadius(10);
 }
 
 
@@ -301,6 +300,13 @@ void CNFORenderer::RenderText()
 	double l_off_x = 0, l_off_y = 0;
 
 	cairo_t* cr = cairo_create(m_imgSurface);
+
+	/*if(m_gaussShadow)
+	{
+		l_off_y = -(m_gaussBlurRadius / 2);
+		if(m_gaussBlurRadius < 5) l_off_y--;
+		l_off_x = l_off_y;
+	}*/
 
 	l_off_x += m_padding;
 	l_off_y += m_padding;

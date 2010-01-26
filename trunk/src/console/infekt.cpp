@@ -44,6 +44,7 @@ static const struct option g_longOpts[] = {
 	{ "glow-color",		required_argument,	0,	'G' },
 	{ "block-width",	required_argument,	0,	'W' },
 	{ "block-height",	required_argument,	0,	'H' },
+	{ "glow-radius",	required_argument,	0,	'R' },
 
 	{0}
 };
@@ -70,6 +71,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -G, --glow-color <COLOR>    COLOR for glow effect. Defaults to block-color.\n");
 	printf("  -W, --block-width <PIXELS>  Block width. Defaults to 7.\n");
 	printf("  -H, --block-height <PIXELS> Block Height. Defaults to 12.\n");
+	printf("  -R, --glow-radius <PIXELS>  Glow effect radius. Defaults to 10.\n");
 }
 
 #ifdef _WIN32
@@ -119,6 +121,7 @@ int main(int argc, char* argv[])
 	l_renderer.SetTextColor(_S_COLOR_RGB(0, 0, 0));
 	l_renderer.SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
 	l_renderer.SetEnableGaussShadow(true);
+	l_renderer.SetGaussBlurRadius(10);
 
 	// keep track of changed stuff for advanced defaults:
 	bool bSetBlockColor = false, bSetGlowColor = false;
@@ -126,7 +129,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, "hvT:B:A:gG:W:H:", g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, "hvT:B:A:gG:W:H:R:", g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -164,6 +167,15 @@ int main(int argc, char* argv[])
 				return 1;
 			}
 			l_renderer.SetBlockSize(l_renderer.GetBlockWidth(), l_int);
+			break;
+		case 'R':
+			l_int = atoi(::optarg);
+			if(l_int < 1 || l_int > 1000)
+			{
+				fprintf(stderr, "ERROR: Invalid or unsupported glow-radius.");
+				return 1;
+			}
+			l_renderer.SetGaussBlurRadius(l_int);
 			break;
 		case '?':
 		default:
