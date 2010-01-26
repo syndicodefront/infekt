@@ -77,14 +77,19 @@ void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
 
 			for(int z = 0; z < kernelSize; z++)
 			{
-				if(read >= start && read < start + width)
-				{
-					uint8_t* srcptr = src + read * 4;
-					bsum += mult[z][*(srcptr + 0)];
-					gsum += mult[z][*(srcptr + 1)];
-					rsum += mult[z][*(srcptr + 2)];
-					asum += mult[z][*(srcptr + 3)];
-				}
+				int idx = read;
+
+				if(read < start)
+					idx = start;
+				else if(read > start + width - 1)
+					idx = start + width - 1;
+
+				uint8_t* srcptr = src + idx * 4;
+				bsum += mult[z][*(srcptr + 0)];
+				gsum += mult[z][*(srcptr + 1)];
+				rsum += mult[z][*(srcptr + 2)];
+				asum += mult[z][*(srcptr + 3)];
+
 				read++;
 			}
 			b2[index] = (bsum / kernelSum);
@@ -110,13 +115,18 @@ void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
 			tempy = y;
 			for(int z = 0; z < kernelSize; z++)
 			{
-				if(tempy >= 0 && tempy < height)
-				{
-					bsum += mult[z][b2[read]];
-					gsum += mult[z][g2[read]];
-					rsum += mult[z][r2[read]];
-					asum += mult[z][a2[read]];
-				}
+				int idx = read;
+
+				if(tempy < 0)
+					idx = j;
+				else if(tempy > height -1)
+					idx = wh - (width - j);
+
+				bsum += mult[z][b2[idx]];
+				gsum += mult[z][g2[idx]];
+				rsum += mult[z][r2[idx]];
+				asum += mult[z][a2[idx]];
+
 				read += width;
 				++tempy;
 			}

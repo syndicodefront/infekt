@@ -216,7 +216,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 
 	cairo_set_antialias(cr, CAIRO_ANTIALIAS_SUBPIXEL);
 
-	int l_oldAlpha = 255;
+	int l_oldAlpha = 0;
 	cairo_set_source_rgba(cr, 0, 0, 0, l_oldAlpha);
 
 	for(size_t row = 0; row < m_gridData->GetRows(); row++)
@@ -234,13 +234,11 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 			{
 				if(m_gaussShadow && a_gaussStep)
 				{
-					// :TODO: combine alpha value from l_block + m_gaussColor
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_gaussColor), l_block->alpha / 255.0);
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_gaussColor), (l_block->alpha / 255.0) * (m_gaussColor.A / 255.0));
 				}
 				else
 				{
-					// // :TODO: combine alpha value from l_block + m_artColor
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_artColor), l_block->alpha / 255.0);
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_artColor), (l_block->alpha / 255.0) * (m_artColor.A / 255.0));
 				}
 				l_oldAlpha = l_block->alpha;
 			}
