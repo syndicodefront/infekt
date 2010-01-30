@@ -35,6 +35,7 @@
 #include <treeview.h>
 
 /* standard / windows headers */
+#include <inttypes.h>
 #include <stdio.h>
 #include <io.h>
 #include <string>

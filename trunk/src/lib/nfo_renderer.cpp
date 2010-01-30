@@ -29,13 +29,12 @@ CNFORenderer::CNFORenderer()
 	m_blockHeight = 12;
 
 	m_gaussShadow = true;
-	m_gaussColor = _S_COLOR_RGB(0, 0, 0xA0);
+	m_gaussColor = _S_COLOR_RGB(0, 0, 0);
 
 	m_backColor = _S_COLOR_RGB(0xFF, 0xFF, 0xFF);
 	m_textColor = _S_COLOR_RGB(0, 0, 0);
 	m_artColor = _S_COLOR_RGB(0, 0, 0);
 
-	// non-settings derived from settings:
 	SetGaussBlurRadius(10);
 }
 

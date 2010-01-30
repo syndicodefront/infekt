@@ -17,8 +17,12 @@
 #define _STDAFX_H
 
 #include "targetver.h"
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 /* standard / system headers */
+#include <inttypes.h>
 #include <stdio.h>
 #include <io.h>
 #include <string>
