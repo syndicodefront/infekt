@@ -1,17 +1,18 @@
+/**
+ * Copyright (C) 2010 cxxjoe
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ **/
 
-#ifndef MIN
-#define MIN(a, b) ((a < b) ? a : b)
-#endif
-#ifndef MAX
-#define MAX(a, b) ((a > b) ? a : b)
-#endif
-
-
-typedef unsigned char uint8_t;
-typedef unsigned int uint32_t;
-
-
-void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
+static void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
 {
 	int kernelSize;
 	int kernelSum = 0;
@@ -45,8 +46,13 @@ void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
 		}
 	}
 
-	if(cairo_surface_status (surface))
+	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS)
+	{
+		delete[] kernel;
+		for(int i = 0; i < kernelSize; i++) delete[] mult[i];
+		delete[] mult;
 		return;
+	}
 
 	int width, height;
 	uint8_t *src;
@@ -134,6 +140,14 @@ void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
 			*(ptr++) = (asum / kernelSum) << 24 | (rsum / kernelSum) << 16 | (gsum / kernelSum) << 8 | bsum / kernelSum;
 		}
 	}
+
+	delete[] kernel;
+	for(int i = 0; i < kernelSize; i++) delete[] mult[i];
+	delete[] mult;
+	delete[] b2;
+	delete[] g2;
+	delete[] r2;
+	delete[] a2;
 
 	cairo_surface_mark_dirty(surface);
 }
