@@ -72,6 +72,9 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -W, --block-width <PIXELS>  Block width. Defaults to 7.\n");
 	printf("  -H, --block-height <PIXELS> Block Height. Defaults to 12.\n");
 	printf("  -R, --glow-radius <PIXELS>  Glow effect radius. Defaults to 10.\n");
+
+	// :TODO: option for output filename.
+	// :TODO: option for input charset.
 }
 
 #ifdef _WIN32
