@@ -17,6 +17,13 @@
 
 #define NFOVWR_CTRL_CLASS_NAME _T("NfoViewCtrl")
 
+#ifndef WM_MOUSEHWHEEL
+// Windows Vista & higher only...
+#define WM_MOUSEHWHEEL 0x020E
+#endif
+#ifndef SPI_GETWHEELSCROLLCHARS
+#define SPI_GETWHEELSCROLLCHARS 0x006C
+#endif
 
 CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORenderer()
 {
@@ -34,10 +41,9 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	l_class.cbSize = sizeof(WNDCLASSEX);
 
 	l_class.hInstance = m_instance;
-	l_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	l_class.style = CS_HREDRAW | CS_VREDRAW;
 	l_class.lpszClassName = NFOVWR_CTRL_CLASS_NAME;
 	l_class.lpfnWndProc = &_WindowProc;
-	l_class.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
 
 	if(RegisterClassEx(&l_class) == 0)
 	{
@@ -51,7 +57,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 
 	m_hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,
 		NFOVWR_CTRL_CLASS_NAME, NULL,
-		WS_CHILD | WS_BORDER | WS_VISIBLE,
+		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_BORDER,
 		m_left, m_top, m_width, m_height,
 		m_parent, NULL,
 		m_instance, NULL);
@@ -63,34 +69,44 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 
 	SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (INT_PTR)this);
 
-	m_scrollH = CreateWindowEx(0,
-		_T("SCROLLBAR"), NULL,
-		WS_CHILD | SBS_HORZ | SBS_BOTTOMALIGN,
-		0, 0, m_width, CW_USEDEFAULT,
-		m_hwnd, NULL,
-		m_instance, NULL);
+	UpdateScrollbars();
 
+	return true;
+}
+
+
+void CNFOViewControl::UpdateScrollbars()
+{
+	bool l_needsV, l_needsH;
+	int l_vWidth, l_hHeight;
+
+	// init struct:
 	SCROLLINFO l_si = {0};
 	l_si.cbSize = sizeof(SCROLLINFO);
 
-	l_si.fMask  = SIF_RANGE;
+	// get scroll bar dimensions:
+	l_vWidth = GetSystemMetrics(SM_CXVSCROLL);
+	l_hHeight = GetSystemMetrics(SM_CXHSCROLL);
+
+	// determine which scrollbars we need:
+	l_needsH = (m_width - l_vWidth < (int)GetWidth());
+	l_needsV = (m_height - l_hHeight < (int)GetHeight());
+	// ... we do this to add some extra space between
+	// content and scrollbars for nicer looks.
+
+	// set common flags:
+	l_si.fMask = SIF_RANGE | SIF_PAGE;
 	l_si.nMin = 0;
-	l_si.nMax = GetWidth();
-	SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE); 
 
-	m_scrollV = CreateWindowEx(0,
-		_T("SCROLLBAR"), NULL,
-		WS_CHILD | SBS_VERT | SBS_RIGHTALIGN,
-		0, 0, CW_USEDEFAULT, m_height,
-		m_hwnd, NULL,
-		m_instance, NULL);
+	// update horizontal scrollbar info:
+	l_si.nPage = m_width / m_blockWidth;
+	l_si.nMax = GetWidth() / m_blockWidth + (l_needsV ? 2 : 0);
+	SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
 
-	l_si.fMask  = SIF_RANGE;
-	l_si.nMin = 0;
-	l_si.nMax = GetHeight();
-	SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE); 
-
-	return true;
+	// update vertical scrollbar info:
+	l_si.nPage = m_height / m_blockHeight;
+	l_si.nMax = GetHeight() / m_blockHeight + (l_needsH ? 1 : 0);
+	SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
 }
 
 
@@ -99,20 +115,145 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg)
 	{
 	case WM_PAINT:
+		OnPaint();
+		return 0;
+	case WM_ERASEBKGND:
+		return 0;
+	case WM_VSCROLL:
+		HandleScrollEvent(SB_VERT, LOWORD(wParam), 0);
+		return 0;
+	case WM_HSCROLL:
+		HandleScrollEvent(SB_HORZ, LOWORD(wParam), 0);
+		return 0;
+	case WM_MOUSEWHEEL:
 		{
-			PAINTSTRUCT ps;
-			HDC dc;
-
-			dc = BeginPaint(m_hwnd, &ps);
-			
-			cairo_surface_t *surface = cairo_win32_surface_create (dc);
-			DrawToSurface(surface, 0, 0, 0, 0, m_width, m_height);
-			cairo_surface_destroy (surface);
-
-			EndPaint(m_hwnd, &ps);
+			int l_delta = GET_WHEEL_DELTA_WPARAM(wParam);
+			UINT l_lines;
+			SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0);
+			HandleScrollEvent(SB_VERT, INT_MIN, -(l_delta / WHEEL_DELTA) * l_lines);
 		}
+		return 0;
+	case WM_MOUSEHWHEEL:
+		{
+			int l_delta = GET_WHEEL_DELTA_WPARAM(wParam);
+			UINT l_chars;
+			SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0);
+			HandleScrollEvent(SB_HORZ, INT_MIN, -(l_delta / WHEEL_DELTA) * l_chars);
+		}
+		// Source: http://msdn.microsoft.com/en-us/library/ms997498.aspx#mshrdwre_topic2
+		// The MSDN page for WM_MOUSEHWHEEL says "return zero" though... wait till someone complains.
+		return TRUE;
+
 	default:
 		return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
+	}
+}
+
+
+void CNFOViewControl::OnPaint()
+{
+	// paint/dc helper business:
+	HDC l_dc;
+	PAINTSTRUCT l_ps;
+	cairo_surface_t *l_surface;
+
+	// get scroll position business:
+	SCROLLINFO l_si = {0};
+	int l_x, l_y;
+
+	l_si.cbSize = sizeof(l_si);
+	l_si.fMask = SIF_POS;
+
+	GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
+	l_x = l_si.nPos;
+
+	GetScrollInfo (m_hwnd, SB_VERT, &l_si);
+	l_y = l_si.nPos;
+
+	// paint!
+	l_dc = BeginPaint(m_hwnd, &l_ps);
+	l_surface = cairo_win32_surface_create(l_dc);
+
+	// erase the background if necessary:
+	if(l_ps.fErase)
+	{
+		cairo_t* l_cr = cairo_create(l_surface);
+		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(m_backColor));
+		cairo_paint(l_cr);
+		cairo_destroy(l_cr);
+	}
+
+	// draw draw draw fight the powa!
+	DrawToSurface(l_surface, 0, 0, l_x * m_blockWidth, l_y * m_blockHeight, m_width, m_height);
+
+	cairo_surface_destroy(l_surface);
+	EndPaint(m_hwnd, &l_ps);
+}
+
+
+void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
+{
+	int l_prevPos;
+
+	SCROLLINFO l_si = {0};
+	l_si.cbSize = sizeof(SCROLLINFO);
+	l_si.fMask = SIF_ALL;
+
+	// Save the position for comparison later on:
+	GetScrollInfo(m_hwnd, a_dir, &l_si);
+	l_prevPos = l_si.nPos;
+
+	switch(a_event)
+	{
+	case INT_MIN:
+		l_si.nPos += a_change;
+		break;
+
+	case SB_TOP: // user hit the HOME keyboard key
+		l_si.nPos = l_si.nMin;
+		break;
+
+	case SB_BOTTOM: // user hit the END keyboard key
+		l_si.nPos = l_si.nMax;
+		break;
+
+	case SB_LINEUP: // user clicked the top arrow
+	//case SB_LINELEFT: // user clicked left arrow (same value)
+		l_si.nPos -= 1;
+		break;
+
+	case SB_LINEDOWN: // user clicked the bottom arrow
+	//case SB_LINERIGHT: // user clicked right arrow (same value)
+		l_si.nPos += 1;
+		break;
+
+	case SB_PAGEUP: // user clicked the scroll bar shaft above the scroll box
+	//case SB_PAGELEFT: // user clicked the scroll bar shaft left of the scroll box (same value)
+		l_si.nPos -= l_si.nPage;
+		break;
+
+	case SB_PAGEDOWN: // user clicked the scroll bar shaft below the scroll box
+	//case SB_PAGERIGHT: // user clicked the scroll bar shaft right of the scroll box (same value)
+		l_si.nPos += l_si.nPage;
+		break;
+
+	case SB_THUMBTRACK: // user dragged the scroll box
+		l_si.nPos = l_si.nTrackPos;
+		break;
+	}
+
+	// Set the position and then retrieve it.  Due to adjustments
+	//   by Windows it may not be the same as the value set.
+	l_si.fMask = SIF_POS;
+	SetScrollInfo(m_hwnd, a_dir, &l_si, TRUE);
+	GetScrollInfo(m_hwnd, a_dir, &l_si);
+
+	// If the position has changed, scroll the window:
+	if(l_si.nPos != l_prevPos)
+	{
+		ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? m_blockWidth * (l_prevPos - l_si.nPos) : 0),
+			(a_dir == SB_VERT ? m_blockHeight * (l_prevPos - l_si.nPos) : 0),
+			NULL, NULL);
 	}
 }
 
