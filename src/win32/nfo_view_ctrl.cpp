@@ -62,6 +62,9 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		m_parent, NULL,
 		m_instance, NULL);
 
+	// :TODO: allow window to receive focus.
+	// :TODO: allow text selection...
+
 	if(!m_hwnd)
 	{
 		return false;
@@ -127,18 +130,22 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_MOUSEWHEEL:
 		{
-			int l_delta = GET_WHEEL_DELTA_WPARAM(wParam);
-			UINT l_lines;
-			SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0);
-			HandleScrollEvent(SB_VERT, INT_MIN, -(l_delta / WHEEL_DELTA) * l_lines);
+			UINT l_lines = 0;
+			if(SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0))
+			{
+				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+				HandleScrollEvent(SB_VERT, INT_MIN, -l_delta * l_lines);
+			}
 		}
 		return 0;
-	case WM_MOUSEHWHEEL:
+	case WM_MOUSEHWHEEL: // Windows Vista & higher only...
 		{
-			int l_delta = GET_WHEEL_DELTA_WPARAM(wParam);
-			UINT l_chars;
-			SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0);
-			HandleScrollEvent(SB_HORZ, INT_MIN, -(l_delta / WHEEL_DELTA) * l_chars);
+			UINT l_chars = 0;
+			if(SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0))
+			{
+				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+				HandleScrollEvent(SB_HORZ, INT_MIN, -l_delta * l_chars);
+			}
 		}
 		// Source: http://msdn.microsoft.com/en-us/library/ms997498.aspx#mshrdwre_topic2
 		// The MSDN page for WM_MOUSEHWHEEL says "return zero" though... wait till someone complains.
@@ -208,35 +215,28 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	case INT_MIN:
 		l_si.nPos += a_change;
 		break;
-
 	case SB_TOP: // user hit the HOME keyboard key
 		l_si.nPos = l_si.nMin;
 		break;
-
 	case SB_BOTTOM: // user hit the END keyboard key
 		l_si.nPos = l_si.nMax;
 		break;
-
 	case SB_LINEUP: // user clicked the top arrow
 	//case SB_LINELEFT: // user clicked left arrow (same value)
 		l_si.nPos -= 1;
 		break;
-
 	case SB_LINEDOWN: // user clicked the bottom arrow
 	//case SB_LINERIGHT: // user clicked right arrow (same value)
 		l_si.nPos += 1;
 		break;
-
 	case SB_PAGEUP: // user clicked the scroll bar shaft above the scroll box
 	//case SB_PAGELEFT: // user clicked the scroll bar shaft left of the scroll box (same value)
 		l_si.nPos -= l_si.nPage;
 		break;
-
 	case SB_PAGEDOWN: // user clicked the scroll bar shaft below the scroll box
 	//case SB_PAGERIGHT: // user clicked the scroll bar shaft right of the scroll box (same value)
 		l_si.nPos += l_si.nPage;
 		break;
-
 	case SB_THUMBTRACK: // user dragged the scroll box
 		l_si.nPos = l_si.nTrackPos;
 		break;
