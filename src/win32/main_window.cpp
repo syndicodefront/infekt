@@ -40,7 +40,7 @@ BOOL CMainWindowDialog::OnInitDialog()
 
 	c = new CNFOViewControl(g_hInstance, GetHwnd());
 	c->AssignNFO(n);
-	c->CreateControl(0, 0, 500, 500);
+	c->CreateControl(50, 50, 450, 500);
 
 	return TRUE;
 }

@@ -28,6 +28,10 @@ protected:
 	HWND m_hwnd;
 	HWND m_scrollH, m_scrollV;
 
+	void UpdateScrollbars();
+	void HandleScrollEvent(int a_dir, int a_event, int a_change);
+	void OnPaint();
+
 	static LRESULT CALLBACK _WindowProc(HWND, UINT, WPARAM, LPARAM);
 	LRESULT WindowProc(UINT, WPARAM, LPARAM);
 public:
