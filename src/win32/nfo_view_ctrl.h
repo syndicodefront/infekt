@@ -12,25 +12,30 @@
  * GNU General Public License for more details.
  **/
 
-#ifndef _APP_H
-#define _APP_H
+#ifndef _NFO_VIEWCTRL_H
+#define _NFO_VIEWCTRL_H
 
-#include "resource.h"
-#include "main_window.h"
-#include "nfo_data.h"
 #include "nfo_renderer.h"
-#include "nfo_view_ctrl.h"
 
-class CDialogApp : public CWinApp
+
+class CNFOViewControl : public CNFORenderer
 {
-public:
-	CDialogApp(); 
-	virtual ~CDialogApp();
-	virtual BOOL InitInstance();
 protected:
-	CMainWindowDialog m_mainWindow;
+	HINSTANCE m_instance;
+	HWND m_parent;
+	int m_left, m_top;
+	int m_width, m_height;
+	HWND m_hwnd;
+	HWND m_scrollH, m_scrollV;
+
+	static LRESULT CALLBACK _WindowProc(HWND, UINT, WPARAM, LPARAM);
+	LRESULT WindowProc(UINT, WPARAM, LPARAM);
+public:
+	CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent);
+	virtual ~CNFOViewControl();
+
+	bool CreateControl(int a_left, int a_top, int a_width, int a_height);
 };
 
-extern HINSTANCE g_hInstance;
 
-#endif /* !_APP_H */
+#endif /* !_NFO_VIEWCTRL_H */
