@@ -18,32 +18,37 @@
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' " \
 	"version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszCommandLine, int nShowCmd)
 {
 	g_hInstance = hInstance;
 
 	// Start Win32++
-	CDialogApp theApp;
+	CNFOApp theApp;
 
 	// Run the application
 	return theApp.Run();
 }
 
-CDialogApp::CDialogApp() : m_mainWindow(IDD_DLG_MAIN)
+
+CNFOApp::CNFOApp()
 {
 }
 
-BOOL CDialogApp::InitInstance()
-{
-	m_mainWindow.DoModal();
 
-	// End the program:
-	::PostQuitMessage(0);
+BOOL CNFOApp::InitInstance()
+{
+	if(!m_Frame.Create())
+	{
+		::MessageBox(NULL, _T("Failed to create Frame window"), _T("ERROR"), MB_ICONERROR);
+		return FALSE;
+	}
 
 	return TRUE;
 }
 
-CDialogApp::~CDialogApp()
+
+CNFOApp::~CNFOApp()
 {
 }
 

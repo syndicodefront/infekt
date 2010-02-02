@@ -12,23 +12,21 @@
  * GNU General Public License for more details.
  **/
 
-#ifndef _APP_H
-#define _APP_H
+#ifndef _MAIN_VIEW_H
+#define _MAIN_VIEW_H
 
-#include "main_frame.h"
+#include "nfo_view_ctrl.h"
 
-class CNFOApp : public CWinApp
+class CViewContainer : public CWnd
 {
 public:
-	CNFOApp(); 
-	virtual ~CNFOApp();
-	virtual BOOL InitInstance();
+	CViewContainer();
+	virtual ~CViewContainer();
 
-	CMainFrame& GetMainFrame() { return m_Frame; }
 protected:
-	CMainFrame m_Frame;
+	PNFOViewControl m_renderControl;
+
+	virtual void OnCreate();
 };
 
-extern HINSTANCE g_hInstance;
-
-#endif /* !_APP_H */
+#endif /* !_MAIN_VIEW_H */

@@ -121,7 +121,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		OnPaint();
 		return 0;
 	case WM_ERASEBKGND:
-		return 0;
+		return 0; // we erase the background in OnPaint, if necessary.
 	case WM_VSCROLL:
 		HandleScrollEvent(SB_VERT, LOWORD(wParam), 0);
 		return 0;
@@ -168,7 +168,7 @@ void CNFOViewControl::OnPaint()
 	SCROLLINFO l_si = {0};
 	int l_x, l_y;
 
-	l_si.cbSize = sizeof(l_si);
+	l_si.cbSize = sizeof(SCROLLINFO);
 	l_si.fMask = SIF_POS;
 
 	GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
