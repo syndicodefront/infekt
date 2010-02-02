@@ -50,6 +50,11 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 
 bool CNFORenderer::CalculateGrid()
 {
+	if(!m_nfo || !m_nfo->HasData())
+	{
+		return false;
+	}
+
 	CRenderGridBlock l_emptyBlock;
 	l_emptyBlock.charCode = 0;
 	l_emptyBlock.shape = RGS_NO_BLOCK;

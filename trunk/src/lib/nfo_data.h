@@ -30,6 +30,8 @@ public:
 #endif
 	bool LoadFromMemory(const unsigned char* a_data, size_t a_dataLen);
 
+	bool HasData() const { return m_loaded; }
+
 	const std::wstring& GetLastErrorDescription();
 	size_t GetGridWidth();
 	size_t GetGridHeight();
@@ -39,6 +41,7 @@ protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;
 	TwoDimVector<wchar_t> *m_grid;
+	bool m_loaded;
 
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
 };

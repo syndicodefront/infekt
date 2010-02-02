@@ -22,6 +22,7 @@ using namespace std;
 CNFOData::CNFOData()
 {
 	m_grid = NULL;
+	m_loaded = false;
 }
 
 
@@ -110,6 +111,8 @@ bool CNFOData::LoadFromFile(const string& a_fileName)
 
 	fclose(l_file);
 
+	m_loaded = l_loaded;
+
 	return l_loaded;
 }
 
@@ -117,6 +120,8 @@ bool CNFOData::LoadFromFile(const string& a_fileName)
 bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 {
 	bool l_loaded = false;
+
+	m_loaded = false;
 
 	l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
 

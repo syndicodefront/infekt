@@ -39,7 +39,11 @@ public:
 	virtual ~CNFOViewControl();
 
 	bool CreateControl(int a_left, int a_top, int a_width, int a_height);
+	HWND GetHwnd() const { return m_hwnd; }
 };
+
+
+typedef boost::shared_ptr<CNFOViewControl> PNFOViewControl;
 
 
 #endif /* !_NFO_VIEWCTRL_H */
