@@ -46,4 +46,13 @@ public:
 typedef boost::shared_ptr<CNFOViewControl> PNFOViewControl;
 
 
+#ifndef WM_MOUSEHWHEEL
+// Windows Vista & higher only...
+#define WM_MOUSEHWHEEL 0x020E
+#endif
+#ifndef SPI_GETWHEELSCROLLCHARS
+#define SPI_GETWHEELSCROLLCHARS 0x006C
+#endif
+
+
 #endif /* !_NFO_VIEWCTRL_H */

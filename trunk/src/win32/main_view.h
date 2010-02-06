@@ -23,10 +23,14 @@ public:
 	CViewContainer();
 	virtual ~CViewContainer();
 
+	void ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg);
 protected:
 	PNFOViewControl m_renderControl;
 
 	virtual void OnCreate();
+	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+	void OnAfterResize();
 };
 
 #endif /* !_MAIN_VIEW_H */

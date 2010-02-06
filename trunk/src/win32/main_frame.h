@@ -28,9 +28,10 @@ protected:
 
 	//virtual void OnClose();
 	//virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
-	//virtual void OnInitialUpdate();
+	virtual void OnInitialUpdate();
 	//virtual LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 	virtual void SetupToolbar();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	//virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
