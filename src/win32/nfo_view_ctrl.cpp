@@ -17,13 +17,6 @@
 
 #define NFOVWR_CTRL_CLASS_NAME _T("NfoViewCtrl")
 
-#ifndef WM_MOUSEHWHEEL
-// Windows Vista & higher only...
-#define WM_MOUSEHWHEEL 0x020E
-#endif
-#ifndef SPI_GETWHEELSCROLLCHARS
-#define SPI_GETWHEELSCROLLCHARS 0x006C
-#endif
 
 CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORenderer()
 {
@@ -150,6 +143,11 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// Source: http://msdn.microsoft.com/en-us/library/ms997498.aspx#mshrdwre_topic2
 		// The MSDN page for WM_MOUSEHWHEEL says "return zero" though... wait till someone complains.
 		return TRUE;
+	case WM_SIZE:
+		m_width = LOWORD(lParam);
+		m_height = HIWORD(lParam);
+		UpdateScrollbars();
+		return 0;
 
 	default:
 		return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -210,6 +208,10 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	GetScrollInfo(m_hwnd, a_dir, &l_si);
 	l_prevPos = l_si.nPos;
 
+#if (SB_LINEUP != SB_LINELEFT) || (SB_LINEDOWN != SB_LINERIGHT) || (SB_PAGEDOWN != SB_PAGERIGHT) || (SB_PAGEUP != SB_PAGELEFT)
+#error ZOMG!
+#endif
+
 	switch(a_event)
 	{
 	case INT_MIN:
@@ -221,20 +223,16 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	case SB_BOTTOM: // user hit the END keyboard key
 		l_si.nPos = l_si.nMax;
 		break;
-	case SB_LINEUP: // user clicked the top arrow
-	//case SB_LINELEFT: // user clicked left arrow (same value)
+	case SB_LINEUP: // user clicked the top/left arrow
 		l_si.nPos -= 1;
 		break;
-	case SB_LINEDOWN: // user clicked the bottom arrow
-	//case SB_LINERIGHT: // user clicked right arrow (same value)
+	case SB_LINEDOWN: // user clicked the bottom/right arrow
 		l_si.nPos += 1;
 		break;
-	case SB_PAGEUP: // user clicked the scroll bar shaft above the scroll box
-	//case SB_PAGELEFT: // user clicked the scroll bar shaft left of the scroll box (same value)
+	case SB_PAGEUP: // user clicked the scroll bar shaft above/left of the scroll box
 		l_si.nPos -= l_si.nPage;
 		break;
-	case SB_PAGEDOWN: // user clicked the scroll bar shaft below the scroll box
-	//case SB_PAGERIGHT: // user clicked the scroll bar shaft right of the scroll box (same value)
+	case SB_PAGEDOWN: // user clicked the scroll bar shaft below/right of the scroll box
 		l_si.nPos += l_si.nPage;
 		break;
 	case SB_THUMBTRACK: // user dragged the scroll box
