@@ -21,14 +21,24 @@
 class CNFOHyperLink
 {
 public:
-	CNFOHyperLink();
+	CNFOHyperLink(int a_linkID, const std::wstring& a_href, size_t a_row,
+		size_t a_col, size_t a_len);
 	virtual ~CNFOHyperLink();
 
+	void SetHref(const std::wstring& a_href);
+	const int GetLinkID() const { return m_linkID; }
+	const std::wstring& GetHref() const { return m_href; }
+	const size_t GetRow() const { return m_row; }
+	const size_t GetColStart() const { return m_colStart; }
+	const size_t GetColEnd() const { return m_colEnd; }
+	const size_t GetLength() const { return m_colEnd - m_colStart; }
 protected:
 	int m_linkID;
 	std::wstring m_href;
 	size_t m_row;
 	size_t m_colStart, m_colEnd;
+private:
+	CNFOHyperLink() {};
 };
 
 
@@ -52,6 +62,8 @@ public:
 	size_t GetGridHeight();
 	wchar_t GetGridChar(size_t a_row, size_t a_col);
 	char* GetGridCharUtf8(size_t a_row, size_t a_col);
+
+	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 
 	static bool FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
 		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);

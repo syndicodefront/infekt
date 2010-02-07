@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\lib\gutf8.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\console\infekt.cpp"
 				>
 			</File>

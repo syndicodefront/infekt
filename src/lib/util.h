@@ -63,9 +63,19 @@ private:
 };
 
 
+/* gutf8.c exports */
+extern "C"
+{
+	int g_utf8_validate(const char *str, size_t max_len, const char **end);
+	char *g_utf8_find_next_char(const char *p, const char *end = NULL);
+	size_t g_utf8_strlen(const char *p, long max_bytes);
+}
+
+
 /* useful macros */
 #ifdef HAVE_BOOST
 #define FORMAT(FORMAT_FORMAT, FORMAT_DATA) boost::str(boost::wformat(FORMAT_FORMAT) % FORMAT_DATA)
 #endif
+
 
 #endif /* !_UTIL_H */
