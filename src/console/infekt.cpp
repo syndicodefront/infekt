@@ -22,11 +22,13 @@
 #define _T(STR) STR
 #define _tprintf printf
 #define _ftprintf fprintf
+#define _tstring string
 #else
 #ifndef _UNICODE
 #error This project requires unicode compiler settings.
 #endif
 #include <tchar.h>
+#define _tstring wstring
 #endif
 
 /************************************************************************/
@@ -42,6 +44,8 @@ static const struct option g_longOpts[] = {
 	{ "block-color",	required_argument,	0,	'A' },
 	{ "no-glow",		no_argument,		0,	'g' },
 	{ "glow-color",		required_argument,	0,	'G' },
+	{ "link-color",		required_argument,	0,	'U' },
+	{ "no-link-underl",	no_argument,		0,	'u' },
 	{ "block-width",	required_argument,	0,	'W' },
 	{ "block-height",	required_argument,	0,	'H' },
 	{ "glow-radius",	required_argument,	0,	'R' },
@@ -63,12 +67,16 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -h, --help                  List available command line options and exit.\n");
 	printf("  -v, --version               Output version information and exit.\n");
 
+	// :TODO: save target option (PNG, Unicode, UTF-8)
+
 	printf("Render settings:\n");
 	printf("  -T, --text-color <COLOR>    COLOR for regular text. Defaults to black.\n");
 	printf("  -B, --back-color <COLOR>    Background COLOR. Defaults to white.\n");
 	printf("  -A, --block-color <COLOR>   COLOR for ASCII art. Defaults to text-color.\n");
 	printf("  -g, --no-glow               Disable ASCII art glow effect. Defaults to On.\n");
 	printf("  -G, --glow-color <COLOR>    COLOR for glow effect. Defaults to block-color.\n");
+	printf("  -U, --link-color <COLOR>    COLOR for hyper links. Defaults to blue.\n");
+	printf("  -u, --no-link-underl        Disable underlining hyper links. Defaults to On.\n");
 	printf("  -W, --block-width <PIXELS>  Block width. Defaults to 7.\n");
 	printf("  -H, --block-height <PIXELS> Block Height. Defaults to 12.\n");
 	printf("  -R, --glow-radius <PIXELS>  Glow effect radius. Defaults to 10.\n");
@@ -132,7 +140,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, "hvT:B:A:gG:W:H:R:", g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, "hvT:B:A:gG:W:H:R:uU:", g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -150,8 +158,12 @@ int main(int argc, char* argv[])
 		_CHECK_COLOR_OPT('B', "back-color", SetBackColor,);
 		_CHECK_COLOR_OPT('A', "block-color", SetArtColor, bSetBlockColor = true);
 		_CHECK_COLOR_OPT('G', "glow-color", SetGaussColor, bSetGlowColor = true);
+		_CHECK_COLOR_OPT('U', "link-color", SetHyperLinkColor,);
 		case 'g':
 			l_renderer.SetEnableGaussShadow(false);
+			break;
+		case 'u':
+			l_renderer.SetUnderlineHyperLinks(false);
 			break;
 		case 'W':
 			l_int = atoi(::optarg);
@@ -198,16 +210,12 @@ int main(int argc, char* argv[])
 	}
 
 	// stupid UNIX doesn't have Unicode APIs.
-#ifdef _WIN32
-	std::wstring l_nfoFileName, l_imgFileName;
-#else
-	std::string l_nfoFileName, l_imgFileName;
-#endif
+	std::_tstring l_nfoFileName, l_imgFileName;
 
 	// the file name has to be the last argument:
 	if(::optind < argc)
 	{
-#ifdef _WIN32
+#ifdef _UNICODE
 		l_nfoFileName = wargv[::optind];
 #else
 		l_nfoFileName = argv[::optind];

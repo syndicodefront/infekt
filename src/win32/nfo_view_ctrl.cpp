@@ -24,7 +24,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORen
 	m_parent = a_parent;
 	m_left = m_top = m_width = m_height = 0;
 	m_hwnd = 0;
-	m_scrollH = m_scrollV = 0;
+	m_handCursor = false;
 }
 
 
@@ -149,6 +149,15 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		m_height = HIWORD(lParam);
 		UpdateScrollbars();
 		return 0;
+	case WM_MOUSEMOVE:
+		OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_SETCURSOR:
+		OnSetCursor();
+		return TRUE;
+	case WM_LBUTTONUP:
+		OnMouseClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
 
 	default:
 		return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -194,6 +203,56 @@ void CNFOViewControl::OnPaint()
 
 	cairo_surface_destroy(l_surface);
 	EndPaint(m_hwnd, &l_ps);
+}
+
+
+void CNFOViewControl::OnMouseMove(int a_x, int a_y)
+{
+	size_t l_row, l_col;
+	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
+	
+	m_handCursor = (m_nfo->GetLink(l_row, l_col) != NULL);
+}
+
+
+void CNFOViewControl::OnSetCursor()
+{
+	::SetCursor(::LoadCursor(NULL, m_handCursor ? IDC_HAND : IDC_ARROW));
+}
+
+
+void CNFOViewControl::OnMouseClick(int a_x, int a_y)
+{
+	size_t l_row, l_col;
+	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
+	const CNFOHyperLink *l_link = m_nfo->GetLink(l_row, l_col);
+
+	if(l_link != NULL)
+	{
+		ShellExecute(GetParent(m_hwnd), L"open", l_link->GetHref().c_str(), NULL, NULL, SW_SHOW);
+	}
+}
+
+
+void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size_t& ar_col)
+{
+	// get scroll positions:
+	SCROLLINFO l_si = {0};
+	int l_x, l_y;
+
+	l_si.cbSize = sizeof(SCROLLINFO);
+	l_si.fMask = SIF_POS;
+
+	GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
+	l_x = l_si.nPos;
+
+	GetScrollInfo (m_hwnd, SB_VERT, &l_si);
+	l_y = l_si.nPos;
+
+	// calc real positions:
+	ar_row = l_y + (a_y / m_blockHeight) - 1;
+	ar_col = l_x + (a_x / m_blockWidth) - 1;
+	// :TODO: find out why we need to subtract 1.
 }
 
 

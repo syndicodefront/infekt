@@ -108,10 +108,12 @@ public:
 	void SetTextColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_textColor == nc); m_textColor = nc; }
 	void SetArtColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_artColor == nc); m_artColor = nc; }
 	void SetGaussColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_gaussColor == nc); m_gaussColor = nc; }
+	void SetHyperLinkColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_hyperLinkColor == nc); m_hyperLinkColor = nc; }
 	S_COLOR_T GetBackColor() { return m_backColor; }
 	S_COLOR_T GetTextColor() { return m_textColor; }
 	S_COLOR_T GetArtColor() { return m_artColor; }
 	S_COLOR_T GetGaussColor() { return m_gaussColor; }
+	S_COLOR_T GetHyperLinkColor() { return m_hyperLinkColor; }
 
 	// various other setters & getters:
 	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_gaussShadow == nb); m_gaussShadow = nb; }
@@ -121,6 +123,8 @@ public:
 		m_padding = m_gaussBlurRadius; // space for blur/shadow effect near the edges
 	}
 	int GetGaussBlurRadius() { return m_gaussBlurRadius; }
+	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_underlineHyperLinks == nb); m_underlineHyperLinks = nb; }
+	bool GetUnderlineHyperLinks() { return m_underlineHyperLinks; }
 
 	void SetBlockSize(size_t a_width, size_t a_height) { m_rendered = m_rendered &&
 		a_width == m_blockWidth && a_height == m_blockHeight; m_blockWidth = a_width; m_blockHeight = a_height; }
