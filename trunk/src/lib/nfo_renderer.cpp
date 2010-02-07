@@ -59,7 +59,6 @@ bool CNFORenderer::CalculateGrid()
 	l_emptyBlock.charCode = 0;
 	l_emptyBlock.shape = RGS_NO_BLOCK;
 	l_emptyBlock.alpha = 255;
-	memset(&l_emptyBlock.utf8, 0, sizeof(l_emptyBlock.utf8));
 
 	delete m_gridData;
 
@@ -124,9 +123,6 @@ bool CNFORenderer::CalculateGrid()
 			case 9642: /* black small square */
 				l_block->shape = RGS_BLACK_SMALL_SQUARE;
 				break;
-
-			default:
-				CUtil::OneCharWideToUtf8(l_block->charCode, l_block->utf8);
 			}
 		}
 	}
@@ -367,7 +363,7 @@ void CNFORenderer::RenderText()
 
 				//cairo_text_extents(cr, l_block->utf8, &l_extents_cache[row][col]);
 				cairo_text_extents_t l_extents;
-				cairo_text_extents(cr, l_block->utf8, &l_extents);
+				cairo_text_extents(cr, m_nfo->GetGridCharUtf8(row, col), &l_extents);
 
 				if(l_extents.width > m_blockWidth || l_extents.height > m_blockHeight)
 				{
@@ -400,7 +396,7 @@ void CNFORenderer::RenderText()
 			cairo_move_to(cr, l_off_x + col * m_blockWidth,
 				l_off_y + row * m_blockHeight + (l_font_extents.ascent + m_blockHeight) / 2.0);
 
-			cairo_show_text(cr, l_block->utf8);
+			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
 		}
 		//delete[] l_extents_cache[row];
 	}

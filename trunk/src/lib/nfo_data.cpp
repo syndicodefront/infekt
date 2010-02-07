@@ -15,6 +15,7 @@
 #include "stdafx.h"
 #include "nfo_data.h"
 #include "util.h"
+#include "pcre.h"
 
 using namespace std;
 
@@ -23,6 +24,7 @@ CNFOData::CNFOData()
 {
 	m_grid = NULL;
 	m_loaded = false;
+	m_utf8Grid = NULL;
 }
 
 
@@ -164,11 +166,24 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 			l_pos = m_textContent.find_first_of(L"\r\n", l_pos + 1);
 		}
 
-		// copy lines to grid:
+		// :TODO: interpret ANSI escape codes.
+
+		// copy lines to grid(s):
 		delete m_grid;
+		delete m_utf8Grid;
+		m_utf8Content.clear();
+		m_utf8Content.reserve(m_textContent.length());
 
+		// allocate mem:
 		m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen + 1, 0);
+		m_utf8Grid = new char[l_lines.size() * m_grid->GetCols() * 7];
+		memset(m_utf8Grid, 0, l_lines.size() * m_grid->GetCols() * 7);
 
+		// vars for hyperlink detection:
+		string l_prevLinkUrl; // UTF-8
+		int l_prevLinkId = 1;
+
+		// go through line by line:
 		size_t i = 0;
 		for(deque<const wstring>::const_iterator it = l_lines.begin();
 			it != l_lines.end(); it++, i++)
@@ -178,8 +193,29 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 			for(size_t j = 0; j < l_lineLen; j++)
 			{
 				(*m_grid)[i][j] = (*it)[j];
+
+				CUtil::OneCharWideToUtf8((*it)[j], &m_utf8Grid[i * m_grid->GetCols() * 7 + j * 7]);
+			}
+
+			const string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
+			m_utf8Content += l_utf8Line;
+			m_utf8Content += "\n";
+
+			// find hyperlinks:
+			if(/* m_bFindHyperlinks == */true)
+			{
+				size_t l_linkPos, l_linkLen;
+				bool l_linkContinued;
+				string l_url;
+
+				if(FindLink(l_utf8Line, l_linkPos, l_linkLen, l_url, l_prevLinkUrl, l_linkContinued))
+				{
+
+				}
 			}
 		}
+
+
 	}
 
 	return l_loaded;
@@ -233,7 +269,180 @@ wchar_t CNFOData::GetGridChar(size_t a_row, size_t a_col)
 }
 
 
+char* CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col)
+{
+	return (m_utf8Grid &&
+		a_row >= 0 && a_row < m_grid->GetRows() &&
+		a_col >= 0 && a_col < m_grid->GetCols() ?
+		&m_utf8Grid[a_row * m_grid->GetCols() * 7 + a_col * 7] : NULL);
+}
+
+
+#define OVECTOR_SIZE 30 // multiple of 3!
+bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
+			  std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued)
+{
+	typedef pair<const char*, bool> TRGR;
+	vector<TRGR> mTriggers; // trigger pattern -> is_continuation_trigger
+	size_t uBytePos = (size_t)-1, uByteLen = 0;
+
+	srUrl.clear();
+
+	mTriggers.push_back(TRGR("http://", false));
+	mTriggers.push_back(TRGR("https://", false));
+	mTriggers.push_back(TRGR("www\\.", false));
+	mTriggers.push_back(TRGR("german\\.imdb\\.com", false));
+	mTriggers.push_back(TRGR("imdb\\.com", false));
+	mTriggers.push_back(TRGR("ofdb\\.de", false));
+	mTriggers.push_back(TRGR("imdb\\.de", false));
+	mTriggers.push_back(TRGR("cinefacts\\.de", false));
+	mTriggers.push_back(TRGR("zelluloid\\.de", false));
+	mTriggers.push_back(TRGR("tinyurl\\.com", false));
+	mTriggers.push_back(TRGR("bit\\.ly", false));
+
+	if(!sPrevLineLink.empty())
+	{
+		mTriggers.push_back(TRGR("^\\s*(/)", true));
+		mTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?)\\S*)", true));
+		mTriggers.push_back(TRGR("(\\S+/dp/\\S*)", true)); // for amazon
+		mTriggers.push_back(TRGR("(\\S*dp/[A-Z]\\S+)", true)); // for amazon
+		mTriggers.push_back(TRGR("(\\S+[&?]\\w+=\\S*)", true));
+
+		if(sPrevLineLink[sPrevLineLink.size() - 1] == '-')
+		{
+			mTriggers.push_back(TRGR("(\\S+/\\S*)", true));
+		}
+	}
+
+	if(sLine.size() > (int64_t)std::numeric_limits<int>::max())
+	{
+		return false;
+	}
+
+	// boring vars for pcre_compile:
+	const char *szErrDescr;
+	int iErrOffset;
+	int ovector[OVECTOR_SIZE];
+
+	// find link starting point:
+	bool bMatchContinuesLink = false;
+	for(vector<TRGR>::const_iterator it = mTriggers.begin(); it != mTriggers.end(); it++)
+	{
+		pcre* re = pcre_compile(it->first,
+			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK,
+			&szErrDescr, &iErrOffset, NULL);
+
+		if(pcre_exec(re, NULL, sLine.c_str(), (int)sLine.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+		{
+			int iCaptures = 0;
+			if(pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
+			{
+				int idx = (iCaptures == 1 ? 1 : 0) * 2;
+				//assert(ovector[idx] < 0 || ovector[idx + 1] < 0)
+				uBytePos = (size_t)ovector[idx];
+			}
+		}
+
+		pcre_free(re);
+
+		if(uBytePos != (size_t)-1)
+		{
+			bMatchContinuesLink = it->second;
+			break;
+		}
+	}
+
+	if(uBytePos == (size_t)-1)
+	{
+		return false;
+	}
+
+	// get the rest of the link:
+	const string sLineRemainder = sLine.substr(uBytePos);
+
+	pcre* reUrlRemainder = pcre_compile("^[a-z0-9,/._!:%;?&=+-]{9,}",
+		PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+
+	if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+	{
+		//assert(ovector[0] == 0);
+		uByteLen = (size_t)ovector[1] - (size_t)ovector[0];
+
+		string sWorkUrl = sLineRemainder.substr((size_t)ovector[0], uByteLen);
+		// :TODO: trim match .: and whitespace
+
+		// :TODO: populate urLinkPos and urLinkLen
+
+		pcre_free(reUrlRemainder);
+
+		if(!sPrevLineLink.empty() && bMatchContinuesLink)
+		{
+			string sPrevLineLinkCopy(sPrevLineLink);
+			if(sPrevLineLink[sPrevLineLink.size() - 1] != '.')
+			{
+				pcre* re = pcre_compile("^(php|htm|asp)", PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+				if(pcre_exec(re, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+				{
+					sPrevLineLinkCopy += '.';
+				}
+				pcre_free(re);
+			}
+			sWorkUrl = sPrevLineLinkCopy + sWorkUrl;
+			brLinkContinued = true;
+		}
+		else
+		{
+			brLinkContinued = false;
+		}
+
+		pcre* reProtocol = pcre_compile("^(http://|https://|ftp://|ftps://)",
+			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+		if(pcre_exec(reProtocol, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) < 0)
+		{
+			sWorkUrl = "http://" + sWorkUrl;
+		}
+		pcre_free(reProtocol);
+
+		pcre* reValid = pcre_compile("^(http|ftp)s?://([\\w-]+)\\.([\\w.-]+)/?",
+			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+		if(pcre_exec(reValid, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+		{
+			srUrl = sWorkUrl;
+		}
+		pcre_free(reValid);
+
+		return (!srUrl.empty());
+	}
+	
+	pcre_free(reUrlRemainder);
+
+	return false;
+}
+#undef OVECTOR_SIZE
+
+
 CNFOData::~CNFOData()
 {
 	delete m_grid;
+	delete m_utf8Grid;
 }
+
+
+/************************************************************************/
+/* CNFOHyperLink Implementation                                         */
+/************************************************************************/
+
+CNFOHyperLink::CNFOHyperLink()
+{
+	m_linkID = -1; // means unset/invalid
+	m_row = m_colEnd = m_colStart = 0;
+}
+
+
+
+
+
+CNFOHyperLink::~CNFOHyperLink()
+{
+}
+

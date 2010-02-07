@@ -41,7 +41,6 @@ typedef struct _render_grid_block_t
 	wchar_t charCode;
 	ERenderGridShape shape;
 	int alpha; /* 0 = invisible, 255 = opaque */
-	char utf8[7];
 } CRenderGridBlock;
 
 
