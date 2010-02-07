@@ -34,6 +34,9 @@ CNFORenderer::CNFORenderer()
 	m_backColor = _S_COLOR_RGB(0xFF, 0xFF, 0xFF);
 	m_textColor = _S_COLOR_RGB(0, 0, 0);
 	m_artColor = _S_COLOR_RGB(0, 0, 0);
+	m_hyperLinkColor = _S_COLOR_RGB(0, 0, 0xFF);
+
+	m_underlineHyperLinks = true;
 
 	SetGaussBlurRadius(10);
 }
@@ -309,7 +312,6 @@ void CNFORenderer::RenderText()
 	l_off_x += m_padding;
 	l_off_y += m_padding;
 
-	//cairo_set_antialias(cr, CAIRO_ANTIALIAS_SUBPIXEL);
 	cairo_font_options_t *l_fontOptions = cairo_font_options_create();
 	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
 	cairo_font_options_set_hint_style(l_fontOptions, CAIRO_HINT_STYLE_NONE);
@@ -318,6 +320,12 @@ void CNFORenderer::RenderText()
 
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, l_fontOptions);
+
+	if(m_underlineHyperLinks)
+	{
+		cairo_set_line_width(cr, 1);
+		cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // looks better
+	}
 
 	double l_fontSize = m_blockWidth;
 	/*double l_charWidth, l_charHeight;
@@ -384,6 +392,9 @@ void CNFORenderer::RenderText()
 
 	for(size_t row = 0; row < m_gridData->GetRows(); row++)
 	{
+		size_t l_linkPos = 0;
+		bool l_inLink = false;
+
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			CRenderGridBlock *l_block = &(*m_gridData)[row][col];
@@ -393,10 +404,43 @@ void CNFORenderer::RenderText()
 				continue;
 			}
 
+			// deal with hyper links:
+			if(!l_linkPos)
+			{
+				const CNFOHyperLink* l_linkInfo = m_nfo->GetLink(row, col);
+				if(l_linkInfo)
+				{
+					l_linkPos = l_linkInfo->GetLength() - 1;
+					l_inLink = true;
+
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_hyperLinkColor), m_hyperLinkColor.A / 255.0);
+
+					if(m_underlineHyperLinks)
+					{
+						cairo_move_to(cr, l_off_x + col * m_blockWidth, l_off_y + (row + 1) * m_blockHeight);
+						cairo_rel_line_to(cr, l_linkInfo->GetLength() * m_blockWidth, 0);
+						cairo_stroke(cr);
+					}
+				}
+			}
+			else
+			{
+				l_linkPos--;
+			}
+
+			// finally draw the text:
 			cairo_move_to(cr, l_off_x + col * m_blockWidth,
 				l_off_y + row * m_blockHeight + (l_font_extents.ascent + m_blockHeight) / 2.0);
 
 			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
+
+			// link handling part 2, when the link is done:
+			if(l_inLink && !l_linkPos)
+			{
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_textColor), m_textColor.A / 255.0);
+
+				l_inLink = false;
+			}
 		}
 		//delete[] l_extents_cache[row];
 	}

@@ -70,8 +70,10 @@ protected:
 	// settings:
 	size_t m_blockHeight, m_blockWidth;
 	S_COLOR_T m_backColor, m_textColor, m_artColor, m_gaussColor;
+	S_COLOR_T m_hyperLinkColor;
 	bool m_gaussShadow;
 	int m_gaussBlurRadius;
+	bool m_underlineHyperLinks;
 
 	// NFO data:
 	PNFOData m_nfo;

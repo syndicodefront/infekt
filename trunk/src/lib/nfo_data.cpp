@@ -181,7 +181,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 		// vars for hyperlink detection:
 		string l_prevLinkUrl; // UTF-8
-		int l_prevLinkId = 1;
+		int l_maxLinkIndex = 0, l_maxLinkId = 1;
 
 		// go through line by line:
 		size_t i = 0;
@@ -210,7 +210,23 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 				if(FindLink(l_utf8Line, l_linkPos, l_linkLen, l_url, l_prevLinkUrl, l_linkContinued))
 				{
+					const wstring wsUrl = CUtil::ToWideStr(l_url, CP_UTF8);
+					int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
 
+					m_hyperLinks.push_back(CNFOHyperLink(l_linkID, wsUrl, i, l_linkPos, l_linkLen));
+
+					if(!l_linkContinued)
+					{
+						l_maxLinkId++;
+						l_prevLinkUrl = l_url;
+					}
+					else
+					{
+						m_hyperLinks[l_maxLinkIndex - 1].SetHref(wsUrl);
+						l_prevLinkUrl = "";
+					}
+
+					l_maxLinkIndex++;
 				}
 			}
 		}
@@ -275,6 +291,20 @@ char* CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col)
 		a_row >= 0 && a_row < m_grid->GetRows() &&
 		a_col >= 0 && a_col < m_grid->GetCols() ?
 		&m_utf8Grid[a_row * m_grid->GetCols() * 7 + a_col * 7] : NULL);
+}
+
+
+const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
+{
+	for(deque<CNFOHyperLink>::const_iterator it = m_hyperLinks.begin(); it != m_hyperLinks.end(); it++)
+	{
+		if(it->GetRow() == a_row && (a_col >= it->GetColStart() && a_col <= it->GetColEnd()))
+		{
+			return &(*it);
+		}
+	}
+
+	return NULL;
 }
 
 
@@ -369,9 +399,12 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 		uByteLen = (size_t)ovector[1] - (size_t)ovector[0];
 
 		string sWorkUrl = sLineRemainder.substr((size_t)ovector[0], uByteLen);
-		// :TODO: trim match .: and whitespace
 
-		// :TODO: populate urLinkPos and urLinkLen
+		// strip trailing dots and colons. gross code.
+		while(sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == '.' || sWorkUrl[sWorkUrl.size() - 1] == ':')) sWorkUrl.erase(sWorkUrl.size() - 1);
+
+		urLinkPos = g_utf8_strlen(sLine.c_str(), uBytePos);
+		urLinkLen = g_utf8_strlen(sWorkUrl.c_str(), -1); // IN CHARACTERS, NOT BYTES!
 
 		pcre_free(reUrlRemainder);
 
@@ -432,14 +465,20 @@ CNFOData::~CNFOData()
 /* CNFOHyperLink Implementation                                         */
 /************************************************************************/
 
-CNFOHyperLink::CNFOHyperLink()
+CNFOHyperLink::CNFOHyperLink(int a_linkID, const wstring& a_href, size_t a_row, size_t a_col, size_t a_len)
 {
-	m_linkID = -1; // means unset/invalid
-	m_row = m_colEnd = m_colStart = 0;
+	m_linkID = a_linkID;
+	m_href = a_href;
+	m_row = a_row;
+	m_colStart = a_col;
+	m_colEnd = a_col + a_len;
 }
 
 
-
+void CNFOHyperLink::SetHref(const wstring& a_href)
+{
+	m_href = a_href;
+}
 
 
 CNFOHyperLink::~CNFOHyperLink()
