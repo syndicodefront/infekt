@@ -32,7 +32,7 @@ protected:
 	//virtual LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 	virtual void SetupToolbar();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	//virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
 
 #endif  /* !_MAIN_FRAME_H */
