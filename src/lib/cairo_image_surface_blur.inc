@@ -18,6 +18,11 @@ static void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
 	int kernelSum = 0;
 	int *kernel = NULL, **mult = NULL;
 
+	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS)
+	{
+		return;
+	}
+
 	if(true) /* precalc stuff */
 	{
 		kernelSize = radius * 2 + 1;
@@ -44,14 +49,6 @@ static void cairo_blur_image_surface(cairo_surface_t *surface, int radius)
 		{
 			mult[radius][j] = kernel[radius] * j;
 		}
-	}
-
-	if(cairo_surface_status(surface) != CAIRO_STATUS_SUCCESS)
-	{
-		delete[] kernel;
-		if(mult) for(int i = 0; i < kernelSize; i++) delete[] mult[i];
-		delete[] mult;
-		return;
 	}
 
 	int width, height;

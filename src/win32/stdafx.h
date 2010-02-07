@@ -36,6 +36,7 @@
 
 /* standard / windows headers */
 #include <inttypes.h>
+#include <limits>
 #include <stdio.h>
 #include <io.h>
 #include <string>

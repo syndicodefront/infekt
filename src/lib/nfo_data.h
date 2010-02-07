@@ -17,6 +17,21 @@
 
 #include "util.h"
 
+
+class CNFOHyperLink
+{
+public:
+	CNFOHyperLink();
+	virtual ~CNFOHyperLink();
+
+protected:
+	int m_linkID;
+	std::wstring m_href;
+	size_t m_row;
+	size_t m_colStart, m_colEnd;
+};
+
+
 class CNFOData
 {
 public:
@@ -36,12 +51,18 @@ public:
 	size_t GetGridWidth();
 	size_t GetGridHeight();
 	wchar_t GetGridChar(size_t a_row, size_t a_col);
+	char* GetGridCharUtf8(size_t a_row, size_t a_col);
 
+	static bool FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
+		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;
+	std::string m_utf8Content;
 	TwoDimVector<wchar_t> *m_grid;
+	char *m_utf8Grid;
 	bool m_loaded;
+	std::deque<CNFOHyperLink> m_hyperLinks;
 
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
 };
@@ -51,5 +72,6 @@ typedef boost::shared_ptr<CNFOData> PNFOData;
 #else
 typedef CNFOData* PNFOData;
 #endif
+
 
 #endif /* !_NFO_DATA_H */

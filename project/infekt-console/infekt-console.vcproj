@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="infekt-console"
 	ProjectGUID="{CBB123C8-0763-4BFD-BF90-4DD767096287}"
 	RootNamespace="infektconsole"
@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cairo-static.lib Msimg32.lib zdll.lib libpng.lib"
+				AdditionalDependencies="cairo-static.lib Msimg32.lib zdll.lib libpng.lib pcred.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
 				GenerateDebugInformation="true"
@@ -136,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cairo.lib Msimg32.lib"
+				AdditionalDependencies="cairo.lib Msimg32.lib pcre.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
 				GenerateDebugInformation="false"
