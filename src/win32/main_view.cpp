@@ -46,10 +46,55 @@ void CViewContainer::OnAfterResize()
 }
 
 
-void CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
+bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 {
+	HWND hScrollTarget = 0;
 	// if type == ...
-	PostMessage(m_renderControl->GetHwnd(), pMsg->message, pMsg->wParam, pMsg->lParam);
+	// ...
+	if(m_renderControl) hScrollTarget = m_renderControl->GetHwnd();
+
+	if(!hScrollTarget)
+	{
+		return true;
+	}
+
+	if(pMsg->message == WM_KEYDOWN)
+	{
+		WORD wScrollNotify = (WORD)-1;
+		UINT uMessage = WM_VSCROLL;
+
+		switch(pMsg->wParam)
+		{
+		case VK_UP: wScrollNotify = SB_LINEUP; break;
+		case VK_PRIOR: wScrollNotify = SB_PAGEUP; break;
+		case VK_NEXT: wScrollNotify = SB_PAGEDOWN; break;
+		case VK_DOWN: wScrollNotify = SB_LINEDOWN; break;
+		case VK_HOME: wScrollNotify = SB_TOP; break;
+		case VK_END: wScrollNotify = SB_BOTTOM; break;
+		default:
+			uMessage = WM_HSCROLL;
+			switch(pMsg->wParam)
+			{
+			case VK_LEFT: wScrollNotify = SB_LINELEFT; break;
+			case VK_RIGHT: wScrollNotify = SB_LINERIGHT; break;
+			}
+		}
+
+		if(wScrollNotify != (WORD)-1)
+		{
+			::PostMessage(hScrollTarget, uMessage, MAKELONG(wScrollNotify, 0), 0L);
+
+			return false;
+		}
+
+		return true;
+	}
+	else
+	{
+		::PostMessage(hScrollTarget, pMsg->message, pMsg->wParam, pMsg->lParam);
+
+		return false;
+	}
 }
 
 

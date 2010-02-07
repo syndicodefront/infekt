@@ -28,13 +28,30 @@ void CMainFrame::SetupToolbar()
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
-	if(pMsg->message == WM_MOUSEWHEEL || pMsg->message == WM_MOUSEHWHEEL)
+	switch(pMsg->message)
 	{
-		m_view.ForwardFocusTypeMouseKeyboardEvent(pMsg);
-		return FALSE;
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+	case WM_KEYDOWN:
+		if(!m_view.ForwardFocusTypeMouseKeyboardEvent(pMsg))
+		{
+			return FALSE;
+		}
 	}
 
 	return TRUE;
+}
+
+LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch(uMsg)
+	{
+	case WM_CLOSE: // :TODO: why is Alt+F4 not sending this?!
+		DestroyWindow(GetHwnd());
+		return 0;
+	}
+
+	return WndProcDefault(uMsg, wParam, lParam);
 }
 
 

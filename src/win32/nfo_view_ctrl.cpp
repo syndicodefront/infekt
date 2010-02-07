@@ -37,6 +37,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	l_class.style = CS_HREDRAW | CS_VREDRAW;
 	l_class.lpszClassName = NFOVWR_CTRL_CLASS_NAME;
 	l_class.lpfnWndProc = &_WindowProc;
+	l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 
 	if(RegisterClassEx(&l_class) == 0)
 	{
