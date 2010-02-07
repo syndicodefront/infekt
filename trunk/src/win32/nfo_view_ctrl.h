@@ -26,11 +26,17 @@ protected:
 	int m_left, m_top;
 	int m_width, m_height;
 	HWND m_hwnd;
-	HWND m_scrollH, m_scrollV;
+	
+	bool m_handCursor;
 
 	void UpdateScrollbars();
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);
+	void CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size_t& ar_col);
+
 	void OnPaint();
+	void OnMouseMove(int a_x, int a_y);
+	void OnSetCursor();
+	void OnMouseClick(int a_x, int a_y);
 
 	static LRESULT CALLBACK _WindowProc(HWND, UINT, WPARAM, LPARAM);
 	LRESULT WindowProc(UINT, WPARAM, LPARAM);

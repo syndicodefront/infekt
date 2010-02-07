@@ -434,7 +434,7 @@ void CNFORenderer::RenderText()
 
 			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
 
-			// link handling part 2, when the link is done:
+			// link handling part 2, when the link is over:
 			if(l_inLink && !l_linkPos)
 			{
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_textColor), m_textColor.A / 255.0);
