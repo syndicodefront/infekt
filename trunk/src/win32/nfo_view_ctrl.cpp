@@ -15,7 +15,7 @@
 #include "stdafx.h"
 #include "nfo_view_ctrl.h"
 
-#define NFOVWR_CTRL_CLASS_NAME _T("NfoViewCtrl")
+#define NFOVWR_CTRL_CLASS_NAME _T("RenderedNfoViewCtrl")
 
 
 CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORenderer()
@@ -172,18 +172,9 @@ void CNFOViewControl::OnPaint()
 	PAINTSTRUCT l_ps;
 	cairo_surface_t *l_surface;
 
-	// get scroll position business:
-	SCROLLINFO l_si = {0};
+	// get scroll offsets:
 	int l_x, l_y;
-
-	l_si.cbSize = sizeof(SCROLLINFO);
-	l_si.fMask = SIF_POS;
-
-	GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
-	l_x = l_si.nPos;
-
-	GetScrollInfo (m_hwnd, SB_VERT, &l_si);
-	l_y = l_si.nPos;
+	GetScrollPositions(l_x, l_y);
 
 	// paint!
 	l_dc = BeginPaint(m_hwnd, &l_ps);
@@ -227,32 +218,38 @@ void CNFOViewControl::OnMouseClick(int a_x, int a_y)
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 	const CNFOHyperLink *l_link = m_nfo->GetLink(l_row, l_col);
 
-	if(l_link != NULL)
+	if(l_link)
 	{
-		ShellExecute(GetParent(m_hwnd), L"open", l_link->GetHref().c_str(), NULL, NULL, SW_SHOW);
+		::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(),
+			NULL, NULL, SW_SHOW);
 	}
 }
 
 
 void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size_t& ar_col)
 {
-	// get scroll positions:
-	SCROLLINFO l_si = {0};
 	int l_x, l_y;
-
-	l_si.cbSize = sizeof(SCROLLINFO);
-	l_si.fMask = SIF_POS;
-
-	GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
-	l_x = l_si.nPos;
-
-	GetScrollInfo (m_hwnd, SB_VERT, &l_si);
-	l_y = l_si.nPos;
+	GetScrollPositions(l_x, l_y);
 
 	// calc real positions:
 	ar_row = l_y + (a_y / m_blockHeight) - 1;
 	ar_col = l_x + (a_x / m_blockWidth) - 1;
 	// :TODO: find out why we need to subtract 1.
+}
+
+
+void CNFOViewControl::GetScrollPositions(int& ar_x, int& ar_y)
+{
+	SCROLLINFO l_si = {0};
+
+	l_si.cbSize = sizeof(SCROLLINFO);
+	l_si.fMask = SIF_POS;
+
+	GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
+	ar_x = l_si.nPos;
+
+	GetScrollInfo (m_hwnd, SB_VERT, &l_si);
+	ar_y = l_si.nPos;
 }
 
 
