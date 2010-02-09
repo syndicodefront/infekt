@@ -24,6 +24,7 @@ public:
 	virtual ~CViewContainer();
 
 	bool ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg);
+	PNFOViewControl& GetRenderCtrl() { return m_renderControl; }
 protected:
 	PNFOViewControl m_renderControl;
 
