@@ -56,6 +56,8 @@ typedef struct _s_color_t
 
 	bool operator==(const _s_color_t &o) const { return (o.R == R && o.G == G && o.B == B && o.A == A); }
 	bool operator!=(const _s_color_t &o) const { return !(*this == o); }
+
+	_s_color_t Invert() const { return _s_color_t(255 - R, 255 - G, 255 - B, A); }
 } S_COLOR_T;
 
 #define _S_COLOR(R, G, B, A) _s_color_t(R, G, B, A)
@@ -89,7 +91,9 @@ protected:
 	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep);
 	void RenderText();
 	void RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
-		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd);
+		const S_COLOR_T& a_hyperLinkColor,
+		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
+		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
 
 	bool IsTextChar(size_t a_row, size_t a_col);
 public:

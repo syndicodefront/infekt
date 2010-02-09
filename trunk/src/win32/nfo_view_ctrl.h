@@ -30,6 +30,7 @@ protected:
 	LPTSTR m_cursor;
 	size_t m_selStartRow, m_selStartCol;
 	size_t m_selEndRow, m_selEndCol;
+	bool m_leftMouseDown, m_movedDownMouse;
 
 	void UpdateScrollbars();
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);
@@ -39,7 +40,7 @@ protected:
 	void OnPaint();
 	void OnMouseMove(int a_x, int a_y);
 	void OnSetCursor();
-	void OnMouseClick(int a_x, int a_y);
+	void OnMouseClickEvent(UINT a_event, int a_x, int a_y);
 
 	static LRESULT CALLBACK _WindowProc(HWND, UINT, WPARAM, LPARAM);
 	LRESULT WindowProc(UINT, WPARAM, LPARAM);

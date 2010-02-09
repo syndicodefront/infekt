@@ -297,20 +297,29 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 
 void CNFORenderer::RenderText()
 {
-	RenderText(m_textColor, NULL, (size_t)-1, 0, 0, 0);
+	RenderText(m_textColor, NULL, m_hyperLinkColor, (size_t)-1, 0, 0, 0, m_imgSurface, 0, 0);
 }
 
 
 void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
-	size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd)
+							  const S_COLOR_T& a_hyperLinkColor,
+							  size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
+							  cairo_surface_t* a_surface, double a_xBase, double a_yBase)
 {
-	double l_off_x = 0, l_off_y = 0;
+	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
 
-	l_off_x += m_padding;
-	l_off_y += m_padding;
+	if(a_rowEnd < a_rowStart)
+	{
+		size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
+		tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+	}
+	else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
+	{
+		size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+	}
 
 	// set up drawing tools:
-	cairo_t* cr = cairo_create(m_imgSurface);
+	cairo_t* cr = cairo_create(a_surface);
 
 	cairo_font_options_t *l_fontOptions = cairo_font_options_create();
 	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
@@ -438,8 +447,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			// set color...
 			if(l_inLink)
 			{
-				// :TODO: add hyper link color to method signature
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_hyperLinkColor), m_hyperLinkColor.A / 255.0);
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_hyperLinkColor), a_hyperLinkColor.A / 255.0);
 			}
 			else
 			{
