@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "main_frame.h"
 
+using namespace std;
+
 
 CMainFrame::CMainFrame()
 {
@@ -8,9 +10,19 @@ CMainFrame::CMainFrame()
 }
 
 
+void CMainFrame::OnCreate()
+{
+	m_bUseThemes = FALSE;
+	m_bShowIndicatorStatus = FALSE;
+	m_bShowMenuStatus = FALSE;
+
+	CFrame::OnCreate();
+}
+
+
 void CMainFrame::OnInitialUpdate()
 {
-	SetWindowText(_T("iNFEKT NFO Viewer"));
+	UpdateCaption();
 }
 
 
@@ -23,6 +35,19 @@ void CMainFrame::SetupToolbar()
 	RB.SetRebarTheme(RBTheme);
 
 	// add buttons...
+}
+
+
+void CMainFrame::UpdateCaption()
+{
+	wstring l_caption;
+
+	//if(NFO loaded ... add file name ... :TODO:
+
+	if(!l_caption.empty()) l_caption += _T(" - ");
+	l_caption += FORMAT(_T("iNFEKT v%d.%d.%d"), INFEKT_VERSION_MAJOR % INFEKT_VERSION_MINOR % INFEKT_VERSION_REVISION);
+
+	SetWindowText(l_caption.c_str());
 }
 
 

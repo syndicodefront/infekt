@@ -26,8 +26,10 @@ protected:
 	int m_left, m_top;
 	int m_width, m_height;
 	HWND m_hwnd;
-	
-	bool m_handCursor;
+
+	LPTSTR m_cursor;
+	size_t m_selStartRow, m_selStartCol;
+	size_t m_selEndRow, m_selEndCol;
 
 	void UpdateScrollbars();
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);

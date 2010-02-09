@@ -24,7 +24,9 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORen
 	m_parent = a_parent;
 	m_left = m_top = m_width = m_height = 0;
 	m_hwnd = 0;
-	m_handCursor = false;
+	m_cursor = IDC_ARROW;
+
+	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
 }
 
 
@@ -39,7 +41,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	l_class.lpfnWndProc = &_WindowProc;
 	l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 
-	if(RegisterClassEx(&l_class) == 0)
+	if(::RegisterClassEx(&l_class) == 0)
 	{
 		return false;
 	}
@@ -49,7 +51,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	m_width = a_width;
 	m_height = a_height;
 
-	m_hwnd = CreateWindowEx(WS_EX_CLIENTEDGE,
+	m_hwnd = ::CreateWindowEx(WS_EX_CLIENTEDGE,
 		NFOVWR_CTRL_CLASS_NAME, NULL,
 		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_BORDER,
 		m_left, m_top, m_width, m_height,
@@ -64,7 +66,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		return false;
 	}
 
-	SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (INT_PTR)this);
+	::SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (INT_PTR)this);
 
 	UpdateScrollbars();
 
@@ -82,8 +84,8 @@ void CNFOViewControl::UpdateScrollbars()
 	l_si.cbSize = sizeof(SCROLLINFO);
 
 	// get scroll bar dimensions:
-	l_vWidth = GetSystemMetrics(SM_CXVSCROLL);
-	l_hHeight = GetSystemMetrics(SM_CXHSCROLL);
+	l_vWidth = ::GetSystemMetrics(SM_CXVSCROLL);
+	l_hHeight = ::GetSystemMetrics(SM_CXHSCROLL);
 
 	// determine which scrollbars we need:
 	l_needsH = (m_width - l_vWidth < (int)GetWidth());
@@ -98,12 +100,12 @@ void CNFOViewControl::UpdateScrollbars()
 	// update horizontal scrollbar info:
 	l_si.nPage = m_width / m_blockWidth;
 	l_si.nMax = GetWidth() / m_blockWidth + (l_needsV ? 2 : 0);
-	SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
+	::SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
 
 	// update vertical scrollbar info:
 	l_si.nPage = m_height / m_blockHeight;
 	l_si.nMax = GetHeight() / m_blockHeight + (l_needsH ? 1 : 0);
-	SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
+	::SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
 }
 
 
@@ -125,7 +127,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEWHEEL:
 		{
 			UINT l_lines = 0;
-			if(SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0))
+			if(::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0))
 			{
 				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
 				HandleScrollEvent(SB_VERT, INT_MIN, -l_delta * l_lines);
@@ -135,7 +137,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEHWHEEL: // Windows Vista & higher only...
 		{
 			UINT l_chars = 0;
-			if(SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0))
+			if(::SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0))
 			{
 				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
 				HandleScrollEvent(SB_HORZ, INT_MIN, -l_delta * l_chars);
@@ -160,7 +162,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 
 	default:
-		return DefWindowProc(m_hwnd, uMsg, wParam, lParam);
+		return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 	}
 }
 
@@ -176,8 +178,8 @@ void CNFOViewControl::OnPaint()
 	int l_x, l_y;
 	GetScrollPositions(l_x, l_y);
 
-	// paint!
-	l_dc = BeginPaint(m_hwnd, &l_ps);
+	// let's paint!
+	l_dc = ::BeginPaint(m_hwnd, &l_ps);
 	l_surface = cairo_win32_surface_create(l_dc);
 
 	// erase the background if necessary:
@@ -192,8 +194,16 @@ void CNFOViewControl::OnPaint()
 	// draw draw draw fight the powa!
 	DrawToSurface(l_surface, 0, 0, l_x * m_blockWidth, l_y * m_blockHeight, m_width, m_height);
 
+	// draw highlighted (selected) text:
+	if(m_selStartRow != (size_t)-1)
+	{
+		// :TODO: fix selection color/invert "normal" colors
+		RenderText(m_textColor, &m_gaussColor, m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol);
+	}
+
+	// clean up:
 	cairo_surface_destroy(l_surface);
-	EndPaint(m_hwnd, &l_ps);
+	::EndPaint(m_hwnd, &l_ps);
 }
 
 
@@ -201,14 +211,25 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 {
 	size_t l_row, l_col;
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
-	
-	m_handCursor = (m_nfo->GetLink(l_row, l_col) != NULL);
+
+	if(m_nfo->GetLink(l_row, l_col) != NULL)
+	{
+		m_cursor = IDC_HAND;
+	}
+	else if(IsTextChar(l_row, l_col))
+	{
+		m_cursor = IDC_IBEAM;
+	}
+	else
+	{
+		m_cursor = IDC_ARROW;
+	}
 }
 
 
 void CNFOViewControl::OnSetCursor()
 {
-	::SetCursor(::LoadCursor(NULL, m_handCursor ? IDC_HAND : IDC_ARROW));
+	::SetCursor(::LoadCursor(NULL, m_cursor));
 }
 
 
@@ -245,10 +266,10 @@ void CNFOViewControl::GetScrollPositions(int& ar_x, int& ar_y)
 	l_si.cbSize = sizeof(SCROLLINFO);
 	l_si.fMask = SIF_POS;
 
-	GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
+	::GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
 	ar_x = l_si.nPos;
 
-	GetScrollInfo (m_hwnd, SB_VERT, &l_si);
+	::GetScrollInfo (m_hwnd, SB_VERT, &l_si);
 	ar_y = l_si.nPos;
 }
 
@@ -262,7 +283,7 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	l_si.fMask = SIF_ALL;
 
 	// Save the position for comparison later on:
-	GetScrollInfo(m_hwnd, a_dir, &l_si);
+	::GetScrollInfo(m_hwnd, a_dir, &l_si);
 	l_prevPos = l_si.nPos;
 
 #if (SB_LINEUP != SB_LINELEFT) || (SB_LINEDOWN != SB_LINERIGHT) || (SB_PAGEDOWN != SB_PAGERIGHT) || (SB_PAGEUP != SB_PAGELEFT)
@@ -300,13 +321,13 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	// Set the position and then retrieve it.  Due to adjustments
 	//   by Windows it may not be the same as the value set.
 	l_si.fMask = SIF_POS;
-	SetScrollInfo(m_hwnd, a_dir, &l_si, TRUE);
-	GetScrollInfo(m_hwnd, a_dir, &l_si);
+	::SetScrollInfo(m_hwnd, a_dir, &l_si, TRUE);
+	::GetScrollInfo(m_hwnd, a_dir, &l_si);
 
 	// If the position has changed, scroll the window:
 	if(l_si.nPos != l_prevPos)
 	{
-		ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? m_blockWidth * (l_prevPos - l_si.nPos) : 0),
+		::ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? m_blockWidth * (l_prevPos - l_si.nPos) : 0),
 			(a_dir == SB_VERT ? m_blockHeight * (l_prevPos - l_si.nPos) : 0),
 			NULL, NULL);
 	}
@@ -315,24 +336,24 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 
 LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	CNFOViewControl *l_ctrl = (CNFOViewControl*)(void*)(INT_PTR)GetWindowLongPtr(hWindow, GWLP_USERDATA);
+	CNFOViewControl *l_ctrl = (CNFOViewControl*)(void*)(INT_PTR)::GetWindowLongPtr(hWindow, GWLP_USERDATA);
 
 	if(l_ctrl)
 	{
 		return l_ctrl->WindowProc(uMsg, wParam, lParam);
 	}
 
-	return DefWindowProc(hWindow, uMsg, wParam, lParam);
+	return ::DefWindowProc(hWindow, uMsg, wParam, lParam);
 }
 
 
 CNFOViewControl::~CNFOViewControl()
 {
-	UnregisterClass(NFOVWR_CTRL_CLASS_NAME, m_instance);
+	::UnregisterClass(NFOVWR_CTRL_CLASS_NAME, m_instance);
 
 	if(m_hwnd)
 	{
-		DestroyWindow(m_hwnd);
+		::DestroyWindow(m_hwnd);
 		// MSDN: "If the specified window is a parent window, DestroyWindow
 		// automatically destroys the associated child windows."
 	}

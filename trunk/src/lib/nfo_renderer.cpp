@@ -30,15 +30,14 @@ CNFORenderer::CNFORenderer()
 
 	m_gaussShadow = true;
 	m_gaussColor = _S_COLOR_RGB(0, 0, 0);
+	SetGaussBlurRadius(10);
 
 	m_backColor = _S_COLOR_RGB(0xFF, 0xFF, 0xFF);
 	m_textColor = _S_COLOR_RGB(0, 0, 0);
 	m_artColor = _S_COLOR_RGB(0, 0, 0);
+
 	m_hyperLinkColor = _S_COLOR_RGB(0, 0, 0xFF);
-
 	m_underlineHyperLinks = true;
-
-	SetGaussBlurRadius(10);
 }
 
 
@@ -298,25 +297,24 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 
 void CNFORenderer::RenderText()
 {
+	RenderText(m_textColor, NULL, (size_t)-1, 0, 0, 0);
+}
+
+
+void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
+	size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd)
+{
 	double l_off_x = 0, l_off_y = 0;
-
-	cairo_t* cr = cairo_create(m_imgSurface);
-
-	/*if(m_gaussShadow)
-	{
-		l_off_y = -(m_gaussBlurRadius / 2);
-		if(m_gaussBlurRadius < 5) l_off_y--;
-		l_off_x = l_off_y;
-	}*/
 
 	l_off_x += m_padding;
 	l_off_y += m_padding;
 
+	// set up drawing tools:
+	cairo_t* cr = cairo_create(m_imgSurface);
+
 	cairo_font_options_t *l_fontOptions = cairo_font_options_create();
 	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
 	cairo_font_options_set_hint_style(l_fontOptions, CAIRO_HINT_STYLE_NONE);
-
-	cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_textColor), m_textColor.A / 255.0);
 
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, l_fontOptions);
@@ -328,38 +326,15 @@ void CNFORenderer::RenderText()
 	}
 
 	double l_fontSize = m_blockWidth;
-	/*double l_charWidth, l_charHeight;
-
-	for(;;)
-	{
-		cairo_set_font_size(cr, l_fontSize + 1);
-
-		cairo_font_extents_t l_extents;
-		cairo_font_extents(cr, &l_extents);
-
-		if(l_extents.max_x_advance > m_blockWidth || l_extents.height > m_blockHeight)
-		{
-			break;
-		}
-
-		l_charWidth = l_extents.max_x_advance;
-		l_charHeight = l_extents.height;
-
-		l_fontSize++;
-	}*/
-
-	//cairo_text_extents_t **l_extents_cache = new cairo_text_extents_t*[m_gridData->GetRows()];
 	bool l_broken = false;
 
+	// calculate font size that fits into blocks of the given size:
 	do
 	{
 		cairo_set_font_size(cr, l_fontSize + 1);
 
 		for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
 		{
-			// an enabled extents cache needs  && !l_broken ^^^  removed so all rows get allocated no matter what
-			//l_extents_cache[row] = new cairo_text_extents_t[m_gridData->GetCols()];
-
 			for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
 			{
 				CRenderGridBlock *l_block = &(*m_gridData)[row][col];
@@ -369,7 +344,6 @@ void CNFORenderer::RenderText()
 					continue;
 				}
 
-				//cairo_text_extents(cr, l_block->utf8, &l_extents_cache[row][col]);
 				cairo_text_extents_t l_extents;
 				cairo_text_extents(cr, m_nfo->GetGridCharUtf8(row, col), &l_extents);
 
@@ -386,22 +360,49 @@ void CNFORenderer::RenderText()
 		}
 
 	} while(!l_broken);
+	// :TODO: cache l_fontSize and only recalc if necessary...
 
+	// get general font info to vertically center chars into the blocks:
 	cairo_font_extents_t l_font_extents;
 	cairo_font_extents(cr, &l_font_extents);
 
+	// draw the chars:
 	for(size_t row = 0; row < m_gridData->GetRows(); row++)
 	{
 		size_t l_linkPos = 0;
 		bool l_inLink = false;
 
+		if(a_rowStart != (size_t)-1)
+		{
+			if(row < a_rowStart)
+			{
+				continue;
+			}
+			else if(row > a_rowEnd)
+			{
+				break;
+			}
+		}
+
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
-			CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
 			if(l_block->shape != RGS_NO_BLOCK)
 			{
 				continue;
+			}
+
+			if(a_rowStart != (size_t)-1)
+			{
+				if(row == a_rowStart && col < a_colStart)
+				{
+					continue;
+				}
+				else if(row == a_rowEnd && col > a_colEnd)
+				{
+					break;
+				}
 			}
 
 			// deal with hyper links:
@@ -412,8 +413,6 @@ void CNFORenderer::RenderText()
 				{
 					l_linkPos = l_linkInfo->GetLength() - 1;
 					l_inLink = true;
-
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_hyperLinkColor), m_hyperLinkColor.A / 255.0);
 
 					if(m_underlineHyperLinks)
 					{
@@ -428,6 +427,25 @@ void CNFORenderer::RenderText()
 				l_linkPos--;
 			}
 
+			// draw char background for highlights/selection etc:
+			if(a_backColor)
+			{
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(*a_backColor), a_backColor->A / 255.0);
+				cairo_rectangle(cr, l_off_x + col * m_blockWidth, l_off_y + row * m_blockHeight, m_blockWidth, m_blockHeight);
+				cairo_fill(cr);
+			}
+
+			// set color...
+			if(l_inLink)
+			{
+				// :TODO: add hyper link color to method signature
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_hyperLinkColor), m_hyperLinkColor.A / 255.0);
+			}
+			else
+			{
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
+			}
+
 			// finally draw the text:
 			cairo_move_to(cr, l_off_x + col * m_blockWidth,
 				l_off_y + row * m_blockHeight + (l_font_extents.ascent + m_blockHeight) / 2.0);
@@ -437,19 +455,29 @@ void CNFORenderer::RenderText()
 			// link handling part 2, when the link is over:
 			if(l_inLink && !l_linkPos)
 			{
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_textColor), m_textColor.A / 255.0);
-
 				l_inLink = false;
 			}
 		}
-		//delete[] l_extents_cache[row];
 	}
-
-	//delete[] l_extents_cache;
 
 	cairo_font_options_destroy(l_fontOptions);
 
 	cairo_destroy(cr);
+}
+
+
+bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col)
+{
+	if(!m_gridData && !CalculateGrid()) return false;
+
+	if(a_row < m_gridData->GetRows() && a_col < m_gridData->GetCols())
+	{
+		const CRenderGridBlock *l_block = &(*m_gridData)[a_row][a_col];
+
+		return (l_block->shape == RGS_NO_BLOCK);
+	}
+
+	return false;
 }
 
 
