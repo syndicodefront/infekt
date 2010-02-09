@@ -27,6 +27,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORen
 	m_cursor = IDC_ARROW;
 
 	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
+	m_leftMouseDown = m_movedDownMouse = false;
 }
 
 
@@ -36,7 +37,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	l_class.cbSize = sizeof(WNDCLASSEX);
 
 	l_class.hInstance = m_instance;
-	l_class.style = CS_HREDRAW | CS_VREDRAW;
+	l_class.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 	l_class.lpszClassName = NFOVWR_CTRL_CLASS_NAME;
 	l_class.lpfnWndProc = &_WindowProc;
 	l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
@@ -157,8 +158,10 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SETCURSOR:
 		OnSetCursor();
 		return TRUE;
+	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
-		OnMouseClick(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+	case WM_LBUTTONDBLCLK:
+		OnMouseClickEvent(uMsg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
 	default:
@@ -172,7 +175,8 @@ void CNFOViewControl::OnPaint()
 	// paint/dc helper business:
 	HDC l_dc;
 	PAINTSTRUCT l_ps;
-	cairo_surface_t *l_surface;
+	cairo_surface_t *l_surface, *l_realSurface = NULL;
+	bool l_buffer = (m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1);
 
 	// get scroll offsets:
 	int l_x, l_y;
@@ -180,7 +184,14 @@ void CNFOViewControl::OnPaint()
 
 	// let's paint!
 	l_dc = ::BeginPaint(m_hwnd, &l_ps);
+	l_buffer = l_buffer || l_ps.fErase; // avoid flickering... meh :TODO: figure out better way to erase the background
 	l_surface = cairo_win32_surface_create(l_dc);
+
+	if(l_buffer)
+	{
+		l_realSurface = l_surface;
+		l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, m_width, m_height);
+	}
 
 	// erase the background if necessary:
 	if(l_ps.fErase)
@@ -195,13 +206,22 @@ void CNFOViewControl::OnPaint()
 	DrawToSurface(l_surface, 0, 0, l_x * m_blockWidth, l_y * m_blockHeight, m_width, m_height);
 
 	// draw highlighted (selected) text:
-	if(m_selStartRow != (size_t)-1)
+	if(m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1)
 	{
-		// :TODO: fix selection color/invert "normal" colors
-		RenderText(m_textColor, &m_gaussColor, m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol);
+		S_COLOR_T l_back = m_backColor.Invert();
+		RenderText(m_textColor.Invert(), &l_back, m_hyperLinkColor.Invert(),
+			m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
+			l_surface, -l_x * m_blockWidth, -l_y * m_blockHeight);
 	}
 
 	// clean up:
+	if(l_realSurface)
+	{
+		cairo_t *cr = cairo_create(l_realSurface);
+		cairo_set_source_surface(cr, l_surface, 0, 0);
+		cairo_paint(cr);
+		cairo_surface_destroy(l_realSurface);
+	}
 	cairo_surface_destroy(l_surface);
 	::EndPaint(m_hwnd, &l_ps);
 }
@@ -212,7 +232,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 	size_t l_row, l_col;
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 
-	if(m_nfo->GetLink(l_row, l_col) != NULL)
+	if(!m_leftMouseDown && m_nfo->GetLink(l_row, l_col) != NULL)
 	{
 		m_cursor = IDC_HAND;
 	}
@@ -224,6 +244,24 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 	{
 		m_cursor = IDC_ARROW;
 	}
+
+	if(m_leftMouseDown && !m_movedDownMouse)
+	{
+		if(l_row != m_selStartRow || l_col != m_selStartCol)
+		{
+			m_movedDownMouse = true;
+		}
+	}
+	
+	if(m_leftMouseDown && m_movedDownMouse)
+	{
+		if(m_selEndRow != l_row || m_selEndCol != l_col)
+		{
+			m_selEndRow = l_row;
+			m_selEndCol = l_col;
+			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		}
+	}
 }
 
 
@@ -233,16 +271,78 @@ void CNFOViewControl::OnSetCursor()
 }
 
 
-void CNFOViewControl::OnMouseClick(int a_x, int a_y)
+void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 {
 	size_t l_row, l_col;
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
-	const CNFOHyperLink *l_link = m_nfo->GetLink(l_row, l_col);
 
-	if(l_link)
+
+	if(a_event == WM_LBUTTONDOWN)
 	{
-		::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(),
-			NULL, NULL, SW_SHOW);
+		if(m_selStartRow != (size_t)-1)
+		{
+			// clear previous selection
+			m_selStartRow = m_selEndRow = (size_t)-1;
+			m_selStartCol = m_selEndCol = (size_t)-1;
+			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		}
+
+		m_leftMouseDown = true;
+		m_movedDownMouse = false;
+		m_selStartRow = l_row;
+		m_selStartCol = l_col;
+	}
+	else if(a_event == WM_LBUTTONUP)
+	{
+		if(m_leftMouseDown)
+		{
+			if(m_movedDownMouse)
+			{
+				m_selEndRow = l_row;
+				m_selEndCol = l_col;
+			}
+			else
+			{
+				m_selStartRow = m_selEndRow = (size_t)-1;
+				m_selStartCol = m_selEndCol = (size_t)-1;
+			}
+			m_leftMouseDown = false;
+			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		}
+		
+		if(!m_movedDownMouse)
+		{
+			const CNFOHyperLink *l_link = m_nfo->GetLink(l_row, l_col);
+
+			if(l_link)
+			{
+				::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(),
+					NULL, NULL, SW_SHOW);
+			}
+		}
+	}
+	else if(a_event == WM_LBUTTONDBLCLK)
+	{
+		if(IsTextChar(l_row, l_col))
+		{
+			size_t lc = l_col;
+
+			m_selStartRow = m_selEndRow = l_row;
+			m_selStartCol = m_selEndCol = l_col;
+
+			while(IsTextChar(l_row, lc - 1) && iswalnum(m_nfo->GetGridChar(l_row, lc - 1)))
+			{
+				m_selStartCol = --lc;
+			}
+
+			lc = l_col;
+			while(IsTextChar(l_row, lc + 1) && iswalnum(m_nfo->GetGridChar(l_row, lc + 1)))
+			{
+				m_selEndCol = ++lc;
+			}
+
+			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		}
 	}
 }
 
