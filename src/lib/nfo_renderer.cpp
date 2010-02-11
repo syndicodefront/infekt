@@ -37,6 +37,7 @@ CNFORenderer::CNFORenderer()
 	m_textColor = _S_COLOR_RGB(0, 0, 0);
 	m_artColor = _S_COLOR_RGB(0, 0, 0);
 
+	m_hilightHyperLinks = true;
 	m_hyperLinkColor = _S_COLOR_RGB(0, 0, 0xFF);
 	m_underlineHyperLinks = true;
 }
@@ -353,7 +354,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, l_fontOptions);
 
-	if(m_underlineHyperLinks)
+	if(m_hilightHyperLinks && m_underlineHyperLinks)
 	{
 		cairo_set_line_width(cr, 1);
 		cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // looks better
@@ -397,7 +398,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 		} while(!l_broken);
 
-		m_fontSize = l_fontSize;
+		m_fontSize = l_fontSize + 1;
 	}
 	else
 	{
@@ -414,6 +415,11 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	{
 		l_rowStart = std::max<size_t>(a_rowStart, l_rowStart);
 		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
+	}
+
+	if(m_hilightHyperLinks)
+	{
+		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
 	}
 
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
@@ -438,26 +444,29 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					break;
 			}
 
-			// deal with hyper links:
-			if(!l_linkPos)
+			if(m_hilightHyperLinks)
 			{
-				const CNFOHyperLink* l_linkInfo = m_nfo->GetLink(row, col);
-				if(l_linkInfo)
+				// deal with hyper links:
+				if(!l_linkPos)
 				{
-					l_linkPos = l_linkInfo->GetLength() - 1;
-					l_inLink = true;
-
-					if(m_underlineHyperLinks)
+					const CNFOHyperLink* l_linkInfo = m_nfo->GetLink(row, col);
+					if(l_linkInfo)
 					{
-						cairo_move_to(cr, l_off_x + col * m_blockWidth, l_off_y + (row + 1) * m_blockHeight);
-						cairo_rel_line_to(cr, l_linkInfo->GetLength() * m_blockWidth, 0);
-						cairo_stroke(cr);
+						l_linkPos = l_linkInfo->GetLength() - 1;
+						l_inLink = true;
+
+						if(m_underlineHyperLinks)
+						{
+							cairo_move_to(cr, l_off_x + col * m_blockWidth, l_off_y + (row + 1) * m_blockHeight);
+							cairo_rel_line_to(cr, l_linkInfo->GetLength() * m_blockWidth, 0);
+							cairo_stroke(cr);
+						}
 					}
 				}
-			}
-			else
-			{
-				l_linkPos--;
+				else
+				{
+					l_linkPos--;
+				}
 			}
 
 			// draw char background for highlights/selection etc:
@@ -468,14 +477,17 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				cairo_fill(cr);
 			}
 
-			// set color...
-			if(l_inLink)
+			if(m_hilightHyperLinks)
 			{
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_hyperLinkColor), a_hyperLinkColor.A / 255.0);
-			}
-			else
-			{
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
+				// set color...
+				if(l_inLink)
+				{
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_hyperLinkColor), a_hyperLinkColor.A / 255.0);
+				}
+				else
+				{
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
+				}
 			}
 
 			// finally draw the text:

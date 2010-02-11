@@ -44,6 +44,7 @@ static const struct option g_longOpts[] = {
 	{ "block-color",	required_argument,	0,	'A' },
 	{ "no-glow",		no_argument,		0,	'g' },
 	{ "glow-color",		required_argument,	0,	'G' },
+	{ "hilight-links",	no_argument,		0,	'L' },
 	{ "link-color",		required_argument,	0,	'U' },
 	{ "no-link-underl",	no_argument,		0,	'u' },
 	{ "block-width",	required_argument,	0,	'W' },
@@ -75,6 +76,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -A, --block-color <COLOR>   COLOR for ASCII art. Defaults to text-color.\n");
 	printf("  -g, --no-glow               Disable ASCII art glow effect. Defaults to On.\n");
 	printf("  -G, --glow-color <COLOR>    COLOR for glow effect. Defaults to block-color.\n");
+	printf("  -L, --hilight-links         Highlight hyper links. Defaults to Off.\n");
 	printf("  -U, --link-color <COLOR>    COLOR for hyper links. Defaults to blue.\n");
 	printf("  -u, --no-link-underl        Disable underlining hyper links. Defaults to On.\n");
 	printf("  -W, --block-width <PIXELS>  Block width. Defaults to 7.\n");
@@ -133,6 +135,7 @@ int main(int argc, char* argv[])
 	l_renderer.SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
 	l_renderer.SetEnableGaussShadow(true);
 	l_renderer.SetGaussBlurRadius(10);
+	l_renderer.SetHilightHyperLinks(false);
 
 	// keep track of changed stuff for advanced defaults:
 	bool bSetBlockColor = false, bSetGlowColor = false;
@@ -140,7 +143,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, "hvT:B:A:gG:W:H:R:uU:", g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, "hvT:B:A:gG:W:H:R:LuU:", g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -164,6 +167,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'u':
 			l_renderer.SetUnderlineHyperLinks(false);
+			break;
+		case 'L':
+			l_renderer.SetHilightHyperLinks(true);
 			break;
 		case 'W':
 			l_int = atoi(::optarg);
