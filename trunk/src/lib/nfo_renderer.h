@@ -85,6 +85,7 @@ protected:
 	// internal state data:
 	bool m_rendered;
 	int m_padding;
+	double m_fontSize;
 
 	// internal calls:
 	bool CalculateGrid();
@@ -136,7 +137,8 @@ public:
 	bool GetUnderlineHyperLinks() const { return m_underlineHyperLinks; }
 
 	void SetBlockSize(size_t a_width, size_t a_height) { m_rendered = m_rendered &&
-		a_width == m_blockWidth && a_height == m_blockHeight; m_blockWidth = a_width; m_blockHeight = a_height; }
+		a_width == m_blockWidth && a_height == m_blockHeight; m_blockWidth = a_width; m_blockHeight = a_height;
+		if(!m_rendered) m_fontSize = -1; }
 	size_t GetBlockWidth() const { return m_blockWidth; }
 	size_t GetBlockHeight() const { return m_blockHeight; }
 

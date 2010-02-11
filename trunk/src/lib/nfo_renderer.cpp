@@ -23,6 +23,7 @@ CNFORenderer::CNFORenderer()
 
 	m_rendered = false;
 	m_imgSurface = NULL;
+	m_fontSize = -1;
 
 	// default settings:
 	m_blockWidth = 7;
@@ -308,14 +309,17 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 {
 	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
 
-	if(a_rowEnd < a_rowStart)
+	if(a_rowStart != (size_t)-1)
 	{
-		size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
-		tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
-	}
-	else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
-	{
-		size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+		if(a_rowEnd < a_rowStart)
+		{
+			size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
+			tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+		}
+		else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
+		{
+			size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+		}
 	}
 
 	// set up drawing tools:
@@ -334,64 +338,67 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // looks better
 	}
 
-	double l_fontSize = m_blockWidth;
-	bool l_broken = false;
-
-	// calculate font size that fits into blocks of the given size:
-	do
+	if(m_fontSize < 1)
 	{
-		cairo_set_font_size(cr, l_fontSize + 1);
+		double l_fontSize = m_blockWidth;
+		bool l_broken = false;
 
-		for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
+		// calculate font size that fits into blocks of the given size:
+		do
 		{
-			for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
+			cairo_set_font_size(cr, l_fontSize + 1);
+
+			for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
 			{
-				CRenderGridBlock *l_block = &(*m_gridData)[row][col];
-
-				if(l_block->shape != RGS_NO_BLOCK)
+				for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
 				{
-					continue;
-				}
+					CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-				cairo_text_extents_t l_extents;
-				cairo_text_extents(cr, m_nfo->GetGridCharUtf8(row, col), &l_extents);
+					if(l_block->shape != RGS_NO_BLOCK)
+					{
+						continue;
+					}
 
-				if(l_extents.width > m_blockWidth || l_extents.height > m_blockHeight)
-				{
-					l_broken = true;
+					cairo_text_extents_t l_extents;
+					cairo_text_extents(cr, m_nfo->GetGridCharUtf8(row, col), &l_extents);
+
+					if(l_extents.width > m_blockWidth || l_extents.height > m_blockHeight)
+					{
+						l_broken = true;
+					}
 				}
 			}
-		}
 
-		if(!l_broken)
-		{
-			l_fontSize++;
-		}
+			if(!l_broken)
+			{
+				l_fontSize++;
+			}
 
-	} while(!l_broken);
-	// :TODO: cache l_fontSize and only recalc if necessary...
+		} while(!l_broken);
+
+		m_fontSize = l_fontSize;
+	}
+	else
+	{
+		cairo_set_font_size(cr, m_fontSize);
+	}
 
 	// get general font info to vertically center chars into the blocks:
 	cairo_font_extents_t l_font_extents;
 	cairo_font_extents(cr, &l_font_extents);
 
 	// draw the chars:
-	for(size_t row = 0; row < m_gridData->GetRows(); row++)
+	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
+	if(a_rowStart != (size_t)-1)
+	{
+		l_rowStart = a_rowStart;
+		l_rowEnd = a_rowEnd;
+	}
+
+	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
 		size_t l_linkPos = 0;
 		bool l_inLink = false;
-
-		if(a_rowStart != (size_t)-1)
-		{
-			if(row < a_rowStart)
-			{
-				continue;
-			}
-			else if(row > a_rowEnd)
-			{
-				break;
-			}
-		}
 
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
