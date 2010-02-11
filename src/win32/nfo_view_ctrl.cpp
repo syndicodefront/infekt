@@ -525,14 +525,13 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 
 		if(l_hGlobal)
 		{
-			wchar_t* l_hCopy = (wchar_t*)GlobalLock(l_hGlobal);
+			wchar_t* l_hCopy = (wchar_t*)::GlobalLock(l_hGlobal);
 
 			memcpy(l_hCopy, l_wstr.c_str(), sizeof(wchar_t) * l_wstr.size());
 			l_hCopy[l_wstr.size()] = 0;
-			GlobalUnlock(l_hCopy); 
+			::GlobalUnlock(l_hCopy); 
 
-			EmptyClipboard();
-
+			::EmptyClipboard();
 			::SetClipboardData(CF_UNICODETEXT, l_hGlobal);
 		}
 
