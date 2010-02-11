@@ -50,6 +50,9 @@ public:
 
 	bool CreateControl(int a_left, int a_top, int a_width, int a_height);
 	HWND GetHwnd() const { return m_hwnd; }
+
+	const std::wstring GetSelectedText() const;
+	void CopySelectedTextToClipboard() const;
 };
 
 

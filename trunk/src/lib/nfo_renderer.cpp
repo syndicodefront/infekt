@@ -71,6 +71,8 @@ bool CNFORenderer::CalculateGrid()
 
 	for(size_t row = 0; row < m_gridData->GetRows(); row++)
 	{
+		bool l_textStarted = false;
+
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			CRenderGridBlock *l_block = &l_grid[row][col];
@@ -81,7 +83,7 @@ bool CNFORenderer::CalculateGrid()
 			case 0:
 			case 9:
 			case 32: /* whitespace */
-				l_block->shape = RGS_WHITESPACE;
+				l_block->shape = (l_textStarted ? RGS_WHITESPACE_IN_TEXT : RGS_WHITESPACE);
 				break;
 
 			case 9600: /* upper half block */
@@ -126,6 +128,26 @@ bool CNFORenderer::CalculateGrid()
 			case 9642: /* black small square */
 				l_block->shape = RGS_BLACK_SMALL_SQUARE;
 				break;
+
+			default:
+				l_textStarted = true;
+			}
+		}
+
+		if(l_textStarted)
+		{
+			for(size_t col = m_gridData->GetCols() - 1; col > 0; col--)
+			{
+				CRenderGridBlock *l_block = &l_grid[row][col];
+
+				if(l_block->shape == RGS_WHITESPACE_IN_TEXT)
+				{
+					l_block->shape = RGS_WHITESPACE;
+				}
+				else if(l_block->shape == RGS_NO_BLOCK)
+				{
+					break;
+				}
 			}
 		}
 	}
@@ -157,10 +179,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface, int dest_x, int des
 
 bool CNFORenderer::Render()
 {
-	if(!m_gridData && !CalculateGrid())
-	{
-		return false;
-	}
+	if(!m_gridData && !CalculateGrid()) return false;
 
 	if(!m_imgSurface)
 	{
@@ -228,7 +247,9 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 		{
 			CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-			if(l_block->shape == RGS_NO_BLOCK || l_block->shape == RGS_WHITESPACE)
+			if(l_block->shape == RGS_NO_BLOCK ||
+				l_block->shape == RGS_WHITESPACE ||
+				l_block->shape == RGS_WHITESPACE_IN_TEXT)
 			{
 				continue;
 			}
@@ -391,8 +412,8 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
 	if(a_rowStart != (size_t)-1)
 	{
-		l_rowStart = a_rowStart;
-		l_rowEnd = a_rowEnd;
+		l_rowStart = std::max<size_t>(a_rowStart, l_rowStart);
+		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
 	}
 
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
@@ -404,7 +425,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		{
 			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-			if(l_block->shape != RGS_NO_BLOCK)
+			if(l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE_IN_TEXT)
 			{
 				continue;
 			}
@@ -412,13 +433,9 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			if(a_rowStart != (size_t)-1)
 			{
 				if(row == a_rowStart && col < a_colStart)
-				{
 					continue;
-				}
 				else if(row == a_rowEnd && col > a_colEnd)
-				{
 					break;
-				}
 			}
 
 			// deal with hyper links:
@@ -481,15 +498,16 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 }
 
 
-bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col)
+bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace) const
 {
-	if(!m_gridData && !CalculateGrid()) return false;
+	if(!m_gridData) return false;
 
 	if(a_row < m_gridData->GetRows() && a_col < m_gridData->GetCols())
 	{
 		const CRenderGridBlock *l_block = &(*m_gridData)[a_row][a_col];
 
-		return (l_block->shape == RGS_NO_BLOCK);
+		return (l_block->shape == RGS_NO_BLOCK ||
+			(a_allowWhiteSpace && l_block->shape == RGS_WHITESPACE_IN_TEXT));
 	}
 
 	return false;
