@@ -164,6 +164,10 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		OnMouseClickEvent(uMsg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 
+	case WM_MBUTTONUP:
+		CopySelectedTextToClipboard();
+		return 0;
+
 	default:
 		return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 	}
@@ -444,6 +448,96 @@ LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wP
 	}
 
 	return ::DefWindowProc(hWindow, uMsg, wParam, lParam);
+}
+
+
+const std::wstring CNFOViewControl::GetSelectedText() const
+{
+	if(m_selStartRow == (size_t)-1 || m_selEndRow == (size_t)-1)
+		return L"";
+
+	std::wstring l_text;
+	size_t l_leftStart = std::numeric_limits<size_t>::max();
+	int l_dryRun = 1;
+
+	do 
+	{
+		for(size_t row = m_selStartRow; row <= m_selEndRow; row++)
+		{
+			bool l_textStarted = false;
+
+			for(size_t col = 0; col < m_gridData->GetCols(); col++)
+			{
+				if(m_selStartRow != (size_t)-1)
+				{
+					if(row == m_selStartRow && col < m_selStartCol)
+						continue;
+					else if(row == m_selEndRow && col > m_selEndCol)
+						break;
+				}
+
+				if(!IsTextChar(row, col, true))
+				{
+					if(!l_dryRun && l_textStarted) l_text += L' ';
+					continue;
+				}
+
+				if(l_dryRun)
+				{
+					if(col < l_leftStart) l_leftStart = col;
+				}
+				else
+				{
+					if(!l_textStarted)
+					{
+						for(size_t p = 0; p < col - l_leftStart; p++)
+							l_text += L' ';
+					}
+
+					l_text += m_nfo->GetGridChar(row, col);
+				}
+
+				l_textStarted = true;
+			}
+
+			if(!l_dryRun)
+			{
+				while(l_text.size() && l_text[l_text.size() - 1] == L' ') l_text.erase(l_text.size() - 1);
+
+				if(row != m_selEndRow)
+					l_text += L"\r\n"; // SetClipboardContent with CF_UNICODETEXT wants \r\n instead of \n...
+			}
+		}
+	} while(l_dryRun--);
+
+	return l_text;
+}
+
+
+void CNFOViewControl::CopySelectedTextToClipboard() const
+{
+	const std::wstring l_wstr = GetSelectedText();
+
+	if(::OpenClipboard(m_hwnd))
+	{
+		HGLOBAL l_hGlobal = ::GlobalAlloc(GMEM_MOVEABLE,
+			sizeof(wchar_t) * (l_wstr.size() + 1));
+
+		if(l_hGlobal)
+		{
+			wchar_t* l_hCopy = (wchar_t*)GlobalLock(l_hGlobal);
+
+			memcpy(l_hCopy, l_wstr.c_str(), sizeof(wchar_t) * l_wstr.size());
+			l_hCopy[l_wstr.size()] = 0;
+			GlobalUnlock(l_hCopy); 
+
+			EmptyClipboard();
+
+			::SetClipboardData(CF_UNICODETEXT, l_hGlobal);
+		}
+
+		::CloseClipboard();
+	}
 }
 
 

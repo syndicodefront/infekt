@@ -23,7 +23,6 @@
 typedef enum _render_grid_shape_t
 {
 	RGS_NO_BLOCK = 0,
-	RGS_WHITESPACE,
 	RGS_FULL_BLOCK,
 	RGS_BLOCK_LOWER_HALF,
 	RGS_BLOCK_UPPER_HALF,
@@ -31,6 +30,8 @@ typedef enum _render_grid_shape_t
 	RGS_BLOCK_RIGHT_HALF,
 	RGS_BLACK_SQUARE,
 	RGS_BLACK_SMALL_SQUARE,
+	RGS_WHITESPACE,
+	RGS_WHITESPACE_IN_TEXT,
 
 	_RGS_MAX
 } ERenderGridShape;
@@ -96,7 +97,7 @@ protected:
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
 		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
 
-	bool IsTextChar(size_t a_row, size_t a_col);
+	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
 public:
 	CNFORenderer();
 	virtual ~CNFORenderer();
