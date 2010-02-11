@@ -75,6 +75,7 @@ protected:
 	S_COLOR_T m_backColor, m_textColor, m_artColor, m_gaussColor;
 	bool m_gaussShadow;
 	int m_gaussBlurRadius;
+	bool m_hilightHyperLinks;
 	S_COLOR_T m_hyperLinkColor;
 	bool m_underlineHyperLinks;
 
@@ -134,6 +135,8 @@ public:
 		m_padding = m_gaussBlurRadius; // space for blur/shadow effect near the edges
 	}
 	int GetGaussBlurRadius() const { return m_gaussBlurRadius; }
+	void SetHilightHyperLinks(bool nb) { m_rendered = m_rendered && (m_hilightHyperLinks == nb); m_hilightHyperLinks = nb; }
+	bool GetHilightHyperLinks() const { return m_hilightHyperLinks; }
 	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_underlineHyperLinks == nb); m_underlineHyperLinks = nb; }
 	bool GetUnderlineHyperLinks() const { return m_underlineHyperLinks; }
 
