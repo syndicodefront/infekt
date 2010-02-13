@@ -454,13 +454,6 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					{
 						l_linkPos = l_linkInfo->GetLength() - 1;
 						l_inLink = true;
-
-						if(m_underlineHyperLinks)
-						{
-							cairo_move_to(cr, l_off_x + col * m_blockWidth, l_off_y + (row + 1) * m_blockHeight);
-							cairo_rel_line_to(cr, l_linkInfo->GetLength() * m_blockWidth, 0);
-							cairo_stroke(cr);
-						}
 					}
 				}
 				else
@@ -483,6 +476,14 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				if(l_inLink)
 				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_hyperLinkColor), a_hyperLinkColor.A / 255.0);
+
+					if(m_underlineHyperLinks)
+					{
+						cairo_move_to(cr, l_off_x + col * m_blockWidth,
+							l_off_y + (row + 1) * m_blockHeight);
+						cairo_rel_line_to(cr, m_blockWidth, 0);
+						cairo_stroke(cr);
+					}
 				}
 				else
 				{
