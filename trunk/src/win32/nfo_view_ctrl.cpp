@@ -510,6 +510,8 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 		}
 	} while(l_dryRun--);
 
+	while(l_text.size() && (l_text[0] == L'\r' || l_text[0] == L'\n')) l_text.erase(0, 1);
+
 	return l_text;
 }
 
