@@ -6,6 +6,14 @@
 using namespace std;
 
 
+enum _toolbar_button_ids {
+	TBBID_OPEN = 30000,
+	TBBID_SETTINGS,
+	TBBID_EDITCOPY,
+	TBBID_ABOUT
+};
+
+
 CMainFrame::CMainFrame() : CFrame()
 {
 	SetView(m_view);
@@ -52,7 +60,7 @@ void CMainFrame::SetupToolbar()
 
 	// hide menubar by default:
 	GetRebar().ShowBand(0, FALSE);
-	m_menuShowing = false;
+	m_menuBarVisible = false;
 
 	AddToolbarButtons();
 }
@@ -90,13 +98,13 @@ void CMainFrame::AddToolbarButtons()
 
 	// define buttons:
 	TBBUTTON l_btns[] = {
-		_TBBTN(ICO_FILEOPEN, 123, defState, defStyle | BTNS_DROPDOWN, "Open (Ctrl+O)"),
+		_TBBTN(ICO_FILEOPEN, TBBID_OPEN, defState, defStyle | BTNS_DROPDOWN, "Open (Ctrl+O)"),
 		_TBSEP,
-		_TBBTN(ICO_SETTINGS, 123, defState, defStyle, "Settings"),
+		_TBBTN(ICO_SETTINGS, TBBID_SETTINGS, defState, defStyle, "Settings"),
 		_TBSEP,
-		_TBBTN(ICO_EDITCOPY, 123, 0, defStyle, "Copy"),
+		_TBBTN(ICO_EDITCOPY, TBBID_EDITCOPY, 0, defStyle, "Copy"),
 		_TBSEP,
-		_TBBTN(ICO_INFO, 123, defState, defStyle, "About"),
+		_TBBTN(ICO_INFO, TBBID_ABOUT, defState, defStyle, "About"),
 	};
 
 #undef _TBSEP
@@ -119,6 +127,16 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDM_EXIT:
 		SendMessage(WM_CLOSE);
 		return TRUE;
+
+	case TBBID_OPEN:
+	case IDM_FILE_OPEN:
+		OpenChooseFileName();
+		return TRUE;
+
+	case TBBID_ABOUT:
+	case IDM_ABOUT:
+		this->MessageBox(_T("Rebecca, you are the love of my life."), _T("About"), MB_ICONINFORMATION);
+		return TRUE;
 	}
 
 	return FALSE;
@@ -129,7 +147,10 @@ void CMainFrame::UpdateCaption()
 {
 	wstring l_caption;
 
-	//if(NFO loaded ... add file name ... :TODO:
+	if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
+	{
+		l_caption = m_view.GetNfoData()->GetFileName();
+	}
 
 	if(!l_caption.empty()) l_caption += _T(" - ");
 	l_caption += FORMAT(_T("iNFEKT v%d.%d.%d"), INFEKT_VERSION_MAJOR % INFEKT_VERSION_MINOR % INFEKT_VERSION_REVISION);
@@ -153,8 +174,8 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	case WM_SYSKEYUP:
 		if(pMsg->wParam == VK_MENU)
 		{
-			GetRebar().ShowBand(0, (m_menuShowing ? FALSE : TRUE));
-			m_menuShowing = !m_menuShowing;
+			GetRebar().ShowBand(0, (m_menuBarVisible ? FALSE : TRUE));
+			m_menuBarVisible = !m_menuBarVisible;
 		}
 		break;
 	}
@@ -173,6 +194,29 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 
 	return WndProcDefault(uMsg, wParam, lParam);
+}
+
+
+void CMainFrame::OpenChooseFileName()
+{
+	OPENFILENAME ofn = {0};
+	TCHAR wszBuf[1000] = {0};
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hInstance = g_hInstance;
+	ofn.hwndOwner = GetHwnd();
+	ofn.lpstrFilter = _T("NFO Files\0*.nfo;*.diz\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = wszBuf;
+	ofn.nMaxFile = 999;
+	ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
+
+	if(GetOpenFileName(&ofn))
+	{
+		m_view.OpenFile(ofn.lpstrFile);
+
+		UpdateCaption();
+	}
 }
 
 

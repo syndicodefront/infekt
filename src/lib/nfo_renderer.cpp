@@ -45,10 +45,25 @@ CNFORenderer::CNFORenderer()
 
 bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 {
-	m_nfo = a_nfo;
-	m_rendered = false;
+	if(a_nfo->HasData())
+	{
+		m_nfo = a_nfo;
 
-	return true;
+		m_rendered = false;
+		m_fontSize = -1;
+		delete m_gridData;
+		m_gridData = NULL;
+
+		if(m_imgSurface)
+		{
+			cairo_surface_destroy(m_imgSurface);
+			m_imgSurface = NULL;
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -588,6 +603,9 @@ bool CNFORenderer::ParseColor(const wchar_t* a_str, S_COLOR_T* ar)
 CNFORenderer::~CNFORenderer()
 {
 	delete m_gridData;
+	
+	if(m_imgSurface)
+		cairo_surface_destroy(m_imgSurface);
 }
 
 

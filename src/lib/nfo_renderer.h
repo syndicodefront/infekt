@@ -104,9 +104,9 @@ public:
 	virtual ~CNFORenderer();
 
 	// mainly important methods:
-	bool AssignNFO(const PNFOData& a_nfo);
+	virtual bool AssignNFO(const PNFOData& a_nfo);
 	bool HasNfoData() const { return (m_nfo ? true : false); }
-	bool DrawToSurface(cairo_surface_t *a_surface, int dest_x, int dest_y,
+	virtual bool DrawToSurface(cairo_surface_t *a_surface, int dest_x, int dest_y,
 		int source_x, int source_y, int width, int height);
 	// you should not call this directly without a good reason, prefer DrawToSurface:
 	bool Render();

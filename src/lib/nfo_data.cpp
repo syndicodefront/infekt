@@ -28,23 +28,19 @@ CNFOData::CNFOData()
 }
 
 
-#ifdef _WIN32
-bool CNFOData::LoadFromFile(const wstring& a_fileName)
-#else
-bool CNFOData::LoadFromFile(const string& a_fileName)
-#endif
+bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 {
 	FILE *l_file = NULL;
 	size_t l_fileBytes;
 
 #ifdef _WIN32
-	if(_wfopen_s(&l_file, a_fileName.c_str(), L"rb") != 0 || !l_file)
+	if(_wfopen_s(&l_file, a_filePath.c_str(), L"rb") != 0 || !l_file)
 #else
-	if(l_file = fopen(a_fileName.c_str(), "rb"))
+	if(l_file = fopen(a_filePath.c_str(), "rb"))
 #endif
 	{
 #ifdef HAVE_BOOST
-		m_lastErrorDescr = FORMAT(L"Unable to open NFO file '%s' (error %d)", a_fileName % errno);
+		m_lastErrorDescr = FORMAT(L"Unable to open NFO file '%s' (error %d)", a_filePath % errno);
 #else
 		m_lastErrorDescr = L"Unable to open NFO file. Please check the file name.";
 #endif
@@ -115,6 +111,11 @@ bool CNFOData::LoadFromFile(const string& a_fileName)
 
 	m_loaded = l_loaded;
 
+	if(l_loaded)
+	{
+		m_filePath = a_filePath;
+	}
+
 	return l_loaded;
 }
 
@@ -133,6 +134,8 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 	if(l_loaded)
 	{
+		m_filePath = _T("");
+
 		// split raw contents into grid buffer.
 
 		size_t l_maxLineLen = 1;
@@ -261,6 +264,17 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 const wstring& CNFOData::GetLastErrorDescription()
 {
 	return m_lastErrorDescr;
+}
+
+
+const std::_tstring CNFOData::GetFileName()
+{
+#ifdef _WIN32
+	const TCHAR* l_name = PathFindFileName(m_filePath.c_str());
+	return l_name;
+#else
+	return "/not_implemented/"; // :TODO:
+#endif
 }
 
 

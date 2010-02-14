@@ -25,8 +25,12 @@ public:
 
 	bool ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg);
 	PNFOViewControl& GetRenderCtrl() { return m_renderControl; }
+	PNFOData& GetNfoData() { return m_nfoData; }
+
+	bool OpenFile(const std::wstring& a_filePath);
 protected:
 	PNFOViewControl m_renderControl;
+	PNFOData m_nfoData;
 
 	virtual void OnCreate();
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);

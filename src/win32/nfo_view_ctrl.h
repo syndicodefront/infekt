@@ -48,6 +48,7 @@ public:
 	CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent);
 	virtual ~CNFOViewControl();
 
+	virtual bool AssignNFO(const PNFOData& a_nfo);
 	bool CreateControl(int a_left, int a_top, int a_width, int a_height);
 	HWND GetHwnd() const { return m_hwnd; }
 

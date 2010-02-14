@@ -59,8 +59,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		m_parent, NULL,
 		m_instance, NULL);
 
-	// :TODO: allow window to receive focus.
-	// :TODO: allow text selection...
+	// :TODO: allow window to receive focus. really?
 
 	if(!m_hwnd)
 	{
@@ -231,9 +230,30 @@ void CNFOViewControl::OnPaint()
 }
 
 
+bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
+{
+	if(CNFORenderer::AssignNFO(a_nfo))
+	{
+		Render();
+		RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		UpdateScrollbars();
+		return true;
+	}
+
+	return false;
+}
+
+
 void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 {
 	size_t l_row, l_col;
+
+	if(!HasNfoData())
+	{
+		m_cursor = IDC_ARROW;
+		return;
+	}
+
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 
 	if(!m_leftMouseDown && m_nfo->GetLink(l_row, l_col) != NULL)
@@ -256,7 +276,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 			m_movedDownMouse = true;
 		}
 	}
-	
+
 	if(m_leftMouseDown && m_movedDownMouse)
 	{
 		if(m_selEndRow != l_row || m_selEndCol != l_col)
@@ -278,8 +298,13 @@ void CNFOViewControl::OnSetCursor()
 void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 {
 	size_t l_row, l_col;
-	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 
+	if(!HasNfoData())
+	{
+		return;
+	}
+
+	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 
 	if(a_event == WM_LBUTTONDOWN)
 	{

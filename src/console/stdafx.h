@@ -47,4 +47,10 @@
 /* local headers */
 #include "infekt.h"
 
+#ifndef _WIN32
+#define _tstring string
+#else
+#define _tstring wstring
+#endif
+
 #endif /* !_STDAFX_H */

@@ -52,11 +52,18 @@
 #include <boost/format.hpp>
 #include <boost/shared_ptr.hpp>
 #include <tchar.h>
+#include <commdlg.h>
 
 /* cairo and other lib headers */
 #include <cairo-win32.h>
 
 /* local headers */
 #include "infekt.h"
+
+#ifndef _WIN32
+#define _tstring string
+#else
+#define _tstring wstring
+#endif
 
 #endif /* !_STDAFX_H */
