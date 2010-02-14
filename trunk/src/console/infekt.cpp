@@ -22,12 +22,6 @@
 #define _T(STR) STR
 #define _tprintf printf
 #define _ftprintf fprintf
-#define _tstring string
-#else
-#ifndef _UNICODE
-#error This project requires unicode compiler settings.
-#endif
-#define _tstring wstring
 #endif
 
 /************************************************************************/

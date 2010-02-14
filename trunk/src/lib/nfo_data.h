@@ -48,14 +48,12 @@ public:
 	CNFOData();
 	virtual ~CNFOData();
 
-#ifdef _WIN32
-	bool LoadFromFile(const std::wstring& a_fileName);
-#else
-	bool LoadFromFile(const std::string& a_fileName);
-#endif
+	bool LoadFromFile(const std::_tstring& a_filePath);
 	bool LoadFromMemory(const unsigned char* a_data, size_t a_dataLen);
 
 	bool HasData() const { return m_loaded; }
+	const std::_tstring GetFilePath() { return m_filePath; }
+	const std::_tstring GetFileName();
 
 	const std::wstring& GetLastErrorDescription();
 	size_t GetGridWidth();
@@ -75,6 +73,7 @@ protected:
 	char *m_utf8Grid;
 	bool m_loaded;
 	std::deque<CNFOHyperLink> m_hyperLinks;
+	std::_tstring m_filePath;
 
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
 };

@@ -8,19 +8,42 @@ CViewContainer::CViewContainer()
 
 }
 
-PNFOData n;
 
 void CViewContainer::OnCreate()
 {
-	n = PNFOData(new CNFOData());
-	n->LoadFromFile(L"C:\\temp\\utf8-2.nfo");
-
 	m_renderControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd()));
+	// :TODO: remove this / use settings instead...
 	m_renderControl->SetGaussColor(S_COLOR_T(0xBF, 0x17, 0x17));
 	m_renderControl->SetArtColor(S_COLOR_T(0xBF, 0x17, 0x17));
-	m_renderControl->AssignNFO(n);
-	m_renderControl->Render();
-	m_renderControl->CreateControl(0, 0, 450, 500);
+	m_renderControl->CreateControl(0, 0, 100, 100);
+}
+
+
+bool CViewContainer::OpenFile(const std::wstring& a_filePath)
+{
+	SetCursor(LoadCursor(NULL, IDC_WAIT));
+
+	if(m_nfoData)
+	{
+		// reset so we don't run into bugs :P :P
+		m_nfoData.reset();
+	}
+
+	m_nfoData = PNFOData(new CNFOData());
+
+	if(m_nfoData->LoadFromFile(a_filePath))
+	{
+		if(m_renderControl->AssignNFO(m_nfoData))
+		{
+			SetCursor(LoadCursor(NULL, IDC_ARROW));
+
+			return true;
+		}
+	}
+
+	SetCursor(LoadCursor(NULL, IDC_ARROW));
+
+	return false;
 }
 
 

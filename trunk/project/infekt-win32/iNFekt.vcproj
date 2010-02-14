@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Win32xxD.lib comctl32.lib cairo-static.lib Msimg32.lib zdll.lib libpng.lib pcred.lib"
+				AdditionalDependencies="Win32xxD.lib comctl32.lib cairo-static.lib Msimg32.lib zdll.lib libpng.lib pcred.lib shlwapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName)-$(PlatformName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Win32xxR.lib comctl32.lib cairo.lib pcre.lib"
+				AdditionalDependencies="Win32xxR.lib comctl32.lib cairo.lib pcre.lib shlwapi.lib"
 				OutputFile="$(OutDir)\$(ProjectName)-$(PlatformName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
@@ -206,10 +206,42 @@
 			<File
 				RelativePath="..\..\src\win32\main_frame.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\win32\main_view.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\nfo_data.cpp"
@@ -254,6 +286,22 @@
 			<File
 				RelativePath="..\..\src\win32\nfo_view_ctrl.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\win32\stdafx.cpp"

@@ -121,7 +121,7 @@ BEGIN
     END
     POPUP "Help"
     BEGIN
-        MENUITEM "About...\tF1",                40001
+        MENUITEM "About...\tF1",                IDM_ABOUT
     END
 END
 

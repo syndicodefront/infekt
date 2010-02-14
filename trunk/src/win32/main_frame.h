@@ -25,18 +25,21 @@ public:
 
 protected:
 	CViewContainer m_view;
-	bool m_menuShowing;
+	bool m_menuBarVisible;
 
-	virtual void OnCreate();
-	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
-	virtual void OnInitialUpdate();
-	//virtual LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
-	virtual void SetupToolbar();
+	// Win32++ stuff start //
+	void OnCreate();
+	BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	void OnInitialUpdate();
+	//LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
+	void SetupToolbar();
+	BOOL PreTranslateMessage(MSG* pMsg);
+	LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	// Win32++ stuff end //
+
 	void AddToolbarButtons();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 	void UpdateCaption();
+	void OpenChooseFileName();
 };
 
 #endif  /* !_MAIN_FRAME_H */
