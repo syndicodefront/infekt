@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "main_frame.h"
 #include "app.h"
+#include "main_frame.h"
+#include "settings_dlg.h"
 #include "resource.h"
 
 using namespace std;
@@ -17,6 +18,35 @@ enum _toolbar_button_ids {
 CMainFrame::CMainFrame() : CFrame()
 {
 	SetView(m_view);
+
+	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
+}
+
+
+void CMainFrame::PreCreate(CREATESTRUCT& cs)
+{
+	// allow width+height to be read from registry
+	// also allow class flags to be set.
+	CFrame::PreCreate(cs);
+
+	if(cs.cx == 0 && cs.cy == 0)
+	{
+		// default dimensions:
+		cs.cx = 630;
+		cs.cy = 680;
+	}
+
+	// avoid stupid things:
+	if(cs.cx < ms_minWidth)
+		cs.cx = ms_minWidth;
+	if(cs.cy < ms_minHeight)
+		cs.cy = ms_minHeight;
+
+	// we center the window in OnInitialUpdate() anyway:
+	cs.x = cs.y = CW_USEDEFAULT;
+
+	// hide the window to avoid flicker:
+	cs.style &= ~WS_VISIBLE;
 }
 
 
@@ -32,7 +62,10 @@ void CMainFrame::OnCreate()
 
 void CMainFrame::OnInitialUpdate()
 {
+	CenterWindow();
 	UpdateCaption();
+
+	ShowWindow();
 }
 
 
@@ -44,19 +77,12 @@ void CMainFrame::SetupToolbar()
 	RBTheme.UseThemes = FALSE;
 	RB.SetRebarTheme(RBTheme);
 
-	// add menu to rebar:
+	// add main window menu into a rebar:
 	GetMenubar().SetMenu(::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_MENU)));
 
-	// adjust some stupid rebar stuff, argh:
-	REBARBANDINFO l_rbbi;
-	l_rbbi.fMask = RBBIM_STYLE;
-	GetRebar().GetBandInfo(0, l_rbbi);
-	l_rbbi.fStyle |= RBBS_TOPALIGN | RBBS_BREAK | RBBS_NOGRIPPER;
-	GetRebar().SetBandInfo(0, l_rbbi);
-
-	GetRebar().GetBandInfo(1, l_rbbi);
-	l_rbbi.fStyle |= RBBS_BREAK | RBBS_BREAK | RBBS_NOGRIPPER;
-	GetRebar().SetBandInfo(1, l_rbbi);
+	// always show grippers:
+	GetRebar().ShowGripper(GetRebar().IDToIndex(IDW_TOOLBAR), TRUE);
+	GetRebar().ShowGripper(GetRebar().IDToIndex(IDW_MENUBAR), TRUE);
 
 	// hide menubar by default:
 	GetRebar().ShowBand(0, FALSE);
@@ -133,6 +159,11 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		OpenChooseFileName();
 		return TRUE;
 
+	case TBBID_SETTINGS: {
+		CSettingsWindowDialog l_dlg(IDD_DLG_SETTINGS, m_hWnd);
+		l_dlg.DoModal();
+		return TRUE; }
+
 	case TBBID_ABOUT:
 	case IDM_ABOUT:
 		this->MessageBox(_T("Rebecca, you are the love of my life."), _T("About"), MB_ICONINFORMATION);
@@ -174,7 +205,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	case WM_SYSKEYUP:
 		if(pMsg->wParam == VK_MENU)
 		{
-			GetRebar().ShowBand(0, (m_menuBarVisible ? FALSE : TRUE));
+			GetRebar().ShowBand(GetRebar().IDToIndex(IDW_MENUBAR), (m_menuBarVisible ? FALSE : TRUE));
 			m_menuBarVisible = !m_menuBarVisible;
 		}
 		break;
@@ -188,9 +219,11 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)
 	{
-	case WM_CLOSE: // :TODO: why is Alt+F4 not sending this?!
-		DestroyWindow(GetHwnd());
-		return 0;
+	case WM_GETMINMAXINFO: {
+		MINMAXINFO* l_info = (MINMAXINFO*)lParam;
+		l_info->ptMinTrackSize.x = ms_minWidth;
+		l_info->ptMinTrackSize.y = ms_minHeight;
+		return 0; }
 	}
 
 	return WndProcDefault(uMsg, wParam, lParam);

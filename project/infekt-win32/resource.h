@@ -3,13 +3,17 @@
 // Used by resource.rc
 //
 #define IDD_DIALOG1                     101
-#define IDD_DLG_MAIN                    101
+#define IDD_TAB_GENERAL                 101
 #define IDR_MAIN_MENU                   102
 #define IDB_PNG_FILEOPEN                107
 #define IDB_PNG_INFO                    108
 #define IDB_PNG_SETTINGS                109
-#define IDB_PNG1                        110
 #define IDB_PNG_EDITCOPY                110
+#define IDD_DIALOG2                     111
+#define IDD_DLG_SETTINGS                111
+#define IDD_TAB_RENDERED                112
+#define IDC_SETTINGS_TAB                1004
+#define IDC_BUTTON1                     1005
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -30,9 +34,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        111
+#define _APS_NEXT_RESOURCE_VALUE        112
 #define _APS_NEXT_COMMAND_VALUE         40016
-#define _APS_NEXT_CONTROL_VALUE         1004
+#define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

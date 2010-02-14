@@ -61,31 +61,34 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Dialog
-//
-
-IDD_DLG_MAIN DIALOGEX 0, 0, 474, 454
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // DESIGNINFO
 //
 
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO 
 BEGIN
-    IDD_DLG_MAIN, DIALOG
+    IDD_DLG_SETTINGS, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 467
+        RIGHTMARGIN, 348
         TOPMARGIN, 7
-        BOTTOMMARGIN, 447
+        BOTTOMMARGIN, 202
+    END
+
+    IDD_TAB_GENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+    END
+
+    IDD_TAB_RENDERED, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -135,6 +138,36 @@ IDB_PNG_FILEOPEN        PNG                     "icons\\folder_txt.png"
 IDB_PNG_INFO            PNG                     "icons\\info.png"
 IDB_PNG_SETTINGS        PNG                     "icons\\advancedsettings.png"
 IDB_PNG_EDITCOPY        PNG                     "icons\\editcopy.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DLG_SETTINGS DIALOGEX 0, 0, 355, 209
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "iNFEKT - Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,245,188,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,298,188,50,14
+    CONTROL         "",IDC_SETTINGS_TAB,"SysTabControl32",TCS_HOTTRACK | TCS_FIXEDWIDTH | WS_TABSTOP,7,7,341,177
+END
+
+IDD_TAB_GENERAL DIALOGEX 0, 0, 185, 93
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "TODO: layout formview",IDC_STATIC,43,33,74,8
+END
+
+IDD_TAB_RENDERED DIALOGEX 0, 0, 185, 93
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    LTEXT           "TODO: layout formview",IDC_STATIC,97,63,74,8
+END
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

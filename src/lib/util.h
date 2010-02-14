@@ -83,4 +83,61 @@ extern "C"
 #endif
 
 
+/* Win32++ helpers */
+#ifdef _WIN32_UI
+
+extern HMODULE g_hUxThemeLib;
+
+class CNonThemedTab : public CTab
+{
+protected:
+	virtual inline LRESULT WndProcDefault(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+		if(uMsg != WM_PAINT && uMsg != WM_ERASEBKGND)
+		{
+			return CTab::WndProcDefault(uMsg, wParam, lParam);
+		}
+		else
+		{
+			return CWnd::WndProcDefault(uMsg, wParam, lParam);
+		}
+	}
+
+public:
+	virtual inline int AddTabPage(CWnd* pWnd, LPCTSTR szTitle, HICON hIcon = 0)
+	{
+		int l_newIdx = CTab::AddTabPage(pWnd, szTitle, hIcon);
+
+		LONG_PTR l_style = GetWindowLongPtr(GWL_STYLE);
+		if((l_style & TCS_OWNERDRAWFIXED) != 0)
+		{
+			SetWindowLongPtr(GWL_STYLE, l_style & ~TCS_OWNERDRAWFIXED);
+		}
+
+		if(SendMessage(CCM_GETVERSION, 0, 0) >= 6)
+		{
+			// adjust XP style background...
+			typedef HRESULT (WINAPI *fEnThDiTe)(HWND hwnd, DWORD dwFlags);
+
+			if(!g_hUxThemeLib)
+			{
+				g_hUxThemeLib = LoadLibrary(_T("uxtheme.dll"));
+			}
+
+			if(g_hUxThemeLib)
+			{
+				if(fEnThDiTe etdt = (fEnThDiTe)GetProcAddress(g_hUxThemeLib, "EnableThemeDialogTexture"))
+				{
+					etdt(GetTabPageInfo(l_newIdx).pWnd->GetHwnd(), ETDT_ENABLETAB);
+				}
+			}
+		}
+
+		return l_newIdx;
+	}
+};
+
+#endif
+
+
 #endif /* !_UTIL_H */

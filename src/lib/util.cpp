@@ -158,4 +158,7 @@ int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 
 	return l_resultId;
 }
+
+
+HMODULE g_hUxThemeLib = 0;
 #endif
