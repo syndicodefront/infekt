@@ -162,6 +162,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	return TRUE;
 }
 
+
 LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	switch(uMsg)

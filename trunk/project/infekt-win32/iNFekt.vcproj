@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="infekt-console"
-	ProjectGUID="{CBB123C8-0763-4BFD-BF90-4DD767096287}"
-	RootNamespace="infektconsole"
+	Name="iNFekt"
+	ProjectGUID="{1A43C657-CFFD-4BDF-A031-7F9C2449D6A0}"
+	RootNamespace="megafox"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\src\console;..\..\src\lib;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;CAIRO_WIN32_STATIC_BUILD"
+				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
+				PreprocessorDefinitions="WIN32;_DEBUG;CAIRO_WIN32_STATIC_BUILD;HAVE_BOOST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,11 +61,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cairo-static.lib Msimg32.lib zdll.lib libpng.lib pcred.lib"
+				AdditionalDependencies="Win32xxD.lib comctl32.lib cairo-static.lib Msimg32.lib zdll.lib libpng.lib pcred.lib"
+				OutputFile="$(OutDir)\$(ProjectName)-$(PlatformName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
+				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -117,13 +119,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".;..\..\src\console;..\..\src\lib;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;HAVE_BOOST"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -136,11 +138,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cairo.lib Msimg32.lib pcre.lib"
+				AdditionalDependencies="Win32xxR.lib comctl32.lib cairo.lib pcre.lib"
+				OutputFile="$(OutDir)\$(ProjectName)-$(PlatformName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
 				GenerateDebugInformation="false"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -177,28 +180,120 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\win32-support\getopt.cpp"
+				RelativePath="..\..\src\win32\app.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\gutf8.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\console\infekt.cpp"
+				RelativePath="..\..\src\win32\main_frame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\main_view.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\nfo_data.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\nfo_renderer.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\nfo_view_ctrl.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\util.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -207,7 +302,35 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\src\console\stdafx.h"
+				RelativePath="..\..\src\win32\app.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\main_frame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\main_view.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\lib\nfo_data.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\lib\nfo_renderer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\nfo_view_ctrl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\lib\util.h"
 				>
 			</File>
 		</Filter>
@@ -216,6 +339,34 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\icons\advancedsettings.png"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\lib\cairo_image_surface_blur.inc"
+				>
+			</File>
+			<File
+				RelativePath=".\icons\editcopy.png"
+				>
+			</File>
+			<File
+				RelativePath=".\icons\folder_txt.png"
+				>
+			</File>
+			<File
+				RelativePath=".\icons\info.png"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\resource.rc"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
