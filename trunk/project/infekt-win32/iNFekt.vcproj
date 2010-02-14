@@ -304,6 +304,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\win32\settings_dlg.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\win32\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -371,6 +391,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\win32\nfo_view_ctrl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\settings_dlg.h"
 				>
 			</File>
 			<File

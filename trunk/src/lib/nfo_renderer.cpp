@@ -242,13 +242,6 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 		cairo_paint(cr);
 	}
 
-	/*if(m_gaussShadow && !a_gaussStep)
-	{
-		l_off_y = -(m_gaussBlurRadius / 2);
-		if(m_gaussBlurRadius < 5) l_off_y--;
-		l_off_x = l_off_y;
-	}*/
-
 	l_off_x += m_padding;
 	l_off_y += m_padding;
 
@@ -270,7 +263,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 				continue;
 			}
 
-			if(l_block->alpha != l_oldAlpha)
+			if(l_block->alpha != l_oldAlpha) // R,G,B never change during the loop.
 			{
 				if(m_gaussShadow && a_gaussStep)
 				{
@@ -312,20 +305,8 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 				break;
 			}
 
-			/*if(m_gaussShadow && !a_gaussStep)
-			{
-				cairo_set_source_rgba(cr, 1, 1, 1, 1);
-			}*/
-
 			cairo_rectangle(cr, l_off_x + l_pos_x, l_off_y + l_pos_y, l_width, l_height);
 			cairo_fill(cr);
-
-			/*if(m_gaussShadow && !a_gaussStep)
-			{
-				cairo_set_source_rgba(cr, 0xB6/255.0, 0x17/255.0, 0x17/255.0, l_block->alpha / 255.0);
-				cairo_rectangle(cr, l_off_x + l_pos_x, l_off_y + l_pos_y, l_width, l_height);
-				cairo_fill(cr);
-			}*/
 		}
 	}
 
@@ -561,10 +542,6 @@ size_t CNFORenderer::GetHeight()
 
 bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
 {
-	int R = 0, G = 0, B = 0, A = 255;
-
-	if(a_str[0] == '#') a_str++;
-
 	if(ar && _stricmp(a_str, "transparent") == 0)
 	{
 		ar->R = ar->G = ar->B = 255;
@@ -572,9 +549,15 @@ bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
 		return true;
 	}
 
+	// HTML/CSS style!
+	if(a_str[0] == '#') a_str++;
+
+	int R = 0, G = 0, B = 0, A = 255;
+
 	if(ar && (strlen(a_str) == 8 && sscanf(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4) ||
 		(strlen(a_str) == 6 && sscanf(a_str, "%2x%2x%2x", &R, &G, &B) == 3))
 	{
+		// it's VERY unlikely these fail with %2x, but whatever...
 		if(R >= 0 && R <= 255 &&
 			G >= 0 && G <= 255 &&
 			B >= 0 && B <= 255 &&

@@ -19,6 +19,8 @@
 #include "targetver.h"
 #ifdef _WIN32
 #include <windows.h>
+#include <shlwapi.h>
+#include <tchar.h>
 #endif
 
 /* standard / system headers */
@@ -35,7 +37,6 @@
 #ifdef HAVE_BOOST
 #include <boost/format.hpp>
 #endif
-#include <tchar.h>
 
 /* cairo and other lib headers */
 #ifdef _WIN32

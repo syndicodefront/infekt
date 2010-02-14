@@ -28,18 +28,21 @@ protected:
 	bool m_menuBarVisible;
 
 	// Win32++ stuff start //
-	void OnCreate();
-	BOOL OnCommand(WPARAM wParam, LPARAM lParam);
-	void OnInitialUpdate();
+	virtual void PreCreate(CREATESTRUCT& cs);
+	virtual void OnCreate();
+	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	virtual void OnInitialUpdate();
 	//LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
-	void SetupToolbar();
-	BOOL PreTranslateMessage(MSG* pMsg);
-	LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual void SetupToolbar();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	// Win32++ stuff end //
 
 	void AddToolbarButtons();
 	void UpdateCaption();
 	void OpenChooseFileName();
+
+	static const int ms_minWidth = 300, ms_minHeight = 150;
 };
 
 #endif  /* !_MAIN_FRAME_H */
