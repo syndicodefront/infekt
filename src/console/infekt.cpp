@@ -27,7 +27,6 @@
 #ifndef _UNICODE
 #error This project requires unicode compiler settings.
 #endif
-#include <tchar.h>
 #define _tstring wstring
 #endif
 
@@ -231,6 +230,15 @@ int main(int argc, char* argv[])
 	if(l_nfoFileName.empty())
 	{
 		fprintf(stderr, "Missing argument: Please specify <input-file.nfo> or try --help");
+
+#ifdef _WIN32
+		if(argc == 1)
+		{
+			printf("\nPress any key to continue...");
+			_getch();
+		}
+#endif
+
 		return 1;
 	}
 
