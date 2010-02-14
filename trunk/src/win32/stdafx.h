@@ -18,6 +18,8 @@
 /* set up WINVER & friends */
 #include "targetver.h"
 
+#define _WIN32_UI
+
 /* Win32++ headers */
 #include <wincore.h>
 #include <dialog.h>
@@ -49,6 +51,7 @@
 #include <uxtheme.h>
 #include <boost/format.hpp>
 #include <boost/shared_ptr.hpp>
+#include <tchar.h>
 
 /* cairo and other lib headers */
 #include <cairo-win32.h>

@@ -34,6 +34,7 @@
 #ifdef HAVE_BOOST
 #include <boost/format.hpp>
 #endif
+#include <tchar.h>
 
 /* cairo and other lib headers */
 #ifdef _WIN32
