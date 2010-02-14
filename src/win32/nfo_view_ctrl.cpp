@@ -54,7 +54,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 
 	m_hwnd = ::CreateWindowEx(WS_EX_CLIENTEDGE,
 		NFOVWR_CTRL_CLASS_NAME, NULL,
-		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_BORDER,
+		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
 		m_parent, NULL,
 		m_instance, NULL);

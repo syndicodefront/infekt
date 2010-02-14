@@ -479,8 +479,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 					if(m_underlineHyperLinks)
 					{
-						cairo_move_to(cr, l_off_x + col * m_blockWidth,
-							l_off_y + (row + 1) * m_blockHeight);
+						cairo_move_to(cr, l_off_x + col * m_blockWidth, l_off_y + (row + 1) * m_blockHeight);
 						cairo_rel_line_to(cr, m_blockWidth, 0);
 						cairo_stroke(cr);
 					}

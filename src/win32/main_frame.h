@@ -25,12 +25,14 @@ public:
 
 protected:
 	CViewContainer m_view;
+	bool m_menuShowing;
 
 	virtual void OnCreate();
-	//virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	virtual void OnInitialUpdate();
 	//virtual LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 	virtual void SetupToolbar();
+	void AddToolbarButtons();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 

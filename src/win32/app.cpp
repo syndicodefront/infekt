@@ -23,11 +23,19 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 {
 	g_hInstance = hInstance;
 
-	// Start Win32++
-	CNFOApp theApp;
+	try
+	{
+		// Start Win32++
+		CNFOApp theApp;
 
-	// Run the application
-	return theApp.Run();
+		// Run the application
+		return theApp.Run();
+	}
+	catch (CWinException* e)
+	{
+		e->MessageBox();
+		exit(-1);
+	}
 }
 
 

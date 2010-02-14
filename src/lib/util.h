@@ -15,13 +15,17 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
-
 class CUtil
 {
 public:
 	static std::string FromWideStr(const std::wstring& a_wideStr, unsigned int a_targetCodePage);
 	static std::wstring ToWideStr(const std::string& a_str, unsigned int a_originCodePage);
 	static bool OneCharWideToUtf8(wchar_t a_char, char* a_buf);
+
+#ifdef _WIN32_UI
+	static int AddPngToImageList(HIMAGELIST a_imgList,
+		HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
+#endif
 };
 
 
