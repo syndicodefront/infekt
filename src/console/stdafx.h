@@ -16,19 +16,22 @@
 #ifndef _STDAFX_H
 #define _STDAFX_H
 
-#include "targetver.h"
 #ifdef _WIN32
+#include "targetver.h"
 #include <windows.h>
 #include <shlwapi.h>
 #include <tchar.h>
+#include <io.h>
+#include <conio.h>
+#define _tstring wstring
+#else
+#define _tstring string
 #endif
 
 /* standard / system headers */
 #include <inttypes.h>
 #include <limits>
 #include <stdio.h>
-#include <io.h>
-#include <conio.h>
 #include <string>
 #include <map>
 #include <vector>
@@ -47,11 +50,5 @@
 
 /* local headers */
 #include "infekt.h"
-
-#ifndef _WIN32
-#define _tstring string
-#else
-#define _tstring wstring
-#endif
 
 #endif /* !_STDAFX_H */

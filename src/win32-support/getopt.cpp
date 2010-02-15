@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <tchar.h>
 #include "getopt.h"
 
 #define __inline__
@@ -55,9 +56,7 @@ extern char __declspec(dllimport) *__progname;
 int optind = 1;				/* index for first non-option arg     */
 int opterr = 1;				/* enable built-in error messages     */
 
-char *optarg = NULL;			/* pointer to current option argument */
-
-#define CHAR  char			/* argument type selector */
+TCHAR *optarg = NULL;			/* pointer to current option argument */
 
 #define getopt_switchar         '-'	/* option prefix character in argv    */
 #define getopt_pluschar         '+'	/* prefix for POSIX mode in optstring */
@@ -99,7 +98,7 @@ int optopt = getopt_unknown;	/* return value for option being evaluated   */
 int optreset = 0;
 
 static __inline__
-int getopt_missing_arg( const CHAR *optstring )
+int getopt_missing_arg( const TCHAR *optstring )
 {
   /* Helper function to determine the appropriate return value,
    * for the case where a required option argument is missing.
@@ -119,7 +118,7 @@ int getopt_missing_arg( const CHAR *optstring )
   fprintf( stderr, "%s: "MSG"\n", PROGNAME, ARG )
 
 static __inline__
-int getopt_argerror( int mode, char *fmt, CHAR *prog, struct option *opt, int retval )
+int getopt_argerror( int mode, TCHAR *fmt, TCHAR *prog, struct option *opt, int retval )
 {
   /* Helper function, to generate more complex built-in error
    * messages, for invalid arguments to long form options ...
@@ -138,11 +137,11 @@ int getopt_argerror( int mode, char *fmt, CHAR *prog, struct option *opt, int re
     /*
      * always preface the program name ...
      */
-    fprintf( stderr, "%s: ", prog );
+	_ftprintf( stderr, _T("%s: "), prog );
     /*
      * to the appropriate, option specific message.
      */
-    fprintf( stderr, fmt, flag, opt->name );
+	_ftprintf( stderr, fmt, flag, opt->name );
   }
   /* Whether displaying the message, or not, always set `optopt'
    * to identify the faulty option ...
@@ -172,7 +171,7 @@ int getopt_conventions( int flags )
      * initialise them now!
      */
     conventions = getopt_set_conventions;
-    if( (flags == getopt_pluschar) || (getenv( "POSIXLY_CORRECT" ) != NULL) )
+    if( (flags == getopt_pluschar) )
       conventions |= getopt_posixly_correct;
   }
 
@@ -189,7 +188,7 @@ int getopt_conventions( int flags )
 }
 
 static __inline__
-int is_switchar( CHAR flag )
+int is_switchar( TCHAR flag )
 {
   /* A simple helper function, used to identify the switch character
    * introducing an optional command line argument.
@@ -198,7 +197,7 @@ int is_switchar( CHAR flag )
 }
 
 static __inline__
-const CHAR *getopt_match( CHAR lookup, const CHAR *opt_string )
+const TCHAR *getopt_match( TCHAR lookup, const TCHAR *opt_string )
 {
   /* Helper function, used to identify short form options.
    */
@@ -212,12 +211,12 @@ const CHAR *getopt_match( CHAR lookup, const CHAR *opt_string )
 }
 
 static __inline__
-int getopt_match_long( const CHAR *nextchar, const CHAR *optname )
+int getopt_match_long( const TCHAR *nextchar, const TCHAR *optname )
 {
   /* Helper function, used to identify potential matches for
    * long form options.
    */
-  CHAR matchchar;
+  TCHAR matchchar;
   while( (matchchar = *nextchar++) && (matchchar == *optname) )
     /*
      * skip over initial substring which DOES match.
@@ -240,7 +239,7 @@ int getopt_match_long( const CHAR *nextchar, const CHAR *optname )
      * so this IS a possible match, and what follows is an
      * argument to the possibly matched option.
      */
-    optarg = (char *)(nextchar);
+    optarg = (TCHAR *)(nextchar);
   }
   return *optname
     /*
@@ -256,8 +255,8 @@ int getopt_match_long( const CHAR *nextchar, const CHAR *optname )
 }
 
 static __inline__
-int getopt_resolved( int mode, int argc, CHAR *const *argv, int *argind,
-struct option *opt, int index, int *retindex, const CHAR *optstring )
+int getopt_resolved( int mode, int argc, TCHAR *const *argv, int *argind,
+struct option *opt, int index, int *retindex, const TCHAR *optstring )
 {
   /* Helper function to establish appropriate return conditions,
    * on resolution of a long form option.
@@ -276,7 +275,7 @@ struct option *opt, int index, int *retindex, const CHAR *optstring )
      * it is an error for the user to specify an option specific argument
      * with an option which doesn't expect one!
      */
-    return getopt_argerror( mode, "option `%s%s' doesn't accept an argument\n",
+    return getopt_argerror( mode, _T("option `%s%s' doesn't accept an argument\n"),
 	PROGNAME, opt + index, getopt_unknown );
 
   else if( (optarg == NULL) && (opt[index].has_arg == required_argument) )
@@ -294,7 +293,7 @@ struct option *opt, int index, int *retindex, const CHAR *optstring )
     else
       /* so fail this case, only if no such argument exists!
        */
-      return getopt_argerror( mode, "option `%s%s' requires an argument\n",
+      return getopt_argerror( mode, _T("option `%s%s' requires an argument\n"),
 	  PROGNAME, opt + index, getopt_missing_arg( optstring ) );
   }
 
@@ -314,14 +313,14 @@ struct option *opt, int index, int *retindex, const CHAR *optstring )
 }
 
 static
-#define getopt_std_args int argc, CHAR *const argv[], const CHAR *optstring
+#define getopt_std_args int argc, TCHAR *const argv[], const TCHAR *optstring
 int getopt_parse( int mode, getopt_std_args, ... )
 {
   /* Common core implementation for ALL `getopt' functions.
    */
   static int argind = 0;
   static int optbase = 0;
-  static const CHAR *nextchar = NULL;
+  static const TCHAR *nextchar = NULL;
   static int optmark = 0;
 
   if( (optreset |= (optind < 1)) || (optind < optbase) )
@@ -387,7 +386,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
   {
     /* we are parsing a standard, or short format, option argument ...
      */
-    const CHAR *optchar;
+    const TCHAR *optchar;
     if( (optchar = getopt_match( optopt = *nextchar++, optstring )) != NULL )
     {
       /* we have identified it as valid ...
@@ -396,7 +395,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
       {
 	/* and determined that it requires an associated argument ...
 	 */
-	if( ! *(optarg = (char *)(nextchar)) )
+	if( ! *(optarg = (TCHAR *)(nextchar)) )
 	{
 	  /* the argument is NOT attached ...
 	   */
@@ -466,13 +465,13 @@ int getopt_parse( int mode, getopt_std_args, ... )
     /*
      * we use `this_arg' to store these temporarily.
      */
-    CHAR **this_arg = (CHAR**)new char[optspan * sizeof(CHAR*)];
+    TCHAR **this_arg = (TCHAR**)new TCHAR[optspan * sizeof(TCHAR*)];
     /*
      * we cannot manipulate `argv' directly, since the `getopt'
      * API prototypes it as `read-only'; this cast to `arglist'
      * allows us to work around that restriction.
      */
-    CHAR **arglist = (char **)(argv);
+    TCHAR **arglist = (TCHAR **)(argv);
 
     /* save temporary copies of the arguments which are associated
      * with the current option ...
@@ -520,7 +519,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
       {
 	/* it's a double hyphen argument ... */
 
-	const CHAR *refchar = nextchar;
+	const TCHAR *refchar = nextchar;
 	if( *++refchar )
 	{
 	  /* and it looks like a long format option ...
@@ -543,8 +542,8 @@ int getopt_parse( int mode, getopt_std_args, ... )
 	    /* permuting the argument list as necessary ...
 	     * (note use of `this_arg' and `arglist', as above).
 	     */
-	    CHAR *this_arg = argv[optmark];
-	    CHAR **arglist = (CHAR **)(argv);
+	    TCHAR *this_arg = argv[optmark];
+	    TCHAR **arglist = (TCHAR **)(argv);
 
 	    /* move all preceding non-option arguments to the right ...
 	     */
@@ -710,14 +709,3 @@ int getopt_long_only( getopt_std_args, const struct option *opts, int *index )
   return getopt_parse( getopt_mode_long_only, argc, argv, optstring, opts, index );
 }
 
-#ifdef __weak_alias
-/*
- * These Microsnot style uglified aliases are provided for compatibility
- * with the previous MinGW implementation of the getopt API.
- */
-__weak_alias( getopt, _getopt )
-__weak_alias( getopt_long, _getopt_long )
-__weak_alias( getopt_long_only, _getopt_long_only )
-#endif
-
-/* $RCSfile: getopt.c,v $Revision: 1.9 $: end of file */

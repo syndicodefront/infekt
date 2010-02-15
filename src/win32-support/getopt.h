@@ -38,21 +38,10 @@ extern int optopt;		/* single option character, as parsed     */
 extern int opterr;		/* flag to enable built-in diagnostics... */
 				/* (user may set to zero, to suppress)    */
 
-extern char *optarg;		/* pointer to argument of current option  */
+extern TCHAR *optarg;		/* pointer to argument of current option  */
 
-extern int getopt( int, char * const [], const char * );
+extern int getopt( int, TCHAR * const [], const TCHAR * );
 
-#ifdef _BSD_SOURCE
-/*
- * BSD adds the non-standard `optreset' feature, for reinitialisation
- * of `getopt' parsing.  We support this feature, for applications which
- * proclaim their BSD heritage, before including this header; however,
- * to maintain portability, developers are advised to avoid it.
- */
-# define optreset  __mingw_optreset
-
-extern int optreset;
-#endif
 #ifdef __cplusplus
 }
 #endif
@@ -75,7 +64,7 @@ extern "C" {
 
 struct option		/* specification for a long form option...	*/
 {
-  const char *name;		/* option name, without leading hyphens */
+  const TCHAR *name;		/* option name, without leading hyphens */
   int         has_arg;		/* does it take an argument?		*/
   int        *flag;		/* where to save its status, or NULL	*/
   int         val;		/* its associated status value		*/
@@ -88,21 +77,11 @@ enum    		/* permitted values for its `has_arg' field...	*/
   optional_argument		/* option may take an argument		*/
 };
 
-extern int getopt_long( int, char * const [], const char *, const struct option *, int * );
-extern int getopt_long_only( int, char * const [], const char *, const struct option *, int * );
-/*
- * Previous MinGW implementation had...
- */
-#ifndef HAVE_DECL_GETOPT
-/*
- * ...for the long form API only; keep this for compatibility.
- */
-# define HAVE_DECL_GETOPT	1
-#endif
+extern int getopt_long( int, TCHAR * const [], const TCHAR *, const struct option *, int * );
+extern int getopt_long_only( int, TCHAR * const [], const TCHAR *, const struct option *, int * );
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* !defined(__UNISTD_H_SOURCED__) && !defined(__GETOPT_LONG_H__) */
-/* $RCSfile: getopt.h,v $Revision: 1.4 $: end of file */
