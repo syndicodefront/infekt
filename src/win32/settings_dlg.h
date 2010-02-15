@@ -35,8 +35,13 @@ protected:
 
 class CSettingsTabDialog : public CDialog
 {
+protected:
+	int m_pageId;
+
+	bool IsViewSettingPage() const;
+	static bool IsColorButton(UINT a_id);
 public:
-	CSettingsTabDialog(UINT nResID, HWND hWnd = NULL);
+	CSettingsTabDialog(int a_pageId, UINT nResID);
 	virtual ~CSettingsTabDialog();
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
