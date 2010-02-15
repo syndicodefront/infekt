@@ -65,19 +65,34 @@ typedef struct _s_color_t
 #define _S_COLOR_RGB(R, G, B) _s_color_t(R, G, B, 0xFF)
 
 #define S_COLOR_T_CAIRO(CLR) (CLR).R / 255.0, (CLR).G / 255.0, (CLR).B / 255.0
+#define S_COLOR_T_CAIRO_A(CLR) (CLR).R / 255.0, (CLR).G / 255.0, (CLR).B / 255.0, (CLR).A / 255.0
+
+
+class CNFORenderSettings
+{
+public:
+	// main settings:
+	size_t uBlockHeight, uBlockWidth;
+	S_COLOR_T cBackColor, cTextColor, cArtColor;
+
+	// blur effect settings:
+	S_COLOR_T cGaussColor;
+	bool bGaussShadow;
+	unsigned int uGaussBlurRadius;
+
+	// hyperlink settings:
+	bool bHilightHyperLinks;
+	S_COLOR_T cHyperlinkColor;
+	bool bUnderlineHyperLinks;
+
+// :TODO: Add methods for serialization
+};
 
 
 class CNFORenderer
 {
 protected:
-	// settings:
-	size_t m_blockHeight, m_blockWidth;
-	S_COLOR_T m_backColor, m_textColor, m_artColor, m_gaussColor;
-	bool m_gaussShadow;
-	int m_gaussBlurRadius;
-	bool m_hilightHyperLinks;
-	S_COLOR_T m_hyperLinkColor;
-	bool m_underlineHyperLinks;
+	CNFORenderSettings m_settings;
 
 	// NFO data:
 	PNFOData m_nfo;
@@ -116,35 +131,44 @@ public:
 	size_t GetHeight();
 
 	// color setters & getters:
-	void SetBackColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_backColor == nc); m_backColor = nc; }
-	void SetTextColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_textColor == nc); m_textColor = nc; }
-	void SetArtColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_artColor == nc); m_artColor = nc; }
-	void SetGaussColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_gaussColor == nc); m_gaussColor = nc; }
-	void SetHyperLinkColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_hyperLinkColor == nc); m_hyperLinkColor = nc; }
-	S_COLOR_T GetBackColor() const { return m_backColor; }
-	S_COLOR_T GetTextColor() const { return m_textColor; }
-	S_COLOR_T GetArtColor() const { return m_artColor; }
-	S_COLOR_T GetGaussColor() const { return m_gaussColor; }
-	S_COLOR_T GetHyperLinkColor() const { return m_hyperLinkColor; }
+	void SetBackColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cBackColor == nc); m_settings.cBackColor = nc; }
+	void SetTextColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cTextColor == nc); m_settings.cTextColor = nc; }
+	void SetArtColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cArtColor == nc); m_settings.cArtColor = nc; }
+	void SetGaussColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cGaussColor == nc); m_settings.cGaussColor = nc; }
+	void SetHyperLinkColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cHyperlinkColor == nc); m_settings.cHyperlinkColor = nc; }
+	S_COLOR_T GetBackColor() const { return m_settings.cBackColor; }
+	S_COLOR_T GetTextColor() const { return m_settings.cTextColor; }
+	S_COLOR_T GetArtColor() const { return m_settings.cArtColor; }
+	S_COLOR_T GetGaussColor() const { return m_settings.cGaussColor; }
+	S_COLOR_T GetHyperLinkColor() const { return m_settings.cHyperlinkColor; }
 
 	// various other setters & getters:
-	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_gaussShadow == nb); m_gaussShadow = nb; }
-	bool GetEnableGaussShadow() const { return m_gaussShadow; }
-	void SetGaussBlurRadius(int r) {
-		if(r > 0) { m_rendered = m_rendered && (m_gaussBlurRadius == r); m_gaussBlurRadius = r; }
-		m_padding = m_gaussBlurRadius; // space for blur/shadow effect near the edges
+	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb; }
+	bool GetEnableGaussShadow() const { return m_settings.bGaussShadow; }
+	void SetGaussBlurRadius(unsigned int r) {
+		m_rendered = m_rendered && (m_settings.uGaussBlurRadius == r); m_settings.uGaussBlurRadius = r;
+		m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
 	}
-	int GetGaussBlurRadius() const { return m_gaussBlurRadius; }
-	void SetHilightHyperLinks(bool nb) { m_rendered = m_rendered && (m_hilightHyperLinks == nb); m_hilightHyperLinks = nb; }
-	bool GetHilightHyperLinks() const { return m_hilightHyperLinks; }
-	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_underlineHyperLinks == nb); m_underlineHyperLinks = nb; }
-	bool GetUnderlineHyperLinks() const { return m_underlineHyperLinks; }
+	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
+	void SetHilightHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bHilightHyperLinks == nb); m_settings.bHilightHyperLinks = nb; }
+	bool GetHilightHyperLinks() const { return m_settings.bHilightHyperLinks; }
+	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bUnderlineHyperLinks == nb); m_settings.bUnderlineHyperLinks = nb; }
+	bool GetUnderlineHyperLinks() const { return m_settings.bUnderlineHyperLinks; }
 
 	void SetBlockSize(size_t a_width, size_t a_height) { m_rendered = m_rendered &&
-		a_width == m_blockWidth && a_height == m_blockHeight; m_blockWidth = a_width; m_blockHeight = a_height;
+		a_width == m_settings.uBlockWidth && a_height == m_settings.uBlockHeight; m_settings.uBlockWidth = a_width; m_settings.uBlockHeight = a_height;
 		if(!m_rendered) m_fontSize = -1; }
-	size_t GetBlockWidth() const { return m_blockWidth; }
-	size_t GetBlockHeight() const { return m_blockHeight; }
+	size_t GetBlockWidth() const { return m_settings.uBlockWidth; }
+	size_t GetBlockHeight() const { return m_settings.uBlockHeight; }
+
+	// for quick switching between settings:
+	const CNFORenderSettings GetSettings() const { return m_settings; }
+	void InjectSettings(const CNFORenderSettings& ns) {
+		m_settings = ns;
+		m_rendered = false;
+		m_fontSize = -1;
+		SetGaussBlurRadius(m_settings.uGaussBlurRadius); // not nice...
+	}
 
 	// static color helper methods for anyone to use:
 	static bool ParseColor(const char* a_str, S_COLOR_T* ar);
