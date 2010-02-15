@@ -11,21 +11,27 @@
 #define IDB_PNG_EDITCOPY                110
 #define IDD_DIALOG2                     111
 #define IDD_DLG_SETTINGS                111
-#define IDD_TAB_RENDERED                112
+#define IDD_TAB_VIEWSETTINGS            112
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_BUTTON1                     1007
 #define IDC_CHECK2                      1008
-#define IDC_BUTTON3                     1008
+#define IDC_CLR_BACK                    1008
 #define IDC_CHECK3                      1009
 #define IDC_CHECK4                      1010
-#define IDC_BUTTON4                     1011
-#define IDC_SLIDER1                     1012
+#define IDC_CLR_ART                     1011
+#define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013
-#define IDC_BUTTON5                     1014
-#define IDC_BUTTON6                     1015
-#define IDC_CHECK5                      1016
-#define IDC_CHECK6                      1017
+#define IDC_CLR_GAUSS                   1015
+#define IDC_SYNC_FROM_RENDERED          1016
+#define IDC_SYNC_FROM_NORMAL            1017
+#define IDC_CLR_TEXT                    1018
+#define IDC_GLOW_LABEL1                 1019
+#define IDC_GLOW_LABEL2                 1020
+#define IDC_ACTIVATE_GLOW               1021
+#define IDC_LABEL_ART                   1022
+#define IDC_CLR_LINKS                   1023
+#define IDC_PRERELEASE                  1024
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -48,7 +54,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        112
 #define _APS_NEXT_COMMAND_VALUE         40016
-#define _APS_NEXT_CONTROL_VALUE         1017
+#define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

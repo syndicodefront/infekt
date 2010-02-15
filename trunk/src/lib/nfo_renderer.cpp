@@ -219,7 +219,6 @@ bool CNFORenderer::Render()
 	if(GetEnableGaussShadow())
 	{
 		RenderBlocks(true, true);
-		//cairo_image_surface_blur(m_imgSurface, m_gaussBlurRadius);
 		cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
 		/* idea for later: Use NVIDIA CDU for the gauss blur step. */
 		RenderBlocks(false, false);
