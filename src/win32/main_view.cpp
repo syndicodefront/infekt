@@ -71,6 +71,8 @@ void CViewContainer::OnAfterResize()
 
 bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 {
+	// return false if the message is not supposed to bubble up.
+
 	HWND hScrollTarget = 0;
 	// if type == ...
 	// ...

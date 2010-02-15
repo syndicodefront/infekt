@@ -15,6 +15,11 @@
 #include "stdafx.h"
 #include "nfo_view_ctrl.h"
 
+// makes this control unusable outside of this app, but we need them for the context menu resource:
+#include "app.h"
+#include "resource.h"
+
+
 #define NFOVWR_CTRL_CLASS_NAME _T("RenderedNfoViewCtrl")
 
 
@@ -162,10 +167,11 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_LBUTTONDBLCLK:
 		OnMouseClickEvent(uMsg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
-
-	case WM_MBUTTONUP:
-		CopySelectedTextToClipboard();
-		return 0;
+	case WM_CONTEXTMENU: { // :TODO: Shift+F10 not working
+		POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+		::ScreenToClient(m_hwnd, &pt);
+		OnMouseClickEvent(uMsg, pt.x, pt.y);
+		return 0; }
 
 	default:
 		return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
@@ -372,6 +378,44 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
+	}
+	else if(a_event == WM_CONTEXTMENU)
+	{
+		POINT l_pt;
+		HMENU l_menu, l_popup;
+
+		l_pt.x = a_x;
+		l_pt.y = a_y;
+
+		l_menu = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
+		l_popup = ::GetSubMenu(l_menu, 0);
+
+		if(m_selStartRow == (size_t)-1)
+		{
+			::EnableMenuItem(l_popup, IDMC_COPY, MF_GRAYED | MF_DISABLED);
+		}
+
+		if(m_nfo->GetLink(l_row, l_col) == NULL)
+		{
+			::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, MF_GRAYED | MF_DISABLED);
+		}
+
+		if(!IsTextChar(l_row, l_col, true))
+		{
+			::EnableMenuItem(l_popup, IDMC_SELECTALL, MF_GRAYED | MF_DISABLED);
+		}
+
+		LPTSTR l_oldCursor = m_cursor;
+		m_cursor = IDC_ARROW;
+
+		::ClientToScreen(m_hwnd, &l_pt);
+
+		::TrackPopupMenuEx(l_popup, TPM_LEFTALIGN | TPM_LEFTBUTTON,
+			l_pt.x, l_pt.y, m_hwnd, NULL);
+
+		m_cursor = l_oldCursor;
+
+		::DestroyMenu(l_menu);
 	}
 }
 

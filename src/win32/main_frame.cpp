@@ -166,11 +166,21 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case TBBID_ABOUT:
 	case IDM_ABOUT:
-		this->MessageBox(_T("Rebecca, you are the love of my life."), _T("About"), MB_ICONINFORMATION);
+		SendMessage(WM_HELP);
+		return TRUE;
+
+	case IDMC_COPY:
+		m_view.GetRenderCtrl()->CopySelectedTextToClipboard();
 		return TRUE;
 	}
 
 	return FALSE;
+}
+
+
+void CMainFrame::OnHelp()
+{
+	this->MessageBox(_T("Rebecca, you are the love of my life."), _T("About"), MB_ICONINFORMATION);
 }
 
 
@@ -192,6 +202,8 @@ void CMainFrame::UpdateCaption()
 
 BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
+	/* return TRUE if the message has been translated */
+
 	switch(pMsg->message)
 	{
 	case WM_MOUSEWHEEL:
@@ -199,7 +211,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	case WM_KEYDOWN:
 		if(!m_view.ForwardFocusTypeMouseKeyboardEvent(pMsg))
 		{
-			return FALSE;
+			return TRUE;
 		}
 		break;
 	case WM_SYSKEYUP:
@@ -211,7 +223,16 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		break;
 	}
 
-	return TRUE;
+	if(WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
+	{
+		static HACCEL hAccelTable = NULL;
+		if(!hAccelTable) hAccelTable = ::LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_KEYBOARD_SHORTCUTS));
+
+		if(TranslateAccelerator(m_hWnd, hAccelTable, pMsg))
+			return TRUE;
+	}
+
+	return CWnd::PreTranslateMessage(pMsg);
 }
 
 
