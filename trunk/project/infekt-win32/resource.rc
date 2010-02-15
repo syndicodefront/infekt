@@ -128,6 +128,19 @@ BEGIN
     END
 END
 
+IDR_CONTEXT_MENU MENU 
+BEGIN
+    POPUP "."
+    BEGIN
+        MENUITEM "Copy\tCtrl+C",                IDMC_COPY
+        MENUITEM "Select All\tCtrl+A",          IDMC_SELECTALL
+        MENUITEM SEPARATOR
+        MENUITEM "Copy Shortcut",               IDMC_COPYSHORTCUT
+        MENUITEM SEPARATOR
+        MENUITEM "Always on Top\tCtrl+T",       IDMC_ALWAYSONTOP
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -196,6 +209,20 @@ BEGIN
     CONTROL         "",IDC_CLR_LINKS,"Button",BS_OWNERDRAW | WS_TABSTOP,165,74,50,14,WS_EX_STATICEDGE
     CONTROL         "",IDC_CLR_ART,"Button",BS_OWNERDRAW | WS_TABSTOP,165,98,50,14,WS_EX_STATICEDGE
     LTEXT           ":IMPORTANT: This view mode is not yet available! :IMPORTANT:",IDC_PRERELEASE,122,15,208,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAIN_KEYBOARD_SHORTCUTS ACCELERATORS 
+BEGIN
+    "O",            IDM_FILE_OPEN,          VIRTKEY, CONTROL, NOINVERT
+    "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
+    "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
+    "T",            IDMC_ALWAYSONTOP,       VIRTKEY, CONTROL, NOINVERT
 END
 
 #endif    // English (U.S.) resources

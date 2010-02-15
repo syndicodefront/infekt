@@ -12,6 +12,8 @@
 #define IDD_DIALOG2                     111
 #define IDD_DLG_SETTINGS                111
 #define IDD_TAB_VIEWSETTINGS            112
+#define IDR_CONTEXT_MENU                112
+#define IDR_MAIN_KEYBOARD_SHORTCUTS     113
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_BUTTON1                     1007
@@ -47,13 +49,23 @@
 #define ID_VIEW_TEXTUAL                 40013
 #define ID_VIEW_TEXTONLY                40014
 #define IDM_FILE_OPEN                   40015
+#define ID_COPY                         40016
+#define ID__COPY                        40017
+#define ID__SELECTALL                   40018
+#define ID__ALWAYSONTOP                 40019
+#define ID_Menu                         40020
+#define ID__COPYSHORTCUT                40021
+#define IDMC_COPY                       40022
+#define IDMC_SELECTALL                  40023
+#define IDMC_COPYSHORTCUT               40024
+#define IDMC_ALWAYSONTOP                40025
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        112
-#define _APS_NEXT_COMMAND_VALUE         40016
+#define _APS_NEXT_RESOURCE_VALUE        114
+#define _APS_NEXT_COMMAND_VALUE         40033
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

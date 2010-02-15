@@ -32,6 +32,7 @@ protected:
 	virtual void OnCreate();
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	virtual void OnInitialUpdate();
+	virtual void OnHelp();
 	//LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 	virtual void SetupToolbar();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
