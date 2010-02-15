@@ -26,20 +26,19 @@ CNFORenderer::CNFORenderer()
 	m_fontSize = -1;
 
 	// default settings:
-	m_blockWidth = 7;
-	m_blockHeight = 12;
+	SetBlockSize(7, 12);
 
-	m_gaussShadow = true;
-	m_gaussColor = _S_COLOR_RGB(0, 0, 0);
+	SetEnableGaussShadow(true);
+	SetGaussColor(_S_COLOR_RGB(0, 0, 0));
 	SetGaussBlurRadius(10);
 
-	m_backColor = _S_COLOR_RGB(0xFF, 0xFF, 0xFF);
-	m_textColor = _S_COLOR_RGB(0, 0, 0);
-	m_artColor = _S_COLOR_RGB(0, 0, 0);
+	SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
+	SetTextColor(_S_COLOR_RGB(0, 0, 0));
+	SetArtColor(_S_COLOR_RGB(0, 0, 0));
 
-	m_hilightHyperLinks = true;
-	m_hyperLinkColor = _S_COLOR_RGB(0, 0, 0xFF);
-	m_underlineHyperLinks = true;
+	SetHilightHyperLinks(true);
+	SetHyperLinkColor(_S_COLOR_RGB(0, 0, 0xFF));
+	SetUnderlineHyperLinks(true);
 }
 
 
@@ -200,20 +199,28 @@ bool CNFORenderer::Render()
 	if(!m_imgSurface)
 	{
 		m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-			m_gridData->GetCols() * m_blockWidth + m_padding * 2,
-			m_gridData->GetRows() * m_blockHeight + m_padding * 2);
-	}
+			m_gridData->GetCols() * GetBlockWidth() + m_padding * 2,
+			m_gridData->GetRows() * GetBlockHeight() + m_padding * 2);
 
-	if(!m_imgSurface)
+		if(!m_imgSurface)
+		{
+			return false;
+		}
+	}
+	else
 	{
-		return false;
+		// clean. :TODO: find out if really necessary.
+		cairo_t* cr = cairo_create(m_imgSurface);
+		cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
+		cairo_paint(cr);
+		cairo_destroy(cr);
 	}
 
-	if(m_gaussShadow)
+	if(GetEnableGaussShadow())
 	{
 		RenderBlocks(true, true);
 		//cairo_image_surface_blur(m_imgSurface, m_gaussBlurRadius);
-		cairo_blur_image_surface(m_imgSurface, m_gaussBlurRadius);
+		cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
 		/* idea for later: Use NVIDIA CDU for the gauss blur step. */
 		RenderBlocks(false, false);
 	}
@@ -236,9 +243,9 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 
 	cairo_t* cr = cairo_create(m_imgSurface);
 
-	if(a_opaqueBg && m_backColor.A > 0)
+	if(a_opaqueBg && GetBackColor().A > 0)
 	{
-		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_backColor), m_backColor.A / 255.0);
+		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
 		cairo_paint(cr);
 	}
 
@@ -265,21 +272,21 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 
 			if(l_block->alpha != l_oldAlpha) // R,G,B never change during the loop.
 			{
-				if(m_gaussShadow && a_gaussStep)
+				if(GetEnableGaussShadow() && a_gaussStep)
 				{
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_gaussColor), (l_block->alpha / 255.0) * (m_gaussColor.A / 255.0));
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(GetGaussColor()), (l_block->alpha / 255.0) * (GetGaussColor().A / 255.0));
 				}
 				else
 				{
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(m_artColor), (l_block->alpha / 255.0) * (m_artColor.A / 255.0));
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(GetArtColor()), (l_block->alpha / 255.0) * (GetArtColor().A / 255.0));
 				}
 				l_oldAlpha = l_block->alpha;
 			}
 
-			double l_pos_x = col * m_blockWidth,
-				l_pos_y = row * m_blockHeight,
-				l_width = m_blockWidth,
-				l_height = m_blockHeight;
+			double l_pos_x = col * GetBlockWidth(),
+				l_pos_y = row * GetBlockHeight(),
+				l_width = GetBlockWidth(),
+				l_height = GetBlockHeight();
 
 			switch(l_block->shape)
 			{
@@ -294,14 +301,14 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 				l_width /= 2;
 				break;
 			case RGS_BLACK_SQUARE:
-				l_width = l_height = m_blockWidth * 0.75;
-				l_pos_y += m_blockHeight / 2.0 - l_height / 2.0;
-				l_pos_x += m_blockWidth / 2.0 - l_width / 2.0;
+				l_width = l_height = GetBlockWidth() * 0.75;
+				l_pos_y += GetBlockHeight() / 2.0 - l_height / 2.0;
+				l_pos_x += GetBlockWidth() / 2.0 - l_width / 2.0;
 				break;
 			case RGS_BLACK_SMALL_SQUARE:
-				l_width = l_height = m_blockWidth * 0.5;
-				l_pos_y += m_blockHeight / 2.0 - l_height / 2.0;
-				l_pos_x += m_blockWidth / 2.0 - l_width / 2.0;
+				l_width = l_height = GetBlockWidth() * 0.5;
+				l_pos_y += GetBlockHeight() / 2.0 - l_height / 2.0;
+				l_pos_x += GetBlockWidth() / 2.0 - l_width / 2.0;
 				break;
 			}
 
@@ -316,7 +323,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 
 void CNFORenderer::RenderText()
 {
-	RenderText(m_textColor, NULL, m_hyperLinkColor, (size_t)-1, 0, 0, 0, m_imgSurface, 0, 0);
+	RenderText(GetTextColor(), NULL, GetHyperLinkColor(), (size_t)-1, 0, 0, 0, m_imgSurface, 0, 0);
 }
 
 
@@ -350,7 +357,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, l_fontOptions);
 
-	if(m_hilightHyperLinks && m_underlineHyperLinks)
+	if(GetHilightHyperLinks() && GetUnderlineHyperLinks())
 	{
 		cairo_set_line_width(cr, 1);
 		cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // looks better
@@ -358,7 +365,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 	if(m_fontSize < 1)
 	{
-		double l_fontSize = m_blockWidth;
+		double l_fontSize = GetBlockWidth();
 		bool l_broken = false;
 
 		// calculate font size that fits into blocks of the given size:
@@ -380,7 +387,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					cairo_text_extents_t l_extents;
 					cairo_text_extents(cr, m_nfo->GetGridCharUtf8(row, col), &l_extents);
 
-					if(l_extents.width > m_blockWidth || l_extents.height > m_blockHeight)
+					if(l_extents.width > GetBlockWidth() || l_extents.height > GetBlockHeight())
 					{
 						l_broken = true;
 					}
@@ -413,7 +420,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
 	}
 
-	if(m_hilightHyperLinks)
+	if(GetHilightHyperLinks())
 	{
 		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
 	}
@@ -440,7 +447,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					break;
 			}
 
-			if(m_hilightHyperLinks)
+			if(GetHilightHyperLinks())
 			{
 				// deal with hyper links:
 				if(!l_linkPos)
@@ -462,21 +469,21 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			if(a_backColor)
 			{
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(*a_backColor), a_backColor->A / 255.0);
-				cairo_rectangle(cr, l_off_x + col * m_blockWidth, l_off_y + row * m_blockHeight, m_blockWidth, m_blockHeight);
+				cairo_rectangle(cr, l_off_x + col * GetBlockWidth(), l_off_y + row * GetBlockHeight(), GetBlockWidth(), GetBlockHeight());
 				cairo_fill(cr);
 			}
 
-			if(m_hilightHyperLinks)
+			if(GetHilightHyperLinks())
 			{
 				// set color...
 				if(l_inLink)
 				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_hyperLinkColor), a_hyperLinkColor.A / 255.0);
 
-					if(m_underlineHyperLinks)
+					if(GetUnderlineHyperLinks())
 					{
-						cairo_move_to(cr, l_off_x + col * m_blockWidth, l_off_y + (row + 1) * m_blockHeight);
-						cairo_rel_line_to(cr, m_blockWidth, 0);
+						cairo_move_to(cr, l_off_x + col * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
+						cairo_rel_line_to(cr, GetBlockWidth(), 0);
 						cairo_stroke(cr);
 					}
 				}
@@ -487,8 +494,8 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			}
 
 			// finally draw the text:
-			cairo_move_to(cr, l_off_x + col * m_blockWidth,
-				l_off_y + row * m_blockHeight + (l_font_extents.ascent + m_blockHeight) / 2.0);
+			cairo_move_to(cr, l_off_x + col * GetBlockWidth(),
+				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0);
 
 			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
 
@@ -527,7 +534,7 @@ size_t CNFORenderer::GetWidth()
 	if(!m_gridData && !CalculateGrid()) return 0;
 	if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
 
-	return m_gridData->GetCols() * m_blockWidth + m_padding * 2;
+	return m_gridData->GetCols() * GetBlockWidth() + m_padding * 2;
 }
 
 
@@ -536,7 +543,7 @@ size_t CNFORenderer::GetHeight()
 	if(!m_gridData && !CalculateGrid()) return 0;
 	if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
 
-	return m_gridData->GetRows() * m_blockHeight + m_padding * 2;
+	return m_gridData->GetRows() * GetBlockHeight() + m_padding * 2;
 }
 
 

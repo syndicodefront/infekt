@@ -70,7 +70,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 
 	printf("Mode of operation:\n");
 	printf("  -P, --png                   Renders a PNG (default).\n");
-	printf("  -p, --png-basic             Prints the NFO file into a PNG file as text.\n");
+	//printf("  -p, --png-basic             Prints the NFO file into a PNG file as text.\n"); // :TODO: for v0.2
 	printf("  -f, --utf-8                 Converts the NFO file into UTF-8.\n");
 	printf("  -t, --utf-16                Converts the NFO file into UTF-16.\n");
 	printf("  -O, --out-file <PATH>       Sets the output filename. Defaults to input file name plus .png/.nfo.\n");
