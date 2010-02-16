@@ -191,24 +191,24 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     GROUPBOX        "Flags",IDC_STATIC,7,7,323,51
-    CONTROL         "Activate Glow Effect",IDC_ACTIVATE_GLOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,126,22,81,10
+    CONTROL         "Activate Glow Effect",IDC_ACTIVATE_GLOW,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,126,22,81,10
     GROUPBOX        "Colors",IDC_STATIC,7,60,323,76
     LTEXT           "Background:",IDC_STATIC,15,99,41,8
     LTEXT           "Block Art:",IDC_LABEL_ART,125,99,32,8
     LTEXT           "Glow Effect:",IDC_GLOW_LABEL1,229,76,40,8
     LTEXT           "Normal Text:",IDC_STATIC,15,76,42,8
     CONTROL         "",IDC_CLR_TEXT,"Button",BS_OWNERDRAW | WS_TABSTOP,62,74,50,14,WS_EX_STATICEDGE
-    CONTROL         "Highlight Hyperlinks",IDC_HILIGHT_LINKS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,22,78,10
-    CONTROL         "Underline Hyperlinks",IDC_UNDERL_LINKS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,39,81,10
+    CONTROL         "Highlight Hyperlinks",IDC_HILIGHT_LINKS,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,22,78,10
+    CONTROL         "Underline Hyperlinks",IDC_UNDERL_LINKS,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,39,81,10
     LTEXT           "Glow Radius:",IDC_GLOW_LABEL2,126,40,42,8
     CONTROL         "",IDC_GLOW_RADIUS,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,170,37,100,15
     PUSHBUTTON      "Preview",IDC_BUTTON2,277,119,50,14
     CONTROL         "",IDC_CLR_BACK,"Button",BS_OWNERDRAW | WS_TABSTOP,62,97,50,14,WS_EX_STATICEDGE
     CONTROL         "",IDC_CLR_GAUSS,"Button",BS_OWNERDRAW | WS_TABSTOP,271,74,50,14,WS_EX_STATICEDGE
     CONTROL         "Synchronize settings from Rendered View",IDC_SYNC_FROM_RENDERED,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,146,149,10
-    CONTROL         "Synchronize settings from Standard View",IDC_SYNC_FROM_NORMAL,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,190,146,147,10
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,7,146,149,10
+    CONTROL         "Synchronize settings from Classic View",IDC_SYNC_FROM_NORMAL,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,190,146,139,10
     LTEXT           "The Windows color picker does not support an alpha channel setting, so you have to edit the Registry to change that until we made our own picker.",IDC_STATIC,15,117,244,16
     LTEXT           "Hyperlinks:",IDC_STATIC,126,76,36,8
     CONTROL         "",IDC_CLR_LINKS,"Button",BS_OWNERDRAW | WS_TABSTOP,165,74,50,14,WS_EX_STATICEDGE

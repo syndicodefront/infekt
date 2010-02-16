@@ -18,6 +18,8 @@
 #include "main_frame.h"
 
 
+class CSettingsTabDialog;
+
 class CSettingsWindowDialog : public CDialog
 {
 public:
@@ -30,9 +32,15 @@ protected:
 	CNonThemedTab m_tabControl;
 	CMainFrame* m_mainWin;
 
+	CSettingsTabDialog* m_tabPageGeneral;
+	CSettingsTabDialog* m_tabPageRendered;
+	CSettingsTabDialog* m_tabPageClassic;
+	CSettingsTabDialog* m_tabPageTextOnly;
+
 	virtual BOOL OnInitDialog();
-	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	//virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual void OnOK();
+	virtual void OnCancel();
 };
 
 
@@ -42,6 +50,7 @@ public:
 	CSettingsTabDialog(CSettingsWindowDialog* a_dlg, int a_pageId, UINT nResID);
 	virtual ~CSettingsTabDialog();
 
+	bool SaveViewSettings();
 protected:
 	int m_pageId;
 	CNFORenderSettings* m_viewSettings;
