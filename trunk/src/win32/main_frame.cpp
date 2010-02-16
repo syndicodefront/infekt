@@ -174,15 +174,24 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		return TRUE;
 
 	case IDMC_COPY:
-		m_view.GetRenderCtrl()->CopySelectedTextToClipboard();
+		m_view.CopySelectedTextToClipboard();
+		return TRUE;
+
+	case IDMC_SELECTALL:
+		m_view.SelectAll();
+		return TRUE;
+
+	case IDMC_COPYSHORTCUT:
+		this->MessageBox(_T("Not implemented!"), _T("Fail"), MB_ICONEXCLAMATION);
 		return TRUE;
 
 	case IDM_EXPORT_PNG:
+	case IDM_EXPORT_PNG_TRANSP:
 	case IDM_EXPORT_UTF8:
 	case IDM_EXPORT_UTF16:
 	case IDM_EXPORT_XHTML:
 	case IDM_EXPORT_PDF:
-		Export(LOWORD(wParam));
+		DoNfoExport(LOWORD(wParam));
 		return TRUE;
 	}
 
@@ -282,7 +291,7 @@ void CMainFrame::OpenChooseFileName()
 }
 
 
-void CMainFrame::Export(UINT a_id)
+void CMainFrame::DoNfoExport(UINT a_id)
 {
 	if(!m_view.GetNfoData() || !m_view.GetNfoData()->HasData())
 	{
@@ -296,13 +305,57 @@ void CMainFrame::Export(UINT a_id)
 	l_baseFileName = l_buf;
 	delete[] l_buf;
 
-	if(a_id == IDM_EXPORT_PNG)
+	if(a_id == IDM_EXPORT_PNG || a_id == IDM_EXPORT_PNG_TRANSP)
 	{
-		// :TODO:
+		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			_T("PNG File\0*.png\0\0"), _T("png"), l_baseFileName + _T(".png"));
+
+		if(!l_filePath.empty())
+		{
+			CNFORenderer l_renderer;
+			CNFORenderSettings l_settings = m_view.GetRenderCtrl()->GetSettings();
+
+			if(a_id == IDM_EXPORT_PNG_TRANSP)
+			{
+				l_settings.cBackColor.A = 0;
+			}
+
+			bool l_ok = false;
+
+			l_renderer.InjectSettings(l_settings);
+			
+			if(l_renderer.AssignNFO(m_view.GetNfoData()))
+			{
+				size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
+
+				if(cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight))
+				{
+					l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0,  l_imgWidth, l_imgHeight);
+
+					const std::string l_utfFilePath = CUtil::FromWideStr(l_filePath, CP_UTF8);
+					if(cairo_surface_write_to_png(l_surface, l_utfFilePath.c_str()) != CAIRO_STATUS_SUCCESS)
+					{
+						this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
+					}
+					else
+					{
+						this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+					}
+
+					cairo_surface_destroy(l_surface);
+					l_ok = true;
+				}
+			}
+
+			if(!l_ok)
+			{
+				this->MessageBox(_T("An internal error occured!"), _T("Fail"), MB_ICONEXCLAMATION);
+			}
+		}
 	}
 	else if(a_id == IDM_EXPORT_UTF8 || a_id == IDM_EXPORT_UTF16)
 	{
-		_tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
 			_T("NFO File\0*.nfo;\0Text File\0*.txt\0\0"), _T("nfo"),
 			l_baseFileName + (a_id == IDM_EXPORT_UTF8 ? _T("-utf8.nfo") : _T("-utf16.nfo")));
 

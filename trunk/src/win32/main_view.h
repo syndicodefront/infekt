@@ -28,6 +28,10 @@ public:
 	PNFOData& GetNfoData() { return m_nfoData; }
 
 	bool OpenFile(const std::wstring& a_filePath);
+
+	const std::wstring GetSelectedText() const;
+	void CopySelectedTextToClipboard() const;
+	void SelectAll();
 protected:
 	PNFOViewControl m_renderControl;
 	PNFOData m_nfoData;

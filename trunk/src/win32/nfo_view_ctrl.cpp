@@ -29,7 +29,9 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORen
 	m_left = m_top = m_width = m_height = 0;
 	m_hwnd = 0;
 	m_cursor = IDC_ARROW;
+
 	m_contextMenuHandle = NULL;
+	m_contextMenuCommandTarget = NULL;
 
 	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
 	m_leftMouseDown = m_movedDownMouse = false;
@@ -172,7 +174,12 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		::ScreenToClient(m_hwnd, &pt);
 		OnMouseClickEvent(uMsg, pt.x, pt.y);
 		return 0; }
-
+	case WM_COMMAND:
+		if(HIWORD(wParam) == 0) // is it a menu?
+		{
+			PostMessage(m_contextMenuCommandTarget, WM_COMMAND, wParam, lParam);
+		}
+		return 0;
 	default:
 		return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 	}
@@ -615,9 +622,23 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 }
 
 
-void CNFOViewControl::SetContextMenu(HMENU a_menuHandle)
+void CNFOViewControl::SelectAll()
+{
+	if(m_gridData)
+	{
+		m_selStartCol = m_selStartRow = 0;
+		m_selEndRow = m_gridData->GetRows();
+		m_selEndCol = m_gridData->GetCols();
+
+		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+	}
+}
+
+
+void CNFOViewControl::SetContextMenu(HMENU a_menuHandle, HWND a_target)
 {
 	m_contextMenuHandle = a_menuHandle;
+	m_contextMenuCommandTarget = a_target;
 }
 
 
