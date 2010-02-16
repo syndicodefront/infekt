@@ -40,6 +40,7 @@ protected:
 	virtual void SetupToolbar();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	virtual inline void SetStatusText() {}
 	// Win32++ stuff end //
 
 	void AddToolbarButtons();
