@@ -18,6 +18,7 @@
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' " \
 	"version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
+using namespace std;
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszCommandLine, int nShowCmd)
 {
@@ -27,6 +28,32 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	{
 		// Start Win32++
 		CNFOApp theApp;
+
+		wstring l_path(wszCommandLine);
+		if(!l_path.empty())
+		{
+			bool l_ok = false;
+
+			if(l_path[0] == L'"')
+			{
+				l_path.erase(0, 1);
+
+				wstring::size_type l_pos = l_path.find(L'"');
+
+				if(l_pos != wstring::npos)
+				{
+					l_path.erase(l_pos);
+					l_ok = true;
+				}
+			}
+			else
+				l_ok = true;
+
+			if(l_ok)
+			{
+				theApp.SetStartupFilePath(l_path);
+			}
+		}
 
 		// Run the application
 		return theApp.Run();

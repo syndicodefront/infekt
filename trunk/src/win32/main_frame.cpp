@@ -68,6 +68,12 @@ void CMainFrame::OnInitialUpdate()
 	LoadRenderSettingsFromRegistry(_T("RenderedView"), m_view.GetRenderCtrl().get());
 
 	ShowWindow();
+
+	std::_tstring l_path = dynamic_cast<CNFOApp*>(GetApp())->GetStartupFilePath();
+	if(!l_path.empty())
+	{
+		m_view.OpenFile(l_path);
+	}
 }
 
 
