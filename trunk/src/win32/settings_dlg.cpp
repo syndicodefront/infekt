@@ -73,6 +73,9 @@ void CSettingsWindowDialog::OnOK()
 	m_tabPageClassic->SaveViewSettings();
 	m_tabPageTextOnly->SaveViewSettings();
 
+	dynamic_cast<CViewContainer*>(m_mainWin->GetView())
+		->GetRenderCtrl()->InjectSettings(*m_tabPageRendered->GetViewSettings());
+
 	CDialog::OnOK();
 }
 
@@ -186,6 +189,11 @@ BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			int l_pos = SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_GETPOS, 0, 0);
 			std::_tstring l_posStr = FORMAT(_T("%d"), l_pos);
 			SetDlgItemText(IDC_GLOW_RADIUS_LABEL, l_posStr.c_str());
+
+			if(m_viewSettings)
+			{
+				m_viewSettings->uGaussBlurRadius = l_pos;
+			}
 		}
 	}
 

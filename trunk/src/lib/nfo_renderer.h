@@ -166,7 +166,7 @@ public:
 
 	// for quick switching between settings:
 	const CNFORenderSettings GetSettings() const { return m_settings; }
-	void InjectSettings(const CNFORenderSettings& ns);
+	virtual void InjectSettings(const CNFORenderSettings& ns);
 
 	// static color helper methods for anyone to use:
 	static bool ParseColor(const char* a_str, S_COLOR_T* ar);

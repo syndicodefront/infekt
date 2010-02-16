@@ -567,10 +567,10 @@ bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
 			B >= 0 && B <= 255 &&
 			A >= 0 && A <= 255)
 		{
-			ar->R = (unsigned char)R;
-			ar->G = (unsigned char)G;
-			ar->B = (unsigned char)B;
-			ar->A = (unsigned char)A;
+			ar->R = (uint8_t)R;
+			ar->G = (uint8_t)G;
+			ar->B = (uint8_t)B;
+			ar->A = (uint8_t)A;
 
 			return true;
 		}
@@ -589,25 +589,31 @@ bool CNFORenderer::ParseColor(const wchar_t* a_str, S_COLOR_T* ar)
 
 void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 {
-	m_settings = ns;
+	// use the setter methods so m_rendered only goes "false"
+	// if really something has changed.
 
-	if(ns.uBlockHeight > 200)
-		m_settings.uBlockHeight = 12;
-	if(ns.uBlockWidth > 200)
-		m_settings.uBlockHeight = 7;
-	if(ns.uGaussBlurRadius > 100)
-		m_settings.uBlockHeight = 10;
+	if(ns.uBlockWidth < 200 && ns.uBlockHeight < 200)
+		SetBlockSize(ns.uBlockWidth, ns.uBlockHeight);
 
-	m_rendered = false;
-	m_fontSize = -1;
-	SetGaussBlurRadius(m_settings.uGaussBlurRadius); // not nice...
+	SetEnableGaussShadow(ns.bGaussShadow);
+	SetGaussColor(ns.cGaussColor);
+	if(ns.uGaussBlurRadius < 100)
+		SetGaussBlurRadius(ns.uGaussBlurRadius);
+
+	SetBackColor(ns.cBackColor);
+	SetTextColor(ns.cTextColor);
+	SetArtColor(ns.cArtColor);
+
+	SetHilightHyperLinks(ns.bHilightHyperlinks);
+	SetHyperLinkColor(ns.cHyperlinkColor);
+	SetUnderlineHyperLinks(ns.bUnderlineHyperlinks);
 }
 
 
 CNFORenderer::~CNFORenderer()
 {
 	delete m_gridData;
-	
+
 	if(m_imgSurface)
 		cairo_surface_destroy(m_imgSurface);
 }

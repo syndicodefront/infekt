@@ -233,11 +233,18 @@ void CNFOViewControl::OnPaint()
 	}
 	cairo_surface_destroy(l_surface);
 	::EndPaint(m_hwnd, &l_ps);
+
+	if(m_cursor == IDC_WAIT)
+	{
+		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_ARROW));
+	}
 }
 
 
 bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 {
+	::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
 		Render();
@@ -279,7 +286,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 	{
 		m_cursor = IDC_IBEAM;
 	}
-	else
+	else if(m_cursor != IDC_WAIT)
 	{
 		m_cursor = IDC_ARROW;
 	}
@@ -611,6 +618,18 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 void CNFOViewControl::SetContextMenu(HMENU a_menuHandle)
 {
 	m_contextMenuHandle = a_menuHandle;
+}
+
+
+void CNFOViewControl::InjectSettings(const CNFORenderSettings& ns)
+{
+	CNFORenderer::InjectSettings(ns);
+
+	if(!m_rendered)
+	{
+		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
+	}
 }
 
 

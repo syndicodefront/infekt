@@ -57,6 +57,8 @@ public:
 
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
+
+	virtual void InjectSettings(const CNFORenderSettings& ns);
 };
 
 
