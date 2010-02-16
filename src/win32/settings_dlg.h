@@ -51,6 +51,7 @@ public:
 	virtual ~CSettingsTabDialog();
 
 	bool SaveViewSettings();
+	const CNFORenderSettings* GetViewSettings() { return m_viewSettings; }
 protected:
 	int m_pageId;
 	CNFORenderSettings* m_viewSettings;
