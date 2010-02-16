@@ -16,6 +16,9 @@
 #include "settings_dlg.h"
 #include "resource.h"
 
+/************************************************************************/
+/* SOME HELPFUL MACROS AND STUFF                                        */
+/************************************************************************/
 
 enum _tab_page_ids {
 	TAB_PAGE_GENERAL = 1,
@@ -26,7 +29,13 @@ enum _tab_page_ids {
 
 #define SET_DLG_CHECKBOX(ID, BOOLV) \
 	this->SendDlgItemMessage(ID, BM_SETCHECK, ((BOOLV) ? BST_CHECKED : BST_UNCHECKED), 0);
+#define DLG_SHOW_CTRL_IF(CTRL, CONDITION) \
+	::ShowWindow(this->GetDlgItem(CTRL), (CONDITION) ? TRUE : FALSE);
 
+
+/************************************************************************/
+/* CSettingsWindowDialog Implementation                                 */
+/************************************************************************/
 
 CSettingsWindowDialog::CSettingsWindowDialog(UINT nResID, HWND hWndParent) :
 	CDialog(nResID, hWndParent)
@@ -94,27 +103,31 @@ BOOL CSettingsTabDialog::OnInitDialog()
 {
 	if(IsViewSettingPage())
 	{
-		::ShowWindow(GetDlgItem(IDC_SYNC_FROM_NORMAL), (m_pageId == TAB_PAGE_TEXTONLY));
-		::ShowWindow(GetDlgItem(IDC_SYNC_FROM_RENDERED), (m_pageId != TAB_PAGE_RENDERED));
+		DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_NORMAL, m_pageId == TAB_PAGE_TEXTONLY);
+		DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_RENDERED, m_pageId != TAB_PAGE_RENDERED);
 
-		::ShowWindow(GetDlgItem(IDC_ACTIVATE_GLOW), (m_pageId == TAB_PAGE_RENDERED));
-		::ShowWindow(GetDlgItem(IDC_GLOW_LABEL1), (m_pageId == TAB_PAGE_RENDERED));
-		::ShowWindow(GetDlgItem(IDC_GLOW_LABEL2), (m_pageId == TAB_PAGE_RENDERED));
-		::ShowWindow(GetDlgItem(IDC_GLOW_RADIUS_LABEL), (m_pageId == TAB_PAGE_RENDERED));
-		::ShowWindow(GetDlgItem(IDC_GLOW_RADIUS), (m_pageId == TAB_PAGE_RENDERED));
-		::ShowWindow(GetDlgItem(IDC_CLR_GAUSS), (m_pageId == TAB_PAGE_RENDERED));
+		DLG_SHOW_CTRL_IF(IDC_ACTIVATE_GLOW, m_pageId == TAB_PAGE_RENDERED);
+		DLG_SHOW_CTRL_IF(IDC_GLOW_LABEL1, m_pageId == TAB_PAGE_RENDERED);
+		DLG_SHOW_CTRL_IF(IDC_GLOW_LABEL2, m_pageId == TAB_PAGE_RENDERED);
+		DLG_SHOW_CTRL_IF(IDC_GLOW_RADIUS_LABEL, m_pageId == TAB_PAGE_RENDERED);
+		DLG_SHOW_CTRL_IF(IDC_GLOW_RADIUS, m_pageId == TAB_PAGE_RENDERED);
+		DLG_SHOW_CTRL_IF(IDC_CLR_GAUSS, m_pageId == TAB_PAGE_RENDERED);
 
-		::ShowWindow(GetDlgItem(IDC_LABEL_ART), (m_pageId != TAB_PAGE_TEXTONLY));
-		::ShowWindow(GetDlgItem(IDC_CLR_ART), (m_pageId != TAB_PAGE_TEXTONLY));
+		DLG_SHOW_CTRL_IF(IDC_LABEL_ART, m_pageId != TAB_PAGE_TEXTONLY);
+		DLG_SHOW_CTRL_IF(IDC_CLR_ART, m_pageId != TAB_PAGE_TEXTONLY);
 
-		::ShowWindow(GetDlgItem(IDC_PRERELEASE), (m_pageId != TAB_PAGE_RENDERED));
+		DLG_SHOW_CTRL_IF(IDC_PRERELEASE, m_pageId != TAB_PAGE_RENDERED);
 
 		CViewContainer* l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+		m_viewSettings = new CNFORenderSettings();
 
-		if(m_pageId == TAB_PAGE_RENDERED)
+		switch(m_pageId)
 		{
-			m_viewSettings = new CNFORenderSettings();
-			*m_viewSettings = l_view->GetRenderCtrl()->GetSettings();
+		case TAB_PAGE_RENDERED: *m_viewSettings = l_view->GetRenderCtrl()->GetSettings(); break;
+		//case TAB_PAGE_NORMAL: *m_viewSettings = l_view-> break;
+		//case TAB_PAGE_TEXTONLY: *m_viewSettings = l_view-> break;
+		default:
+			delete m_viewSettings; m_viewSettings = NULL;
 		}
 
 		if(m_viewSettings)
@@ -193,7 +206,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM /*lParam*/)
 			l_cc.rgbResult = RGB(l_color->R, l_color->G, l_color->B);
 			l_cc.Flags = CC_FULLOPEN | CC_ANYCOLOR | CC_RGBINIT;
 
-			if(ChooseColor(&l_cc))
+			if(::ChooseColor(&l_cc))
 			{
 				*l_color = _S_COLOR(GetRValue(l_cc.rgbResult), GetGValue(l_cc.rgbResult),
 					GetBValue(l_cc.rgbResult), l_color->A);
@@ -240,7 +253,7 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 
 	if(l_color->A != 255)
 	{
-		// make a background for alpha colors...
+		// make a chess board like background for alpha colors...
 		cairo_set_source_rgb(cr, 1, 1, 1);
 		cairo_paint(cr);
 
@@ -274,5 +287,6 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 
 CSettingsTabDialog::~CSettingsTabDialog() 
 {
+	delete m_viewSettings;
 }
 
