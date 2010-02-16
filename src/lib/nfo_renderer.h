@@ -100,6 +100,7 @@ protected:
 	cairo_surface_t *m_imgSurface;
 
 	// internal state data:
+	// don't mess with these, they are NOT settings:
 	bool m_rendered;
 	int m_padding;
 	double m_fontSize;

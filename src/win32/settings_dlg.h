@@ -24,8 +24,11 @@ public:
 	CSettingsWindowDialog(UINT nResID, HWND hWndParent = NULL);
 	virtual ~CSettingsWindowDialog();
 
+	void SetMainWin(CMainFrame* a_mainWin) { m_mainWin = a_mainWin; }
+	CMainFrame* GetMainWin() const { return m_mainWin; }
 protected:
 	CNonThemedTab m_tabControl;
+	CMainFrame* m_mainWin;
 
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -35,14 +38,21 @@ protected:
 
 class CSettingsTabDialog : public CDialog
 {
+public:
+	CSettingsTabDialog(CSettingsWindowDialog* a_dlg, int a_pageId, UINT nResID);
+	virtual ~CSettingsTabDialog();
+
 protected:
 	int m_pageId;
+	CNFORenderSettings* m_viewSettings;
+	CMainFrame* m_mainWin;
+	CSettingsWindowDialog* m_dlgWin;
 
 	bool IsViewSettingPage() const;
 	static bool IsColorButton(UINT a_id);
-public:
-	CSettingsTabDialog(int a_pageId, UINT nResID);
-	virtual ~CSettingsTabDialog();
+	void DrawColorButton(const LPDRAWITEMSTRUCT a_dis);
+	S_COLOR_T* ColorFromControlId(UINT a_id);
+
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);

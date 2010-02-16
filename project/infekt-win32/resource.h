@@ -34,6 +34,9 @@
 #define IDC_LABEL_ART                   1022
 #define IDC_CLR_LINKS                   1023
 #define IDC_PRERELEASE                  1024
+#define IDC_HILIGHT_LINKS               1025
+#define IDC_UNDERL_LINKS                1026
+#define IDC_GLOW_RADIUS_LABEL           1027
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -64,14 +67,17 @@
 #define IDM_EXPORT_PNG                  40035
 #define IDM_EXPORT_XHTML                40036
 #define IDM_EXPORT_PDF                  40037
+#define ID_TOOLS_SETTINGS               40038
+#define IDMC_SETTINGS                   40040
+#define IDM_SETTINGS                    40042
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        114
-#define _APS_NEXT_COMMAND_VALUE         40038
-#define _APS_NEXT_CONTROL_VALUE         1025
+#define _APS_NEXT_COMMAND_VALUE         40043
+#define _APS_NEXT_CONTROL_VALUE         1028
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
