@@ -31,7 +31,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 		// Run the application
 		return theApp.Run();
 	}
-	catch (CWinException* e)
+	catch(CWinException* e)
 	{
 		e->MessageBox();
 		exit(-1);

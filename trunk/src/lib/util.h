@@ -26,6 +26,9 @@ public:
 #ifdef _WIN32_UI
 	static int AddPngToImageList(HIMAGELIST a_imgList,
 		HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
+	static std::_tstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter);
+	static std::_tstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter,
+		const LPCTSTR a_defaultExt, const std::_tstring& a_currentFileName);
 #endif
 };
 

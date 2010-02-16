@@ -365,7 +365,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	if(m_fontSize < 1)
 	{
 		double l_fontSize = GetBlockWidth();
-		bool l_broken = false;
+		bool l_broken = false, l_foundText = false;
 
 		// calculate font size that fits into blocks of the given size:
 		do
@@ -390,6 +390,8 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					{
 						l_broken = true;
 					}
+
+					l_foundText = true;
 				}
 			}
 
@@ -398,7 +400,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				l_fontSize++;
 			}
 
-		} while(!l_broken);
+		} while(!l_broken && l_foundText);
 
 		m_fontSize = l_fontSize + 1;
 	}
@@ -454,13 +456,18 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					const CNFOHyperLink* l_linkInfo = m_nfo->GetLink(row, col);
 					if(l_linkInfo)
 					{
-						l_linkPos = l_linkInfo->GetLength() - 1;
+						l_linkPos = l_linkInfo->GetLength();
 						l_inLink = true;
 					}
 				}
 				else
 				{
 					l_linkPos--;
+
+					if(l_inLink && !l_linkPos)
+					{
+						l_inLink = false;
+					}
 				}
 			}
 
@@ -497,12 +504,6 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0);
 
 			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
-
-			// link handling part 2, when the link is over:
-			if(l_inLink && !l_linkPos)
-			{
-				l_inLink = false;
-			}
 		}
 	}
 
