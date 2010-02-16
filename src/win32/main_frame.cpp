@@ -65,6 +65,8 @@ void CMainFrame::OnInitialUpdate()
 	CenterWindow();
 	UpdateCaption();
 
+	LoadRenderSettingsFromRegistry(_T("RenderedView"), m_view.GetRenderCtrl().get());
+
 	ShowWindow();
 }
 
@@ -317,6 +319,103 @@ void CMainFrame::Export(UINT a_id)
 	{
 		// :TODO:
 	}
+}
+
+
+bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
+	const CNFORenderSettings& a_settings)
+{
+	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\") + a_key;
+
+	HKEY l_hKey;
+	if(RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	{
+		return false;
+	}
+
+	uint32_t dwTextColor = a_settings.cTextColor.AsWord(),
+		dwBackColor = a_settings.cBackColor.AsWord(),
+		dwArtColor = a_settings.cArtColor.AsWord(),
+		dwLinkColor = a_settings.cHyperlinkColor.AsWord(),
+		dwGaussColor = a_settings.cGaussColor.AsWord();
+
+	RegSetValueEx(l_hKey, _T("ClrText"), 0, REG_DWORD, (LPBYTE)&dwTextColor, sizeof(uint32_t));
+	RegSetValueEx(l_hKey, _T("ClrBack"), 0, REG_DWORD, (LPBYTE)&dwBackColor, sizeof(uint32_t));
+	RegSetValueEx(l_hKey, _T("ClrArt"), 0, REG_DWORD, (LPBYTE)&dwArtColor, sizeof(uint32_t));
+	RegSetValueEx(l_hKey, _T("ClrLink"), 0, REG_DWORD, (LPBYTE)&dwLinkColor, sizeof(uint32_t));
+	RegSetValueEx(l_hKey, _T("ClrGauss"), 0, REG_DWORD, (LPBYTE)&dwGaussColor, sizeof(uint32_t));
+
+	int32_t dwGaussShadow = (a_settings.bGaussShadow ? 1 : 0),
+		dwHilightHyperlinks = (a_settings.bHilightHyperlinks ? 1 : 0),
+		dwUnderlineHyperlinks = (a_settings.bUnderlineHyperlinks ? 1 : 0),
+		dwBlockHeight = a_settings.uBlockHeight,
+		dwBlockWidth = a_settings.uBlockWidth,
+		dwGaussBlurRadius = a_settings.uGaussBlurRadius;
+
+	RegSetValueEx(l_hKey, _T("GaussShadow"), 0, REG_DWORD, (LPBYTE)&dwGaussShadow, sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("HilightHyperlinks"), 0, REG_DWORD, (LPBYTE)&dwHilightHyperlinks, sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("UnderlineHyperlinks"), 0, REG_DWORD, (LPBYTE)&dwUnderlineHyperlinks, sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("BlockHeight"), 0, REG_DWORD, (LPBYTE)&dwBlockHeight, sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("BlockWidth"), 0, REG_DWORD, (LPBYTE)&dwBlockWidth, sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("GaussBlurRadius"), 0, REG_DWORD, (LPBYTE)&dwGaussBlurRadius, sizeof(int32_t));
+
+	RegCloseKey(l_hKey);
+
+	return true;
+}
+
+
+bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target)
+{
+	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\") + a_key;
+
+	HKEY l_hKey;
+	if(!a_target || RegOpenKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	{
+		return false;
+	}
+
+	uint32_t dwTextColor, dwBackColor, dwArtColor, dwLinkColor, dwGaussColor;
+
+	DWORD l_dwType = REG_DWORD;
+	DWORD l_dwBufSz = sizeof(int32_t);
+
+	RegQueryValueEx(l_hKey, _T("ClrText"), NULL, &l_dwType, (LPBYTE)&dwTextColor, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("ClrBack"), NULL, &l_dwType, (LPBYTE)&dwBackColor, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("ClrArt"), NULL, &l_dwType, (LPBYTE)&dwArtColor, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("ClrLink"), NULL, &l_dwType, (LPBYTE)&dwLinkColor, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("ClrGauss"), NULL, &l_dwType, (LPBYTE)&dwGaussColor, &l_dwBufSz);
+
+	int32_t dwGaussShadow, dwHilightHyperlinks, dwUnderlineHyperlinks, dwBlockHeight, dwBlockWidth, dwGaussBlurRadius;
+
+	RegQueryValueEx(l_hKey, _T("GaussShadow"), NULL, &l_dwType, (LPBYTE)&dwGaussShadow, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("HilightHyperlinks"), NULL, &l_dwType, (LPBYTE)&dwHilightHyperlinks, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("UnderlineHyperlinks"), NULL, &l_dwType, (LPBYTE)&dwUnderlineHyperlinks, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("BlockHeight"), NULL, &l_dwType, (LPBYTE)&dwBlockHeight, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("BlockWidth"), NULL, &l_dwType, (LPBYTE)&dwBlockWidth, &l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("GaussBlurRadius"), NULL, &l_dwType, (LPBYTE)&dwGaussBlurRadius, &l_dwBufSz);
+
+	RegCloseKey(l_hKey);
+
+	CNFORenderSettings l_newSets;
+
+	l_newSets.cTextColor = _s_color_t(dwTextColor);
+	l_newSets.cBackColor = _s_color_t(dwBackColor);
+	l_newSets.cArtColor = _s_color_t(dwArtColor);
+	l_newSets.cHyperlinkColor = _s_color_t(dwLinkColor);
+	l_newSets.cGaussColor = _s_color_t(dwGaussColor);
+
+	l_newSets.bGaussShadow = (dwGaussShadow != 0);
+	l_newSets.bHilightHyperlinks = (dwHilightHyperlinks != 0);
+	l_newSets.bUnderlineHyperlinks = (dwUnderlineHyperlinks != 0);
+	l_newSets.uBlockHeight = dwBlockHeight;
+	l_newSets.uBlockWidth = dwBlockWidth;
+	l_newSets.uGaussBlurRadius = dwGaussBlurRadius;
+
+	a_target->InjectSettings(l_newSets);
+
+	return true;
 }
 
 

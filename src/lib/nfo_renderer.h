@@ -41,24 +41,24 @@ typedef struct _render_grid_block_t
 {
 	wchar_t charCode;
 	ERenderGridShape shape;
-	int alpha; /* 0 = invisible, 255 = opaque */
+	uint8_t alpha; /* 0 = invisible, 255 = opaque */
 } CRenderGridBlock;
 
 
 typedef struct _s_color_t
 {
-	unsigned char R;
-	unsigned char G;
-	unsigned char B;
-	unsigned char A; /* 0 = invisible, 255 = opaque */
+	uint8_t R, G, B;
+	uint8_t A; /* 0 = invisible, 255 = opaque */
 
 	_s_color_t() { R = G = B = A = 255; }
-	_s_color_t(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) { R = r; G = g;  B = b; A = a; }
+	_s_color_t(uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255) { R = r; G = g;  B = b; A = a; }
+	_s_color_t(uint32_t wd) { A = (uint8_t)(wd & 0xFF); B = (uint8_t)((wd >> 8) & 0xFF); G = (uint8_t)((wd >> 16) & 0xFF); R = (uint8_t)((wd >> 24) & 0xFF); }
 
 	bool operator==(const _s_color_t &o) const { return (o.R == R && o.G == G && o.B == B && o.A == A); }
 	bool operator!=(const _s_color_t &o) const { return !(*this == o); }
 
 	_s_color_t Invert() const { return _s_color_t(255 - R, 255 - G, 255 - B, A); }
+	uint32_t AsWord() const { return (A) | (B << 8) | (G << 16) | (R << 24); }
 } S_COLOR_T;
 
 #define _S_COLOR(R, G, B, A) _s_color_t(R, G, B, A)
@@ -70,6 +70,8 @@ typedef struct _s_color_t
 
 class CNFORenderSettings
 {
+/* NEVER add string or pointer members to this class without
+	precautions, it's being copied like a struct etc. */
 public:
 	// main settings:
 	size_t uBlockHeight, uBlockWidth;
@@ -81,9 +83,9 @@ public:
 	unsigned int uGaussBlurRadius;
 
 	// hyperlink settings:
-	bool bHilightHyperLinks;
+	bool bHilightHyperlinks;
 	S_COLOR_T cHyperlinkColor;
-	bool bUnderlineHyperLinks;
+	bool bUnderlineHyperlinks;
 
 // :TODO: Add methods for serialization
 };
@@ -151,10 +153,10 @@ public:
 		m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
 	}
 	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
-	void SetHilightHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bHilightHyperLinks == nb); m_settings.bHilightHyperLinks = nb; }
-	bool GetHilightHyperLinks() const { return m_settings.bHilightHyperLinks; }
-	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bUnderlineHyperLinks == nb); m_settings.bUnderlineHyperLinks = nb; }
-	bool GetUnderlineHyperLinks() const { return m_settings.bUnderlineHyperLinks; }
+	void SetHilightHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bHilightHyperlinks == nb); m_settings.bHilightHyperlinks = nb; }
+	bool GetHilightHyperLinks() const { return m_settings.bHilightHyperlinks; }
+	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bUnderlineHyperlinks == nb); m_settings.bUnderlineHyperlinks = nb; }
+	bool GetUnderlineHyperLinks() const { return m_settings.bUnderlineHyperlinks; }
 
 	void SetBlockSize(size_t a_width, size_t a_height) { m_rendered = m_rendered &&
 		a_width == m_settings.uBlockWidth && a_height == m_settings.uBlockHeight; m_settings.uBlockWidth = a_width; m_settings.uBlockHeight = a_height;
@@ -164,12 +166,7 @@ public:
 
 	// for quick switching between settings:
 	const CNFORenderSettings GetSettings() const { return m_settings; }
-	void InjectSettings(const CNFORenderSettings& ns) {
-		m_settings = ns;
-		m_rendered = false;
-		m_fontSize = -1;
-		SetGaussBlurRadius(m_settings.uGaussBlurRadius); // not nice...
-	}
+	void InjectSettings(const CNFORenderSettings& ns);
 
 	// static color helper methods for anyone to use:
 	static bool ParseColor(const char* a_str, S_COLOR_T* ar);

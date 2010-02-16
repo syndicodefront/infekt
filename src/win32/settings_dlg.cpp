@@ -23,7 +23,7 @@
 enum _tab_page_ids {
 	TAB_PAGE_GENERAL = 1,
 	TAB_PAGE_RENDERED,
-	TAB_PAGE_NORMAL,
+	TAB_PAGE_CLASSIC,
 	TAB_PAGE_TEXTONLY
 };
 
@@ -47,10 +47,16 @@ CSettingsWindowDialog::CSettingsWindowDialog(UINT nResID, HWND hWndParent) :
 BOOL CSettingsWindowDialog::OnInitDialog()
 {
 	m_tabControl.AttachDlgItem(IDC_SETTINGS_TAB, this);
-	m_tabControl.AddTabPage(new CSettingsTabDialog(this, TAB_PAGE_GENERAL, IDD_TAB_GENERAL), _T("General"));
-	m_tabControl.AddTabPage(new CSettingsTabDialog(this, TAB_PAGE_RENDERED, IDD_TAB_VIEWSETTINGS), _T("Rendered View"));
-	m_tabControl.AddTabPage(new CSettingsTabDialog(this, TAB_PAGE_NORMAL, IDD_TAB_VIEWSETTINGS), _T("Standard View"));
-	m_tabControl.AddTabPage(new CSettingsTabDialog(this, TAB_PAGE_TEXTONLY, IDD_TAB_VIEWSETTINGS), _T("Text-Only View"));
+
+	m_tabPageGeneral = new CSettingsTabDialog(this, TAB_PAGE_GENERAL, IDD_TAB_GENERAL);
+	m_tabPageRendered = new CSettingsTabDialog(this, TAB_PAGE_RENDERED, IDD_TAB_VIEWSETTINGS);
+	m_tabPageClassic = new CSettingsTabDialog(this, TAB_PAGE_CLASSIC, IDD_TAB_VIEWSETTINGS);
+	m_tabPageTextOnly = new CSettingsTabDialog(this, TAB_PAGE_TEXTONLY, IDD_TAB_VIEWSETTINGS);
+
+	m_tabControl.AddTabPage(m_tabPageGeneral, _T("General"));
+	m_tabControl.AddTabPage(m_tabPageRendered, _T("Rendered View"));
+	m_tabControl.AddTabPage(m_tabPageClassic, _T("Classic View"));
+	m_tabControl.AddTabPage(m_tabPageTextOnly, _T("Text-Only View"));
 
 	m_tabControl.SetItemSize(110, 20);
 	m_tabControl.SelectPage(0);
@@ -61,23 +67,19 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 }
 
 
-BOOL CSettingsWindowDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
+void CSettingsWindowDialog::OnOK()
 {
-	return DialogProcDefault(uMsg, wParam, lParam);
+	m_tabPageRendered->SaveViewSettings();
+	m_tabPageClassic->SaveViewSettings();
+	m_tabPageTextOnly->SaveViewSettings();
+
+	CDialog::OnOK();
 }
 
 
-BOOL CSettingsWindowDialog::OnCommand(WPARAM wParam, LPARAM /*lParam*/)
+void CSettingsWindowDialog::OnCancel()
 {
-	/*
-	switch (LOWORD(wParam))
-	{
-	case IDC_BUTTON_SEND:
-		OnSend();
-		return TRUE;
-	} */
-
-	return FALSE;
+	CDialog::OnCancel();
 }
 
 
@@ -132,8 +134,8 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		if(m_viewSettings)
 		{
-			SET_DLG_CHECKBOX(IDC_HILIGHT_LINKS, m_viewSettings->bHilightHyperLinks);
-			SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperLinks);
+			SET_DLG_CHECKBOX(IDC_HILIGHT_LINKS, m_viewSettings->bHilightHyperlinks);
+			SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
 			SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
 
 			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
@@ -148,7 +150,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 bool CSettingsTabDialog::IsViewSettingPage() const
 {
-	return (m_pageId == TAB_PAGE_RENDERED || m_pageId == TAB_PAGE_NORMAL || m_pageId == TAB_PAGE_TEXTONLY);
+	return (m_pageId == TAB_PAGE_RENDERED || m_pageId == TAB_PAGE_CLASSIC || m_pageId == TAB_PAGE_TEXTONLY);
 }
 
 
@@ -218,6 +220,24 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM /*lParam*/)
 		return TRUE;
 	}
 
+	if(m_viewSettings)
+	{
+		switch(LOWORD(wParam))
+		{
+		case IDC_ACTIVATE_GLOW:
+			m_viewSettings->bGaussShadow = (IsDlgButtonChecked(m_hWnd, IDC_ACTIVATE_GLOW) != 0);
+			break;
+		case IDC_HILIGHT_LINKS:
+			m_viewSettings->bHilightHyperlinks = (IsDlgButtonChecked(m_hWnd, IDC_HILIGHT_LINKS) != 0);
+			break;
+		case IDC_UNDERL_LINKS:
+			m_viewSettings->bUnderlineHyperlinks = (IsDlgButtonChecked(m_hWnd, IDC_UNDERL_LINKS) != 0);
+			break;
+		}
+
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
@@ -282,6 +302,26 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 
 	cairo_destroy(cr);
 	cairo_surface_destroy(l_surface);
+}
+
+
+bool CSettingsTabDialog::SaveViewSettings()
+{
+	if(m_viewSettings)
+	{
+		std::_tstring l_keyName;
+
+		switch(m_pageId)
+		{
+		case TAB_PAGE_RENDERED: l_keyName = _T("RenderedView"); break;
+		case TAB_PAGE_CLASSIC: l_keyName = _T("ClassicView"); break;
+		case TAB_PAGE_TEXTONLY: l_keyName = _T("TextOnlyView"); break;
+		}
+
+		return m_mainWin->SaveRenderSettingsToRegistry(l_keyName, *m_viewSettings);
+	}
+
+	return false;
 }
 
 

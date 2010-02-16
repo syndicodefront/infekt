@@ -421,10 +421,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
 	}
 
-	if(GetHilightHyperLinks())
-	{
-		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
-	}
+	cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
 
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
@@ -590,6 +587,23 @@ bool CNFORenderer::ParseColor(const wchar_t* a_str, S_COLOR_T* ar)
 }
 
 
+void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
+{
+	m_settings = ns;
+
+	if(ns.uBlockHeight > 200)
+		m_settings.uBlockHeight = 12;
+	if(ns.uBlockWidth > 200)
+		m_settings.uBlockHeight = 7;
+	if(ns.uGaussBlurRadius > 100)
+		m_settings.uBlockHeight = 10;
+
+	m_rendered = false;
+	m_fontSize = -1;
+	SetGaussBlurRadius(m_settings.uGaussBlurRadius); // not nice...
+}
+
+
 CNFORenderer::~CNFORenderer()
 {
 	delete m_gridData;
@@ -597,5 +611,4 @@ CNFORenderer::~CNFORenderer()
 	if(m_imgSurface)
 		cairo_surface_destroy(m_imgSurface);
 }
-
 

@@ -23,6 +23,9 @@ public:
 	CMainFrame();
 	virtual ~CMainFrame();
 
+	bool SaveRenderSettingsToRegistry(const std::_tstring& a_key,
+		const CNFORenderSettings& a_settings);
+	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 protected:
 	CViewContainer m_view;
 	bool m_menuBarVisible;
