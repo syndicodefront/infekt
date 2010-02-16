@@ -67,6 +67,8 @@ void CMainFrame::OnInitialUpdate()
 
 	LoadRenderSettingsFromRegistry(_T("RenderedView"), m_view.GetRenderCtrl().get());
 
+	GetStatusbar().SetPartText(0, _T("Hit the Alt key to toggle the menu bar."));
+
 	ShowWindow();
 
 	std::_tstring l_path = dynamic_cast<CNFOApp*>(GetApp())->GetStartupFilePath();
@@ -247,24 +249,34 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 		}
 		break;
 	case WM_SYSKEYUP:
-		if(pMsg->wParam == VK_MENU)
+		if(pMsg->wParam == VK_MENU || pMsg->wParam == VK_F10)
 		{
 			GetRebar().ShowBand(GetRebar().IDToIndex(IDW_MENUBAR), (m_menuBarVisible ? FALSE : TRUE));
 			m_menuBarVisible = !m_menuBarVisible;
+
+			/*if(m_menuBarVisible)
+			{
+				::SetFocus(GetMenubar().GetHwnd());
+			} we can't let this happen or the menu bar will grab all keyboard events...
+			... gonna have to figure this out some other day :TODO: */
 		}
-		break;
+		return TRUE;
 	}
 
-	if(WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
+	if(CWnd::PreTranslateMessage(pMsg))
+	{
+		return TRUE;
+	}
+
+	if(pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST)
 	{
 		static HACCEL hAccelTable = NULL;
 		if(!hAccelTable) hAccelTable = ::LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_KEYBOARD_SHORTCUTS));
 
-		if(TranslateAccelerator(m_hWnd, hAccelTable, pMsg))
-			return TRUE;
+		return ::TranslateAccelerator(m_hWnd, hAccelTable, pMsg);
 	}
 
-	return CWnd::PreTranslateMessage(pMsg);
+	return FALSE;
 }
 
 
