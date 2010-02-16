@@ -107,8 +107,9 @@ BEGIN
         MENUITEM SEPARATOR
         POPUP "&Export"
         BEGIN
-            MENUITEM "As PNG...",                   IDM_EXPORT_PNG
-            MENUITEM "As UTF-8 Text File...",       IDM_EXPORT_UTF8
+            MENUITEM "As PNG...\tCtrl+P",           IDM_EXPORT_PNG
+            MENUITEM "As PNG (transparent)...",     IDM_EXPORT_PNG_TRANSP
+            MENUITEM "As UTF-8 Text File...\tCtrl+S", IDM_EXPORT_UTF8
             MENUITEM "As UTF-16 Text File...",      IDM_EXPORT_UTF16
             MENUITEM "As XHTML...",                 IDM_EXPORT_XHTML
             MENUITEM "As PDF...",                   IDM_EXPORT_PDF
@@ -226,10 +227,12 @@ END
 IDR_MAIN_KEYBOARD_SHORTCUTS ACCELERATORS 
 BEGIN
     "O",            IDM_FILE_OPEN,          VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
     "T",            IDMC_ALWAYSONTOP,       VIRTKEY, CONTROL, NOINVERT
     "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
     "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
-    VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
+    "S",            IDM_EXPORT_UTF8,        VIRTKEY, CONTROL, NOINVERT
+    "P",            IDM_EXPORT_PNG,         VIRTKEY, CONTROL, NOINVERT
 END
 
 #endif    // English (U.S.) resources

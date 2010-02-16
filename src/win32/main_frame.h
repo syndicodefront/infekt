@@ -45,7 +45,7 @@ protected:
 	void AddToolbarButtons();
 	void UpdateCaption();
 	void OpenChooseFileName();
-	void Export(UINT a_id);
+	void DoNfoExport(UINT a_id);
 
 	static const int ms_minWidth = 300, ms_minHeight = 150;
 };

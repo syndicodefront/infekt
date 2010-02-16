@@ -33,6 +33,7 @@ protected:
 	bool m_leftMouseDown, m_movedDownMouse;
 
 	HMENU m_contextMenuHandle;
+	HWND m_contextMenuCommandTarget;
 
 	void UpdateScrollbars();
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);
@@ -52,11 +53,12 @@ public:
 
 	virtual bool AssignNFO(const PNFOData& a_nfo);
 	bool CreateControl(int a_left, int a_top, int a_width, int a_height);
-	void SetContextMenu(HMENU a_menuHandle);
+	void SetContextMenu(HMENU a_menuHandle, HWND a_target);
 	HWND GetHwnd() const { return m_hwnd; }
 
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
+	void SelectAll();
 
 	virtual void InjectSettings(const CNFORenderSettings& ns);
 };

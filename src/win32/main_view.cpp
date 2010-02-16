@@ -12,16 +12,13 @@ CViewContainer::CViewContainer()
 
 void CViewContainer::OnCreate()
 {
+	m_renderControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd()));
+	m_renderControl->CreateControl(0, 0, 100, 100); // WM_SIZE will take care of the real size
+
 	// this context menu will be used for all three view controls.
 	m_contextMenuHandle = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
 
-	m_renderControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd()));
-	// :TODO: remove this / use settings instead...
-	m_renderControl->SetGaussColor(S_COLOR_T(0xBF, 0x17, 0x17));
-	m_renderControl->SetArtColor(S_COLOR_T(0xBF, 0x17, 0x17));
-	m_renderControl->CreateControl(0, 0, 100, 100);
-
-	m_renderControl->SetContextMenu(m_contextMenuHandle);
+	m_renderControl->SetContextMenu(m_contextMenuHandle, GetParent());
 }
 
 
@@ -45,6 +42,11 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 
 			return true;
 		}
+	}
+	else
+	{
+		this->MessageBox(m_nfoData->GetLastErrorDescription().c_str(), _T("Fail"), MB_ICONEXCLAMATION);
+		// :TODO: better error messages blah blah blah
 	}
 
 	SetCursor(LoadCursor(NULL, IDC_ARROW));
@@ -126,6 +128,27 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 		return false;
 	}
+}
+
+
+const std::wstring CViewContainer::GetSelectedText() const
+{
+	// :TODO: type switch
+	return m_renderControl->GetSelectedText();
+}
+
+
+void CViewContainer::CopySelectedTextToClipboard() const
+{
+	// :TODO: type switch
+	m_renderControl->CopySelectedTextToClipboard();
+}
+
+
+void CViewContainer::SelectAll()
+{
+	// :TODO: type switch
+	m_renderControl->SelectAll();
 }
 
 
