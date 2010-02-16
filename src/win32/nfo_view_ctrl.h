@@ -32,6 +32,8 @@ protected:
 	size_t m_selEndRow, m_selEndCol;
 	bool m_leftMouseDown, m_movedDownMouse;
 
+	HMENU m_contextMenuHandle;
+
 	void UpdateScrollbars();
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);
 	void GetScrollPositions(int& ar_x, int& ar_y);
@@ -50,6 +52,7 @@ public:
 
 	virtual bool AssignNFO(const PNFOData& a_nfo);
 	bool CreateControl(int a_left, int a_top, int a_width, int a_height);
+	void SetContextMenu(HMENU a_menuHandle);
 	HWND GetHwnd() const { return m_hwnd; }
 
 	const std::wstring GetSelectedText() const;

@@ -15,10 +15,9 @@
 #include "stdafx.h"
 #include "nfo_view_ctrl.h"
 
-// makes this control unusable outside of this app, but we need them for the context menu resource:
-#include "app.h"
+// makes this control unusable outside of this app, but we need the context menu IDs:
 #include "resource.h"
-
+// :TODO: fix that
 
 #define NFOVWR_CTRL_CLASS_NAME _T("RenderedNfoViewCtrl")
 
@@ -30,6 +29,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORen
 	m_left = m_top = m_width = m_height = 0;
 	m_hwnd = 0;
 	m_cursor = IDC_ARROW;
+	m_contextMenuHandle = NULL;
 
 	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
 	m_leftMouseDown = m_movedDownMouse = false;
@@ -277,6 +277,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 
 	if(m_leftMouseDown && !m_movedDownMouse)
 	{
+		// user starts selecting text
 		if(l_row != m_selStartRow || l_col != m_selStartCol)
 		{
 			m_movedDownMouse = true;
@@ -285,6 +286,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 
 	if(m_leftMouseDown && m_movedDownMouse)
 	{
+		// user selects text, selection "endpoint" has changed
 		if(m_selEndRow != l_row || m_selEndCol != l_col)
 		{
 			m_selEndRow = l_row;
@@ -382,28 +384,16 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 	else if(a_event == WM_CONTEXTMENU)
 	{
 		POINT l_pt;
-		HMENU l_menu, l_popup;
+		HMENU l_popup;
 
 		l_pt.x = a_x;
 		l_pt.y = a_y;
 
-		l_menu = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
-		l_popup = ::GetSubMenu(l_menu, 0);
+		l_popup = ::GetSubMenu(m_contextMenuHandle, 0);
 
-		if(m_selStartRow == (size_t)-1)
-		{
-			::EnableMenuItem(l_popup, IDMC_COPY, MF_GRAYED | MF_DISABLED);
-		}
-
-		if(m_nfo->GetLink(l_row, l_col) == NULL)
-		{
-			::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, MF_GRAYED | MF_DISABLED);
-		}
-
-		if(!IsTextChar(l_row, l_col, true))
-		{
-			::EnableMenuItem(l_popup, IDMC_SELECTALL, MF_GRAYED | MF_DISABLED);
-		}
+		::EnableMenuItem(l_popup, IDMC_COPY, (m_selStartRow == (size_t)-1 ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
+		::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, (!m_nfo->GetLink(l_row, l_col) ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
+		::EnableMenuItem(l_popup, IDMC_SELECTALL, (!IsTextChar(l_row, l_col, true) ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 
 		LPTSTR l_oldCursor = m_cursor;
 		m_cursor = IDC_ARROW;
@@ -414,8 +404,6 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 			l_pt.x, l_pt.y, m_hwnd, NULL);
 
 		m_cursor = l_oldCursor;
-
-		::DestroyMenu(l_menu);
 	}
 }
 
@@ -529,7 +517,7 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 	size_t l_leftStart = std::numeric_limits<size_t>::max();
 	int l_dryRun = 1;
 
-	do 
+	do
 	{
 		for(size_t row = m_selStartRow; row <= m_selEndRow; row++)
 		{
@@ -608,6 +596,12 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 
 		::CloseClipboard();
 	}
+}
+
+
+void CNFOViewControl::SetContextMenu(HMENU a_menuHandle)
+{
+	m_contextMenuHandle = a_menuHandle;
 }
 
 
