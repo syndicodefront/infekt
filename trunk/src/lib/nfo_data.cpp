@@ -128,6 +128,8 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 	m_loaded = false;
 
 	l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
+	if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
+	if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
 	if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen);
 	if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
 
@@ -171,9 +173,17 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 		// :TODO: interpret ANSI escape codes.
 
 		// copy lines to grid(s):
-		delete m_grid;
-		delete m_utf8Grid;
+		delete m_grid; m_grid = NULL;
+		delete m_utf8Grid; m_utf8Grid = NULL;
+		m_hyperLinks.clear();
 		m_utf8Content.clear();
+
+		if(l_lines.size() == 0 || l_maxLineLen == 0)
+		{
+			m_lastErrorDescr = L"Unable to find any lines in this file.";
+			return false;
+		}
+
 		m_utf8Content.reserve(m_textContent.length());
 
 		// allocate mem:
@@ -242,12 +252,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen)
 {
-	if(a_dataLen < 3)
-	{
-		return false;
-	}
-
-	if(a_data[0] != 0xEF || a_data[1] != 0xBB || a_data[2] != 0xBF)
+	if(a_dataLen < 3 || a_data[0] != 0xEF || a_data[1] != 0xBB || a_data[2] != 0xBF)
 	{
 		// no UTF-8 signature found.
 		return false;
@@ -320,6 +325,60 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 	m_sourceCharset = NFOC_CP437;
 
 	return true;
+}
+
+
+bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen)
+{
+	if(a_dataLen < 2 || a_data[0] != 0xFF || a_data[1] != 0xFE)
+	{
+		// no BOM!
+		return false;
+	}
+
+	// skip BOM...
+	a_data += 2;
+
+	// ...and load
+	m_textContent = wstring().append((wchar_t*)(a_data), (a_dataLen - 2) / sizeof(wchar_t));
+
+	return true;
+}
+
+
+bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
+{
+#if !defined(_WIN32)
+	return false;
+#else
+	if(sizeof(wchar_t) != sizeof(unsigned short))
+	{
+		return false;
+	}
+
+	if(a_dataLen < 2 || a_data[0] != 0xFE || a_data[1] != 0xFF)
+	{
+		// no BOM!
+		return false;
+	}
+
+	a_dataLen -= 2;
+
+	wchar_t* l_bufStart = (wchar_t*)(a_data + 2);
+	const size_t l_numWChars = a_dataLen / sizeof(wchar_t);
+
+	wchar_t *l_newBuf = new wchar_t[l_numWChars + 1];
+	memset(l_newBuf, 0, l_numWChars + 1);
+
+	for(size_t p = 0; p < l_numWChars; p++)
+	{
+		l_newBuf[p] = _byteswap_ushort(l_bufStart[p]);
+	}
+
+	m_textContent = wstring().append(l_newBuf, l_numWChars);
+
+	return true;
+#endif
 }
 
 
@@ -495,7 +554,7 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 			if(pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
 			{
 				int idx = (iCaptures == 1 ? 1 : 0) * 2;
-				//assert(ovector[idx] < 0 || ovector[idx + 1] < 0)
+				_ASSERT(ovector[idx] > 0 && ovector[idx + 1] > 0);
 				uBytePos = (size_t)ovector[idx];
 			}
 		}
@@ -522,7 +581,7 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 
 	if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
 	{
-		//assert(ovector[0] == 0);
+		_ASSERT(ovector[0] == 0);
 		uByteLen = (size_t)ovector[1] - (size_t)ovector[0];
 
 		string sWorkUrl = sLineRemainder.substr((size_t)ovector[0], uByteLen);
@@ -573,7 +632,7 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 
 		return (!srUrl.empty());
 	}
-	
+
 	pcre_free(reUrlRemainder);
 
 	return false;

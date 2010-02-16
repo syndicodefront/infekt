@@ -241,8 +241,17 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
 		Render();
-		RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		UpdateScrollbars();
+
+#if 0
+		// :TODO: find out why this does not scroll the contents to the top.
+		int l_x, l_y;
+		GetScrollPositions(l_x, l_y);
+		::ScrollWindow(m_hwnd, -l_x, -l_y, NULL, NULL);
+#endif
+
+		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+
 		return true;
 	}
 
@@ -291,7 +300,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 		{
 			m_selEndRow = l_row;
 			m_selEndCol = l_col;
-			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 	}
 }
@@ -321,7 +330,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 			// clear previous selection
 			m_selStartRow = m_selEndRow = (size_t)-1;
 			m_selStartCol = m_selEndCol = (size_t)-1;
-			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 
 		m_leftMouseDown = true;
@@ -344,7 +353,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 				m_selStartCol = m_selEndCol = (size_t)-1;
 			}
 			m_leftMouseDown = false;
-			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 		
 		if(!m_movedDownMouse)
@@ -378,7 +387,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 				m_selEndCol = ++lc;
 			}
 
-			RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 	}
 	else if(a_event == WM_CONTEXTMENU)

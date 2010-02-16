@@ -416,10 +416,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\lib\cairo_image_surface_blur.inc"
-				>
-			</File>
-			<File
 				RelativePath=".\icons\editcopy.png"
 				>
 			</File>

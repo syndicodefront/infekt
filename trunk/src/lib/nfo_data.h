@@ -93,6 +93,8 @@ protected:
 	std::_tstring m_filePath;
 	TNfoCharset m_sourceCharset;
 
+	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen);
+	bool TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen);
