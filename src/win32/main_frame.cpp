@@ -74,8 +74,11 @@ void CMainFrame::OnInitialUpdate()
 	std::_tstring l_path = dynamic_cast<CNFOApp*>(GetApp())->GetStartupFilePath();
 	if(!l_path.empty())
 	{
+		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 		m_view.OpenFile(l_path);
 	}
+
+	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 }
 
 
