@@ -160,5 +160,57 @@ int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 }
 
 
+_tstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter)
+{
+	OPENFILENAME ofn = {0};
+	TCHAR szBuf[1000] = {0};
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hInstance = a_instance;
+	ofn.hwndOwner = a_parent;
+	ofn.lpstrFilter = a_filter;
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFile = szBuf;
+	ofn.nMaxFile = 999;
+	ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
+
+	if(GetOpenFileName(&ofn))
+	{
+		return ofn.lpstrFile;
+	}
+
+	return _T("");
+}
+
+
+_tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const LPCTSTR a_defaultExt, const _tstring& a_currentFileName)
+{
+	OPENFILENAME ofn = {0};
+	TCHAR szBuf[1000] = {0};
+
+	if(!a_currentFileName.empty())
+	{
+		_tcscpy_s(szBuf, 1000, a_currentFileName.c_str());
+	}
+
+	ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.hInstance = a_instance;
+	ofn.hwndOwner = a_parent;
+	ofn.lpstrFilter = a_filter;
+	ofn.nFilterIndex = 1;
+	ofn.lpstrDefExt = a_defaultExt;
+	ofn.lpstrFile = szBuf;
+	ofn.nMaxFile = 999;
+	ofn.Flags = OFN_ENABLESIZING | OFN_OVERWRITEPROMPT;
+
+	if(GetSaveFileName(&ofn))
+	{
+		return ofn.lpstrFile;
+	}
+
+	return _T("");
+}
+
+
 HMODULE g_hUxThemeLib = 0;
 #endif

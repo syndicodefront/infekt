@@ -42,6 +42,18 @@ private:
 };
 
 
+typedef enum _nfo_charsets
+{
+	NFOC_UNKNOWN = 0,
+	NFOC_UTF16,
+	NFOC_UTF8_SIG,
+	NFOC_UTF8,
+	NFOC_CP437,
+
+	_NFOC_MAX
+} TNfoCharset;
+
+
 class CNFOData
 {
 public:
@@ -61,6 +73,11 @@ public:
 	wchar_t GetGridChar(size_t a_row, size_t a_col);
 	char* GetGridCharUtf8(size_t a_row, size_t a_col);
 
+	const std::string& GetTextUtf8() const { return m_utf8Content; }
+	const std::wstring& GetTextWide() const { return m_textContent; }
+
+	bool SaveToFile(std::_tstring a_filePath, bool a_utf8 = true);
+
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 
 	static bool FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
@@ -74,8 +91,11 @@ protected:
 	bool m_loaded;
 	std::deque<CNFOHyperLink> m_hyperLinks;
 	std::_tstring m_filePath;
+	TNfoCharset m_sourceCharset;
 
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
+	bool TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen);
+	bool TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen);
 };
 
 #ifdef HAVE_BOOST

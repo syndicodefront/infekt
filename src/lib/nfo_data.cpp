@@ -25,6 +25,7 @@ CNFOData::CNFOData()
 	m_grid = NULL;
 	m_loaded = false;
 	m_utf8Grid = NULL;
+	m_sourceCharset = NFOC_UNKNOWN;
 }
 
 
@@ -34,7 +35,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	size_t l_fileBytes;
 
 #ifdef _WIN32
-	if(_wfopen_s(&l_file, a_filePath.c_str(), L"rb") != 0 || !l_file)
+	if(_tfopen_s(&l_file, a_filePath.c_str(), _T("rb")) != 0 || !l_file)
 #else
 	if(l_file = fopen(a_filePath.c_str(), "rb"))
 #endif
@@ -98,7 +99,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	if(!ferror(l_file))
 	{
-		l_loaded = LoadFromMemory(l_buf, l_fileBytes + 1);
+		l_loaded = LoadFromMemory(l_buf, l_fileBytes);
 	}
 	else
 	{
@@ -127,10 +128,8 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 	m_loaded = false;
 
 	l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
-
-	//if(!l_loaded) l_loaded = TryLoad_...
-	//if(!l_loaded) l_loaded = TryLoad_...
-	//if(!l_loaded) l_loaded = TryLoad_...
+	if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen);
+	if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
 
 	if(l_loaded)
 	{
@@ -250,12 +249,75 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 
 	if(a_data[0] != 0xEF || a_data[1] != 0xBB || a_data[2] != 0xBF)
 	{
-		// no UTF-8 "BOM" found.
+		// no UTF-8 signature found.
 		return false;
 	}
 
 	m_textContent = CUtil::ToWideStr(
 		string().append((char*)(a_data + 3), a_dataLen - 3), CP_UTF8);
+
+	m_sourceCharset = NFOC_UTF8_SIG;
+
+	return true;
+}
+
+
+bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen)
+{
+	if(g_utf8_validate((const char*)a_data, a_dataLen, NULL))
+	{
+		m_textContent = CUtil::ToWideStr(
+			string().append((const char*)a_data, a_dataLen), CP_UTF8);
+
+		m_sourceCharset = NFOC_UTF8;
+
+		return true;
+	}
+
+	return false;
+}
+
+/* based on http://en.wikipedia.org/wiki/Code_page_437 */
+#include "nfo_data_cp437.inc"
+
+bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
+{
+	m_textContent.clear();
+	m_textContent.reserve(a_dataLen);
+
+	for(size_t i = 0; i < a_dataLen; i++)
+	{
+		unsigned char p = a_data[i];
+
+		if(p == 0x7F)
+		{
+			// Code 127 (7F), DEL, shows as a graphic (a house).
+			m_textContent += (wchar_t)0x2302;
+		}
+		else if(p >= 0x80)
+		{
+			m_textContent += map_cp437_to_unicode_high_bit[p - 0x80];
+		}
+		else if(p <= 0x1F)
+		{
+			if(p == 0x0D && i < a_dataLen - 1 && a_data[i + 1] == 0x0A)
+			{
+				m_textContent += L'\r';
+			}
+			else
+			{
+				m_textContent += map_cp437_to_unicode_control_range[p];
+			}
+		}
+		else
+		{
+			_ASSERT(p > 0x1F && p < 0x80);
+
+			m_textContent += (wchar_t)p;
+		}
+	}
+
+	m_sourceCharset = NFOC_CP437;
 
 	return true;
 }
@@ -275,6 +337,57 @@ const std::_tstring CNFOData::GetFileName()
 #else
 	return "/not_implemented/"; // :TODO:
 #endif
+}
+
+
+bool CNFOData::SaveToFile(std::_tstring a_filePath, bool a_utf8)
+{
+	FILE *l_file = NULL;
+
+#ifdef _WIN32
+	if(_tfopen_s(&l_file, a_filePath.c_str(), _T("wb")) != 0 || !l_file)
+#else
+	if(l_file = fopen(a_filePath.c_str(), "wb"))
+#endif
+	{
+#ifdef HAVE_BOOST
+		m_lastErrorDescr = FORMAT(L"Unable to open file '%s' for writing (error %d)", a_filePath % errno);
+#else
+		m_lastErrorDescr = L"Unable to open file for writing. Please check the file name.";
+#endif
+
+		return false;
+	}
+
+	size_t l_written = 0;
+	bool l_success;
+
+	if(a_utf8)
+	{
+		// write signature
+		unsigned char l_sig[3] = { 0xEF, 0xBB, 0xBF };
+		l_written += fwrite(l_sig, 1, sizeof(l_sig), l_file);
+
+		// dump
+		l_written += fwrite(m_utf8Content.c_str(), m_utf8Content.size(), 1, l_file);
+
+		l_success = (l_written == 4);
+	}
+	else
+	{
+		// write BOM
+		unsigned char l_bom[2] = { 0xFF, 0xFE };
+		l_written += fwrite(l_bom, 1, sizeof(l_bom), l_file);
+
+		// dump
+		l_written += fwrite(m_textContent.c_str(), m_textContent.size(), sizeof(wchar_t), l_file);
+
+		l_success = (l_written == 4);
+	}
+
+	fclose(l_file);
+
+	return l_success;
 }
 
 

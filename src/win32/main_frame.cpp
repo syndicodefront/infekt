@@ -172,6 +172,14 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDMC_COPY:
 		m_view.GetRenderCtrl()->CopySelectedTextToClipboard();
 		return TRUE;
+
+	case IDM_EXPORT_PNG:
+	case IDM_EXPORT_UTF8:
+	case IDM_EXPORT_UTF16:
+	case IDM_EXPORT_XHTML:
+	case IDM_EXPORT_PDF:
+		Export(LOWORD(wParam));
+		return TRUE;
 	}
 
 	return FALSE;
@@ -253,23 +261,54 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OpenChooseFileName()
 {
-	OPENFILENAME ofn = {0};
-	TCHAR wszBuf[1000] = {0};
+	_tstring l_fileName = CUtil::OpenFileDialog(g_hInstance, GetHwnd(),
+		_T("NFO Files\0*.nfo;*.diz\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0"));
 
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hInstance = g_hInstance;
-	ofn.hwndOwner = GetHwnd();
-	ofn.lpstrFilter = _T("NFO Files\0*.nfo;*.diz\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0");
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFile = wszBuf;
-	ofn.nMaxFile = 999;
-	ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
-
-	if(GetOpenFileName(&ofn))
+	if(!l_fileName.empty())
 	{
-		m_view.OpenFile(ofn.lpstrFile);
+		m_view.OpenFile(l_fileName);
 
 		UpdateCaption();
+	}
+}
+
+
+void CMainFrame::Export(UINT a_id)
+{
+	if(!m_view.GetNfoData() || !m_view.GetNfoData()->HasData())
+	{
+		return;
+	}
+
+	_tstring l_baseFileName = m_view.GetNfoData()->GetFileName();
+	TCHAR* l_buf = new TCHAR[l_baseFileName.size() + 1];
+	_tcscpy_s(l_buf, l_baseFileName.size() + 1, l_baseFileName.c_str());
+	PathRemoveExtension(l_buf);
+	l_baseFileName = l_buf;
+	delete[] l_buf;
+
+	if(a_id == IDM_EXPORT_PNG)
+	{
+		// :TODO:
+	}
+	else if(a_id == IDM_EXPORT_UTF8 || a_id == IDM_EXPORT_UTF16)
+	{
+		_tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			_T("NFO File\0*.nfo;\0Text File\0*.txt\0\0"), _T("nfo"),
+			l_baseFileName + (a_id == IDM_EXPORT_UTF8 ? _T("-utf8.nfo") : _T("-utf16.nfo")));
+
+		if(!l_filePath.empty())
+		{
+			m_view.GetNfoData()->SaveToFile(l_filePath, a_id == IDM_EXPORT_UTF8);
+		}
+	}
+	else if(a_id == IDM_EXPORT_XHTML)
+	{
+		// :TODO:
+	}
+	else if(a_id == IDM_EXPORT_PDF)
+	{
+		// :TODO:
 	}
 }
 

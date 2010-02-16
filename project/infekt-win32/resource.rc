@@ -107,11 +107,11 @@ BEGIN
         MENUITEM SEPARATOR
         POPUP "Export"
         BEGIN
-            MENUITEM "As PNG...",                   ID_EXPORT_ASPNG
-            MENUITEM "As UTF-8 Text File...",       ID_EXPORT_ASUTF
-            MENUITEM "As UTF-16 Text File...",      ID_EXPORT_ASUTF40008
-            MENUITEM "As XHTML...",                 ID_EXPORT_ASXHTML
-            MENUITEM "As PDF...",                   ID_EXPORT_ASPDF
+            MENUITEM "As PNG...",                   IDM_EXPORT_PNG
+            MENUITEM "As UTF-8 Text File...",       IDM_EXPORT_UTF8
+            MENUITEM "As UTF-16 Text File...",      IDM_EXPORT_UTF16
+            MENUITEM "As XHTML...",                 IDM_EXPORT_XHTML
+            MENUITEM "As PDF...",                   IDM_EXPORT_PDF
         END
         MENUITEM SEPARATOR
         MENUITEM "Exit\tAlt+F4",                IDM_EXIT

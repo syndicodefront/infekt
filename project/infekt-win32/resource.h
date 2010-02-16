@@ -59,13 +59,18 @@
 #define IDMC_SELECTALL                  40023
 #define IDMC_COPYSHORTCUT               40024
 #define IDMC_ALWAYSONTOP                40025
+#define IDM_EXPORT_UTF8                 40033
+#define IDM_EXPORT_UTF16                40034
+#define IDM_EXPORT_PNG                  40035
+#define IDM_EXPORT_XHTML                40036
+#define IDM_EXPORT_PDF                  40037
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        114
-#define _APS_NEXT_COMMAND_VALUE         40033
+#define _APS_NEXT_COMMAND_VALUE         40038
 #define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
