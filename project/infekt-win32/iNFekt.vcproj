@@ -45,7 +45,9 @@
 				PreprocessorDefinitions="WIN32;_DEBUG;CAIRO_WIN32_STATIC_BUILD;HAVE_BOOST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
+				SmallerTypeCheck="false"
 				RuntimeLibrary="3"
+				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -121,6 +123,7 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;HAVE_BOOST"
+				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -146,6 +149,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
 				TargetMachine="1"
 			/>
 			<Tool
