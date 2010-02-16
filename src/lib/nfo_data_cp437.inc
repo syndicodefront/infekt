@@ -3,7 +3,7 @@
 	The high-bit range, 128 to 255 (80 to FF), is mapped to various symbols
 */
 
-static wchar_t map_cp437_to_unicode_high_bit[] = {
+static const wchar_t map_cp437_to_unicode_high_bit[] = {
 /* 0x80 = */ 0x00c7,
 /* 0x81 = */ 0x00fc,
 /* 0x82 = */ 0x00e9,
@@ -143,7 +143,7 @@ static wchar_t map_cp437_to_unicode_high_bit[] = {
 	are various, such as smiling faces, card suits and musical notes.
 */
 
-static wchar_t map_cp437_to_unicode_control_range[] = {
+static const wchar_t map_cp437_to_unicode_control_range[] = {
 0x00,
 /* 0x01 = */ 0x263A,
 /* 0x02 = */ 0x263B,
