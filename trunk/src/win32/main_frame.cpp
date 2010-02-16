@@ -126,11 +126,11 @@ void CMainFrame::AddToolbarButtons()
 	TBBUTTON l_btns[] = {
 		_TBBTN(ICO_FILEOPEN, TBBID_OPEN, defState, defStyle | BTNS_DROPDOWN, "Open (Ctrl+O)"),
 		_TBSEP,
-		_TBBTN(ICO_SETTINGS, TBBID_SETTINGS, defState, defStyle, "Settings"),
+		_TBBTN(ICO_SETTINGS, TBBID_SETTINGS, defState, defStyle, "Settings (F6)"),
 		_TBSEP,
-		_TBBTN(ICO_EDITCOPY, TBBID_EDITCOPY, 0, defStyle, "Copy"),
+		_TBBTN(ICO_EDITCOPY, TBBID_EDITCOPY, 0, defStyle, "Copy (Ctrl+C)"),
 		_TBSEP,
-		_TBBTN(ICO_INFO, TBBID_ABOUT, defState, defStyle, "About"),
+		_TBBTN(ICO_INFO, TBBID_ABOUT, defState, defStyle, "About (F1)"),
 	};
 
 #undef _TBSEP
@@ -159,8 +159,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		OpenChooseFileName();
 		return TRUE;
 
-	case TBBID_SETTINGS: {
+	case TBBID_SETTINGS:
+	case IDM_SETTINGS: {
 		CSettingsWindowDialog l_dlg(IDD_DLG_SETTINGS, m_hWnd);
+		l_dlg.SetMainWin(this);
 		l_dlg.DoModal();
 		return TRUE; }
 
@@ -188,7 +190,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnHelp()
 {
-	this->MessageBox(_T("Rebecca, you are the love of my life."), _T("About"), MB_ICONINFORMATION);
+	_tstring l_msg;
+	l_msg += FORMAT(_T("iNFEKT v%d.%d.%d"), INFEKT_VERSION_MAJOR % INFEKT_VERSION_MINOR % INFEKT_VERSION_REVISION);
+	l_msg += _T("\n© cxxjoe & Contributors 2010");
+	l_msg += _T("\n\nRebecca, you are the love of my life.");
+
+	this->MessageBox(l_msg.c_str(), _T("About"), MB_ICONINFORMATION);
 }
 
 
