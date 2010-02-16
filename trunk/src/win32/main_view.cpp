@@ -1,21 +1,27 @@
 #include "stdafx.h"
 #include "app.h"
 #include "nfo_view_ctrl.h"
+#include "resource.h"
 
 
 CViewContainer::CViewContainer()
 {
-
+	m_contextMenuHandle = NULL;
 }
 
 
 void CViewContainer::OnCreate()
 {
+	// this context menu will be used for all three view controls.
+	m_contextMenuHandle = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
+
 	m_renderControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd()));
 	// :TODO: remove this / use settings instead...
 	m_renderControl->SetGaussColor(S_COLOR_T(0xBF, 0x17, 0x17));
 	m_renderControl->SetArtColor(S_COLOR_T(0xBF, 0x17, 0x17));
 	m_renderControl->CreateControl(0, 0, 100, 100);
+
+	m_renderControl->SetContextMenu(m_contextMenuHandle);
 }
 
 
@@ -125,5 +131,8 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 CViewContainer::~CViewContainer()
 {
-
+	if(m_contextMenuHandle)
+	{
+		::DestroyMenu(m_contextMenuHandle);
+	}
 }

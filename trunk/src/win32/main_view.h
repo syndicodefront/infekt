@@ -31,6 +31,7 @@ public:
 protected:
 	PNFOViewControl m_renderControl;
 	PNFOData m_nfoData;
+	HMENU m_contextMenuHandle;
 
 	virtual void OnCreate();
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
