@@ -320,34 +320,36 @@ void CMainFrame::DoNfoExport(UINT a_id)
 				l_settings.cBackColor.A = 0;
 			}
 
-			bool l_ok = false;
+			bool l_internalError = true;
 
 			l_renderer.InjectSettings(l_settings);
-			
+
 			if(l_renderer.AssignNFO(m_view.GetNfoData()))
 			{
 				size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
 
 				if(cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight))
 				{
-					l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0,  l_imgWidth, l_imgHeight);
+					if(l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0, l_imgWidth, l_imgHeight))
+					{
+						const std::string l_utfFilePath = CUtil::FromWideStr(l_filePath, CP_UTF8);
+						if(cairo_surface_write_to_png(l_surface, l_utfFilePath.c_str()) != CAIRO_STATUS_SUCCESS)
+						{
+							this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
+						}
+						else
+						{
+							this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+						}
 
-					const std::string l_utfFilePath = CUtil::FromWideStr(l_filePath, CP_UTF8);
-					if(cairo_surface_write_to_png(l_surface, l_utfFilePath.c_str()) != CAIRO_STATUS_SUCCESS)
-					{
-						this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
-					}
-					else
-					{
-						this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+						l_internalError = false;
 					}
 
 					cairo_surface_destroy(l_surface);
-					l_ok = true;
 				}
 			}
 
-			if(!l_ok)
+			if(l_internalError)
 			{
 				this->MessageBox(_T("An internal error occured!"), _T("Fail"), MB_ICONEXCLAMATION);
 			}
