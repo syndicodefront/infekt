@@ -16,11 +16,12 @@
 #include "nfo_renderer.h"
 
 
-CNFORenderer::CNFORenderer()
+CNFORenderer::CNFORenderer(bool a_classicMode)
 {
+	m_classic = a_classicMode;
+
 	// reset internal flags:
 	m_gridData = NULL;
-
 	m_rendered = false;
 	m_imgSurface = NULL;
 	m_fontSize = -1;
