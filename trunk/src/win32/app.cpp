@@ -14,11 +14,14 @@
 
 #include "stdafx.h"
 #include "app.h"
-
-#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' " \
-	"version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#include "default_app.h"
 
 using namespace std;
+
+
+/************************************************************************/
+/* APP ENTRY POINT                                                      */
+/************************************************************************/
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszCommandLine, int nShowCmd)
 {
@@ -26,9 +29,10 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 	try
 	{
-		// Start Win32++
+		// Start Win32++:
 		CNFOApp theApp;
 
+		// extract file path from command line:
 		wstring l_path(wszCommandLine);
 		if(!l_path.empty())
 		{
@@ -55,7 +59,19 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 			}
 		}
 
-		// Run the application
+		// dffd
+		if(!theApp.IsDefaultNfoViewer())
+		{
+#if 0
+			if(MessageBox(0, _T("iNFEKT is not your default NFO file viewer. Do you want to make it the default viewer now?"),
+				_T("Important"), MB_ICONQUESTION | MB_YESNO) == IDYES)
+			{
+				theApp.MakeDefaultNfoViewer();
+			}
+#endif
+		}
+
+		// Run the application:
 		return theApp.Run();
 	}
 	catch(CWinException* e)
@@ -65,6 +81,10 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	}
 }
 
+
+/************************************************************************/
+/* CNFOApp stuff                                                        */
+/************************************************************************/
 
 CNFOApp::CNFOApp()
 {
@@ -88,5 +108,50 @@ CNFOApp::~CNFOApp()
 }
 
 
-/* global vars */
+/************************************************************************/
+/* DEFAULT APP STUFF                                                    */
+/************************************************************************/
+
+#define DEFAULT_APP_PROGID L"iNFEKT.NFO.Viewer.NFOFile.1"
+#define DEFAULT_APP_EXTENSION L".nfo"
+
+bool CNFOApp::IsDefaultNfoViewer()
+{
+	CWinDefaultApp *l_defApp = NULL;
+	bool l_result = false;
+
+	OSVERSIONINFO l_osvi = {0};
+	l_osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+	GetVersionEx(&l_osvi);
+
+	if(l_osvi.dwMajorVersion == 5)
+	{
+		l_defApp = new CWin5xDefaultApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
+	}
+	else if(l_osvi.dwMajorVersion >= 6)
+	{
+		l_defApp = new CWin6xDefaultApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
+	}
+
+	if(l_defApp)
+	{
+		l_result = l_defApp->IsDefault();
+
+		delete l_defApp;
+	}
+
+	return l_result;
+}
+
+
+bool CNFOApp::MakeDefaultNfoViewer()
+{
+	return false;
+}
+
+
+/************************************************************************/
+/* GLOBAL VARS                                                          */
+/************************************************************************/
+
 HINSTANCE g_hInstance;

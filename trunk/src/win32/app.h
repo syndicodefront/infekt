@@ -27,6 +27,9 @@ public:
 	CMainFrame& GetMainFrame() { return m_Frame; }
 	void SetStartupFilePath(std::_tstring a_filePath) { m_startupFilePath = a_filePath; }
 	const std::_tstring& GetStartupFilePath() { return m_startupFilePath; }
+
+	bool IsDefaultNfoViewer();
+	bool MakeDefaultNfoViewer();
 protected:
 	CMainFrame m_Frame;
 	std::_tstring m_startupFilePath;

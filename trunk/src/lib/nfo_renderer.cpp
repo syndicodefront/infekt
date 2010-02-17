@@ -421,7 +421,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
 	}
 
-	cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
+	cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
 
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
@@ -471,7 +471,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			// draw char background for highlights/selection etc:
 			if(a_backColor)
 			{
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(*a_backColor), a_backColor->A / 255.0);
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
 				cairo_rectangle(cr, l_off_x + col * GetBlockWidth(), l_off_y + row * GetBlockHeight(), GetBlockWidth(), GetBlockHeight());
 				cairo_fill(cr);
 			}
@@ -481,7 +481,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				// set color...
 				if(l_inLink)
 				{
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_hyperLinkColor), a_hyperLinkColor.A / 255.0);
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
 
 					if(GetUnderlineHyperLinks())
 					{
@@ -492,7 +492,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				}
 				else
 				{
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(a_textColor), a_textColor.A / 255.0);
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
 				}
 			}
 

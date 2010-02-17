@@ -554,7 +554,7 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 			if(pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
 			{
 				int idx = (iCaptures == 1 ? 1 : 0) * 2;
-				_ASSERT(ovector[idx] > 0 && ovector[idx + 1] > 0);
+				_ASSERT(ovector[idx] >= 0 && ovector[idx + 1] > 0);
 				uBytePos = (size_t)ovector[idx];
 			}
 		}
