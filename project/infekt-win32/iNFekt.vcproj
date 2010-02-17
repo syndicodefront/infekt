@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
+				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude;&quot;..\..\src\win32-default-app&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;CAIRO_WIN32_STATIC_BUILD;HAVE_BOOST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -68,6 +68,7 @@
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
 				GenerateManifest="true"
+				AdditionalManifestDependencies="&quot;type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; processorArchitecture=&apos;*&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos;&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -121,7 +122,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
+				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude;&quot;..\..\src\win32-default-app&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;HAVE_BOOST"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -145,6 +146,7 @@
 				OutputFile="$(OutDir)\infekt-win32.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
+				AdditionalManifestDependencies="type=&apos;win32&apos; name=&apos;Microsoft.Windows.Common-Controls&apos; version=&apos;6.0.0.0&apos; processorArchitecture=&apos;*&apos; publicKeyToken=&apos;6595b64144ccf1df&apos; language=&apos;*&apos;"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -202,6 +204,18 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-default-app\default_app.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-default-app\default_app_5x.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-default-app\default_app_6x.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\gutf8.c"
@@ -375,6 +389,10 @@
 			>
 			<File
 				RelativePath="..\..\src\win32\app.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-default-app\default_app.h"
 				>
 			</File>
 			<File
