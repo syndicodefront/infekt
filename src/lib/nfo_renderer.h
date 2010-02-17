@@ -95,6 +95,7 @@ class CNFORenderer
 {
 protected:
 	CNFORenderSettings m_settings;
+	bool m_classic;
 
 	// NFO data:
 	PNFOData m_nfo;
@@ -118,7 +119,7 @@ protected:
 
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
 public:
-	CNFORenderer();
+	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();
 
 	// mainly important methods:
@@ -150,7 +151,10 @@ public:
 	bool GetEnableGaussShadow() const { return m_settings.bGaussShadow; }
 	void SetGaussBlurRadius(unsigned int r) {
 		m_rendered = m_rendered && (m_settings.uGaussBlurRadius == r); m_settings.uGaussBlurRadius = r;
+		if(m_settings.bGaussShadow) {
 		m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
+		if(m_padding < 8) m_padding = 8;
+		} else m_padding = 8;
 	}
 	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
 	void SetHilightHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bHilightHyperlinks == nb); m_settings.bHilightHyperlinks = nb; }

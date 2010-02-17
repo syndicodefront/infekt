@@ -657,7 +657,7 @@ CNFOHyperLink::CNFOHyperLink(int a_linkID, const wstring& a_href, size_t a_row, 
 	m_href = a_href;
 	m_row = a_row;
 	m_colStart = a_col;
-	m_colEnd = a_col + a_len;
+	m_colEnd = a_col + a_len - 1;
 }
 
 

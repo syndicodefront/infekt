@@ -437,9 +437,8 @@ void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size
 	GetScrollPositions(l_x, l_y);
 
 	// calc real positions:
-	ar_row = l_y + (a_y / GetBlockHeight()) - 1;
-	ar_col = l_x + (a_x / GetBlockWidth()) - 1;
-	// :TODO: find out why we need to subtract 1.
+	ar_row = l_y + ((a_y - m_padding) / GetBlockHeight());
+	ar_col = l_x + ((a_x - m_padding) / GetBlockWidth());
 }
 
 
