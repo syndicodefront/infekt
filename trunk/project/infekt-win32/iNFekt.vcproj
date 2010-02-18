@@ -446,6 +446,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\iNFEKT_icon_by_railgun.ico"
+				>
+			</File>
+			<File
 				RelativePath=".\icons\info.png"
 				>
 			</File>

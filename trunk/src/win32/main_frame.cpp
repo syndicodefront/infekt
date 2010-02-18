@@ -57,6 +57,9 @@ void CMainFrame::OnCreate()
 	m_bShowMenuStatus = FALSE;
 
 	CFrame::OnCreate();
+
+	SetIconLarge(IDI_APPICON);
+	SetIconSmall(IDI_APPICON);
 }
 
 
