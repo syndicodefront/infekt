@@ -148,7 +148,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 		{
 			wstring l_line = m_textContent.substr(l_prevPos, l_pos - l_prevPos);
 
-			// remove \n if we found a \r\n:
+			// skip \n if we found a \r\n:
 			if(m_textContent[l_pos] == L'\r' &&
 				l_pos < m_textContent.size() - 1 &&
 				m_textContent[l_pos + 1] == L'\n')

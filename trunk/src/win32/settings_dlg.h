@@ -18,6 +18,23 @@
 #include "main_frame.h"
 
 
+class CFontListEntry
+{
+public:
+	CFontListEntry(const ENUMLOGFONTEX* a_elf);
+
+	bool IsFixedWidth() const { return ((m_logFont.lfPitchAndFamily & FIXED_PITCH) != 0); }
+protected:
+	std::_tstring m_name;
+	LOGFONT m_logFont;
+	std::set<int> m_sizes;
+
+	static int CALLBACK FontSizesProc(const LOGFONT*, const TEXTMETRIC*, DWORD, LPARAM);
+};
+
+typedef boost::shared_ptr<CFontListEntry> PFontListEntry;
+
+
 class CSettingsTabDialog;
 
 class CSettingsWindowDialog : public CDialog
@@ -37,8 +54,10 @@ protected:
 	CSettingsTabDialog* m_tabPageClassic;
 	CSettingsTabDialog* m_tabPageTextOnly;
 
+	std::vector<PFontListEntry> m_fonts;
+	static int CALLBACK FontNamesProc(const ENUMLOGFONTEX*, const NEWTEXTMETRICEX*, DWORD, LPARAM);
+protected:
 	virtual BOOL OnInitDialog();
-	//virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual void OnOK();
 	virtual void OnCancel();
 };

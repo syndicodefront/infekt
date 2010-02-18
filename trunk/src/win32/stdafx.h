@@ -45,6 +45,7 @@
 #include <map>
 #include <vector>
 #include <deque>
+#include <set>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <shellapi.h>

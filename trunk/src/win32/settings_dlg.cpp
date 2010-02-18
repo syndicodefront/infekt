@@ -41,6 +41,14 @@ CSettingsWindowDialog::CSettingsWindowDialog(UINT nResID, HWND hWndParent) :
 	CDialog(nResID, hWndParent)
 {
 	m_mainWin = NULL;
+
+	// get list of fixed width fonts on the system:
+	LOGFONT l_lf = {0};
+	l_lf.lfCharSet = DEFAULT_CHARSET;
+
+	HDC l_hdc = ::GetDC(0);
+	EnumFontFamiliesEx(l_hdc, &l_lf, (FONTENUMPROC)FontNamesProc, (LPARAM)&m_fonts, 0);
+	::ReleaseDC(0, l_hdc);
 }
 
 
@@ -86,6 +94,21 @@ void CSettingsWindowDialog::OnCancel()
 }
 
 
+int CALLBACK CSettingsWindowDialog::FontNamesProc(const ENUMLOGFONTEX *lpelfe, const NEWTEXTMETRICEX *lpntme, DWORD FontType, LPARAM lParam)
+{
+	std::vector<PFontListEntry>* l_fonts = (std::vector<PFontListEntry>*)lParam;
+
+	if(lpelfe->elfLogFont.lfCharSet == ANSI_CHARSET &&
+		(lpelfe->elfLogFont.lfPitchAndFamily & FIXED_PITCH) != 0 &&
+		lpelfe->elfFullName[0] != _T('@'))
+	{
+		l_fonts->push_back(PFontListEntry(new CFontListEntry(lpelfe)));
+	}
+
+	return 1;
+}
+
+
 CSettingsWindowDialog::~CSettingsWindowDialog()
 {
 }
@@ -122,21 +145,25 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		DLG_SHOW_CTRL_IF(IDC_CLR_ART, m_pageId != TAB_PAGE_TEXTONLY);
 
 		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_LABEL, m_pageId != TAB_PAGE_RENDERED);
-		DLG_SHOW_CTRL_IF(IDC_BLOCKSIZE_LABEL, m_pageId == TAB_PAGE_RENDERED);
-		DLG_SHOW_CTRL_IF(IDC_BLOCKSIZE_LABEL2, m_pageId == TAB_PAGE_RENDERED);
-		DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_EDIT2, m_pageId == TAB_PAGE_RENDERED);
-		DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_SPIN2, m_pageId == TAB_PAGE_RENDERED);
-
-		SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETRANGE32, 3, 200);
-		SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETBUDDY, (WPARAM)GetDlgItem(IDC_FONT_SIZE_EDIT), 0);
+		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_COMBO, m_pageId != TAB_PAGE_RENDERED);
 
 		if(m_pageId == TAB_PAGE_RENDERED)
 		{
+			SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETRANGE32, 3, 200);
+			SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETBUDDY, (WPARAM)GetDlgItem(IDC_FONT_SIZE_EDIT), 0);
+
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETRANGE32, 3, 200);
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETBUDDY, (WPARAM)GetDlgItem(IDC_FONT_SIZE_EDIT2), 0);
 		}
-
-		DLG_SHOW_CTRL_IF(IDC_PRERELEASE, m_pageId != TAB_PAGE_RENDERED); //:TODO: remove me
+		else
+		{
+			DLG_SHOW_CTRL_IF(IDC_BLOCKSIZE_LABEL, false);
+			DLG_SHOW_CTRL_IF(IDC_BLOCKSIZE_LABEL2, false);
+			DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_EDIT, false);
+			DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_EDIT2, false);
+			DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_SPIN, false);
+			DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_SPIN2, false);
+		}
 
 		CViewContainer* l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
 		m_viewSettings = new CNFORenderSettings();
@@ -353,3 +380,52 @@ CSettingsTabDialog::~CSettingsTabDialog()
 	delete m_viewSettings;
 }
 
+
+/************************************************************************/
+/* CFontListEntry implementation                                        */
+/************************************************************************/
+
+CFontListEntry::CFontListEntry(const ENUMLOGFONTEX* a_elf)
+{
+	memmove_s(&m_logFont, sizeof(LOGFONT), &a_elf->elfLogFont, sizeof(a_elf->elfLogFont));
+	m_name = a_elf->elfFullName;
+
+	// enum font sizes:
+	LOGFONT l_lf = {0};
+	l_lf.lfCharSet = DEFAULT_CHARSET;
+	_tcscpy_s(&l_lf.lfFaceName[0], LF_FACESIZE, m_logFont.lfFaceName);
+
+	HDC l_hdc = GetDC(0);
+	EnumFontFamiliesEx(l_hdc, &l_lf, FontSizesProc, (LPARAM)&m_sizes, 0);
+	ReleaseDC(0, l_hdc);
+}
+
+
+int CALLBACK CFontListEntry::FontSizesProc(const LOGFONT* plf, const TEXTMETRIC* ptm, DWORD FontType, LPARAM lParam)
+{
+	std::set<int> *l_targetList = (std::set<int>*)lParam;
+
+	if(FontType == TRUETYPE_FONTTYPE)
+	{
+		static int ls_ttSizes[] = { 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 0 };
+
+		int* psz = ls_ttSizes;
+		do
+		{
+			l_targetList->insert(*psz);
+		}
+		while(*++psz);
+
+		return 0;
+	}
+	else
+	{
+		HDC l_hdc = GetDC(0);
+		long l_size = MulDiv(ptm->tmHeight - ptm->tmInternalLeading, 72, GetDeviceCaps(l_hdc, LOGPIXELSY));
+		ReleaseDC(0, l_hdc);
+
+		l_targetList->insert(l_size);
+
+		return 1;
+	}
+}
