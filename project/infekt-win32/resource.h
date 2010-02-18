@@ -37,15 +37,16 @@
 #define IDC_HILIGHT_LINKS               1025
 #define IDC_UNDERL_LINKS                1026
 #define IDC_GLOW_RADIUS_LABEL           1027
-#define IDC_COMBO1                      1028
+#define IDC_FONTFAMILY_COMBO            1028
+#define IDC_FONTNAME_COMBO              1028
 #define IDC_FONT_SIZE_EDIT2             1031
 #define IDC_FONT_SIZE_EDIT              1032
 #define IDC_FONTSIZE_LABEL              1033
 #define IDC_BLOCKSIZE_LABEL2            1034
 #define IDC_BLOCKSIZE_LABEL             1035
 #define IDC_FONT_SIZE_SPIN              1036
-#define IDC_SPIN4                       1037
 #define IDC_FONT_SIZE_SPIN2             1037
+#define IDC_FONTSIZE_COMBO              1038
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -88,7 +89,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        114
 #define _APS_NEXT_COMMAND_VALUE         40048
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
