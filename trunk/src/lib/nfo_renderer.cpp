@@ -461,11 +461,6 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				else
 				{
 					l_linkPos--;
-
-					if(l_inLink && !l_linkPos)
-					{
-						l_inLink = false;
-					}
 				}
 			}
 
@@ -502,6 +497,11 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0);
 
 			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
+
+			if(l_inLink && !l_linkPos)
+			{
+				l_inLink = false;
+			}
 		}
 	}
 
