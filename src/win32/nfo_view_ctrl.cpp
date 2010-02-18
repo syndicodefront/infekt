@@ -83,22 +83,9 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 
 void CNFOViewControl::UpdateScrollbars()
 {
-	bool l_needsV, l_needsH;
-	int l_vWidth, l_hHeight;
-
 	// init struct:
 	SCROLLINFO l_si = {0};
 	l_si.cbSize = sizeof(SCROLLINFO);
-
-	// get scroll bar dimensions:
-	l_vWidth = ::GetSystemMetrics(SM_CXVSCROLL);
-	l_hHeight = ::GetSystemMetrics(SM_CXHSCROLL);
-
-	// determine which scrollbars we need:
-	l_needsH = (m_width - l_vWidth < (int)GetWidth());
-	l_needsV = (m_height - l_hHeight < (int)GetHeight());
-	// ... we do this to add some extra space between
-	// content and scrollbars for nicer looks.
 
 	// set common flags:
 	l_si.fMask = SIF_RANGE | SIF_PAGE;
@@ -106,12 +93,12 @@ void CNFOViewControl::UpdateScrollbars()
 
 	// update horizontal scrollbar info:
 	l_si.nPage = m_width / GetBlockWidth();
-	l_si.nMax = GetWidth() / GetBlockWidth() + (l_needsV ? 2 : 0);
+	l_si.nMax = GetWidth() / GetBlockWidth();
 	::SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
 
 	// update vertical scrollbar info:
 	l_si.nPage = m_height / GetBlockHeight();
-	l_si.nMax = GetHeight() / GetBlockHeight() + (l_needsH ? 1 : 0);
+	l_si.nMax = GetHeight() / GetBlockHeight();
 	::SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
 }
 
@@ -219,7 +206,7 @@ void CNFOViewControl::OnPaint()
 	}
 
 	// draw draw draw fight the powa!
-	DrawToSurface(l_surface, 0, 0, l_x * GetBlockWidth(), l_y * GetBlockHeight(), m_width, m_height);
+	DrawToSurface(l_surface, 0, 0, l_x * GetBlockWidth(), l_y * GetBlockHeight(), m_width + m_padding, m_height + m_padding);
 
 	// draw highlighted (selected) text:
 	if(m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1)
