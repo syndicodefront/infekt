@@ -24,6 +24,8 @@ public:
 	CFontListEntry(const ENUMLOGFONTEX* a_elf);
 
 	bool IsFixedWidth() const { return ((m_logFont.lfPitchAndFamily & FIXED_PITCH) != 0); }
+	const std::_tstring& GetFontName() const { return m_name; }
+	int GetNiceSize();
 protected:
 	std::_tstring m_name;
 	LOGFONT m_logFont;
@@ -71,20 +73,26 @@ public:
 
 	bool SaveViewSettings();
 	const CNFORenderSettings* GetViewSettings() { return m_viewSettings; }
+	void SetFontList(const std::vector<PFontListEntry>& a_fonts) { m_fonts = a_fonts; }
 protected:
 	int m_pageId;
 	CNFORenderSettings* m_viewSettings;
 	CMainFrame* m_mainWin;
 	CSettingsWindowDialog* m_dlgWin;
+	std::vector<PFontListEntry> m_fonts;
 
 	bool IsViewSettingPage() const;
 	static bool IsColorButton(UINT a_id);
 	void DrawColorButton(const LPDRAWITEMSTRUCT a_dis);
 	S_COLOR_T* ColorFromControlId(UINT a_id);
+	void DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis);
+	void MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis);
 
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+
+	static const int ms_fontComboPadding = 3;
 };
 
 
