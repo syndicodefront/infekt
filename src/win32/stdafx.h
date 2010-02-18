@@ -54,6 +54,7 @@
 #include <boost/shared_ptr.hpp>
 #include <tchar.h>
 #include <commdlg.h>
+#include <windowsx.h>
 
 /* cairo and other lib headers */
 #include <cairo-win32.h>

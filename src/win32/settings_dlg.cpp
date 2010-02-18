@@ -57,9 +57,15 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 	m_tabControl.AttachDlgItem(IDC_SETTINGS_TAB, this);
 
 	m_tabPageGeneral = new CSettingsTabDialog(this, TAB_PAGE_GENERAL, IDD_TAB_GENERAL);
+
 	m_tabPageRendered = new CSettingsTabDialog(this, TAB_PAGE_RENDERED, IDD_TAB_VIEWSETTINGS);
+	m_tabPageRendered->SetFontList(m_fonts);
+
 	m_tabPageClassic = new CSettingsTabDialog(this, TAB_PAGE_CLASSIC, IDD_TAB_VIEWSETTINGS);
+	m_tabPageClassic->SetFontList(m_fonts);
+
 	m_tabPageTextOnly = new CSettingsTabDialog(this, TAB_PAGE_TEXTONLY, IDD_TAB_VIEWSETTINGS);
+	m_tabPageTextOnly->SetFontList(m_fonts);
 
 	m_tabControl.AddTabPage(m_tabPageGeneral, _T("General"));
 	m_tabControl.AddTabPage(m_tabPageRendered, _T("Rendered View"));
@@ -165,6 +171,25 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_SPIN2, false);
 		}
 
+		if(!m_fonts.empty())
+		{
+			int l_idx = 0;
+			for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
+			{
+				int l_id = ComboBox_AddString(GetDlgItem(IDC_FONTNAME_COMBO), (*it)->GetFontName().c_str());
+
+				if(l_id != l_idx)
+				{
+					this->MessageBox(_T("There was an error populating the font list."), _T("Fail"), MB_ICONSTOP);
+					break;
+				}
+
+				l_idx++;
+			}
+
+			ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), 0);
+		}
+
 		CViewContainer* l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
 		m_viewSettings = new CNFORenderSettings();
 
@@ -223,6 +248,17 @@ BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if(IsViewSettingPage() && IsColorButton(wParam))
 		{
 			DrawColorButton((LPDRAWITEMSTRUCT)lParam);
+			return TRUE;
+		}
+		else if(IsViewSettingPage() && wParam == IDC_FONTNAME_COMBO)
+		{
+			DrawFontComboItem((LPDRAWITEMSTRUCT)lParam);
+			return TRUE;
+		}
+	case WM_MEASUREITEM:
+		if(IsViewSettingPage() && wParam == IDC_FONTNAME_COMBO)
+		{
+			MeasureFontComboItems((LPMEASUREITEMSTRUCT)lParam);
 			return TRUE;
 		}
 	case WM_HSCROLL:
@@ -355,6 +391,79 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 }
 
 
+void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
+{
+	HDC l_hdc = ::GetDC(GetDlgItem(IDC_FONTNAME_COMBO));
+	cairo_surface_t* l_surface = cairo_win32_surface_create(l_hdc);
+	cairo_t* cr = cairo_create(l_surface);
+
+	double l_maxW = 0, l_maxH = 0;
+
+	for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
+	{
+		const PFontListEntry l_font = *it;
+		const std::string l_fontNameUtf = CUtil::FromWideStr(l_font->GetFontName(), CP_UTF8);
+
+		cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+		cairo_set_font_size(cr, l_font->GetNiceSize());
+
+		cairo_text_extents_t l_extents = {0};
+		cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
+
+		if(l_extents.width > l_maxW)
+			l_maxW = l_extents.width;
+		if(l_extents.height > l_maxH)
+			l_maxH = l_extents.height;
+	}
+
+	a_mis->itemWidth = (UINT)l_maxW + 2 * ms_fontComboPadding;
+	a_mis->itemHeight = (UINT)l_maxH + 2 * ms_fontComboPadding;
+
+	cairo_destroy(cr);
+	cairo_surface_destroy(l_surface);
+	::ReleaseDC(GetDlgItem(IDC_FONTNAME_COMBO), l_hdc);
+}
+
+
+void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
+{
+	if(a_dis->itemID != (UINT)-1 && a_dis->itemID < m_fonts.size())
+	{
+		if(a_dis->itemAction == ODA_DRAWENTIRE)
+		{
+			const PFontListEntry l_font = m_fonts[a_dis->itemID];
+			const std::string l_fontNameUtf = CUtil::FromWideStr(l_font->GetFontName(), CP_UTF8);
+
+			cairo_surface_t* l_surface = cairo_win32_surface_create(a_dis->hDC);
+			cairo_t* cr = cairo_create(l_surface);
+
+			cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+			cairo_set_font_size(cr, l_font->GetNiceSize());
+
+			cairo_text_extents_t l_extents = {0};
+			cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
+
+			cairo_set_source_rgb(cr, 0, 0, 0);
+
+			cairo_move_to(cr, a_dis->rcItem.left + ms_fontComboPadding - l_extents.x_bearing,
+				a_dis->rcItem.top - l_extents.y_bearing + 
+				((a_dis->rcItem.bottom - a_dis->rcItem.top) - l_extents.height) / 2);
+			// the padding is in (a_dis->rcItem.bottom - a_dis->rcItem.top)
+			// which also is the maximum item height.
+
+			cairo_show_text(cr, l_fontNameUtf.c_str());
+
+			cairo_destroy(cr);
+			cairo_surface_destroy(l_surface);
+		}
+		else if(a_dis->itemAction == ODA_FOCUS)
+		{
+			::DrawFocusRect(a_dis->hDC, &a_dis->rcItem);
+		}
+	}
+}
+
+
 bool CSettingsTabDialog::SaveViewSettings()
 {
 	if(m_viewSettings)
@@ -427,5 +536,26 @@ int CALLBACK CFontListEntry::FontSizesProc(const LOGFONT* plf, const TEXTMETRIC*
 		l_targetList->insert(l_size);
 
 		return 1;
+	}
+}
+
+
+int CFontListEntry::GetNiceSize()
+{
+	if(m_sizes.empty())
+		return 12;
+	else if(m_sizes.size() == 1)
+		return *m_sizes.begin();
+	else
+	{
+		int l_size = *m_sizes.begin();
+
+		for(std::set<int>::const_iterator it = m_sizes.begin(); it != m_sizes.end(); it++)
+		{
+			if(*it > 12) break;
+			else l_size = *it;
+		}
+
+		return l_size;
 	}
 }
