@@ -14,6 +14,8 @@
 #define IDD_TAB_VIEWSETTINGS            112
 #define IDR_CONTEXT_MENU                112
 #define IDR_MAIN_KEYBOARD_SHORTCUTS     113
+#define IDI_ICON1                       114
+#define IDI_APPICON                     114
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_BUTTON1                     1007
@@ -37,7 +39,6 @@
 #define IDC_HILIGHT_LINKS               1025
 #define IDC_UNDERL_LINKS                1026
 #define IDC_GLOW_RADIUS_LABEL           1027
-#define IDC_FONTFAMILY_COMBO            1028
 #define IDC_FONTNAME_COMBO              1028
 #define IDC_FONT_SIZE_EDIT2             1031
 #define IDC_FONT_SIZE_EDIT              1032
@@ -87,7 +88,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        114
+#define _APS_NEXT_RESOURCE_VALUE        115
 #define _APS_NEXT_COMMAND_VALUE         40048
 #define _APS_NEXT_CONTROL_VALUE         1039
 #define _APS_NEXT_SYMED_VALUE           101

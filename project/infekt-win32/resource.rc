@@ -246,6 +246,15 @@ BEGIN
     "P",            IDM_EXPORT_PNG,         VIRTKEY, CONTROL, NOINVERT
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APPICON             ICON                    "iNFEKT_icon_by_railgun.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
