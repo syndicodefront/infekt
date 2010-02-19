@@ -120,15 +120,11 @@ bool CNFOApp::IsDefaultNfoViewer()
 	CWinDefaultApp *l_defApp = NULL;
 	bool l_result = false;
 
-	OSVERSIONINFO l_osvi = {0};
-	l_osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-	GetVersionEx(&l_osvi);
-
-	if(l_osvi.dwMajorVersion == 5)
+	if(CUtil::IsWin5x())
 	{
 		l_defApp = new CWin5xDefaultApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
 	}
-	else if(l_osvi.dwMajorVersion >= 6)
+	else if(CUtil::IsWin6x())
 	{
 		l_defApp = new CWin6xDefaultApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
 	}

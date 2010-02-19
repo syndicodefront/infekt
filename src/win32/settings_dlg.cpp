@@ -15,6 +15,9 @@
 #include "stdafx.h"
 #include "settings_dlg.h"
 #include "resource.h"
+#include "theme_api.h"
+#include "vsstyle.h"
+
 
 /************************************************************************/
 /* SOME HELPFUL MACROS AND STUFF                                        */
@@ -41,14 +44,6 @@ CSettingsWindowDialog::CSettingsWindowDialog(UINT nResID, HWND hWndParent) :
 	CDialog(nResID, hWndParent)
 {
 	m_mainWin = NULL;
-
-	// get list of fixed width fonts on the system:
-	LOGFONT l_lf = {0};
-	l_lf.lfCharSet = DEFAULT_CHARSET;
-
-	HDC l_hdc = ::GetDC(0);
-	EnumFontFamiliesEx(l_hdc, &l_lf, (FONTENUMPROC)FontNamesProc, (LPARAM)&m_fonts, 0);
-	::ReleaseDC(0, l_hdc);
 }
 
 
@@ -59,13 +54,8 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 	m_tabPageGeneral = new CSettingsTabDialog(this, TAB_PAGE_GENERAL, IDD_TAB_GENERAL);
 
 	m_tabPageRendered = new CSettingsTabDialog(this, TAB_PAGE_RENDERED, IDD_TAB_VIEWSETTINGS);
-	m_tabPageRendered->SetFontList(m_fonts);
-
 	m_tabPageClassic = new CSettingsTabDialog(this, TAB_PAGE_CLASSIC, IDD_TAB_VIEWSETTINGS);
-	m_tabPageClassic->SetFontList(m_fonts);
-
 	m_tabPageTextOnly = new CSettingsTabDialog(this, TAB_PAGE_TEXTONLY, IDD_TAB_VIEWSETTINGS);
-	m_tabPageTextOnly->SetFontList(m_fonts);
 
 	m_tabControl.AddTabPage(m_tabPageGeneral, _T("General"));
 	m_tabControl.AddTabPage(m_tabPageRendered, _T("Rendered View"));
@@ -100,15 +90,55 @@ void CSettingsWindowDialog::OnCancel()
 }
 
 
+typedef struct 
+{
+	std::vector<PFontListEntry>* ptr;
+	bool fixed;
+	HDC hdc;
+} _temp_font_enum_data;
+
+const std::vector<PFontListEntry>& CSettingsWindowDialog::GetFonts(bool a_getAll)
+{
+	std::vector<PFontListEntry>* l_pList = (a_getAll ? &m_allFonts : &m_fonts);
+
+	if(l_pList->empty())
+	{
+		LOGFONT l_lf = {0};
+		l_lf.lfCharSet = DEFAULT_CHARSET;
+
+		_temp_font_enum_data l_data;
+		l_data.ptr = l_pList;
+		l_data.fixed = !a_getAll;
+		l_data.hdc = ::GetDC(0);
+
+		EnumFontFamiliesEx(l_data.hdc, &l_lf, (FONTENUMPROC)FontNamesProc, (LPARAM)&l_data, 0);
+		::ReleaseDC(0, l_data.hdc);
+	}
+
+	return *l_pList;
+}
+
+
 int CALLBACK CSettingsWindowDialog::FontNamesProc(const ENUMLOGFONTEX *lpelfe, const NEWTEXTMETRICEX *lpntme, DWORD FontType, LPARAM lParam)
 {
-	std::vector<PFontListEntry>* l_fonts = (std::vector<PFontListEntry>*)lParam;
+	const _temp_font_enum_data* l_data = (_temp_font_enum_data*)lParam;
+	std::vector<PFontListEntry>* l_fonts = l_data->ptr;
 
 	if(lpelfe->elfLogFont.lfCharSet == ANSI_CHARSET &&
-		(lpelfe->elfLogFont.lfPitchAndFamily & FIXED_PITCH) != 0 &&
+		(!l_data->fixed || (lpelfe->elfLogFont.lfPitchAndFamily & FIXED_PITCH) != 0) &&
 		lpelfe->elfFullName[0] != _T('@'))
 	{
-		l_fonts->push_back(PFontListEntry(new CFontListEntry(lpelfe)));
+		const std::string l_fontNameUtf = CUtil::FromWideStr(lpelfe->elfFullName, CP_UTF8);
+
+		// make sure Cairo can use this font:
+		cairo_font_face_t* l_cff = cairo_toy_font_face_create(l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+
+		if(l_cff)
+		{
+			l_fonts->push_back(PFontListEntry(new CFontListEntry(lpelfe)));
+
+			cairo_font_face_destroy(l_cff);
+		}
 	}
 
 	return 1;
@@ -130,6 +160,11 @@ CSettingsTabDialog::CSettingsTabDialog(CSettingsWindowDialog* a_dlg, int a_pageI
 	m_mainWin = a_dlg->GetMainWin();
 	m_dlgWin = a_dlg;
 	m_viewSettings = NULL;
+	m_selectedFontIndex = 0;
+
+	m_extremeTheme = CUtil::IsWinXP() || CUtil::IsWin6x();
+
+	m_fonts = m_dlgWin->GetFonts(false);
 }
 
 
@@ -171,36 +206,20 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_SPIN2, false);
 		}
 
-		if(!m_fonts.empty())
-		{
-			int l_idx = 0;
-			for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
-			{
-				int l_id = ComboBox_AddString(GetDlgItem(IDC_FONTNAME_COMBO), (*it)->GetFontName().c_str());
-
-				if(l_id != l_idx)
-				{
-					this->MessageBox(_T("There was an error populating the font list."), _T("Fail"), MB_ICONSTOP);
-					break;
-				}
-
-				l_idx++;
-			}
-
-			ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), 0);
-		}
-
 		CViewContainer* l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
 		m_viewSettings = new CNFORenderSettings();
 
 		switch(m_pageId)
 		{
 		case TAB_PAGE_RENDERED: *m_viewSettings = l_view->GetRenderCtrl()->GetSettings(); break;
-		//case TAB_PAGE_NORMAL: *m_viewSettings = l_view-> break;
-		//case TAB_PAGE_TEXTONLY: *m_viewSettings = l_view-> break;
+			//case TAB_PAGE_NORMAL: *m_viewSettings = l_view-> break;
+			//case TAB_PAGE_TEXTONLY: *m_viewSettings = l_view-> break;
 		default:
 			delete m_viewSettings; m_viewSettings = NULL;
 		}
+
+		AddFontListToComboBox(true);
+		ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), m_selectedFontIndex); // :TODO: use active font's index
 
 		if(m_viewSettings)
 		{
@@ -215,6 +234,32 @@ BOOL CSettingsTabDialog::OnInitDialog()
 	}
 
 	return TRUE;
+}
+
+
+void CSettingsTabDialog::AddFontListToComboBox(bool a_addCustom)
+{
+	int l_idx = 0;
+
+	ComboBox_ResetContent(GetDlgItem(IDC_FONTNAME_COMBO));
+
+	for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
+	{
+		int l_id = ComboBox_AddString(GetDlgItem(IDC_FONTNAME_COMBO), (*it)->GetFontName().c_str());
+
+		if(l_id != l_idx)
+		{
+			this->MessageBox(_T("There was an error populating the font list."), _T("Fail"), MB_ICONSTOP);
+			break;
+		}
+
+		l_idx++;
+	}
+
+	if(a_addCustom)
+	{
+		ComboBox_AddString(GetDlgItem(IDC_FONTNAME_COMBO), _T("ZZZ(custom)"));
+	}
 }
 
 
@@ -279,7 +324,7 @@ BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
-BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM /*lParam*/)
+BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 {
 	if(IsColorButton(LOWORD(wParam)))
 	{
@@ -318,6 +363,45 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM /*lParam*/)
 			break;
 		case IDC_UNDERL_LINKS:
 			m_viewSettings->bUnderlineHyperlinks = (IsDlgButtonChecked(m_hWnd, IDC_UNDERL_LINKS) != 0);
+			break;
+		case IDC_FONTNAME_COMBO:
+			if(HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				int l_newIdx = ComboBox_GetCurSel((HWND)lParam);
+
+				if(l_newIdx == m_fonts.size())
+				{
+					// "Custom..."
+					ComboBox_SetCurSel((HWND)lParam, m_selectedFontIndex);
+					// :TODO: just extend the drop down thing to *all* installed fonts here...
+					// ... the common dialog is useless.
+#if 0
+					CHOOSEFONT l_cf = {0};
+					LOGFONT l_tempLogFont = {0};
+					l_cf.lStructSize = sizeof(CHOOSEFONT);
+					l_cf.hwndOwner = m_dlgWin->GetHwnd();
+					l_cf.lpLogFont = &l_tempLogFont;
+					l_cf.Flags = CF_FORCEFONTEXIST | CF_NOSCRIPTSEL | CF_NOVERTFONTS | CF_SCRIPTSONLY;
+						/*CF_INITTOLOGFONTSTRUCT*/ 
+					if(m_pageId == TAB_PAGE_RENDERED)
+					{
+						l_cf.Flags |= CF_LIMITSIZE;
+						l_cf.nSizeMax = 999;
+						l_cf.nSizeMin = 999;
+					}
+					l_cf.nFontType = REGULAR_FONTTYPE;
+
+					if(::ChooseFont(&l_cf))
+					{
+					}
+#endif
+					this->MessageBox(_T("Not Implemented."), _T("Sorry"), MB_ICONEXCLAMATION);
+				}
+				else
+				{
+					m_selectedFontIndex = l_newIdx;
+				}
+			}
 			break;
 		}
 
@@ -405,6 +489,10 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 		const std::string l_fontNameUtf = CUtil::FromWideStr(l_font->GetFontName(), CP_UTF8);
 
 		cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+		if(cairo_status(cr) == CAIRO_STATUS_SUCCESS)
+		{
+			Sleep(1);
+		}
 		cairo_set_font_size(cr, l_font->GetNiceSize());
 
 		cairo_text_extents_t l_extents = {0};
@@ -427,18 +515,32 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 
 void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 {
-	if(a_dis->itemID != (UINT)-1 && a_dis->itemID < m_fonts.size())
+	if(a_dis->itemID != (UINT)-1 && a_dis->itemID <= m_fonts.size())
 	{
 		if(a_dis->itemAction == ODA_DRAWENTIRE)
 		{
-			const PFontListEntry l_font = m_fonts[a_dis->itemID];
-			const std::string l_fontNameUtf = CUtil::FromWideStr(l_font->GetFontName(), CP_UTF8);
+			std::string l_fontNameUtf, l_displayName;
+			int l_fontSize;
+
+			if(a_dis->itemID < m_fonts.size())
+			{
+				const PFontListEntry l_font = m_fonts[a_dis->itemID];
+				l_fontNameUtf = l_displayName = CUtil::FromWideStr(l_font->GetFontName(), CP_UTF8);
+				l_fontSize = l_font->GetNiceSize();
+			}
+			else
+			{
+				// "Custom..." entry
+				l_fontNameUtf = "MS Shell Dlg";
+				l_displayName = "( Custom Font... )";
+				l_fontSize = 14;
+			}
 
 			cairo_surface_t* l_surface = cairo_win32_surface_create(a_dis->hDC);
 			cairo_t* cr = cairo_create(l_surface);
 
 			cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-			cairo_set_font_size(cr, l_font->GetNiceSize());
+			cairo_set_font_size(cr, l_fontSize);
 
 			cairo_text_extents_t l_extents = {0};
 			cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
@@ -451,7 +553,7 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 			// the padding is in (a_dis->rcItem.bottom - a_dis->rcItem.top)
 			// which also is the maximum item height.
 
-			cairo_show_text(cr, l_fontNameUtf.c_str());
+			cairo_show_text(cr, l_displayName.c_str());
 
 			cairo_destroy(cr);
 			cairo_surface_destroy(l_surface);

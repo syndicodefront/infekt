@@ -15,6 +15,7 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+#include "theme_api.h"
 
 class CUtil
 {
@@ -29,6 +30,16 @@ public:
 	static std::_tstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter);
 	static std::_tstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter,
 		const LPCTSTR a_defaultExt, const std::_tstring& a_currentFileName);
+#endif
+
+#ifdef _WIN32
+	static bool IsWin2000();
+	static bool IsWinXP();
+	static bool IsWin5x();
+	static bool IsWin6x(bool a_orHigher = true);
+
+protected:
+	static OSVERSIONINFO ms_osver;
 #endif
 };
 
@@ -89,8 +100,6 @@ extern "C"
 /* Win32++ helpers */
 #ifdef _WIN32_UI
 
-extern HMODULE g_hUxThemeLib;
-
 class CNonThemedTab : public CTab
 {
 protected:
@@ -120,20 +129,7 @@ public:
 		if(SendMessage(CCM_GETVERSION, 0, 0) >= 6)
 		{
 			// adjust XP style background...
-			typedef HRESULT (WINAPI *fEnThDiTe)(HWND hwnd, DWORD dwFlags);
-
-			if(!g_hUxThemeLib)
-			{
-				g_hUxThemeLib = LoadLibrary(_T("uxtheme.dll"));
-			}
-
-			if(g_hUxThemeLib)
-			{
-				if(fEnThDiTe etdt = (fEnThDiTe)GetProcAddress(g_hUxThemeLib, "EnableThemeDialogTexture"))
-				{
-					etdt(GetTabPageInfo(l_newIdx).pWnd->GetHwnd(), ETDT_ENABLETAB);
-				}
-			}
+			CThemeAPI::GetInstance()->EnableThemeDialogTexture(GetTabPageInfo(l_newIdx).pWnd->GetHwnd(), ETDT_ENABLETAB);
 		}
 
 		return l_newIdx;
