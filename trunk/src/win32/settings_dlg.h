@@ -47,6 +47,7 @@ public:
 
 	void SetMainWin(CMainFrame* a_mainWin) { m_mainWin = a_mainWin; }
 	CMainFrame* GetMainWin() const { return m_mainWin; }
+	const std::vector<PFontListEntry>& GetFonts(bool a_getAll);
 protected:
 	CNonThemedTab m_tabControl;
 	CMainFrame* m_mainWin;
@@ -57,6 +58,7 @@ protected:
 	CSettingsTabDialog* m_tabPageTextOnly;
 
 	std::vector<PFontListEntry> m_fonts;
+	std::vector<PFontListEntry> m_allFonts;
 	static int CALLBACK FontNamesProc(const ENUMLOGFONTEX*, const NEWTEXTMETRICEX*, DWORD, LPARAM);
 protected:
 	virtual BOOL OnInitDialog();
@@ -73,18 +75,20 @@ public:
 
 	bool SaveViewSettings();
 	const CNFORenderSettings* GetViewSettings() { return m_viewSettings; }
-	void SetFontList(const std::vector<PFontListEntry>& a_fonts) { m_fonts = a_fonts; }
 protected:
 	int m_pageId;
 	CNFORenderSettings* m_viewSettings;
 	CMainFrame* m_mainWin;
 	CSettingsWindowDialog* m_dlgWin;
 	std::vector<PFontListEntry> m_fonts;
+	int m_selectedFontIndex;
+	bool m_extremeTheme;
 
 	bool IsViewSettingPage() const;
 	static bool IsColorButton(UINT a_id);
 	void DrawColorButton(const LPDRAWITEMSTRUCT a_dis);
 	S_COLOR_T* ColorFromControlId(UINT a_id);
+	void AddFontListToComboBox(bool a_addCustom);
 	void DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis);
 	void MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis);
 

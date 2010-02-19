@@ -3,6 +3,7 @@
 #include "main_frame.h"
 #include "settings_dlg.h"
 #include "resource.h"
+#include "theme_api.h"
 
 using namespace std;
 

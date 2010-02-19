@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude;&quot;..\..\src\win32-default-app&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;CAIRO_WIN32_STATIC_BUILD;HAVE_BOOST"
+				PreprocessorDefinitions="WIN32;_DEBUG;HAVE_BOOST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="false"
@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Win32xxD.lib comctl32.lib cairo-static.lib Msimg32.lib zdll.lib libpng.lib pcred.lib shlwapi.lib"
+				AdditionalDependencies="Win32xxD.lib comctl32.lib cairo.lib Msimg32.lib zdll.lib libpng.lib pcred.lib shlwapi.lib"
 				OutputFile="$(OutDir)\infekt-win32.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
@@ -362,6 +362,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\win32-support\theme_api.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\lib\util.cpp"
 				>
 				<FileConfiguration
@@ -421,6 +425,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\win32\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-support\theme_api.h"
 				>
 			</File>
 			<File
