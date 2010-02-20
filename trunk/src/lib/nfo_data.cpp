@@ -211,7 +211,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 			const string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
 			m_utf8Content += l_utf8Line;
-			m_utf8Content += "\n";
+			m_utf8Content += "\n"; // don't change this into \r\n, other code relies on it being \n
 
 			// find hyperlinks:
 			if(/* m_bFindHyperlinks == */true)

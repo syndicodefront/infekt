@@ -400,6 +400,21 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 				else
 				{
 					m_selectedFontIndex = l_newIdx;
+
+					if(m_pageId != TAB_PAGE_RENDERED)
+					{
+						HWND l_hFontCombo = GetDlgItem(IDC_FONTSIZE_COMBO);
+
+						ComboBox_ResetContent(l_hFontCombo);
+
+						for(std::set<int>::const_iterator it = m_fonts[l_newIdx]->SizesBegin();
+							it != m_fonts[l_newIdx]->SizesEnd(); it++)
+						{
+							TCHAR l_buf[10] = {0};
+							_stprintf(l_buf, _T("%d"), *it);
+							ComboBox_AddString(l_hFontCombo, l_buf);
+						}
+					}
 				}
 			}
 			break;
@@ -491,17 +506,16 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 		cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 		if(cairo_status(cr) == CAIRO_STATUS_SUCCESS)
 		{
-			Sleep(1);
+			cairo_set_font_size(cr, l_font->GetNiceSize());
+
+			cairo_text_extents_t l_extents = {0};
+			cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
+
+			if(l_extents.width > l_maxW)
+				l_maxW = l_extents.width;
+			if(l_extents.height > l_maxH)
+				l_maxH = l_extents.height;
 		}
-		cairo_set_font_size(cr, l_font->GetNiceSize());
-
-		cairo_text_extents_t l_extents = {0};
-		cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
-
-		if(l_extents.width > l_maxW)
-			l_maxW = l_extents.width;
-		if(l_extents.height > l_maxH)
-			l_maxH = l_extents.height;
 	}
 
 	a_mis->itemWidth = (UINT)l_maxW + 2 * ms_fontComboPadding;

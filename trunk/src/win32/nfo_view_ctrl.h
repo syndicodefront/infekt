@@ -48,7 +48,7 @@ protected:
 	static LRESULT CALLBACK _WindowProc(HWND, UINT, WPARAM, LPARAM);
 	LRESULT WindowProc(UINT, WPARAM, LPARAM);
 public:
-	CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent);
+	CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic = false);
 	virtual ~CNFOViewControl();
 
 	virtual bool AssignNFO(const PNFOData& a_nfo);
