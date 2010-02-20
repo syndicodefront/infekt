@@ -1,5 +1,5 @@
 #labels Deprecated
-The program downloads this file from http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki and uses it to check for the latest available version.
+The program downloads this file from http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki and uses it to check for the latest available version. It has the label "Deprecated" so that it doesn't show up on the web page too often.
 
 {{{
 latest[stable] = 0.1.0
