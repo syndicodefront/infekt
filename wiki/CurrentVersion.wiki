@@ -1,0 +1,9 @@
+#labels Deprecated
+The program downloads this file from http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki and uses it to check for the latest available version.
+
+{{{
+latest[stable] = 0.1.0
+download_latest[stable] = http://code.google.com/p/infekt/downloads/list
+}}}
+
+EOF
