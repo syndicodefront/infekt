@@ -26,6 +26,8 @@ public:
 	bool IsFixedWidth() const { return ((m_logFont.lfPitchAndFamily & FIXED_PITCH) != 0); }
 	const std::_tstring& GetFontName() const { return m_name; }
 	int GetNiceSize();
+	std::set<int>::const_iterator SizesBegin() const { return m_sizes.begin(); }
+	std::set<int>::const_iterator SizesEnd() const { return m_sizes.end(); }
 protected:
 	std::_tstring m_name;
 	LOGFONT m_logFont;

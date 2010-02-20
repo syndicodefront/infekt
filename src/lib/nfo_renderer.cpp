@@ -69,7 +69,7 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 
 bool CNFORenderer::CalculateGrid()
 {
-	if(!m_nfo || !m_nfo->HasData())
+	if(!m_nfo || !m_nfo->HasData() || m_classic)
 	{
 		return false;
 	}
@@ -93,61 +93,9 @@ bool CNFORenderer::CalculateGrid()
 		{
 			CRenderGridBlock *l_block = &l_grid[row][col];
 			l_block->charCode = m_nfo->GetGridChar(row, col);
-
-			switch(l_block->charCode)
-			{
-			case 0:
-			case 9:
-			case 32: /* whitespace */
-				l_block->shape = (l_textStarted ? RGS_WHITESPACE_IN_TEXT : RGS_WHITESPACE);
-				break;
-
-			case 9600: /* upper half block */
-				l_block->shape = RGS_BLOCK_UPPER_HALF;
-				break;
-
-			case 9604: /* lower half block */
-				l_block->shape = RGS_BLOCK_LOWER_HALF;
-				break;
-
-			case 9608: /* full block */
-				l_block->shape = RGS_FULL_BLOCK;
-				break;
-
-			case 9612: /* left half block */
-				l_block->shape = RGS_BLOCK_LEFT_HALF;
-				break;
-
-			case 9616: /* right half block */
-				l_block->shape = RGS_BLOCK_RIGHT_HALF;
-				break;
-
-			case 9617: /* light shade */
-				l_block->shape = RGS_FULL_BLOCK;
-				l_block->alpha = 90;
-				break;
-
-			case 9618: /* medium shade */
-				l_block->shape = RGS_FULL_BLOCK;
-				l_block->alpha = 140;
-				break;
-
-			case 9619: /* dark shade */
-				l_block->shape = RGS_FULL_BLOCK;
-				l_block->alpha = 190;
-				break;
-
-			case 9632: /* black square */
-				l_block->shape = RGS_BLACK_SQUARE;
-				break;
-
-			case 9642: /* black small square */
-				l_block->shape = RGS_BLACK_SMALL_SQUARE;
-				break;
-
-			default:
-				l_textStarted = true;
-			}
+			l_block->shape = CharCodeToGridShape(l_block->charCode);
+			if(l_block->shape == RGS_WHITESPACE && l_textStarted) l_block->shape = RGS_WHITESPACE_IN_TEXT;
+			else if(l_block->alpha == RGS_NO_BLOCK) l_textStarted = true;
 		}
 
 		if(l_textStarted)
@@ -169,6 +117,47 @@ bool CNFORenderer::CalculateGrid()
 	}
 
 	return true;
+}
+
+
+/*static*/ ERenderGridShape CNFORenderer::CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha)
+{
+	switch(a_char)
+	{
+	case 0:
+	case 9:
+	case 32: /* whitespace */
+		return RGS_WHITESPACE;
+	case 9600: /* upper half block */
+		return RGS_BLOCK_UPPER_HALF;
+	case 9604: /* lower half block */
+		return RGS_BLOCK_LOWER_HALF;
+	case 9608: /* full block */
+		return RGS_FULL_BLOCK;
+	case 9612: /* left half block */
+		return RGS_BLOCK_LEFT_HALF;
+	case 9616: /* right half block */
+		return RGS_BLOCK_RIGHT_HALF;
+	case 9617: /* light shade */
+		if(ar_alpha) *ar_alpha = 90;
+		return RGS_FULL_BLOCK;
+	case 9618: /* medium shade */
+		if(ar_alpha) *ar_alpha = 140;
+		return RGS_FULL_BLOCK;
+		break;
+	case 9619: /* dark shade */
+		if(ar_alpha) *ar_alpha = 190;
+		return RGS_FULL_BLOCK;
+		break;
+	case 9632: /* black square */
+		return RGS_BLACK_SQUARE;
+		break;
+	case 9642: /* black small square */
+		return RGS_BLACK_SMALL_SQUARE;
+		break;
+	default:
+		return RGS_NO_BLOCK;
+	}
 }
 
 
@@ -195,13 +184,13 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface, int dest_x, int des
 
 bool CNFORenderer::Render()
 {
-	if(!m_gridData && !CalculateGrid()) return false;
+	if(!m_nfo) return false;
+	if(!m_classic && !m_gridData && !CalculateGrid()) return false;
 
 	if(!m_imgSurface)
 	{
 		m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-			m_gridData->GetCols() * GetBlockWidth() + m_padding * 2,
-			m_gridData->GetRows() * GetBlockHeight() + m_padding * 2);
+			GetWidth(), GetHeight());
 
 		if(!m_imgSurface)
 		{
@@ -217,19 +206,26 @@ bool CNFORenderer::Render()
 		cairo_destroy(cr);
 	}
 
-	if(GetEnableGaussShadow())
+	if(!m_classic)
 	{
-		RenderBlocks(true, true);
-		cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
-		/* idea for later: Use NVIDIA CUDA for the gauss blur step. */
-		RenderBlocks(false, false);
-	}
-	else
-	{
-		RenderBlocks(true, false);
-	}
+		if(GetEnableGaussShadow())
+		{
+			RenderBlocks(true, true);
+			cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
+			/* idea for later: Use NVIDIA CUDA for the gauss blur step. */
+			RenderBlocks(false, false);
+		}
+		else
+		{
+			RenderBlocks(true, false);
+		}
 
-	RenderText();
+		RenderText();
+	}
+	else // classic mode
+	{
+		RenderClassic();
+	}
 
 	m_rendered = true;
 
@@ -511,6 +507,64 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 }
 
 
+void CNFORenderer::RenderClassic()
+{
+	cairo_t* cr = cairo_create(m_imgSurface);
+
+	cairo_font_options_t *l_fontOptions = cairo_font_options_create();
+	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
+	cairo_font_options_set_hint_style(l_fontOptions, CAIRO_HINT_STYLE_FULL);
+
+	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_set_font_options(cr, l_fontOptions);
+	cairo_set_font_size(cr, 12);
+
+	if(true /* measure? */)
+	{
+		wchar_t l_blockStr[2] = { 9608, 0}; // full block + null terminator
+		const std::string l_blockStrUtf = CUtil::FromWideStr(l_blockStr, CP_UTF8);
+
+		cairo_text_extents_t l_extents;
+		cairo_text_extents(cr, l_blockStrUtf.c_str(), &l_extents);
+
+		m_settings.uBlockWidth = (size_t)l_extents.x_advance;
+		m_settings.uBlockHeight = (size_t)l_extents.height;
+	}
+
+	if(GetBackColor().A > 0)
+	{
+		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+		cairo_paint(cr);
+	}
+
+	cairo_font_extents_t l_font_extents;
+	cairo_font_extents(cr, &l_font_extents);
+
+	cairo_set_source_rgb(cr, 0, 0, 0);
+
+	int l_lineNr = 0;
+	std::string::size_type l_prevPos = 0,
+		l_pos = m_nfo->GetTextUtf8().find('\n');
+
+	while(l_pos != std::string::npos)
+	{
+		std::string l_line = m_nfo->GetTextUtf8().substr(l_prevPos, l_pos - l_prevPos);
+
+		cairo_move_to(cr, m_padding, l_lineNr * GetBlockHeight() + m_padding + l_font_extents.ascent);
+
+		cairo_show_text(cr, l_line.c_str());
+
+		l_prevPos = l_pos + 1;
+		l_pos = m_nfo->GetTextUtf8().find('\n', l_prevPos);
+		l_lineNr++;
+	}
+
+	cairo_font_options_destroy(l_fontOptions);
+
+	cairo_destroy(cr);
+}
+
+
 bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace) const
 {
 	if(!m_gridData) return false;
@@ -529,19 +583,23 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 
 size_t CNFORenderer::GetWidth()
 {
-	if(!m_gridData && !CalculateGrid()) return 0;
-	if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
+	//if(!m_gridData && !CalculateGrid()) return 0;
+	//if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
+	if(!m_nfo) return 0;
 
-	return m_gridData->GetCols() * GetBlockWidth() + m_padding * 2;
+	//return m_gridData->GetCols() * GetBlockWidth() + m_padding * 2;
+	return m_nfo->GetGridWidth() * GetBlockWidth() + m_padding * 2;
 }
 
 
 size_t CNFORenderer::GetHeight()
 {
-	if(!m_gridData && !CalculateGrid()) return 0;
-	if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
+	//if(!m_gridData && !CalculateGrid()) return 0;
+	//if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
+	if(!m_nfo) return 0;
 
-	return m_gridData->GetRows() * GetBlockHeight() + m_padding * 2;
+	//return m_gridData->GetRows() * GetBlockHeight() + m_padding * 2;
+	return m_nfo->GetGridHeight() * GetBlockHeight() + m_padding * 2;
 }
 
 

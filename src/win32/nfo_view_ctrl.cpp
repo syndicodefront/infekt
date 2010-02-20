@@ -22,7 +22,7 @@
 #define NFOVWR_CTRL_CLASS_NAME _T("RenderedNfoViewCtrl")
 
 
-CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent) : CNFORenderer()
+CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic) : CNFORenderer(a_classic)
 {
 	m_instance = a_hInstance;
 	m_parent = a_parent;
