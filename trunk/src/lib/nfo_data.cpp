@@ -157,7 +157,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 			}
 
 			// trim trailing whitespace:
-			while(l_line.size() && iswspace(l_line[l_line.size() - 1])) l_line.erase(l_line.size() - 1);
+			CUtil::StrTrimRight(l_line);
 
 			l_lines.push_back(l_line);
 

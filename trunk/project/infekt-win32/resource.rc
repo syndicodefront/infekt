@@ -129,6 +129,8 @@ BEGIN
     END
     POPUP "&Help"
     BEGIN
+        MENUITEM "Check for Updates...",        IDM_CHECKFORUPDATES
+        MENUITEM SEPARATOR
         MENUITEM "About...\tF1",                IDM_ABOUT
     END
 END

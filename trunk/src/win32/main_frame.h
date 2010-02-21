@@ -43,10 +43,13 @@ protected:
 	virtual inline void SetStatusText() {}
 	// Win32++ stuff end //
 
+	const std::_tstring InfektVersionAsString();
 	void AddToolbarButtons();
 	void UpdateCaption();
 	void OpenChooseFileName();
 	void DoNfoExport(UINT a_id);
+
+	void CheckForUpdates();
 
 	static const int ms_minWidth = 300, ms_minHeight = 150;
 };

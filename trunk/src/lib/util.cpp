@@ -14,8 +14,16 @@
 
 #include "stdafx.h"
 #include "util.h"
+#ifdef _WIN32
+#include <wininet.h>
+#endif
 
 using namespace std;
+
+
+/************************************************************************/
+/* Character Set Conversion Functions                                   */
+/************************************************************************/
 
 string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePage)
 {
@@ -67,6 +75,97 @@ bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 	return (::WideCharToMultiByte(CP_UTF8, 0, &a_char, 1, a_buf, 7, NULL, NULL) > 0);
 }
 
+
+/************************************************************************/
+/* String Trim Functions                                                */
+/************************************************************************/
+
+template<typename STRTYPE> static void inline _StrTrimLeft(STRTYPE& a_str, const STRTYPE a_chars)
+{
+	STRTYPE::size_type l_pos = a_str.find_first_not_of(a_chars);
+
+	if(l_pos != STRTYPE::npos)
+		a_str.erase(0, l_pos);
+	else
+		a_str.clear();
+}
+
+template<typename STRTYPE> static void inline _StrTrimRight(STRTYPE& a_str, const STRTYPE a_chars)
+{
+	STRTYPE::size_type l_pos = a_str.find_last_not_of(a_chars);
+
+	if(l_pos != STRTYPE::npos)
+	{
+		a_str.erase(l_pos + 1);
+	}
+	else
+		a_str.clear();
+}
+
+void CUtil::StrTrimLeft(string& a_str, const string a_chars) { _StrTrimLeft<string>(a_str, a_chars); }
+void CUtil::StrTrimRight(string& a_str, const string a_chars) { _StrTrimRight<string>(a_str, a_chars); }
+void CUtil::StrTrim(string& a_str, const string a_chars) { StrTrimLeft(a_str, a_chars); StrTrimRight(a_str, a_chars); }
+
+void CUtil::StrTrimLeft(wstring& a_str, const wstring a_chars) { _StrTrimLeft<wstring>(a_str, a_chars); }
+void CUtil::StrTrimRight(wstring& a_str, const wstring a_chars) { _StrTrimRight<wstring>(a_str, a_chars); }
+void CUtil::StrTrim(wstring& a_str, const wstring a_chars) { StrTrimLeft(a_str, a_chars); StrTrimRight(a_str, a_chars); }
+
+
+/************************************************************************/
+/* Misc                                                                 */
+/************************************************************************/
+
+static inline void _ParseVersionNumber(const _tstring& vs, vector<int>* ret)
+{
+	_tstring l_buf;
+
+	for(_tstring::size_type p = 0; p < vs.size(); p++)
+	{
+		if(vs[p] == _T('.'))
+		{
+			ret->push_back(_tstoi(l_buf.c_str()));
+			l_buf.clear();
+		}
+		else
+		{
+			l_buf += vs[p];
+		}
+	}
+
+	if(!l_buf.empty())
+	{
+		ret->push_back(_tstoi(l_buf.c_str()));
+	}
+	else if(ret->empty())
+	{
+		ret->push_back(0);
+	}
+
+	while(ret->size() > 1 && (*ret)[ret->size() - 1] == 0) ret->erase(ret->begin() + (ret->size() - 1));
+}
+
+int CUtil::VersionCompare(const _tstring& a_vA, const _tstring& a_vB)
+{
+	vector<int> l_vA, l_vB;
+	_ParseVersionNumber(a_vA, &l_vA);
+	_ParseVersionNumber(a_vB, &l_vB);
+
+	size_t l_max = std::min(l_vA.size(), l_vB.size());
+	for(size_t p = 0; p < l_max; p++)
+	{
+		if(l_vA[p] < l_vB[p])
+			return -1;
+		else if(l_vA[p] > l_vB[p])
+			return 1;
+	}
+
+	return l_vA.size() - l_vB.size();
+}
+
+
+/************************************************************************/
+/* PNG/BITMAP/GDI Helper Functions                                      */
+/************************************************************************/
 
 #ifdef _WIN32_UI
 /* utilities for AddPngToImageList */
@@ -169,6 +268,10 @@ int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 }
 
 
+/************************************************************************/
+/* Common Dialog Helper Functions                                       */
+/************************************************************************/
+
 _tstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter)
 {
 	OPENFILENAME ofn = {0};
@@ -222,7 +325,12 @@ _tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTST
 
 #endif
 
+
 #ifdef _WIN32
+
+/************************************************************************/
+/* Windows OS Version Helper Functions                                  */
+/************************************************************************/
 
 bool CUtil::IsWin2000()
 {
@@ -249,5 +357,80 @@ bool CUtil::IsWin6x(bool a_orHigher)
 }
 
 OSVERSIONINFO CUtil::ms_osver = {0};
+
+
+/************************************************************************/
+/* Internet/Network Helper Functions                                    */
+/************************************************************************/
+
+std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
+{
+	HINTERNET hInet;
+	std::string sText;
+	BOOL bSuccess = TRUE;
+
+	hInet = InternetOpen(_T("DownloadHttpTextFile/1.0"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+
+	if(hInet)
+	{
+		HINTERNET hRequest;
+
+		hRequest = InternetOpenUrl(hInet, a_url.c_str(), NULL, 0,
+			INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_PRAGMA_NOCACHE |
+			INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_AUTH, 0);
+
+		if(hRequest)
+		{
+			int64_t uFileSize = 0;
+
+			if(true)
+			{
+				TCHAR szSizeBuffer[32];
+				DWORD dwLengthSizeBuffer = 32;
+
+				if(HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH, szSizeBuffer, &dwLengthSizeBuffer, NULL) == TRUE)
+				{
+					uFileSize = _tcstoi64(szSizeBuffer, NULL, 10);
+				}
+			}
+
+			if(uFileSize && uFileSize < 100 * 1024)
+			{
+				char szBuffer[8192] = {0};
+				DWORD dwRead;
+
+				while(InternetReadFile(hRequest, szBuffer, 8191, &dwRead))
+				{
+					if(!dwRead || dwRead > 8191)
+					{
+						break;
+					}
+
+					if(lstrlenA(szBuffer) == dwRead)
+					{
+						sText += szBuffer;
+					}
+					else
+					{
+						// we got some binary stuff, but we don't want any.
+						bSuccess = FALSE;
+						break;
+					}
+				}
+			}
+
+			InternetCloseHandle(hRequest);
+		}
+
+		InternetCloseHandle(hInet);
+	}
+
+#ifdef _UNICODE
+	// the contents better be UTF-8...
+	return CUtil::ToWideStr(sText, CP_UTF8);
+#else
+	return sText;
+#endif
+}
 
 #endif

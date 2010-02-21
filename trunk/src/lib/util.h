@@ -24,6 +24,15 @@ public:
 	static std::wstring ToWideStr(const std::string& a_str, unsigned int a_originCodePage);
 	static bool OneCharWideToUtf8(wchar_t a_char, char* a_buf);
 
+	static void StrTrimLeft(std::string& a_str, const std::string a_chars = "\t\r\n ");
+	static void StrTrimRight(std::string& a_str, const std::string a_chars = "\t\r\n ");
+	static void StrTrim(std::string& a_str, const std::string a_chars = "\t\r\n ");
+	static void StrTrimLeft(std::wstring& a_str, const std::wstring a_chars = L"\t\r\n ");
+	static void StrTrimRight(std::wstring& a_str, const std::wstring a_chars = L"\t\r\n ");
+	static void StrTrim(std::wstring& a_str, const std::wstring a_chars = L"\t\r\n ");
+
+	static int VersionCompare(const std::_tstring& a_vA, const std::_tstring& a_vB);
+
 #ifdef _WIN32_UI
 	static int AddPngToImageList(HIMAGELIST a_imgList,
 		HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
@@ -38,6 +47,7 @@ public:
 	static bool IsWin5x();
 	static bool IsWin6x(bool a_orHigher = true);
 
+	static std::_tstring DownloadHttpTextFile(const std::_tstring& a_url);
 protected:
 	static OSVERSIONINFO ms_osver;
 #endif
