@@ -361,7 +361,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 		{
 			const CNFOHyperLink *l_link = m_nfo->GetLink(l_row, l_col);
 
-			if(l_link)
+			if(l_link && ::PathIsURL(l_link->GetHref().c_str()))
 			{
 				::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(),
 					NULL, NULL, SW_SHOW);
@@ -568,7 +568,8 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 
 			if(!l_dryRun)
 			{
-				while(l_text.size() && l_text[l_text.size() - 1] == L' ') l_text.erase(l_text.size() - 1);
+				// do not erase newlines/linebreaks here:
+				CUtil::StrTrimRight(l_text, L" ");
 
 				if(row != m_selEndRow)
 					l_text += L"\r\n"; // SetClipboardContent with CF_UNICODETEXT wants \r\n instead of \n...
@@ -576,7 +577,7 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 		}
 	} while(l_dryRun--);
 
-	while(l_text.size() && (l_text[0] == L'\r' || l_text[0] == L'\n')) l_text.erase(0, 1);
+	CUtil::StrTrimLeft(l_text, L"\r\n");
 
 	return l_text;
 }

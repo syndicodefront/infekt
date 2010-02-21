@@ -200,6 +200,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		this->MessageBox(_T("Not implemented!"), _T("Fail"), MB_ICONEXCLAMATION);
 		return TRUE;
 
+	case IDM_CHECKFORUPDATES:
+		this->CheckForUpdates();
+		return TRUE;
+
 	case IDM_EXPORT_PNG:
 	case IDM_EXPORT_PNG_TRANSP:
 	case IDM_EXPORT_UTF8:
@@ -217,7 +221,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 void CMainFrame::OnHelp()
 {
 	_tstring l_msg;
-	l_msg += FORMAT(_T("iNFEKT v%d.%d.%d"), INFEKT_VERSION_MAJOR % INFEKT_VERSION_MINOR % INFEKT_VERSION_REVISION);
+	l_msg += _T("iNFEKT v") + InfektVersionAsString();
 	l_msg += _T("\n© cxxjoe & Contributors 2010");
 	l_msg += _T("\n\nRebecca, you are the love of my life.");
 
@@ -235,7 +239,7 @@ void CMainFrame::UpdateCaption()
 	}
 
 	if(!l_caption.empty()) l_caption += _T(" - ");
-	l_caption += FORMAT(_T("iNFEKT v%d.%d.%d"), INFEKT_VERSION_MAJOR % INFEKT_VERSION_MINOR % INFEKT_VERSION_REVISION);
+	l_caption += _T("iNFEKT v") + InfektVersionAsString();
 
 	SetWindowText(l_caption.c_str());
 }
@@ -496,6 +500,105 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 	a_target->InjectSettings(l_newSets);
 
 	return true;
+}
+
+
+const std::_tstring CMainFrame::InfektVersionAsString()
+{
+	return FORMAT(_T("%d.%d.%d"), INFEKT_VERSION_MAJOR % INFEKT_VERSION_MINOR % INFEKT_VERSION_REVISION);
+}
+
+
+void CMainFrame::CheckForUpdates()
+{
+	const _tstring l_url(_T("http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki"));
+
+	SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
+	_tstring l_contents = CUtil::DownloadHttpTextFile(l_url);
+	wstring l_serverVersion, l_newDownloadUrl;
+
+	_tstring::size_type l_pos = l_contents.find(_T("{{{")), l_endPos, l_prevPos;
+
+	if(l_pos != _tstring::npos)
+	{
+		l_pos += 3;
+		l_endPos = l_contents.find(_T("}}}"), l_pos);
+
+		if(l_endPos != _tstring::npos)
+		{
+			map<_tstring, _tstring> l_pairs;
+			l_contents = l_contents.substr(l_pos, l_endPos - l_pos);
+
+			l_prevPos = 0;
+			l_pos = l_contents.find(_T('\n'));
+
+			while(l_pos != _tstring::npos)
+			{
+				_tstring l_line = l_contents.substr(l_prevPos, l_pos - l_prevPos);
+
+				_tstring::size_type l_equalPos = l_line.find(_T('='));
+
+				if(l_equalPos != _tstring::npos)
+				{
+					_tstring l_left = l_line.substr(0, l_equalPos);
+					_tstring l_right = l_line.substr(l_equalPos + 1);
+					CUtil::StrTrim(l_left);
+					CUtil::StrTrim(l_right);
+
+					l_pairs[l_left] = l_right;
+				}
+				
+				l_prevPos = l_pos + 1;
+				l_pos = l_contents.find(_T('\n'), l_prevPos);
+			}
+
+			l_serverVersion = l_pairs[_T("latest[stable].1")];
+			l_newDownloadUrl = l_pairs[_T("download_latest[stable].1")];
+		}
+	}
+
+	l_contents.clear();
+
+	SetCursor(::LoadCursor(NULL, IDC_ARROW));
+
+	if(l_serverVersion.empty())
+	{
+		if(this->MessageBox(_T("We failed to contact infekt.googlecode.com to get the latest version's info. ")
+			_T("Please make sure you are connected to the internet and try again later.\n\nDo you want to visit ")
+			_T("http://infekt.googlecode.com/ now instead?"), _T("Connection problem"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
+		{
+			ShellExecute(0, _T("open"), _T("http://infekt.googlecode.com/"), NULL, NULL, SW_SHOWNORMAL);
+		}
+		return;
+	}
+
+	int l_result = CUtil::VersionCompare(InfektVersionAsString(), l_serverVersion);
+
+	if(l_result == 0)
+	{
+		const std::_tstring l_msg = _T("You are using the latest stable version (") + InfektVersionAsString() + _T(")!");
+		this->MessageBox(l_msg.c_str(), _T("Nice."), MB_ICONINFORMATION);
+	}
+	else if(l_result < 0)
+	{
+		if(l_newDownloadUrl.empty()) l_newDownloadUrl = _T("http://infekt.googlecode.com/");
+
+		if(this->MessageBox(_T("Warning! You are not using the latest version of iNFEKT!")
+			_T("\n\nDo you want to go to the download page now?"), _T("New Version Found"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
+		{
+			if(::PathIsURL(l_newDownloadUrl.c_str()) &&
+				(l_newDownloadUrl.find(_T("http://")) == 0 || l_newDownloadUrl.find(_T("https://")) == 0))
+			{
+				ShellExecute(0, _T("open"), l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
+			}
+		}
+	}
+	else if(l_result > 0)
+	{
+		this->MessageBox(_T("Looks like you compiled from source. Your version is newer than the latest stable one!"),
+			_T("Nice."), MB_ICONINFORMATION);
+	}
 }
 
 
