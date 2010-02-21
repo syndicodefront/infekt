@@ -18,8 +18,6 @@ void CViewContainer::OnCreate()
 
 	// this context menu will be used for all three view controls.
 	m_contextMenuHandle = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
-
-	m_renderControl->SetContextMenu(m_contextMenuHandle, GetParent());
 }
 
 
@@ -37,13 +35,14 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 
 	if(m_nfoData->LoadFromFile(a_filePath))
 	{
-		if(m_renderControl->AssignNFO(m_nfoData))
+		if(m_curViewCtrl->AssignNFO(m_nfoData))
 		{
 			if(!m_curViewCtrl->ControlCreated())
 			{
 				RECT l_viewArea = GetClientRect();
 				m_curViewCtrl->CreateControl(0, 0,
 					l_viewArea.right - l_viewArea.left, l_viewArea.bottom - l_viewArea.top);
+				m_curViewCtrl->SetContextMenu(m_contextMenuHandle, GetParent());
 				m_curViewCtrl->Show();
 			}
 
@@ -93,10 +92,7 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 {
 	// return false if the message is not supposed to bubble up.
 
-	HWND hScrollTarget = 0;
-	// if type == ...
-	// ...
-	if(m_renderControl) hScrollTarget = m_renderControl->GetHwnd();
+	HWND hScrollTarget = m_curViewCtrl->GetHwnd();
 
 	if(!hScrollTarget)
 	{
