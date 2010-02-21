@@ -58,6 +58,7 @@
 
 /* cairo and other lib headers */
 #include <cairo-win32.h>
+#include <pcre.h>
 
 /* local headers */
 #include "infekt.h"

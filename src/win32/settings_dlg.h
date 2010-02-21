@@ -44,7 +44,7 @@ class CSettingsTabDialog;
 class CSettingsWindowDialog : public CDialog
 {
 public:
-	CSettingsWindowDialog(UINT nResID, HWND hWndParent = NULL);
+	CSettingsWindowDialog(HWND hWndParent = NULL);
 	virtual ~CSettingsWindowDialog();
 
 	void SetMainWin(CMainFrame* a_mainWin) { m_mainWin = a_mainWin; }

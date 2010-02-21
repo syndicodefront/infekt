@@ -2,8 +2,8 @@
 #include "app.h"
 #include "main_frame.h"
 #include "settings_dlg.h"
+#include "about_dlg.h"
 #include "resource.h"
-#include "theme_api.h"
 
 using namespace std;
 
@@ -182,7 +182,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case TBBID_SETTINGS:
 	case IDM_SETTINGS: {
-		CSettingsWindowDialog l_dlg(IDD_DLG_SETTINGS, m_hWnd);
+		CSettingsWindowDialog l_dlg(m_hWnd);
 		l_dlg.SetMainWin(this);
 		l_dlg.DoModal();
 		return TRUE; }
@@ -224,12 +224,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnHelp()
 {
-	_tstring l_msg;
-	l_msg += _T("iNFEKT v") + InfektVersionAsString();
-	l_msg += _T("\n© cxxjoe & Contributors 2010");
-	l_msg += _T("\n\nRebecca, you are the love of my life.");
+	CAboutDialog l_pAboutDialog(m_hWnd);
+	l_pAboutDialog.SetMainWin(this);
 
-	this->MessageBox(l_msg.c_str(), _T("About"), MB_ICONINFORMATION);
+	l_pAboutDialog.DoModal();
 }
 
 
