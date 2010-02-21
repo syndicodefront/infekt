@@ -73,6 +73,8 @@ void CMainFrame::OnInitialUpdate()
 
 	GetStatusbar().SetPartText(0, _T("Hit the Alt key to toggle the menu bar."));
 
+	m_view.SwitchView(MAIN_VIEW_RENDERED);
+
 	ShowWindow();
 
 	std::_tstring l_path = dynamic_cast<CNFOApp*>(GetApp())->GetStartupFilePath();
@@ -512,8 +514,9 @@ const std::_tstring CMainFrame::InfektVersionAsString()
 void CMainFrame::CheckForUpdates()
 {
 	const _tstring l_url(_T("http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki"));
+	const _tstring l_projectUrl(_T("http://infekt.googlecode.com/"));
 
-	SetCursor(::LoadCursor(NULL, IDC_WAIT));
+	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
 	_tstring l_contents = CUtil::DownloadHttpTextFile(l_url);
 	wstring l_serverVersion, l_newDownloadUrl;
@@ -527,7 +530,7 @@ void CMainFrame::CheckForUpdates()
 
 		if(l_endPos != _tstring::npos)
 		{
-			map<_tstring, _tstring> l_pairs;
+			map<const _tstring, _tstring> l_pairs;
 			l_contents = l_contents.substr(l_pos, l_endPos - l_pos);
 
 			l_prevPos = 0;
@@ -536,7 +539,6 @@ void CMainFrame::CheckForUpdates()
 			while(l_pos != _tstring::npos)
 			{
 				_tstring l_line = l_contents.substr(l_prevPos, l_pos - l_prevPos);
-
 				_tstring::size_type l_equalPos = l_line.find(_T('='));
 
 				if(l_equalPos != _tstring::npos)
@@ -548,7 +550,7 @@ void CMainFrame::CheckForUpdates()
 
 					l_pairs[l_left] = l_right;
 				}
-				
+
 				l_prevPos = l_pos + 1;
 				l_pos = l_contents.find(_T('\n'), l_prevPos);
 			}
@@ -560,16 +562,19 @@ void CMainFrame::CheckForUpdates()
 
 	l_contents.clear();
 
-	SetCursor(::LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
 	if(l_serverVersion.empty())
 	{
-		if(this->MessageBox(_T("We failed to contact infekt.googlecode.com to get the latest version's info. ")
-			_T("Please make sure you are connected to the internet and try again later.\n\nDo you want to visit ")
-			_T("http://infekt.googlecode.com/ now instead?"), _T("Connection problem"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
+		const _tstring l_msg = _T("We failed to contact infekt.googlecode.com to get the latest version's info. ")
+			_T("Please make sure you are connected to the internet and try again later.\n\nDo you want to visit ") +
+			l_projectUrl + _T(" now instead?");
+
+		if(this->MessageBox(l_msg.c_str(), _T("Connection Problem"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
 		{
-			ShellExecute(0, _T("open"), _T("http://infekt.googlecode.com/"), NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(0, _T("open"), l_projectUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
 		}
+
 		return;
 	}
 
@@ -577,20 +582,22 @@ void CMainFrame::CheckForUpdates()
 
 	if(l_result == 0)
 	{
-		const std::_tstring l_msg = _T("You are using the latest stable version (") + InfektVersionAsString() + _T(")!");
+		const _tstring l_msg = _T("You are using the latest stable version (") + InfektVersionAsString() + _T(")!");
 		this->MessageBox(l_msg.c_str(), _T("Nice."), MB_ICONINFORMATION);
 	}
 	else if(l_result < 0)
 	{
-		if(l_newDownloadUrl.empty()) l_newDownloadUrl = _T("http://infekt.googlecode.com/");
+		if(l_newDownloadUrl.empty()) l_newDownloadUrl = l_projectUrl;
 
-		if(this->MessageBox(_T("Warning! You are not using the latest version of iNFEKT!")
-			_T("\n\nDo you want to go to the download page now?"), _T("New Version Found"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
+		const _tstring l_msg = _T("Attention! There is a new version (iNFEKT v") + l_serverVersion + _T(") available!") +
+			_T("\n\nDo you want to go to the download page now?");
+
+		if(this->MessageBox(l_msg.c_str(), _T("New Version Found"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
 		{
 			if(::PathIsURL(l_newDownloadUrl.c_str()) &&
 				(l_newDownloadUrl.find(_T("http://")) == 0 || l_newDownloadUrl.find(_T("https://")) == 0))
 			{
-				ShellExecute(0, _T("open"), l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
+				::ShellExecute(0, _T("open"), l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
 			}
 		}
 	}

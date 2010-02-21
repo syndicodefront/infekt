@@ -51,7 +51,7 @@ typedef enum _nfo_charsets
 	NFOC_CP437,
 
 	_NFOC_MAX
-} TNfoCharset;
+} ENfoCharset;
 
 
 class CNFOData
@@ -91,7 +91,7 @@ protected:
 	bool m_loaded;
 	std::deque<CNFOHyperLink> m_hyperLinks;
 	std::_tstring m_filePath;
-	TNfoCharset m_sourceCharset;
+	ENfoCharset m_sourceCharset;
 
 	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen);

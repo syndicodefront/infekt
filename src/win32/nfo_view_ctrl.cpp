@@ -40,18 +40,27 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 
 bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_height)
 {
-	WNDCLASSEX l_class = {0};
-	l_class.cbSize = sizeof(WNDCLASSEX);
-
-	l_class.hInstance = m_instance;
-	l_class.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
-	l_class.lpszClassName = NFOVWR_CTRL_CLASS_NAME;
-	l_class.lpfnWndProc = &_WindowProc;
-	l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
-
-	if(::RegisterClassEx(&l_class) == 0)
+	if(ControlCreated())
 	{
 		return false;
+	}
+
+	WNDCLASSEX l_class = {0};
+
+	if(::GetClassInfoEx(m_instance, NFOVWR_CTRL_CLASS_NAME, &l_class) == 0)
+	{
+		l_class.cbSize = sizeof(WNDCLASSEX);
+
+		l_class.hInstance = m_instance;
+		l_class.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+		l_class.lpszClassName = NFOVWR_CTRL_CLASS_NAME;
+		l_class.lpfnWndProc = &_WindowProc;
+		l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+
+		if(::RegisterClassEx(&l_class) == 0)
+		{
+			return false;
+		}
 	}
 
 	m_top = a_top;
@@ -65,8 +74,6 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		m_left, m_top, m_width, m_height,
 		m_parent, NULL,
 		m_instance, NULL);
-
-	// :TODO: allow window to receive focus. really?
 
 	if(!m_hwnd)
 	{
@@ -212,9 +219,19 @@ void CNFOViewControl::OnPaint()
 	if(m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1)
 	{
 		S_COLOR_T l_back = GetBackColor().Invert();
-		RenderText(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(),
-			m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
-			l_surface, -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
+
+		if(!m_classic)
+		{
+			RenderText(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(),
+				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
+				l_surface, -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
+		}
+		else
+		{
+			RenderClassic(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(), false,
+				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
+				l_surface, -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
+		}
 	}
 
 	// clean up:
@@ -500,6 +517,15 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 		::ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? GetBlockWidth() * (l_prevPos - l_si.nPos) : 0),
 			(a_dir == SB_VERT ? GetBlockHeight() * (l_prevPos - l_si.nPos) : 0),
 			NULL, NULL);
+	}
+}
+
+
+void CNFOViewControl::Show(bool a_show)
+{
+	if(m_hwnd)
+	{
+		::ShowWindow(m_hwnd, (a_show ? SW_SHOW : SW_HIDE));
 	}
 }
 

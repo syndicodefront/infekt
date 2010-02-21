@@ -13,7 +13,8 @@ CViewContainer::CViewContainer()
 void CViewContainer::OnCreate()
 {
 	m_renderControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd()));
-	m_renderControl->CreateControl(0, 0, 100, 100); // WM_SIZE will take care of the real size
+	m_classicControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd(), true));
+	m_textOnlyControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd(), true));
 
 	// this context menu will be used for all three view controls.
 	m_contextMenuHandle = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
@@ -24,7 +25,7 @@ void CViewContainer::OnCreate()
 
 bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 {
-	SetCursor(LoadCursor(NULL, IDC_WAIT));
+	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
 	if(m_nfoData)
 	{
@@ -38,7 +39,15 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 	{
 		if(m_renderControl->AssignNFO(m_nfoData))
 		{
-			SetCursor(LoadCursor(NULL, IDC_ARROW));
+			if(!m_curViewCtrl->ControlCreated())
+			{
+				RECT l_viewArea = GetClientRect();
+				m_curViewCtrl->CreateControl(0, 0,
+					l_viewArea.right - l_viewArea.left, l_viewArea.bottom - l_viewArea.top);
+				m_curViewCtrl->Show();
+			}
+
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
 			return true;
 		}
@@ -49,7 +58,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 		// :TODO: better error messages blah blah blah
 	}
 
-	SetCursor(LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
 	return false;
 }
@@ -70,10 +79,13 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void CViewContainer::OnAfterResize()
 {
-	RECT l_viewArea = GetClientRect();
+	if(m_curViewCtrl)
+	{
+		RECT l_viewArea = GetClientRect();
 
-	::MoveWindow(m_renderControl->GetHwnd(), 0, 0, l_viewArea.right - l_viewArea.left,
-		l_viewArea.bottom - l_viewArea.top, TRUE);
+		::MoveWindow(m_curViewCtrl->GetHwnd(), 0, 0, l_viewArea.right - l_viewArea.left,
+			l_viewArea.bottom - l_viewArea.top, TRUE);
+	}
 }
 
 
@@ -131,24 +143,44 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 }
 
 
+void CViewContainer::SwitchView(EMainView a_view)
+{
+	m_curViewType = a_view;
+
+	switch(a_view)
+	{
+	case MAIN_VIEW_RENDERED: m_curViewCtrl = m_renderControl; break;
+	case MAIN_VIEW_CLASSIC: m_curViewCtrl = m_classicControl; break;
+	case MAIN_VIEW_TEXTONLY: m_curViewCtrl = m_textOnlyControl; break;
+	}
+
+	m_renderControl->Show(a_view == MAIN_VIEW_RENDERED);
+	m_classicControl->Show(a_view == MAIN_VIEW_CLASSIC);
+	m_textOnlyControl->Show(a_view == MAIN_VIEW_TEXTONLY);
+}
+
+
 const std::wstring CViewContainer::GetSelectedText() const
 {
-	// :TODO: type switch
-	return m_renderControl->GetSelectedText();
+	return (m_curViewCtrl ? L"" : m_curViewCtrl->GetSelectedText());
 }
 
 
 void CViewContainer::CopySelectedTextToClipboard() const
 {
-	// :TODO: type switch
-	m_renderControl->CopySelectedTextToClipboard();
+	if(m_curViewCtrl)
+	{
+		m_curViewCtrl->CopySelectedTextToClipboard();
+	}
 }
 
 
 void CViewContainer::SelectAll()
 {
-	// :TODO: type switch
-	m_renderControl->SelectAll();
+	if(m_curViewCtrl)
+	{
+		m_curViewCtrl->SelectAll();
+	}
 }
 
 

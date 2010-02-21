@@ -118,6 +118,10 @@ protected:
 		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
 
 	void RenderClassic();
+	void RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
+		const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
+		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
+		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
 
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
 	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);

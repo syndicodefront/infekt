@@ -69,7 +69,7 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 
 bool CNFORenderer::CalculateGrid()
 {
-	if(!m_nfo || !m_nfo->HasData() || m_classic)
+	if(!m_nfo || !m_nfo->HasData())
 	{
 		return false;
 	}
@@ -185,7 +185,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface, int dest_x, int des
 bool CNFORenderer::Render()
 {
 	if(!m_nfo) return false;
-	if(!m_classic && !m_gridData && !CalculateGrid()) return false;
+	if(!m_gridData && !CalculateGrid()) return false;
 
 	if(!m_imgSurface)
 	{
@@ -224,6 +224,14 @@ bool CNFORenderer::Render()
 	}
 	else // classic mode
 	{
+		if(GetBackColor().A > 0)
+		{
+			cairo_t* cr = cairo_create(m_imgSurface);
+			cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+			cairo_paint(cr);
+			cairo_destroy(cr);
+		}
+
 		RenderClassic();
 	}
 
@@ -509,7 +517,33 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 void CNFORenderer::RenderClassic()
 {
-	cairo_t* cr = cairo_create(m_imgSurface);
+	RenderClassic(GetTextColor(), &GetBackColor(), GetHyperLinkColor(),
+		false, 0, 0, m_nfo->GetGridHeight(), m_nfo->GetGridWidth(),
+		m_imgSurface, 0, 0);
+}
+
+
+void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
+								 const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
+								 size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
+								 cairo_surface_t* a_surface, double a_xBase, double a_yBase)
+{
+	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
+
+	if(a_rowStart != (size_t)-1)
+	{
+		if(a_rowEnd < a_rowStart)
+		{
+			size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
+			tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+		}
+		else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
+		{
+			size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+		}
+	}
+
+	cairo_t* cr = cairo_create(a_surface);
 
 	cairo_font_options_t *l_fontOptions = cairo_font_options_create();
 	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
@@ -531,15 +565,10 @@ void CNFORenderer::RenderClassic()
 		m_settings.uBlockHeight = (size_t)l_extents.height;
 	}
 
-	if(GetBackColor().A > 0)
-	{
-		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
-		cairo_paint(cr);
-	}
-
 	cairo_font_extents_t l_font_extents;
 	cairo_font_extents(cr, &l_font_extents);
 
+#if 0
 	cairo_set_source_rgb(cr, 0, 0, 0);
 
 	int l_lineNr = 0;
@@ -558,6 +587,127 @@ void CNFORenderer::RenderClassic()
 		l_pos = m_nfo->GetTextUtf8().find('\n', l_prevPos);
 		l_lineNr++;
 	}
+#else
+	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
+	if(a_rowStart != (size_t)-1)
+	{
+		l_rowStart = std::max<size_t>(a_rowStart, l_rowStart);
+		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
+	}
+
+	typedef enum
+	{
+		_BT_UNDEF = -1,
+		BT_TEXT = 1,
+		BT_BLOCK,
+		BT_LINK
+	} _block_color_type;
+
+	std::string l_utfBuf;
+	l_utfBuf.reserve(m_nfo->GetGridWidth());
+
+	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
+	{
+		_block_color_type l_curType = _BT_UNDEF;
+		size_t l_bufStart = (size_t)-1;
+
+		for(size_t col = 0; col < m_gridData->GetCols(); col++)
+		{
+			if(a_rowStart != (size_t)-1)
+			{
+				if(row == a_rowStart && col < a_colStart)
+					continue;
+				else if(row == a_rowEnd && col > a_colEnd)
+					break;
+			}
+
+			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+
+			_block_color_type l_type;
+			const CNFOHyperLink* l_link = NULL;
+
+			if(l_block->shape == RGS_NO_BLOCK)
+			{
+				if(GetHilightHyperLinks() && (l_link = m_nfo->GetLink(row, col)) != NULL)
+					l_type = BT_LINK;
+				else
+					l_type = BT_TEXT;
+			}
+			else if(l_block->shape == RGS_WHITESPACE_IN_TEXT)
+			{
+				l_type = l_curType;
+			}
+			else
+			{
+				l_type = BT_BLOCK;
+			}
+
+			if(l_type == l_curType)
+			{
+				l_utfBuf += m_nfo->GetGridCharUtf8(row, col);
+				if(l_bufStart == (size_t)-1) l_bufStart = col;
+			}
+			else
+			{
+				if(l_curType != _BT_UNDEF)
+				{
+					// draw buffer
+					_ASSERT(!l_utfBuf.empty());
+
+					// draw char background for highlights/selection etc:
+					if(a_backColor && (l_type != BT_BLOCK || a_backBlocks))
+					{
+						cairo_save(cr);
+						cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
+						cairo_rectangle(cr, l_off_x + col * GetBlockWidth(), row * GetBlockHeight() + l_off_y,
+							GetBlockWidth() * (col - l_bufStart), GetBlockHeight());
+						cairo_fill(cr);
+						cairo_restore(cr);
+					}
+
+					cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(),
+						row * GetBlockHeight() + l_off_y + l_font_extents.ascent);
+
+					cairo_show_text(cr, l_utfBuf.c_str());
+				}
+
+				// set up new type
+				l_curType = l_type;
+
+				if(l_type == BT_LINK)
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
+				else if(l_type == BT_TEXT || a_backBlocks)
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
+				else
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetArtColor()));
+
+				l_utfBuf = m_nfo->GetGridCharUtf8(row, col);
+				l_bufStart = col;
+			}
+		}
+
+		if(!l_utfBuf.empty())
+		{
+			if(l_bufStart == (size_t)-1) l_bufStart = 0;
+
+			// draw char background for highlights/selection etc:
+			if(a_backColor && (l_curType != BT_BLOCK || a_backBlocks))
+			{
+				cairo_save(cr);
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
+				cairo_rectangle(cr, l_off_x + l_bufStart * GetBlockWidth(),
+					row * GetBlockHeight() + l_off_y,
+					GetBlockWidth() * g_utf8_strlen(l_utfBuf.c_str(), -1), GetBlockHeight());
+				cairo_fill(cr);
+				cairo_restore(cr);
+			}
+
+			cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(),
+				row * GetBlockHeight() + l_off_y + l_font_extents.ascent);
+			cairo_show_text(cr, l_utfBuf.c_str());
+		}
+	}
+#endif
 
 	cairo_font_options_destroy(l_fontOptions);
 
