@@ -241,6 +241,10 @@ bool CNFORenderer::Render()
 }
 
 
+/************************************************************************/
+/* RENDER BLOCKS                                                        */
+/************************************************************************/
+
 void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 {
 	double l_off_x = 0, l_off_y = 0;
@@ -325,6 +329,40 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 }
 
 
+/************************************************************************/
+/* Utilities for RenderText and RenderClassic                           */
+/************************************************************************/
+
+static inline void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd)
+{
+	if(a_rowStart != (size_t)-1)
+	{
+		if(a_rowEnd < a_rowStart)
+		{
+			size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
+			tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+		}
+		else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
+		{
+			size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
+		}
+	}
+}
+
+static inline void _SetUpHyperLinkUnderlining(CNFORenderer* r, cairo_t* cr)
+{
+	if(r->GetHilightHyperLinks() && r->GetUnderlineHyperLinks())
+	{
+		cairo_set_line_width(cr, 1);
+		cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // looks better
+	}
+}
+
+
+/************************************************************************/
+/* RENDER TEXT                                                          */
+/************************************************************************/
+
 void CNFORenderer::RenderText()
 {
 	RenderText(GetTextColor(), NULL, GetHyperLinkColor(), (size_t)-1, 0, 0, 0, m_imgSurface, 0, 0);
@@ -338,18 +376,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 {
 	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
 
-	if(a_rowStart != (size_t)-1)
-	{
-		if(a_rowEnd < a_rowStart)
-		{
-			size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
-			tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
-		}
-		else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
-		{
-			size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
-		}
-	}
+	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
 
 	// set up drawing tools:
 	cairo_t* cr = cairo_create(a_surface);
@@ -361,11 +388,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, l_fontOptions);
 
-	if(GetHilightHyperLinks() && GetUnderlineHyperLinks())
-	{
-		cairo_set_line_width(cr, 1);
-		cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // looks better
-	}
+	_SetUpHyperLinkUnderlining(this, cr);
 
 	if(m_fontSize < 1)
 	{
@@ -530,18 +553,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 {
 	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
 
-	if(a_rowStart != (size_t)-1)
-	{
-		if(a_rowEnd < a_rowStart)
-		{
-			size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
-			tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
-		}
-		else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
-		{
-			size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
-		}
-	}
+	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
 
 	cairo_t* cr = cairo_create(a_surface);
 
@@ -552,6 +564,8 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, l_fontOptions);
 	cairo_set_font_size(cr, 12);
+
+	_SetUpHyperLinkUnderlining(this, cr);
 
 	if(true /* measure? */)
 	{
@@ -611,101 +625,105 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 		_block_color_type l_curType = _BT_UNDEF;
 		size_t l_bufStart = (size_t)-1;
 
-		for(size_t col = 0; col < m_gridData->GetCols(); col++)
+		for(size_t col = 0; col <= m_gridData->GetCols(); col++)
 		{
 			if(a_rowStart != (size_t)-1)
 			{
 				if(row == a_rowStart && col < a_colStart)
 					continue;
 				else if(row == a_rowEnd && col > a_colEnd)
-					break;
+					col = m_gridData->GetCols();
 			}
-
-			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
 			_block_color_type l_type;
-			const CNFOHyperLink* l_link = NULL;
 
-			if(l_block->shape == RGS_NO_BLOCK)
+			if(col != m_gridData->GetCols())
 			{
-				if(GetHilightHyperLinks() && (l_link = m_nfo->GetLink(row, col)) != NULL)
-					l_type = BT_LINK;
+				const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+				const CNFOHyperLink* l_link = NULL;
+
+				if(l_block->shape == RGS_NO_BLOCK)
+				{
+					if(GetHilightHyperLinks() && (l_link = m_nfo->GetLink(row, col)) != NULL)
+						l_type = BT_LINK;
+					else
+						l_type = BT_TEXT;
+				}
+				else if(l_block->shape == RGS_WHITESPACE_IN_TEXT && l_type != BT_LINK)
+				{
+					l_type = l_curType;
+				}
 				else
-					l_type = BT_TEXT;
-			}
-			else if(l_block->shape == RGS_WHITESPACE_IN_TEXT)
-			{
-				l_type = l_curType;
+				{
+					l_type = BT_BLOCK;
+				}
 			}
 			else
 			{
-				l_type = BT_BLOCK;
+				l_type = _BT_UNDEF;
 			}
 
-			if(l_type == l_curType)
+			if(l_type == l_curType && l_type != _BT_UNDEF)
 			{
 				l_utfBuf += m_nfo->GetGridCharUtf8(row, col);
 				if(l_bufStart == (size_t)-1) l_bufStart = col;
+
+				continue;
 			}
-			else
+			/* else */
+
+			if(l_curType != _BT_UNDEF && !l_utfBuf.empty())
 			{
-				if(l_curType != _BT_UNDEF)
+				// draw buffer:
+				size_t l_len = (col == m_gridData->GetCols() ? g_utf8_strlen(l_utfBuf.c_str(), -1) :
+					(col - l_bufStart));
+
+				// draw char background for highlights/selection etc:
+				if(a_backColor && (l_curType != BT_BLOCK || a_backBlocks))
 				{
-					// draw buffer
-					_ASSERT(!l_utfBuf.empty());
-
-					// draw char background for highlights/selection etc:
-					if(a_backColor && (l_curType != BT_BLOCK || a_backBlocks))
-					{
-						cairo_save(cr);
-						cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
-						cairo_rectangle(cr, l_off_x + l_bufStart * GetBlockWidth(), row * GetBlockHeight() + l_off_y,
-							GetBlockWidth() * (col - l_bufStart), GetBlockHeight());
-						cairo_fill(cr);
-						cairo_restore(cr);
-					}
-
-					cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(),
-						row * GetBlockHeight() + l_off_y + l_font_extents.ascent);
-
-					cairo_show_text(cr, l_utfBuf.c_str());
+					cairo_save(cr);
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
+					cairo_rectangle(cr, l_off_x + l_bufStart * GetBlockWidth(), row * GetBlockHeight() + l_off_y,
+						GetBlockWidth() * l_len, GetBlockHeight());
+					cairo_fill(cr);
+					cairo_restore(cr);
 				}
 
-				// set up new type
-				l_curType = l_type;
+				if(l_curType == BT_LINK && GetUnderlineHyperLinks())
+				{
+					cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight() - 1);
+					cairo_rel_line_to(cr, GetBlockWidth() * l_len, 0);
+					cairo_stroke(cr);
+				}
 
+				cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(),
+					row * GetBlockHeight() + l_off_y + l_font_extents.ascent);
+
+				cairo_show_text(cr, l_utfBuf.c_str());
+			}
+
+			// set up new type
+			l_curType = l_type;
+
+			if(l_type != _BT_UNDEF)
+			{
 				if(l_type == BT_LINK)
+				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
+				}
 				else if(l_type == BT_TEXT || a_backBlocks)
+				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
-				else
+				}
+				else if(l_type == BT_BLOCK)
+				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetArtColor()));
+				}
 
 				l_utfBuf = m_nfo->GetGridCharUtf8(row, col);
 				l_bufStart = col;
 			}
-		}
-
-		if(!l_utfBuf.empty())
-		{
-			if(l_bufStart == (size_t)-1) l_bufStart = 0;
-
-			// draw char background for highlights/selection etc:
-			if(a_backColor && (l_curType != BT_BLOCK || a_backBlocks))
-			{
-				cairo_save(cr);
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
-				cairo_rectangle(cr, l_off_x + l_bufStart * GetBlockWidth(),
-					row * GetBlockHeight() + l_off_y,
-					GetBlockWidth() * g_utf8_strlen(l_utfBuf.c_str(), -1), GetBlockHeight());
-				cairo_fill(cr);
-				cairo_restore(cr);
-			}
-
-			cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(),
-				row * GetBlockHeight() + l_off_y + l_font_extents.ascent);
-			cairo_show_text(cr, l_utfBuf.c_str());
-		}
+		} /* end of inner for loop */
 	}
 #endif
 
@@ -725,8 +743,7 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 
 		if(m_classic)
 		{
-			return (l_block->shape != RGS_WHITESPACE_IN_TEXT &&
-				l_block->shape != RGS_WHITESPACE) || a_allowWhiteSpace;
+			return a_allowWhiteSpace || (l_block->shape != RGS_WHITESPACE);
 		}
 		else
 		{

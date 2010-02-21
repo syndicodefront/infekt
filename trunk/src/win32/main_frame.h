@@ -26,6 +26,8 @@ public:
 	bool SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 		const CNFORenderSettings& a_settings);
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
+
+	static const std::_tstring InfektVersionAsString();
 protected:
 	CViewContainer m_view;
 	bool m_menuBarVisible;
@@ -43,7 +45,6 @@ protected:
 	virtual inline void SetStatusText() {}
 	// Win32++ stuff end //
 
-	const std::_tstring InfektVersionAsString();
 	void AddToolbarButtons();
 	void UpdateCaption();
 	void OpenChooseFileName();

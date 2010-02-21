@@ -2,20 +2,18 @@
 // Microsoft Visual C++ generated include file.
 // Used by resource.rc
 //
-#define IDD_DIALOG1                     101
 #define IDD_TAB_GENERAL                 101
 #define IDR_MAIN_MENU                   102
 #define IDB_PNG_FILEOPEN                107
 #define IDB_PNG_INFO                    108
 #define IDB_PNG_SETTINGS                109
 #define IDB_PNG_EDITCOPY                110
-#define IDD_DIALOG2                     111
 #define IDD_DLG_SETTINGS                111
 #define IDD_TAB_VIEWSETTINGS            112
 #define IDR_CONTEXT_MENU                112
 #define IDR_MAIN_KEYBOARD_SHORTCUTS     113
-#define IDI_ICON1                       114
 #define IDI_APPICON                     114
+#define IDD_ABOUT                       115
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_BUTTON1                     1007
@@ -48,6 +46,7 @@
 #define IDC_FONT_SIZE_SPIN              1036
 #define IDC_FONT_SIZE_SPIN2             1037
 #define IDC_FONTSIZE_COMBO              1038
+#define IDC_SYSLINK1                    1039
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -85,14 +84,19 @@
 #define IDM_EXPORT_PNG_TRANSP           40047
 #define ID_HELP_CHECKFORUPDATES         40048
 #define IDM_CHECKFORUPDATES             40049
+#define ID_VIEW_A                       40050
+#define IDM_ALWAYSONTOP                 40051
+#define IDM_VIEW_CLASSIC                40052
+#define IDM_VIEW_RENDERED               40053
+#define IDM_VIEW_TEXTONLY               40054
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        115
-#define _APS_NEXT_COMMAND_VALUE         40050
-#define _APS_NEXT_CONTROL_VALUE         1039
+#define _APS_NEXT_RESOURCE_VALUE        116
+#define _APS_NEXT_COMMAND_VALUE         40055
+#define _APS_NEXT_CONTROL_VALUE         1040
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -15,7 +15,6 @@
 #include "stdafx.h"
 #include "nfo_data.h"
 #include "util.h"
-#include "pcre.h"
 
 using namespace std;
 

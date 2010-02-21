@@ -40,8 +40,8 @@ enum _tab_page_ids {
 /* CSettingsWindowDialog Implementation                                 */
 /************************************************************************/
 
-CSettingsWindowDialog::CSettingsWindowDialog(UINT nResID, HWND hWndParent) :
-	CDialog(nResID, hWndParent)
+CSettingsWindowDialog::CSettingsWindowDialog(HWND hWndParent) :
+	CDialog(IDD_DLG_SETTINGS, hWndParent)
 {
 	m_mainWin = NULL;
 }
@@ -49,6 +49,9 @@ CSettingsWindowDialog::CSettingsWindowDialog(UINT nResID, HWND hWndParent) :
 
 BOOL CSettingsWindowDialog::OnInitDialog()
 {
+	SetIconLarge(IDI_APPICON);
+	SetIconSmall(IDI_APPICON);
+
 	m_tabControl.AttachDlgItem(IDC_SETTINGS_TAB, this);
 
 	m_tabPageGeneral = new CSettingsTabDialog(this, TAB_PAGE_GENERAL, IDD_TAB_GENERAL);
@@ -320,7 +323,7 @@ BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 
-	return DialogProcDefault(uMsg, wParam, lParam);
+	return this->DialogProcDefault(uMsg, wParam, lParam);
 }
 
 

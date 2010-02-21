@@ -119,9 +119,11 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        MENUITEM "Rendered",                    ID_VIEW_RENDERED
-        MENUITEM "Textual",                     ID_VIEW_TEXTUAL
-        MENUITEM "Text Only",                   ID_VIEW_TEXTONLY
+        MENUITEM "Rendered",                    IDM_VIEW_RENDERED
+        MENUITEM "Classic",                     IDM_VIEW_CLASSIC
+        MENUITEM "Text Only",                   IDM_VIEW_TEXTONLY
+        MENUITEM SEPARATOR
+        MENUITEM "Always on Top\tCtrl+T",       IDM_ALWAYSONTOP
     END
     POPUP "&Tools"
     BEGIN
@@ -229,6 +231,14 @@ BEGIN
     CONTROL         "",IDC_FONT_SIZE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,84,168,9,13
     CONTROL         "",IDC_FONT_SIZE_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,134,168,9,13
     COMBOBOX        IDC_FONTSIZE_COMBO,56,170,49,30,CBS_DROPDOWNLIST | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+END
+
+IDD_ABOUT DIALOGEX 0, 0, 232, 135
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,175,114,50,14
 END
 
 
