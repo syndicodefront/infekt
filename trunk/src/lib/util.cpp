@@ -374,10 +374,15 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 	if(hInet)
 	{
 		HINTERNET hRequest;
+		DWORD dwTimeBuffer = 3000;
+
+		InternetSetOption(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeBuffer, sizeof(dwTimeBuffer));
 
 		hRequest = InternetOpenUrl(hInet, a_url.c_str(), NULL, 0,
 			INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_PRAGMA_NOCACHE |
 			INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_AUTH, 0);
+
+		InternetSetOption(hRequest, INTERNET_OPTION_IGNORE_OFFLINE, NULL, 0);
 
 		if(hRequest)
 		{
@@ -425,12 +430,19 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 		InternetCloseHandle(hInet);
 	}
 
+	if(bSuccess)
+	{
 #ifdef _UNICODE
-	// the contents better be UTF-8...
-	return CUtil::ToWideStr(sText, CP_UTF8);
+		// the contents better be UTF-8...
+		return CUtil::ToWideStr(sText, CP_UTF8);
 #else
-	return sText;
+		return sText;
 #endif
+	}
+	else
+	{
+		return _T("");
+	}
 }
 
 #endif
