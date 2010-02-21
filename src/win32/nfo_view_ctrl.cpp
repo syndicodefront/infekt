@@ -228,7 +228,7 @@ void CNFOViewControl::OnPaint()
 		}
 		else
 		{
-			RenderClassic(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(), false,
+			RenderClassic(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(), true,
 				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
 				l_surface, -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
 		}

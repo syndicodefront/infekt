@@ -70,10 +70,12 @@ void CMainFrame::OnInitialUpdate()
 	UpdateCaption();
 
 	LoadRenderSettingsFromRegistry(_T("RenderedView"), m_view.GetRenderCtrl().get());
+	LoadRenderSettingsFromRegistry(_T("ClassicView"), m_view.GetClassicCtrl().get());
+	LoadRenderSettingsFromRegistry(_T("TextOnlyView"), m_view.GetTextOnlyCtrl().get());
 
 	GetStatusbar().SetPartText(0, _T("Hit the Alt key to toggle the menu bar."));
 
-	m_view.SwitchView(MAIN_VIEW_RENDERED);
+	m_view.SwitchView(MAIN_VIEW_CLASSIC);
 
 	ShowWindow();
 

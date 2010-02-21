@@ -517,7 +517,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 void CNFORenderer::RenderClassic()
 {
-	RenderClassic(GetTextColor(), &GetBackColor(), GetHyperLinkColor(),
+	RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(),
 		false, 0, 0, m_nfo->GetGridHeight(), m_nfo->GetGridWidth(),
 		m_imgSurface, 0, 0);
 }
@@ -655,11 +655,11 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 					_ASSERT(!l_utfBuf.empty());
 
 					// draw char background for highlights/selection etc:
-					if(a_backColor && (l_type != BT_BLOCK || a_backBlocks))
+					if(a_backColor && (l_curType != BT_BLOCK || a_backBlocks))
 					{
 						cairo_save(cr);
 						cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
-						cairo_rectangle(cr, l_off_x + col * GetBlockWidth(), row * GetBlockHeight() + l_off_y,
+						cairo_rectangle(cr, l_off_x + l_bufStart * GetBlockWidth(), row * GetBlockHeight() + l_off_y,
 							GetBlockWidth() * (col - l_bufStart), GetBlockHeight());
 						cairo_fill(cr);
 						cairo_restore(cr);
@@ -723,8 +723,16 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 	{
 		const CRenderGridBlock *l_block = &(*m_gridData)[a_row][a_col];
 
-		return (l_block->shape == RGS_NO_BLOCK ||
-			(a_allowWhiteSpace && l_block->shape == RGS_WHITESPACE_IN_TEXT));
+		if(m_classic)
+		{
+			return (l_block->shape != RGS_WHITESPACE_IN_TEXT &&
+				l_block->shape != RGS_WHITESPACE) || a_allowWhiteSpace;
+		}
+		else
+		{
+			return (l_block->shape == RGS_NO_BLOCK ||
+				(a_allowWhiteSpace && l_block->shape == RGS_WHITESPACE_IN_TEXT));
+		}
 	}
 
 	return false;
