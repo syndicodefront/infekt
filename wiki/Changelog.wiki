@@ -1,0 +1,11 @@
+#summary Version and release history
+#labels Featured,Phase-Support
+
+== v0.1.0 (17 Feb 2010) ==
+  * Initial public release of Win32 binaries
+
+== 25 Jan 2010 ==
+  * Initial source code import
+
+== 31 Feb 2009 ==
+  * Work begun
