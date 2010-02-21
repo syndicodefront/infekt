@@ -16,7 +16,8 @@ enum _toolbar_button_ids {
 };
 
 
-CMainFrame::CMainFrame() : CFrame()
+CMainFrame::CMainFrame() : CFrame(),
+	m_showingAbout(false)
 {
 	SetView(m_view);
 
@@ -224,10 +225,15 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 void CMainFrame::OnHelp()
 {
-	CAboutDialog l_pAboutDialog(m_hWnd);
-	l_pAboutDialog.SetMainWin(this);
+	if(!m_showingAbout)
+	{
+		CAboutDialog l_pAboutDialog(m_hWnd);
+		l_pAboutDialog.SetMainWin(this);
 
-	l_pAboutDialog.DoModal();
+		m_showingAbout = true;
+		l_pAboutDialog.DoModal();
+		m_showingAbout = false;
+	}
 }
 
 

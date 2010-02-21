@@ -31,6 +31,7 @@ public:
 protected:
 	CViewContainer m_view;
 	bool m_menuBarVisible;
+	bool m_showingAbout;
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);
