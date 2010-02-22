@@ -93,7 +93,7 @@ bool CNFORenderer::CalculateGrid()
 		{
 			CRenderGridBlock *l_block = &l_grid[row][col];
 			l_block->charCode = m_nfo->GetGridChar(row, col);
-			l_block->shape = CharCodeToGridShape(l_block->charCode);
+			l_block->shape = CharCodeToGridShape(l_block->charCode, &l_block->alpha);
 			if(l_block->shape == RGS_WHITESPACE && l_textStarted) l_block->shape = RGS_WHITESPACE_IN_TEXT;
 			else if(l_block->shape == RGS_NO_BLOCK) l_textStarted = true;
 		}
