@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="cairo-static.lib Msimg32.lib zdll.lib libpng.lib pcred.lib shlwapi.lib"
+				AdditionalDependencies="cairo.lib Msimg32.lib pcred.lib shlwapi.lib"
 				OutputFile="$(OutDir)\infekt-cmd.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"

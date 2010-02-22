@@ -96,17 +96,25 @@ void CNFOViewControl::UpdateScrollbars()
 
 	// set common flags:
 	l_si.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
-	l_si.nPos = l_si.nMin = 0;
 
-	// update horizontal scrollbar info:
-	l_si.nPage = m_width / GetBlockWidth();
-	l_si.nMax = GetWidth() / GetBlockWidth();
-	::SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
+	if(HasNfoData())
+	{
+		// update horizontal scrollbar info:
+		l_si.nPage = m_width / GetBlockWidth();
+		l_si.nMax = GetWidth() / GetBlockWidth();
+		::SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
 
-	// update vertical scrollbar info:
-	l_si.nPage = m_height / GetBlockHeight();
-	l_si.nMax = GetHeight() / GetBlockHeight();
-	::SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
+		// update vertical scrollbar info:
+		l_si.nPage = m_height / GetBlockHeight();
+		l_si.nMax = GetHeight() / GetBlockHeight();
+		::SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
+	}
+	else
+	{
+		// set "null" info.
+		::SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
+		::SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
+	}
 }
 
 
@@ -429,12 +437,19 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size_t& ar_col)
 {
-	int l_x, l_y;
-	GetScrollPositions(l_x, l_y);
+	if(m_nfo)
+	{
+		int l_x, l_y;
+		GetScrollPositions(l_x, l_y);
 
-	// calc real positions:
-	ar_row = l_y + ((a_y - m_padding) / GetBlockHeight());
-	ar_col = l_x + ((a_x - m_padding) / GetBlockWidth());
+		// calc real positions:
+		ar_row = l_y + ((a_y - m_padding) / GetBlockHeight());
+		ar_col = l_x + ((a_x - m_padding) / GetBlockWidth());
+	}
+	else
+	{
+		ar_row = ar_col = (size_t)-1;
+	}
 }
 
 

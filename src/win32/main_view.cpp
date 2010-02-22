@@ -35,6 +35,10 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 
 	if(m_nfoData->LoadFromFile(a_filePath))
 	{
+		if(m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
+		if(m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
+		if(m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
+
 		if(m_curViewCtrl->AssignNFO(m_nfoData))
 		{
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));

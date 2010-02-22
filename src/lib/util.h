@@ -39,6 +39,9 @@ public:
 	static std::_tstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter);
 	static std::_tstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter,
 		const LPCTSTR a_defaultExt, const std::_tstring& a_currentFileName);
+
+	static std::_tstring DownloadHttpTextFile(const std::_tstring& a_url);
+	static void PopUpLastWin32Error();
 #endif
 
 #ifdef _WIN32
@@ -46,9 +49,6 @@ public:
 	static bool IsWinXP();
 	static bool IsWin5x();
 	static bool IsWin6x(bool a_orHigher = true);
-
-	static std::_tstring DownloadHttpTextFile(const std::_tstring& a_url);
-	static void PopUpLastWin32Error();
 protected:
 	static OSVERSIONINFO ms_osver;
 #endif
