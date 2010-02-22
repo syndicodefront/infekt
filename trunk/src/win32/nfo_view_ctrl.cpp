@@ -82,20 +82,20 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 
 	::SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (INT_PTR)this);
 
-	UpdateScrollbars();
+	UpdateScrollbars(true);
 
 	return true;
 }
 
 
-void CNFOViewControl::UpdateScrollbars()
+void CNFOViewControl::UpdateScrollbars(bool a_resetPos)
 {
 	// init struct:
 	SCROLLINFO l_si = {0};
 	l_si.cbSize = sizeof(SCROLLINFO);
 
 	// set common flags:
-	l_si.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
+	l_si.fMask = SIF_RANGE | SIF_PAGE | (a_resetPos ? SIF_POS : 0);
 
 	if(HasNfoData())
 	{
@@ -158,7 +158,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 		m_width = LOWORD(lParam);
 		m_height = HIWORD(lParam);
-		UpdateScrollbars();
+		UpdateScrollbars(false);
 		return 0;
 	case WM_MOUSEMOVE:
 		OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -267,7 +267,7 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
 		Render();
-		UpdateScrollbars();
+		UpdateScrollbars(true);
 
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 
