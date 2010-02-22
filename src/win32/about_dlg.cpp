@@ -70,7 +70,7 @@ BOOL CAboutDialog::OnInitDialog()
 		::SendMessage(l_hTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
 	}
 
-	_CREATE_STATIC(l_hCopyright, _T("© cxxjoe && Contributors 2010"), l_top, 20);
+	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010"), l_top, 20);
 	l_top += 20;
 
 	if(CUtil::IsWin2000())
@@ -94,7 +94,7 @@ BOOL CAboutDialog::OnInitDialog()
 		_T("as published by the Free Software Foundation."), l_top, 60);
 	l_top += 65;
 
-	_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life."), l_top, 20);
+	_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. \x2764"), l_top, 20);
 
 	return TRUE;
 }
@@ -125,7 +125,7 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 	case NM_RETURN:
 		if(nh->hwndFrom == m_linkCtrl)
 		{
-			ShellExecute(NULL, _T("open"), _T("http://infekt.googlecode.com/"), NULL, NULL, SW_SHOW);
+			::ShellExecute(NULL, _T("open"), _T("http://infekt.googlecode.com/"), NULL, NULL, SW_SHOWNORMAL);
 			return 0;
 		}
 		break;

@@ -95,8 +95,8 @@ void CNFOViewControl::UpdateScrollbars()
 	l_si.cbSize = sizeof(SCROLLINFO);
 
 	// set common flags:
-	l_si.fMask = SIF_RANGE | SIF_PAGE;
-	l_si.nMin = 0;
+	l_si.fMask = SIF_RANGE | SIF_PAGE | SIF_POS;
+	l_si.nPos = l_si.nMin = 0;
 
 	// update horizontal scrollbar info:
 	l_si.nPage = m_width / GetBlockWidth();
@@ -261,13 +261,6 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 		Render();
 		UpdateScrollbars();
 
-#if 0
-		// :TODO: find out why this does not scroll the contents to the top.
-		int l_x, l_y;
-		GetScrollPositions(l_x, l_y);
-		::ScrollWindow(m_hwnd, -l_x, -l_y, NULL, NULL);
-#endif
-
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 
 		return true;
@@ -380,8 +373,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 			if(l_link && ::PathIsURL(l_link->GetHref().c_str()))
 			{
-				::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(),
-					NULL, NULL, SW_SHOW);
+				::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(), NULL, NULL, SW_SHOWNORMAL);
 			}
 		}
 	}
