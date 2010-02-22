@@ -48,6 +48,7 @@ public:
 	static bool IsWin6x(bool a_orHigher = true);
 
 	static std::_tstring DownloadHttpTextFile(const std::_tstring& a_url);
+	static void PopUpLastWin32Error();
 protected:
 	static OSVERSIONINFO ms_osver;
 #endif

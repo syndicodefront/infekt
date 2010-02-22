@@ -76,7 +76,7 @@ void CMainFrame::OnInitialUpdate()
 
 	GetStatusbar().SetPartText(0, _T("Hit the Alt key to toggle the menu bar."));
 
-	m_view.SwitchView(MAIN_VIEW_CLASSIC);
+	SwitchView(MAIN_VIEW_CLASSIC);
 
 	ShowWindow();
 
@@ -217,6 +217,18 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDM_EXPORT_PDF:
 		DoNfoExport(LOWORD(wParam));
 		return TRUE;
+
+	case IDM_VIEW_RENDERED:
+		SwitchView(MAIN_VIEW_RENDERED);
+		break;
+
+	case IDM_VIEW_CLASSIC:
+		SwitchView(MAIN_VIEW_CLASSIC);
+		break;
+
+	case IDM_VIEW_TEXTONLY:
+		SwitchView(MAIN_VIEW_TEXTONLY);
+		break;
 	}
 
 	return FALSE;
@@ -234,6 +246,24 @@ void CMainFrame::OnHelp()
 		l_pAboutDialog.DoModal();
 		m_showingAbout = false;
 	}
+}
+
+
+void CMainFrame::SwitchView(EMainView a_view)
+{
+	// WARNING: We use menu positions here exclusively. Using
+	// the COMMAND identifiers just didn't work for no apparent reason :(
+
+	HMENU l_hPopup = ::GetSubMenu(GetMenubar().GetMenu(), 1);
+
+	if(l_hPopup)
+	{
+		::CheckMenuRadioItem(l_hPopup, 0, 2,
+			(a_view == MAIN_VIEW_RENDERED ? 0 : (a_view == MAIN_VIEW_CLASSIC ? 1 : 2)),
+			MF_BYPOSITION);
+	}
+
+	m_view.SwitchView(a_view);
 }
 
 

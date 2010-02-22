@@ -80,8 +80,11 @@ void CSettingsWindowDialog::OnOK()
 	m_tabPageClassic->SaveViewSettings();
 	m_tabPageTextOnly->SaveViewSettings();
 
-	dynamic_cast<CViewContainer*>(m_mainWin->GetView())
-		->GetRenderCtrl()->InjectSettings(*m_tabPageRendered->GetViewSettings());
+	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+
+	l_view->GetRenderCtrl()->InjectSettings(*m_tabPageRendered->GetViewSettings());
+	l_view->GetClassicCtrl()->InjectSettings(*m_tabPageClassic->GetViewSettings());
+	l_view->GetTextOnlyCtrl()->InjectSettings(*m_tabPageTextOnly->GetViewSettings());
 
 	CDialog::OnOK();
 }
@@ -215,8 +218,8 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		switch(m_pageId)
 		{
 		case TAB_PAGE_RENDERED: *m_viewSettings = l_view->GetRenderCtrl()->GetSettings(); break;
-			//case TAB_PAGE_NORMAL: *m_viewSettings = l_view-> break;
-			//case TAB_PAGE_TEXTONLY: *m_viewSettings = l_view-> break;
+		case TAB_PAGE_CLASSIC: *m_viewSettings = l_view->GetClassicCtrl()->GetSettings(); break;
+		case TAB_PAGE_TEXTONLY: *m_viewSettings = l_view->GetTextOnlyCtrl()->GetSettings(); break;
 		default:
 			delete m_viewSettings; m_viewSettings = NULL;
 		}
