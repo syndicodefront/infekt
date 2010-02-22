@@ -362,6 +362,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 {
 	if(!m_view.GetNfoData() || !m_view.GetNfoData()->HasData())
 	{
+		this->MessageBox(_T("No file has been loaded!"), _T("Error"), MB_ICONEXCLAMATION);
 		return;
 	}
 
@@ -379,8 +380,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if(!l_filePath.empty())
 		{
-			CNFORenderer l_renderer(true);
-			CNFORenderSettings l_settings = m_view.GetRenderCtrl()->GetSettings();
+			CNFORenderer l_renderer(m_view.GetViewType() != MAIN_VIEW_RENDERED);
+			CNFORenderSettings l_settings = m_view.GetActiveControl()->GetSettings();
 
 			if(a_id == IDM_EXPORT_PNG_TRANSP)
 			{
@@ -388,6 +389,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			}
 
 			bool l_internalError = true;
+
+			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
 			l_renderer.InjectSettings(l_settings);
 
@@ -416,6 +419,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 				}
 			}
 
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+
 			if(l_internalError)
 			{
 				this->MessageBox(_T("An internal error occured!"), _T("Fail"), MB_ICONEXCLAMATION);
@@ -424,13 +429,14 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	}
 	else if(a_id == IDM_EXPORT_UTF8 || a_id == IDM_EXPORT_UTF16)
 	{
+		bool l_utf8 = (a_id == IDM_EXPORT_UTF8);
 		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
 			_T("NFO File\0*.nfo;\0Text File\0*.txt\0\0"), _T("nfo"),
-			l_baseFileName + (a_id == IDM_EXPORT_UTF8 ? _T("-utf8.nfo") : _T("-utf16.nfo")));
+			l_baseFileName + (l_utf8 ? _T("-utf8.nfo") : _T("-utf16.nfo")));
 
 		if(!l_filePath.empty())
 		{
-			m_view.GetNfoData()->SaveToFile(l_filePath, a_id == IDM_EXPORT_UTF8);
+			m_view.GetNfoData()->SaveToFile(l_filePath, l_utf8);
 		}
 	}
 	else if(a_id == IDM_EXPORT_XHTML)
