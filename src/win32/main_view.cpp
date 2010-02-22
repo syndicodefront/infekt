@@ -7,6 +7,7 @@
 CViewContainer::CViewContainer()
 {
 	m_contextMenuHandle = NULL;
+	m_resized = true;
 }
 
 
@@ -63,15 +64,19 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg)
 	{
 	case WM_SIZE:
-		OnAfterResize();
+		OnAfterResize(false);
+		m_resized = true;
 		break;
+	case WM_ERASEBKGND:
+		// intercept message to avoid flicker during resize
+		return 1;
 	}
 
 	return WndProcDefault(uMsg, wParam, lParam);
 }
 
 
-void CViewContainer::OnAfterResize()
+void CViewContainer::OnAfterResize(bool a_fake)
 {
 	if(m_curViewCtrl)
 	{
@@ -160,9 +165,16 @@ void CViewContainer::SwitchView(EMainView a_view)
 		m_curViewCtrl->AssignNFO(m_nfoData);
 	}
 
+	if(m_resized)
+	{
+		OnAfterResize(true);
+	}
+
 	m_renderControl->Show(a_view == MAIN_VIEW_RENDERED);
 	m_classicControl->Show(a_view == MAIN_VIEW_CLASSIC);
 	m_textOnlyControl->Show(a_view == MAIN_VIEW_TEXTONLY);
+
+	m_resized = false;
 
 	SendMessage(WM_SETREDRAW, 1);
 	::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);

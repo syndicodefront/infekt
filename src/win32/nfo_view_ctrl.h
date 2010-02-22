@@ -35,7 +35,7 @@ protected:
 	HMENU m_contextMenuHandle;
 	HWND m_contextMenuCommandTarget;
 
-	void UpdateScrollbars();
+	void UpdateScrollbars(bool a_resetPos);
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);
 	void GetScrollPositions(int& ar_x, int& ar_y);
 	void CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size_t& ar_col);

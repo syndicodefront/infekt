@@ -57,11 +57,12 @@ protected:
 	PNFOData m_nfoData;
 
 	HMENU m_contextMenuHandle;
+	bool m_resized;
 
 	virtual void OnCreate();
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	void OnAfterResize();
+	void OnAfterResize(bool a_fake);
 };
 
 #endif /* !_MAIN_VIEW_H */
