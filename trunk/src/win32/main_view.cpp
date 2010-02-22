@@ -37,15 +37,6 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 	{
 		if(m_curViewCtrl->AssignNFO(m_nfoData))
 		{
-			if(!m_curViewCtrl->ControlCreated())
-			{
-				RECT l_viewArea = GetClientRect();
-				m_curViewCtrl->CreateControl(0, 0,
-					l_viewArea.right - l_viewArea.left, l_viewArea.bottom - l_viewArea.top);
-				m_curViewCtrl->SetContextMenu(m_contextMenuHandle, GetParent());
-				m_curViewCtrl->Show();
-			}
-
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
 			return true;
@@ -148,6 +139,19 @@ void CViewContainer::SwitchView(EMainView a_view)
 	case MAIN_VIEW_RENDERED: m_curViewCtrl = m_renderControl; break;
 	case MAIN_VIEW_CLASSIC: m_curViewCtrl = m_classicControl; break;
 	case MAIN_VIEW_TEXTONLY: m_curViewCtrl = m_textOnlyControl; break;
+	}
+
+	if(!m_curViewCtrl->ControlCreated())
+	{
+		RECT l_viewArea = GetClientRect();
+		m_curViewCtrl->CreateControl(0, 0,
+			l_viewArea.right - l_viewArea.left, l_viewArea.bottom - l_viewArea.top);
+		m_curViewCtrl->SetContextMenu(m_contextMenuHandle, GetParent());
+	}
+
+	if(m_nfoData && !m_curViewCtrl->HasNfoData())
+	{
+		m_curViewCtrl->AssignNFO(m_nfoData);
 	}
 
 	m_renderControl->Show(a_view == MAIN_VIEW_RENDERED);

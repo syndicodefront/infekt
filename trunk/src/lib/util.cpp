@@ -163,6 +163,22 @@ int CUtil::VersionCompare(const _tstring& a_vA, const _tstring& a_vB)
 }
 
 
+void CUtil::PopUpLastWin32Error()
+{
+	LPTSTR lpMsgBuf = NULL;
+	DWORD dwSize;
+	dwSize = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf, 0, NULL);
+
+	if(lpMsgBuf && dwSize)
+	{
+		MessageBox(0, lpMsgBuf, _T("Error"), MB_ICONSTOP);
+		::LocalFree(lpMsgBuf);
+	}
+}
+
+
 /************************************************************************/
 /* PNG/BITMAP/GDI Helper Functions                                      */
 /************************************************************************/
