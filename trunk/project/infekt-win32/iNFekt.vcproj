@@ -120,7 +120,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude;&quot;..\..\src\win32-default-app&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;HAVE_BOOST"
@@ -151,7 +151,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				LinkTimeCodeGeneration="0"
+				LinkTimeCodeGeneration="1"
 				TargetMachine="1"
 			/>
 			<Tool

@@ -27,11 +27,24 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	m_fontSize = -1;
 
 	// default settings:
-	SetBlockSize(7, 12);
+	if(!m_classic)
+	{
+		SetBlockSize(7, 12);
+		m_settings.uFontSize = 0;
 
-	SetEnableGaussShadow(true);
-	SetGaussColor(_S_COLOR_RGB(0, 0, 0));
-	SetGaussBlurRadius(10);
+		SetEnableGaussShadow(true);
+		SetGaussColor(_S_COLOR_RGB(0, 0, 0));
+		SetGaussBlurRadius(10);
+	}
+	else
+	{
+		SetFontSize(ms_defaultClassicFontSize);
+		m_settings.uBlockHeight = m_settings.uBlockWidth = 0;
+		m_settings.uGaussBlurRadius = 0;
+		SetEnableGaussShadow(false);
+
+		m_padding = 5;
+	}
 
 	SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
 	SetTextColor(_S_COLOR_RGB(0, 0, 0));
@@ -47,23 +60,37 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 {
 	if(a_nfo->HasData())
 	{
+		UnAssignNFO();
+
 		m_nfo = a_nfo;
 
-		m_rendered = false;
-		m_fontSize = -1;
-		delete m_gridData;
-		m_gridData = NULL;
-
-		if(m_imgSurface)
-		{
-			cairo_surface_destroy(m_imgSurface);
-			m_imgSurface = NULL;
-		}
+		CalcClassicModeBlockSizes(true);
 
 		return true;
 	}
 
 	return false;
+}
+
+
+void CNFORenderer::UnAssignNFO()
+{
+#ifdef HAVE_BOOST
+	m_nfo.reset();
+#else
+	m_nfo = NULL;
+#endif
+
+	m_rendered = false;
+	m_fontSize = -1;
+	delete m_gridData;
+	m_gridData = NULL;
+
+	if(m_imgSurface)
+	{
+		cairo_surface_destroy(m_imgSurface);
+		m_imgSurface = NULL;
+	}
 }
 
 
@@ -358,6 +385,36 @@ static inline void _SetUpHyperLinkUnderlining(CNFORenderer* r, cairo_t* cr)
 	}
 }
 
+static inline void _SetUpDrawingTools(CNFORenderer* r, cairo_surface_t* a_surface, cairo_t** pcr, cairo_font_options_t** pcfo)
+{
+	cairo_t* cr = cairo_create(a_surface);
+
+	cairo_font_options_t *cfo = cairo_font_options_create();
+
+	cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_SUBPIXEL);
+	cairo_font_options_set_hint_style(cfo, (r->IsClassicMode() ? CAIRO_HINT_STYLE_DEFAULT : CAIRO_HINT_STYLE_NONE));
+
+	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_set_font_options(cr, cfo);
+
+	if(r->IsClassicMode())
+	{
+		cairo_set_font_size(cr, r->GetFontSize());
+	}
+
+	*pcr = cr;
+	*pcfo = cfo;
+}
+
+static inline void _FinalizeDrawingTools(cairo_t** pcr, cairo_font_options_t** pcfo)
+{
+	cairo_font_options_destroy(*pcfo);
+	*pcfo = NULL;
+
+	cairo_destroy(*pcr);
+	*pcr = NULL;
+}
+
 
 /************************************************************************/
 /* RENDER TEXT                                                          */
@@ -378,15 +435,9 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
 
-	// set up drawing tools:
-	cairo_t* cr = cairo_create(a_surface);
-
-	cairo_font_options_t *l_fontOptions = cairo_font_options_create();
-	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
-	cairo_font_options_set_hint_style(l_fontOptions, CAIRO_HINT_STYLE_NONE);
-
-	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_options(cr, l_fontOptions);
+	cairo_t* cr;
+	cairo_font_options_t* l_fontOptions;
+	_SetUpDrawingTools(this, a_surface, &cr, &l_fontOptions);
 
 	_SetUpHyperLinkUnderlining(this, cr);
 
@@ -532,9 +583,36 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		}
 	}
 
-	cairo_font_options_destroy(l_fontOptions);
+	_FinalizeDrawingTools(&cr, &l_fontOptions);
+}
 
-	cairo_destroy(cr);
+
+void CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
+{
+	if(m_classic && (m_fontSize < 0 || a_force))
+	{
+		cairo_surface_t* l_tmpSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 100);
+		cairo_surface_finish(l_tmpSurface); // "freeze" / make read-only, we only need it to measure shit
+
+		cairo_t* cr;
+		cairo_font_options_t* l_fontOptions;
+		_SetUpDrawingTools(this, l_tmpSurface, &cr, &l_fontOptions);
+
+		wchar_t l_blockStr[2] = { 9608, 0}; // full block + null terminator
+		const std::string l_blockStrUtf = CUtil::FromWideStr(l_blockStr, CP_UTF8);
+
+		cairo_text_extents_t l_extents;
+		cairo_text_extents(cr, l_blockStrUtf.c_str(), &l_extents);
+
+		m_settings.uBlockWidth = (size_t)l_extents.x_advance;
+		m_settings.uBlockHeight = (size_t)l_extents.height;
+
+		_FinalizeDrawingTools(&cr, &l_fontOptions);
+
+		cairo_surface_destroy(l_tmpSurface);
+
+		m_fontSize = 1; // we use this as a flag. pretty gross, huh?
+	}
 }
 
 
@@ -555,53 +633,17 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 
 	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
 
-	cairo_t* cr = cairo_create(a_surface);
-
-	cairo_font_options_t *l_fontOptions = cairo_font_options_create();
-	cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
-	cairo_font_options_set_hint_style(l_fontOptions, CAIRO_HINT_STYLE_FULL);
-
-	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-	cairo_set_font_options(cr, l_fontOptions);
-	cairo_set_font_size(cr, 12);
+	cairo_t* cr;
+	cairo_font_options_t* l_fontOptions;
+	_SetUpDrawingTools(this, a_surface, &cr, &l_fontOptions);
 
 	_SetUpHyperLinkUnderlining(this, cr);
 
-	if(true /* measure? */)
-	{
-		wchar_t l_blockStr[2] = { 9608, 0}; // full block + null terminator
-		const std::string l_blockStrUtf = CUtil::FromWideStr(l_blockStr, CP_UTF8);
-
-		cairo_text_extents_t l_extents;
-		cairo_text_extents(cr, l_blockStrUtf.c_str(), &l_extents);
-
-		m_settings.uBlockWidth = (size_t)l_extents.x_advance;
-		m_settings.uBlockHeight = (size_t)l_extents.height;
-	}
+	CalcClassicModeBlockSizes();
 
 	cairo_font_extents_t l_font_extents;
 	cairo_font_extents(cr, &l_font_extents);
 
-#if 0
-	cairo_set_source_rgb(cr, 0, 0, 0);
-
-	int l_lineNr = 0;
-	std::string::size_type l_prevPos = 0,
-		l_pos = m_nfo->GetTextUtf8().find('\n');
-
-	while(l_pos != std::string::npos)
-	{
-		std::string l_line = m_nfo->GetTextUtf8().substr(l_prevPos, l_pos - l_prevPos);
-
-		cairo_move_to(cr, m_padding, l_lineNr * GetBlockHeight() + m_padding + l_font_extents.ascent);
-
-		cairo_show_text(cr, l_line.c_str());
-
-		l_prevPos = l_pos + 1;
-		l_pos = m_nfo->GetTextUtf8().find('\n', l_prevPos);
-		l_lineNr++;
-	}
-#else
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
 	if(a_rowStart != (size_t)-1)
 	{
@@ -649,7 +691,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 					else
 						l_type = BT_TEXT;
 				}
-				else if(l_block->shape == RGS_WHITESPACE_IN_TEXT && l_type != BT_LINK)
+				else if(l_block->shape == RGS_WHITESPACE_IN_TEXT && l_curType != BT_LINK)
 				{
 					l_type = l_curType;
 				}
@@ -725,11 +767,8 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 			}
 		} /* end of inner for loop */
 	}
-#endif
 
-	cairo_font_options_destroy(l_fontOptions);
-
-	cairo_destroy(cr);
+	_FinalizeDrawingTools(&cr, &l_fontOptions);
 }
 
 
@@ -758,22 +797,16 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 
 size_t CNFORenderer::GetWidth()
 {
-	//if(!m_gridData && !CalculateGrid()) return 0;
-	//if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
 	if(!m_nfo) return 0;
 
-	//return m_gridData->GetCols() * GetBlockWidth() + m_padding * 2;
 	return m_nfo->GetGridWidth() * GetBlockWidth() + m_padding * 2;
 }
 
 
 size_t CNFORenderer::GetHeight()
 {
-	//if(!m_gridData && !CalculateGrid()) return 0;
-	//if(m_gridData->GetCols() == 0 || m_gridData->GetRows() == 0) return 0;
 	if(!m_nfo) return 0;
 
-	//return m_gridData->GetRows() * GetBlockHeight() + m_padding * 2;
 	return m_nfo->GetGridHeight() * GetBlockHeight() + m_padding * 2;
 }
 
@@ -824,15 +857,28 @@ bool CNFORenderer::ParseColor(const wchar_t* a_str, S_COLOR_T* ar)
 void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 {
 	// use the setter methods so m_rendered only goes "false"
-	// if really something has changed.
+	// if there has really been a change.
 
-	if(ns.uBlockWidth < 200 && ns.uBlockHeight < 200)
-		SetBlockSize(ns.uBlockWidth, ns.uBlockHeight);
+	if(!m_classic)
+	{
+		if(ns.uBlockWidth < 200 && ns.uBlockHeight < 200)
+			SetBlockSize(ns.uBlockWidth, ns.uBlockHeight);
 
-	SetEnableGaussShadow(ns.bGaussShadow);
-	SetGaussColor(ns.cGaussColor);
-	if(ns.uGaussBlurRadius < 100)
-		SetGaussBlurRadius(ns.uGaussBlurRadius);
+		SetEnableGaussShadow(ns.bGaussShadow);
+		SetGaussColor(ns.cGaussColor);
+		if(ns.uGaussBlurRadius < 100)
+			SetGaussBlurRadius(ns.uGaussBlurRadius);
+	}
+	else 
+	{
+		if(ns.uFontSize >= 3 && ns.uFontSize < 200)
+			SetFontSize(ns.uFontSize);
+		else
+			SetFontSize(ms_defaultClassicFontSize);
+
+		SetEnableGaussShadow(false);
+		SetGaussBlurRadius(0);
+	}
 
 	SetBackColor(ns.cBackColor);
 	SetTextColor(ns.cTextColor);

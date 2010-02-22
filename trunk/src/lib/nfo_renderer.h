@@ -75,6 +75,7 @@ class CNFORenderSettings
 public:
 	// main settings:
 	size_t uBlockHeight, uBlockWidth;
+	size_t uFontSize;
 	S_COLOR_T cBackColor, cTextColor, cArtColor;
 
 	// blur effect settings:
@@ -122,20 +123,26 @@ protected:
 		const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
 		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
+	void CalcClassicModeBlockSizes(bool a_force = false);
 
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
 	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);
+
+	static const size_t ms_defaultClassicFontSize = 12;
 public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();
 
 	// mainly important methods:
+	virtual void UnAssignNFO();
 	virtual bool AssignNFO(const PNFOData& a_nfo);
 	bool HasNfoData() const { return (m_nfo && m_nfo->HasData() ? true : false); }
 	virtual bool DrawToSurface(cairo_surface_t *a_surface, int dest_x, int dest_y,
 		int source_x, int source_y, int width, int height);
 	// you should not call this directly without a good reason, prefer DrawToSurface:
 	bool Render();
+
+	bool IsClassicMode() const { return m_classic; }
 
 	// return the calculated image dimensions:
 	size_t GetWidth();
@@ -169,11 +176,18 @@ public:
 	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bUnderlineHyperlinks == nb); m_settings.bUnderlineHyperlinks = nb; }
 	bool GetUnderlineHyperLinks() const { return m_settings.bUnderlineHyperlinks; }
 
-	void SetBlockSize(size_t a_width, size_t a_height) { m_rendered = m_rendered &&
+	// for the non-classic mode:
+	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&
 		a_width == m_settings.uBlockWidth && a_height == m_settings.uBlockHeight; m_settings.uBlockWidth = a_width; m_settings.uBlockHeight = a_height;
-		if(!m_rendered) m_fontSize = -1; }
+		if(!m_rendered) m_fontSize = -1; } }
 	size_t GetBlockWidth() const { return m_settings.uBlockWidth; }
 	size_t GetBlockHeight() const { return m_settings.uBlockHeight; }
+
+	// for the classic mode:
+	size_t GetFontSize() const { return (m_classic ? m_settings.uFontSize : (size_t)-1); }
+	void SetFontSize(unsigned int r) {
+		if(m_classic) { m_rendered = m_rendered && (m_settings.uFontSize == r); m_settings.uFontSize = r; }
+	}
 
 	// for quick switching between settings:
 	const CNFORenderSettings GetSettings() const { return m_settings; }

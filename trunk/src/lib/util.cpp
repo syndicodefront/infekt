@@ -163,22 +163,6 @@ int CUtil::VersionCompare(const _tstring& a_vA, const _tstring& a_vB)
 }
 
 
-void CUtil::PopUpLastWin32Error()
-{
-	LPTSTR lpMsgBuf = NULL;
-	DWORD dwSize;
-	dwSize = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
-
-	if(lpMsgBuf && dwSize)
-	{
-		MessageBox(0, lpMsgBuf, _T("Error"), MB_ICONSTOP);
-		::LocalFree(lpMsgBuf);
-	}
-}
-
-
 /************************************************************************/
 /* PNG/BITMAP/GDI Helper Functions                                      */
 /************************************************************************/
@@ -339,40 +323,21 @@ _tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTST
 	return _T("");
 }
 
-#endif
 
-
-#ifdef _WIN32
-
-/************************************************************************/
-/* Windows OS Version Helper Functions                                  */
-/************************************************************************/
-
-bool CUtil::IsWin2000()
+void CUtil::PopUpLastWin32Error()
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
-	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 0);
-}
+	LPTSTR lpMsgBuf = NULL;
+	DWORD dwSize;
+	dwSize = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf, 0, NULL);
 
-bool CUtil::IsWinXP()
-{
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
-	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1);
+	if(lpMsgBuf && dwSize)
+	{
+		MessageBox(0, lpMsgBuf, _T("Error"), MB_ICONSTOP);
+		::LocalFree(lpMsgBuf);
+	}
 }
-
-bool CUtil::IsWin5x()
-{
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
-	return (ms_osver.dwMajorVersion == 5);
-}
-
-bool CUtil::IsWin6x(bool a_orHigher)
-{
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
-	return (ms_osver.dwMajorVersion == 6 || (ms_osver.dwMajorVersion > 6 && a_orHigher));
-}
-
-OSVERSIONINFO CUtil::ms_osver = {0};
 
 
 /************************************************************************/
@@ -460,5 +425,40 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 		return _T("");
 	}
 }
+
+#endif
+
+
+#ifdef _WIN32
+
+/************************************************************************/
+/* Windows OS Version Helper Functions                                  */
+/************************************************************************/
+
+bool CUtil::IsWin2000()
+{
+	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 0);
+}
+
+bool CUtil::IsWinXP()
+{
+	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1);
+}
+
+bool CUtil::IsWin5x()
+{
+	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	return (ms_osver.dwMajorVersion == 5);
+}
+
+bool CUtil::IsWin6x(bool a_orHigher)
+{
+	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	return (ms_osver.dwMajorVersion == 6 || (ms_osver.dwMajorVersion > 6 && a_orHigher));
+}
+
+OSVERSIONINFO CUtil::ms_osver = {0};
 
 #endif
