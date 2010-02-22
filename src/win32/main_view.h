@@ -21,7 +21,9 @@ typedef enum _main_view_view_t
 {
 	MAIN_VIEW_RENDERED = 1,
 	MAIN_VIEW_CLASSIC,
-	MAIN_VIEW_TEXTONLY
+	MAIN_VIEW_TEXTONLY,
+
+	_MAIN_VIEW_MAX
 } EMainView;
 
 

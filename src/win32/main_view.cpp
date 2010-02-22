@@ -134,6 +134,8 @@ void CViewContainer::SwitchView(EMainView a_view)
 {
 	m_curViewType = a_view;
 
+	SendMessage(WM_SETREDRAW, 0);
+
 	switch(a_view)
 	{
 	case MAIN_VIEW_RENDERED: m_curViewCtrl = m_renderControl; break;
@@ -157,6 +159,9 @@ void CViewContainer::SwitchView(EMainView a_view)
 	m_renderControl->Show(a_view == MAIN_VIEW_RENDERED);
 	m_classicControl->Show(a_view == MAIN_VIEW_CLASSIC);
 	m_textOnlyControl->Show(a_view == MAIN_VIEW_TEXTONLY);
+
+	SendMessage(WM_SETREDRAW, 1);
+	::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
 
