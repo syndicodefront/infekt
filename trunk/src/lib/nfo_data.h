@@ -82,6 +82,7 @@ public:
 
 	static bool FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
 		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
+	static std::string GetStrippedTextUtf8(const std::wstring& a_text);
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;
@@ -92,6 +93,8 @@ protected:
 	std::deque<CNFOHyperLink> m_hyperLinks;
 	std::_tstring m_filePath;
 	ENfoCharset m_sourceCharset;
+
+	bool LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen);
 
 	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen);
