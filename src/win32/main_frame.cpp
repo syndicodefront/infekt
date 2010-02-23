@@ -381,7 +381,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 		if(!l_filePath.empty())
 		{
 			CNFORenderer l_renderer(m_view.GetViewType() != MAIN_VIEW_RENDERED);
-			CNFORenderSettings l_settings = m_view.GetActiveControl()->GetSettings();
+			CNFORenderSettings l_settings = m_view.GetActiveCtrl()->GetSettings();
 
 			if(a_id == IDM_EXPORT_PNG_TRANSP)
 			{

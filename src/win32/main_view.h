@@ -37,7 +37,7 @@ public:
 	PNFOViewControl& GetRenderCtrl() { return m_renderControl; }
 	PNFOViewControl& GetClassicCtrl() { return m_classicControl; }
 	PNFOViewControl& GetTextOnlyCtrl() { return m_textOnlyControl; }
-	PNFOViewControl& GetActiveControl() { return m_curViewCtrl; }
+	PNFOViewControl& GetActiveCtrl() { return m_curViewCtrl; }
 	PNFOData& GetNfoData() { return m_nfoData; }
 
 	bool OpenFile(const std::wstring& a_filePath);

@@ -76,6 +76,7 @@ public:
 	virtual ~CSettingsTabDialog();
 
 	bool SaveViewSettings();
+	void OnCancelled();
 	const CNFORenderSettings* GetViewSettings() { return m_viewSettings; }
 protected:
 	int m_pageId;
@@ -84,7 +85,8 @@ protected:
 	CSettingsWindowDialog* m_dlgWin;
 	std::vector<PFontListEntry> m_fonts;
 	int m_selectedFontIndex;
-	bool m_extremeTheme;
+	CNFORenderSettings* m_previewSettingsBackup;
+	EMainView m_beforePreviewViewType;
 
 	bool IsViewSettingPage() const;
 	static bool IsColorButton(UINT a_id);
@@ -94,6 +96,7 @@ protected:
 	void DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis);
 	void MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis);
 	void ReadBlockSize();
+	void DoPreview();
 
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);

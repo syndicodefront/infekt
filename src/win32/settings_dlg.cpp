@@ -92,6 +92,10 @@ void CSettingsWindowDialog::OnOK()
 
 void CSettingsWindowDialog::OnCancel()
 {
+	m_tabPageRendered->OnCancelled();
+	m_tabPageClassic->OnCancelled();
+	m_tabPageTextOnly->OnCancelled();
+
 	CDialog::OnCancel();
 }
 
@@ -166,9 +170,9 @@ CSettingsTabDialog::CSettingsTabDialog(CSettingsWindowDialog* a_dlg, int a_pageI
 	m_mainWin = a_dlg->GetMainWin();
 	m_dlgWin = a_dlg;
 	m_viewSettings = NULL;
+	m_previewSettingsBackup = NULL;
 	m_selectedFontIndex = 0;
-
-	m_extremeTheme = CUtil::IsWinXP() || CUtil::IsWin6x();
+	m_beforePreviewViewType = _MAIN_VIEW_MAX;
 
 	m_fonts = m_dlgWin->GetFonts(false);
 }
@@ -444,12 +448,96 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 				}
 			}
 			break;
+
+		case IDC_PREVIEW_BTN:
+			DoPreview();
 		}
 
 		return TRUE;
 	}
 
 	return FALSE;
+}
+
+
+void CSettingsTabDialog::DoPreview()
+{
+	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+
+	if(!l_view->GetNfoData() || !l_view->GetNfoData()->HasData())
+	{
+		this->MessageBox(_T("Please open an NFO file first."), _T("Error"), MB_ICONEXCLAMATION);
+		return;
+	}
+
+	PNFOViewControl l_ctrl;
+	EMainView l_newViewType;
+
+	switch(m_pageId)
+	{
+	case TAB_PAGE_RENDERED:
+		l_ctrl = l_view->GetRenderCtrl();
+		l_newViewType = MAIN_VIEW_RENDERED;
+		break;
+	case TAB_PAGE_CLASSIC:
+		l_ctrl = l_view->GetClassicCtrl();
+		l_newViewType = MAIN_VIEW_CLASSIC;
+		break;
+	case TAB_PAGE_TEXTONLY:
+		l_ctrl = l_view->GetTextOnlyCtrl();
+		l_newViewType = MAIN_VIEW_TEXTONLY;
+		break;
+	default:
+		return;
+	}
+
+	if(!m_previewSettingsBackup)
+	{
+		m_previewSettingsBackup = new CNFORenderSettings();
+		*m_previewSettingsBackup = l_ctrl->GetSettings();
+	}
+
+	if(m_beforePreviewViewType == _MAIN_VIEW_MAX)
+	{
+		m_beforePreviewViewType = l_view->GetViewType();
+	}
+
+	ReadBlockSize();
+
+	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
+	l_ctrl->InjectSettings(*m_viewSettings);
+
+	l_view->SwitchView(l_newViewType);
+
+	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+}
+
+
+void CSettingsTabDialog::OnCancelled()
+{
+	if(m_beforePreviewViewType != _MAIN_VIEW_MAX)
+	{
+		CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+
+		PNFOViewControl l_ctrl;
+
+		switch(m_pageId)
+		{
+		case TAB_PAGE_RENDERED: l_ctrl = l_view->GetRenderCtrl(); break;
+		case TAB_PAGE_CLASSIC: l_ctrl = l_view->GetClassicCtrl(); break;
+		case TAB_PAGE_TEXTONLY: l_ctrl = l_view->GetTextOnlyCtrl(); break;
+		default:
+			return;
+		}
+
+		if(m_previewSettingsBackup)
+		{
+			l_ctrl->InjectSettings(*m_previewSettingsBackup);
+		}
+
+		m_mainWin->SwitchView(m_beforePreviewViewType);
+	}
 }
 
 
@@ -635,6 +723,7 @@ bool CSettingsTabDialog::SaveViewSettings()
 CSettingsTabDialog::~CSettingsTabDialog() 
 {
 	delete m_viewSettings;
+	delete m_previewSettingsBackup;
 }
 
 

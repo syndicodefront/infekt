@@ -27,6 +27,8 @@ public:
 		const CNFORenderSettings& a_settings, bool a_classic);
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 
+	void SwitchView(EMainView a_view);
+
 	static const std::_tstring InfektVersionAsString();
 protected:
 	CViewContainer m_view;
@@ -52,7 +54,6 @@ protected:
 	void DoNfoExport(UINT a_id);
 
 	void CheckForUpdates();
-	void SwitchView(EMainView a_view);
 
 	static const int ms_minWidth = 300, ms_minHeight = 150;
 };
