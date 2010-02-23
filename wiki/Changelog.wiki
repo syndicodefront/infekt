@@ -1,6 +1,17 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
+== v0.1.5 (23 Feb 2010) ==
+  * Added awesome icon by Railgun! THANKS!!
+  * Added Classic view (copying text is still buggy)
+  * Added very buggy raw text view
+  * Added Update Check
+  * New About dialog
+  * Added font selection to the dialog, but it's *not working yet*!
+  * Fixed bugs
+  * Fixed Icons on Windows 2000
+  * Other improvements
+
 == v0.1.0 (17 Feb 2010) ==
   * Initial public release of Win32 binaries
 
