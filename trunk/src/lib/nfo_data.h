@@ -44,7 +44,7 @@ private:
 
 typedef enum _nfo_charsets
 {
-	NFOC_UNKNOWN = 0,
+	NFOC_AUTO = 1,
 	NFOC_UTF16,
 	NFOC_UTF8_SIG,
 	NFOC_UTF8,
@@ -83,6 +83,8 @@ public:
 	static bool FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
 		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
 	static std::string GetStrippedTextUtf8(const std::wstring& a_text);
+
+	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;

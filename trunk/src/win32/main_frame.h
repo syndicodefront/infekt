@@ -24,7 +24,7 @@ public:
 	virtual ~CMainFrame();
 
 	bool SaveRenderSettingsToRegistry(const std::_tstring& a_key,
-		const CNFORenderSettings& a_settings);
+		const CNFORenderSettings& a_settings, bool a_classic);
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 
 	static const std::_tstring InfektVersionAsString();
