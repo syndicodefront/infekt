@@ -63,6 +63,7 @@ protected:
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void OnAfterResize(bool a_fake);
+	bool CurAssignNfo();
 };
 
 #endif /* !_MAIN_VIEW_H */

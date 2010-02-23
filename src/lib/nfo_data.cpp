@@ -98,7 +98,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	if(!ferror(l_file))
 	{
-		l_loaded = LoadFromMemory(l_buf, l_fileBytes);
+		l_loaded = LoadFromMemoryInternal(l_buf, l_fileBytes);
 	}
 	else
 	{
@@ -122,6 +122,13 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 {
+	m_loaded = LoadFromMemoryInternal(a_data, a_dataLen);
+	return m_loaded;
+}
+
+
+bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen)
+{
 	bool l_loaded = false;
 
 	m_loaded = false;
@@ -136,24 +143,33 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 	{
 		m_filePath = _T("");
 
+		// normalize new lines... blergh:
+		for(size_t p = 0; p < m_textContent.size(); p++)
+		{
+			if(m_textContent[p] == L'\r')
+			{
+				if(p < m_textContent.size() - 1 && m_textContent[p + 1] == '\n')
+				{
+					m_textContent.erase(p, 1);
+				}
+				m_textContent[p] = L'\n';
+			}
+		}
+		// we should only have \ns now.
+
+		CUtil::StrTrimRight(m_textContent);
+		m_textContent += L'\n';
+
 		// split raw contents into grid buffer.
 
 		size_t l_maxLineLen = 1;
-		size_t l_prevPos = 0, l_pos = m_textContent.find_first_of(L"\r\n");
+		size_t l_prevPos = 0, l_pos = m_textContent.find(L'\n');
 		deque<const wstring> l_lines;
 
 		// read lines:
 		while(l_pos != wstring::npos)
 		{
 			wstring l_line = m_textContent.substr(l_prevPos, l_pos - l_prevPos);
-
-			// skip \n if we found a \r\n:
-			if(m_textContent[l_pos] == L'\r' &&
-				l_pos < m_textContent.size() - 1 &&
-				m_textContent[l_pos + 1] == L'\n')
-			{
-				l_pos++;
-			}
 
 			// trim trailing whitespace:
 			CUtil::StrTrimRight(l_line);
@@ -166,7 +182,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 			}
 
 			l_prevPos = l_pos + 1;
-			l_pos = m_textContent.find_first_of(L"\r\n", l_pos + 1);
+			l_pos = m_textContent.find(L'\n', l_prevPos);
 		}
 
 		// :TODO: interpret ANSI escape codes.
@@ -479,6 +495,10 @@ char* CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col)
 }
 
 
+/************************************************************************/
+/* Hyper Link Code                                                      */
+/************************************************************************/
+
 const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 {
 	for(deque<CNFOHyperLink>::const_iterator it = m_hyperLinks.begin(); it != m_hyperLinks.end(); it++)
@@ -637,6 +657,50 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 	return false;
 }
 #undef OVECTOR_SIZE
+
+
+/************************************************************************/
+/* Raw Stripper Code                                                    */
+/************************************************************************/
+
+string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
+{
+	string l_text;
+	wstring l_tmpw;
+	l_text.reserve(a_text.size() / 2);
+
+	//bool l_prevWasNl = false;
+	for(size_t p = 0; p < a_text.size(); p++)
+	{
+		if(iswpunct(a_text[p]) || iswalnum(a_text[p]) || (iswspace(a_text[p]) && a_text[p] != L'\t'))
+		{
+			if(a_text[p] == L'\n') CUtil::StrTrimRight(l_tmpw, L" \t");
+			l_tmpw += a_text[p];
+		}
+		else
+		{
+			l_tmpw += L' ';
+			 // we do this to make it easier to nicely retain paragraphs later on
+		}
+	}
+
+	// collapse newlines between paragraphs:
+	for(size_t p = 0; p < l_tmpw.size(); p++)
+	{
+		if(l_tmpw[p] == L'\n' && p < l_tmpw.size() - 2 && l_tmpw[p + 1] == L'\n')
+		{
+			p += 2;
+			while(l_tmpw[p] == L'\n') l_tmpw.erase(p, 1);
+		}
+	}
+
+	l_text = CUtil::FromWideStr(l_tmpw, CP_UTF8);
+
+	// :TODO: 
+
+	return l_text;
+}
+
 
 
 CNFOData::~CNFOData()

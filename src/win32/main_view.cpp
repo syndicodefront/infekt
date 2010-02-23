@@ -40,7 +40,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 		if(m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
 		if(m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
 
-		if(m_curViewCtrl->AssignNFO(m_nfoData))
+		if(CurAssignNfo())
 		{
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
@@ -162,7 +162,7 @@ void CViewContainer::SwitchView(EMainView a_view)
 
 	if(m_nfoData && !m_curViewCtrl->HasNfoData())
 	{
-		m_curViewCtrl->AssignNFO(m_nfoData);
+		CurAssignNfo();
 	}
 
 	if(m_resized)
@@ -178,6 +178,27 @@ void CViewContainer::SwitchView(EMainView a_view)
 
 	SendMessage(WM_SETREDRAW, 1);
 	::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+}
+
+
+bool CViewContainer::CurAssignNfo()
+{
+	if(m_curViewType != MAIN_VIEW_TEXTONLY)
+	{
+		return m_curViewCtrl->AssignNFO(m_nfoData);
+	}
+	else
+	{
+		const std::string l_stripped = CNFOData::GetStrippedTextUtf8(m_nfoData->GetTextWide());
+		PNFOData l_data(new CNFOData());
+		// :TODO: pass UTF-8 charset to CNFOData
+		if(l_data->LoadFromMemory((const unsigned char*)l_stripped.c_str(), l_stripped.size()))
+		{
+			return m_curViewCtrl->AssignNFO(l_data);
+		}
+	}
+
+	return false;
 }
 
 
