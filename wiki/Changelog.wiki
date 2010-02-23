@@ -9,7 +9,7 @@
   * New About dialog
   * Added font selection to the dialog, but it's *not working yet*!
   * Fixed bugs
-  * Fixed Icons on Windows 2000
+  * Fixed icons on Windows 2000
   * Other improvements
 
 == v0.1.0 (17 Feb 2010) ==
@@ -18,5 +18,5 @@
 == 25 Jan 2010 ==
   * Initial source code import
 
-== 31 Feb 2009 ==
+== 31 Dec 2009 ==
   * Work begun
