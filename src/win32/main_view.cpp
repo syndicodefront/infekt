@@ -8,6 +8,7 @@ CViewContainer::CViewContainer()
 {
 	m_contextMenuHandle = NULL;
 	m_resized = true;
+	m_curViewType = _MAIN_VIEW_MAX;
 }
 
 
@@ -141,6 +142,11 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 void CViewContainer::SwitchView(EMainView a_view)
 {
+	if(m_curViewType == a_view)
+	{
+		return;
+	}
+
 	m_curViewType = a_view;
 
 	SendMessage(WM_SETREDRAW, 0);
@@ -191,7 +197,7 @@ bool CViewContainer::CurAssignNfo()
 	{
 		const std::string l_stripped = CNFOData::GetStrippedTextUtf8(m_nfoData->GetTextWide());
 		PNFOData l_data(new CNFOData());
-		// :TODO: pass UTF-8 charset to CNFOData
+		l_data->SetCharsetToTry(NFOC_UTF8);
 		if(l_data->LoadFromMemory((const unsigned char*)l_stripped.c_str(), l_stripped.size()))
 		{
 			return m_curViewCtrl->AssignNFO(l_data);

@@ -93,6 +93,7 @@ protected:
 	void AddFontListToComboBox(bool a_addCustom);
 	void DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis);
 	void MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis);
+	void ReadBlockSize();
 
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);

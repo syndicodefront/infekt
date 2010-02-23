@@ -669,6 +669,7 @@ void CNFOViewControl::InjectSettings(const CNFORenderSettings& ns)
 	if(!m_rendered)
 	{
 		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+		UpdateScrollbars(false);
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
 	}
 }

@@ -236,6 +236,16 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
 			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETPOS, TRUE, m_viewSettings->uGaussBlurRadius);
 			SendMessage(WM_HSCROLL, 0, (LPARAM)GetDlgItem(IDC_GLOW_RADIUS));
+
+			if(m_pageId == TAB_PAGE_RENDERED)
+			{
+				SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETPOS32, 0, m_viewSettings->uBlockWidth);
+				SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETPOS32, 0, m_viewSettings->uBlockHeight);
+			}
+			else
+			{
+
+			}
 		}
 	}
 
@@ -287,6 +297,16 @@ bool CSettingsTabDialog::IsColorButton(UINT a_id)
 		return true;
 	default:
 		return false;
+	}
+}
+
+
+void CSettingsTabDialog::ReadBlockSize()
+{
+	if(m_pageId == TAB_PAGE_RENDERED)
+	{
+		m_viewSettings->uBlockWidth = SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_GETPOS32, 0, 0);
+		m_viewSettings->uBlockHeight = SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_GETPOS32, 0, 0);
 	}
 }
 
@@ -527,6 +547,9 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 	a_mis->itemWidth = (UINT)l_maxW + 2 * ms_fontComboPadding;
 	a_mis->itemHeight = (UINT)l_maxH + 2 * ms_fontComboPadding;
 
+	if(a_mis->itemHeight > 25) a_mis->itemHeight = 25;
+	// :TODO: measure this instead of using a fixed 25.
+
 	cairo_destroy(cr);
 	cairo_surface_destroy(l_surface);
 	::ReleaseDC(GetDlgItem(IDC_FONTNAME_COMBO), l_hdc);
@@ -591,15 +614,18 @@ bool CSettingsTabDialog::SaveViewSettings()
 	if(m_viewSettings)
 	{
 		std::_tstring l_keyName;
+		bool l_classic = true;
 
 		switch(m_pageId)
 		{
-		case TAB_PAGE_RENDERED: l_keyName = _T("RenderedView"); break;
+		case TAB_PAGE_RENDERED: l_keyName = _T("RenderedView"); l_classic = false; break;
 		case TAB_PAGE_CLASSIC: l_keyName = _T("ClassicView"); break;
 		case TAB_PAGE_TEXTONLY: l_keyName = _T("TextOnlyView"); break;
 		}
 
-		return m_mainWin->SaveRenderSettingsToRegistry(l_keyName, *m_viewSettings);
+		ReadBlockSize();
+
+		return m_mainWin->SaveRenderSettingsToRegistry(l_keyName, *m_viewSettings, l_classic);
 	}
 
 	return false;

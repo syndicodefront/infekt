@@ -24,7 +24,7 @@ CNFOData::CNFOData()
 	m_grid = NULL;
 	m_loaded = false;
 	m_utf8Grid = NULL;
-	m_sourceCharset = NFOC_UNKNOWN;
+	m_sourceCharset = NFOC_AUTO;
 }
 
 
@@ -133,11 +133,30 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 	m_loaded = false;
 
-	l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
-	if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
-	if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
-	if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen);
-	if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
+	switch(m_sourceCharset)
+	{
+	case NFOC_AUTO:
+		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
+		break;
+
+	case NFOC_UTF16:
+		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
+		break;
+	case NFOC_UTF8_SIG:
+		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
+		break;
+	case NFOC_UTF8:
+		l_loaded = TryLoad_UTF8(a_data, a_dataLen);
+		break;
+	case NFOC_CP437:
+		l_loaded = TryLoad_CP437(a_data, a_dataLen);
+		break;
+	}
 
 	if(l_loaded)
 	{

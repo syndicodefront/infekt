@@ -73,10 +73,19 @@ class CNFORenderSettings
 /* NEVER add string or pointer members to this class without
 	precautions, it's being copied like a struct etc. */
 public:
+	CNFORenderSettings() {
+		uBlockHeight = uBlockWidth = uFontSize = 0;
+		cBackColor = cTextColor = cArtColor = cGaussColor = cHyperlinkColor = 0;
+		bGaussShadow = false; uGaussBlurRadius = 0;
+		bHilightHyperlinks = bUnderlineHyperlinks = true;
+		memset(sFontFace, 0, LF_FACESIZE + 1);
+	}
+
 	// main settings:
 	size_t uBlockHeight, uBlockWidth;
 	size_t uFontSize;
 	S_COLOR_T cBackColor, cTextColor, cArtColor;
+	TCHAR sFontFace[LF_FACESIZE + 1];
 
 	// blur effect settings:
 	S_COLOR_T cGaussColor;
