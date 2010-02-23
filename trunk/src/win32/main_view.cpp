@@ -142,7 +142,7 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 void CViewContainer::SwitchView(EMainView a_view)
 {
-	if(m_curViewType == a_view)
+	if(m_curViewType == a_view || a_view >= _MAIN_VIEW_MAX)
 	{
 		return;
 	}

@@ -24,6 +24,7 @@
 #define IDC_CLR_ART                     1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013
+#define IDC_PREVIEW_BTN                 1013
 #define IDC_CLR_GAUSS                   1015
 #define IDC_SYNC_FROM_RENDERED          1016
 #define IDC_SYNC_FROM_NORMAL            1017
