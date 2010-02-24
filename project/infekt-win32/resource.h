@@ -49,6 +49,7 @@
 #define IDC_FONTSIZE_COMBO              1038
 #define IDC_SYSLINK1                    1039
 #define IDC_COMBO_DEFAULTVIEW           1041
+#define IDC_FONT_ANTIALIAS              1042
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -98,7 +99,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        117
 #define _APS_NEXT_COMMAND_VALUE         40055
-#define _APS_NEXT_CONTROL_VALUE         1042
+#define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

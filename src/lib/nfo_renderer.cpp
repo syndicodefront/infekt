@@ -46,6 +46,8 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 		m_padding = 5;
 	}
 
+	SetFontAntiAlias(true);
+
 	SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
 	SetTextColor(_S_COLOR_RGB(0, 0, 0));
 	SetArtColor(_S_COLOR_RGB(0, 0, 0));
@@ -391,7 +393,7 @@ static inline void _SetUpDrawingTools(CNFORenderer* r, cairo_surface_t* a_surfac
 
 	cairo_font_options_t *cfo = cairo_font_options_create();
 
-	cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_SUBPIXEL);
+	cairo_font_options_set_antialias(cfo, (r->GetFontAntiAlias() ? CAIRO_ANTIALIAS_SUBPIXEL : CAIRO_ANTIALIAS_NONE));
 	cairo_font_options_set_hint_style(cfo, (r->IsClassicMode() ? CAIRO_HINT_STYLE_DEFAULT : CAIRO_HINT_STYLE_NONE));
 
 	cairo_select_font_face(cr, "Lucida Console", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
@@ -866,7 +868,7 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 
 		SetEnableGaussShadow(ns.bGaussShadow);
 		SetGaussColor(ns.cGaussColor);
-		if(ns.uGaussBlurRadius < 100)
+		if(ns.uGaussBlurRadius <= 100)
 			SetGaussBlurRadius(ns.uGaussBlurRadius);
 	}
 	else 
@@ -887,6 +889,8 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	SetHilightHyperLinks(ns.bHilightHyperlinks);
 	SetHyperLinkColor(ns.cHyperlinkColor);
 	SetUnderlineHyperLinks(ns.bUnderlineHyperlinks);
+
+	SetFontAntiAlias(ns.bFontAntiAlias);
 
 	if(!m_rendered && m_imgSurface != NULL)
 	{

@@ -238,6 +238,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			SET_DLG_CHECKBOX(IDC_HILIGHT_LINKS, m_viewSettings->bHilightHyperlinks);
 			SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
 			SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
+			SET_DLG_CHECKBOX(IDC_FONT_ANTIALIAS, m_viewSettings->bFontAntiAlias);
 
 			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
 			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETPOS, TRUE, m_viewSettings->uGaussBlurRadius);
@@ -407,6 +408,9 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			break;
 		case IDC_UNDERL_LINKS:
 			m_viewSettings->bUnderlineHyperlinks = (IsDlgButtonChecked(m_hWnd, IDC_UNDERL_LINKS) != 0);
+			break;
+		case IDC_FONT_ANTIALIAS:
+			m_viewSettings->bFontAntiAlias = (IsDlgButtonChecked(m_hWnd, IDC_FONT_ANTIALIAS) != 0);
 			break;
 		case IDC_FONTNAME_COMBO:
 			if(HIWORD(wParam) == CBN_SELCHANGE)
