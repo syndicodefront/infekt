@@ -77,6 +77,7 @@ public:
 		uBlockHeight = uBlockWidth = uFontSize = 0;
 		cBackColor = cTextColor = cArtColor = cGaussColor = cHyperlinkColor = 0;
 		bGaussShadow = false; uGaussBlurRadius = 0;
+		bFontAntiAlias = true;
 		bHilightHyperlinks = bUnderlineHyperlinks = true;
 		memset(sFontFace, 0, LF_FACESIZE + 1);
 	}
@@ -86,6 +87,7 @@ public:
 	size_t uFontSize;
 	S_COLOR_T cBackColor, cTextColor, cArtColor;
 	TCHAR sFontFace[LF_FACESIZE + 1];
+	bool bFontAntiAlias;
 
 	// blur effect settings:
 	S_COLOR_T cGaussColor;
@@ -184,6 +186,8 @@ public:
 	bool GetHilightHyperLinks() const { return m_settings.bHilightHyperlinks; }
 	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bUnderlineHyperlinks == nb); m_settings.bUnderlineHyperlinks = nb; }
 	bool GetUnderlineHyperLinks() const { return m_settings.bUnderlineHyperlinks; }
+	void SetFontAntiAlias(bool nb) { m_rendered = m_rendered && (m_settings.bFontAntiAlias == nb); m_settings.bFontAntiAlias = nb; }
+	bool GetFontAntiAlias() const { return m_settings.bFontAntiAlias; }
 
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&

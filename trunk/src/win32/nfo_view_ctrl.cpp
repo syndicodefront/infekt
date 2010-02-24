@@ -19,7 +19,7 @@
 #include "resource.h"
 // :TODO: fix that
 
-#define NFOVWR_CTRL_CLASS_NAME _T("RenderedNfoViewCtrl")
+#define NFOVWR_CTRL_CLASS_NAME _T("iNFEKT_NfoViewCtrl")
 
 
 CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic) : CNFORenderer(a_classic)
@@ -68,7 +68,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	m_width = a_width;
 	m_height = a_height;
 
-	m_hwnd = ::CreateWindowEx(WS_EX_CLIENTEDGE,
+	m_hwnd = ::CreateWindowEx(CThemeAPI::GetInstance()->IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
 		NFOVWR_CTRL_CLASS_NAME, NULL,
 		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,

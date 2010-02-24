@@ -39,6 +39,23 @@ const CThemeAPI* CThemeAPI::GetInstance()
 }
 
 
+bool CThemeAPI::IsThemeActive() const
+{
+	// "Do not call this function during DllMain or global objects
+	// contructors. This may cause invalid return values in Windows
+	// Vista and may cause Windows XP to become unstable."
+
+	typedef BOOL (WINAPI *fnc)(void);
+
+	if(fnc ita = (fnc)GetProcAddress(m_hUxTheme, "IsThemeActive"))
+	{
+		return (ita() != FALSE);
+	}
+
+	return false;
+}
+
+
 HRESULT CThemeAPI::EnableThemeDialogTexture(HWND hwnd, DWORD dwFlags) const
 {
 	typedef HRESULT (WINAPI *fnc)(HWND, DWORD dwFlags);
