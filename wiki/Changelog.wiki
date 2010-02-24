@@ -1,16 +1,20 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
-== v0.2 (???) ===
-  *
-  * Implemented block size (Rendered view) and font size (Classic + Text-Only View) setting
+== v0.2 (???) ==
+  * Implemented font size (Classic + Text-Only View) setting
+  * Implemented font face setting
+  * Made an optional installer
+
+== v0.1.6 (24 Feb 2010) ===
+  * Implemented block size (Rendered view) setting
   * Added "Default View Mode" setting
   * Implemented Preview button
   * Implemented Always on Top setting
   * Slightly better UI experience on Windows Vista and 7
   * Fixed bugs
   * Other improvements
-  * Made an optional installer
+  * Fixed HUGE memory leak
 
 == v0.1.5 (23 Feb 2010) ==
   * Added awesome icon by Railgun! THANKS!!
