@@ -231,7 +231,6 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		}
 
 		AddFontListToComboBox(true);
-		ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), m_selectedFontIndex); // :TODO: use active font's index
 
 		if(m_viewSettings)
 		{
@@ -244,6 +243,17 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETPOS, TRUE, m_viewSettings->uGaussBlurRadius);
 			SendMessage(WM_HSCROLL, 0, (LPARAM)GetDlgItem(IDC_GLOW_RADIUS));
 
+			int l_idx = 0;
+			for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++, l_idx++)
+			{
+				if(_tcscmp((*it)->GetShortName(), m_viewSettings->sFontFace) == 0)
+				{
+					ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), l_idx);
+					m_selectedFontIndex = l_idx;
+					break;
+				}
+			}
+
 			if(m_pageId == TAB_PAGE_RENDERED)
 			{
 				SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETPOS32, 0, m_viewSettings->uBlockWidth);
@@ -251,7 +261,21 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			}
 			else
 			{
+				UpdateFontSizesCombo(m_viewSettings->uFontSize);
+			}
 
+			if(CUtil::IsWin2000())
+			{
+				// work around Common Controls 5 problem...
+				RECT rc;
+				::GetWindowRect(GetDlgItem(IDC_FONTNAME_COMBO), &rc);
+				POINT ptLT = { rc.left, rc.top }, ptRB = { rc.right, rc.bottom };
+				::ScreenToClient(m_hWnd, &ptLT);
+				::ScreenToClient(m_hWnd, &ptRB);
+				::MoveWindow(GetDlgItem(IDC_FONTNAME_COMBO), ptLT.x, ptLT.y, ptRB.x - ptLT.x,
+					(ptRB.y - ptLT.y) * 5, TRUE);
+				// The window height includes the drop-down list, so it needs to be raised or
+				// no drop down list will show up. Pretty stupid.
 			}
 		}
 	}
@@ -266,6 +290,8 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		ComboBox_SetCurSel(l_hCb,
 			(m_mainWin->GetSettings()->iDefaultView == -1 ? 0 : m_mainWin->GetSettings()->iDefaultView));
+
+		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, m_mainWin->GetSettings()->bAlwaysOnTop);
 	}
 
 	return TRUE;
@@ -362,7 +388,10 @@ BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				m_viewSettings->uGaussBlurRadius = l_pos;
 			}
+
+			return TRUE;
 		}
+		break;
 	}
 
 	return this->DialogProcDefault(uMsg, wParam, lParam);
@@ -401,16 +430,16 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		switch(LOWORD(wParam))
 		{
 		case IDC_ACTIVATE_GLOW:
-			m_viewSettings->bGaussShadow = (IsDlgButtonChecked(m_hWnd, IDC_ACTIVATE_GLOW) != 0);
+			m_viewSettings->bGaussShadow = (::IsDlgButtonChecked(m_hWnd, IDC_ACTIVATE_GLOW) != FALSE);
 			break;
 		case IDC_HILIGHT_LINKS:
-			m_viewSettings->bHilightHyperlinks = (IsDlgButtonChecked(m_hWnd, IDC_HILIGHT_LINKS) != 0);
+			m_viewSettings->bHilightHyperlinks = (::IsDlgButtonChecked(m_hWnd, IDC_HILIGHT_LINKS) != FALSE);
 			break;
 		case IDC_UNDERL_LINKS:
-			m_viewSettings->bUnderlineHyperlinks = (IsDlgButtonChecked(m_hWnd, IDC_UNDERL_LINKS) != 0);
+			m_viewSettings->bUnderlineHyperlinks = (::IsDlgButtonChecked(m_hWnd, IDC_UNDERL_LINKS) != FALSE);
 			break;
 		case IDC_FONT_ANTIALIAS:
-			m_viewSettings->bFontAntiAlias = (IsDlgButtonChecked(m_hWnd, IDC_FONT_ANTIALIAS) != 0);
+			m_viewSettings->bFontAntiAlias = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_ANTIALIAS) != FALSE);
 			break;
 		case IDC_FONTNAME_COMBO:
 			if(HIWORD(wParam) == CBN_SELCHANGE)
@@ -423,50 +452,29 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 					ComboBox_SetCurSel((HWND)lParam, m_selectedFontIndex);
 					// :TODO: just extend the drop down thing to *all* installed fonts here...
 					// ... the common dialog is useless.
-#if 0
-					CHOOSEFONT l_cf = {0};
-					LOGFONT l_tempLogFont = {0};
-					l_cf.lStructSize = sizeof(CHOOSEFONT);
-					l_cf.hwndOwner = m_dlgWin->GetHwnd();
-					l_cf.lpLogFont = &l_tempLogFont;
-					l_cf.Flags = CF_FORCEFONTEXIST | CF_NOSCRIPTSEL | CF_NOVERTFONTS | CF_SCRIPTSONLY;
-						/*CF_INITTOLOGFONTSTRUCT*/ 
-					if(m_pageId == TAB_PAGE_RENDERED)
-					{
-						l_cf.Flags |= CF_LIMITSIZE;
-						l_cf.nSizeMax = 999;
-						l_cf.nSizeMin = 999;
-					}
-					l_cf.nFontType = REGULAR_FONTTYPE;
 
-					if(::ChooseFont(&l_cf))
-					{
-					}
-#endif
 					this->MessageBox(_T("Not Implemented."), _T("Sorry"), MB_ICONEXCLAMATION);
 				}
-				else
+				else if((size_t)l_newIdx < m_fonts.size())
 				{
 					m_selectedFontIndex = l_newIdx;
-
-					if(m_pageId != TAB_PAGE_RENDERED)
-					{
-						HWND l_hFontCombo = GetDlgItem(IDC_FONTSIZE_COMBO);
-
-						ComboBox_ResetContent(l_hFontCombo);
-
-						for(std::set<int>::const_iterator it = m_fonts[l_newIdx]->SizesBegin();
-							it != m_fonts[l_newIdx]->SizesEnd(); it++)
-						{
-							TCHAR l_buf[10] = {0};
-							_stprintf(l_buf, _T("%d"), *it);
-							ComboBox_AddString(l_hFontCombo, l_buf);
-						}
-					}
+					_tcsncpy_s(m_viewSettings->sFontFace, LF_FACESIZE + 1, m_fonts[l_newIdx]->GetShortName(), LF_FACESIZE);
+					UpdateFontSizesCombo();
 				}
 			}
 			break;
+		case IDC_FONTSIZE_COMBO:
+			if(HIWORD(wParam) == CBN_SELCHANGE)
+			{
+				int l_newIdx = ComboBox_GetCurSel((HWND)lParam);
 
+				if((size_t)l_newIdx < m_fonts.size())
+				{
+					int l_size = (int)ComboBox_GetItemData((HWND)lParam, l_newIdx);
+					m_viewSettings->uFontSize = l_size;
+				}
+			}
+			break;
 		case IDC_PREVIEW_BTN:
 			DoPreview();
 		}
@@ -475,6 +483,38 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 
 	return FALSE;
+}
+
+
+void CSettingsTabDialog::UpdateFontSizesCombo(size_t a_selSize)
+{
+	if(m_pageId != TAB_PAGE_RENDERED)
+	{
+		HWND l_hFontCombo = GetDlgItem(IDC_FONTSIZE_COMBO);
+
+		ComboBox_ResetContent(l_hFontCombo);
+
+		if(a_selSize == 0)
+		{
+			a_selSize = m_fonts[m_selectedFontIndex]->GetNiceSize();
+		}
+
+		int l_idx = 0;
+		for(std::set<int>::const_iterator it = m_fonts[m_selectedFontIndex]->SizesBegin();
+			it != m_fonts[m_selectedFontIndex]->SizesEnd(); it++, l_idx++)
+		{
+			TCHAR l_buf[10] = {0};
+			_stprintf(l_buf, _T("%d"), *it);
+			int l_item = ComboBox_AddString(l_hFontCombo, l_buf);
+
+			if(l_item != l_idx)
+				break;
+
+			ComboBox_SetItemData(l_hFontCombo, l_idx, *it);
+
+			if(*it == a_selSize) ComboBox_SetCurSel(l_hFontCombo, l_idx);
+		}
+	}
 }
 
 
@@ -624,7 +664,8 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 
 void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 {
-	HDC l_hdc = ::GetDC(GetDlgItem(IDC_FONTNAME_COMBO));
+	HWND l_hCombo = GetDlgItem(IDC_FONTNAME_COMBO);
+	HDC l_hdc = ::GetDC(l_hCombo);
 	cairo_surface_t* l_surface = cairo_win32_surface_create(l_hdc);
 	cairo_t* cr = cairo_create(l_surface);
 
@@ -650,15 +691,20 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 		}
 	}
 
-	a_mis->itemWidth = (UINT)l_maxW + 2 * ms_fontComboPadding;
-	a_mis->itemHeight = (UINT)l_maxH + 2 * ms_fontComboPadding;
+	l_maxW = l_maxW + 2 * ms_fontComboPadding;
+	l_maxH = l_maxH + 2 * ms_fontComboPadding;
 
-	if(a_mis->itemHeight > 25) a_mis->itemHeight = 25;
-	// :TODO: measure this instead of using a fixed 25.
+	if(l_maxH > 25) l_maxH = 25; // :TODO: measure this instead of using a fixed 25.
+
+	if(a_mis)
+	{
+		a_mis->itemWidth = (UINT)l_maxW;
+		a_mis->itemHeight = (UINT)l_maxH;
+	}
 
 	cairo_destroy(cr);
 	cairo_surface_destroy(l_surface);
-	::ReleaseDC(GetDlgItem(IDC_FONTNAME_COMBO), l_hdc);
+	::ReleaseDC(l_hCombo, l_hdc);
 }
 
 
@@ -699,8 +745,8 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 			cairo_move_to(cr, a_dis->rcItem.left + ms_fontComboPadding - l_extents.x_bearing,
 				a_dis->rcItem.top - l_extents.y_bearing + 
 				((a_dis->rcItem.bottom - a_dis->rcItem.top) - l_extents.height) / 2);
-			// the padding is in (a_dis->rcItem.bottom - a_dis->rcItem.top)
-			// which also is the maximum item height.
+			// the padding is included in (a_dis->rcItem.bottom - a_dis->rcItem.top)
+			// which therefore defines the maximum item height.
 
 			cairo_show_text(cr, l_displayName.c_str());
 
@@ -740,6 +786,10 @@ bool CSettingsTabDialog::SaveSettings()
 		l_set->iDefaultView = ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_DEFAULTVIEW));
 		if(l_set->iDefaultView < 1 || l_set->iDefaultView >= _MAIN_VIEW_MAX)
 			l_set->iDefaultView = -1;
+
+		bool l_oldAot = l_set->bAlwaysOnTop;
+		l_set->bAlwaysOnTop = (::IsDlgButtonChecked(GetHwnd(), IDC_ALWAYSONTOP) != FALSE);
+		if(l_set->bAlwaysOnTop != l_oldAot) m_mainWin->UpdateAlwaysOnTop();
 
 		return l_set->SaveToRegistry();
 	}

@@ -248,8 +248,8 @@ void CNFOViewControl::OnPaint()
 		cairo_t *cr = cairo_create(l_realSurface);
 		cairo_set_source_surface(cr, l_surface, 0, 0);
 		cairo_paint(cr);
-		cairo_surface_destroy(l_realSurface);
 		cairo_destroy(cr);
+		cairo_surface_destroy(l_realSurface);
 	}
 	cairo_surface_destroy(l_surface);
 	::EndPaint(m_hwnd, &l_ps);
