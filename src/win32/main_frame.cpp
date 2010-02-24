@@ -357,7 +357,7 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg)
 	{
 	case WM_GETMINMAXINFO: {
-		MINMAXINFO* l_info = (MINMAXINFO*)lParam;
+		PMINMAXINFO l_info = (PMINMAXINFO)lParam;
 		l_info->ptMinTrackSize.x = ms_minWidth;
 		l_info->ptMinTrackSize.y = ms_minHeight;
 		return 0; }

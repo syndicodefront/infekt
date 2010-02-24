@@ -25,6 +25,7 @@ public:
 
 	bool IsFixedWidth() const { return ((m_logFont.lfPitchAndFamily & FIXED_PITCH) != 0); }
 	const std::_tstring& GetFontName() const { return m_name; }
+	const TCHAR* GetShortName() const { return m_logFont.lfFaceName; }
 	int GetNiceSize();
 	std::set<int>::const_iterator SizesBegin() const { return m_sizes.begin(); }
 	std::set<int>::const_iterator SizesEnd() const { return m_sizes.end(); }
@@ -95,6 +96,7 @@ protected:
 	void AddFontListToComboBox(bool a_addCustom);
 	void DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis);
 	void MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis);
+	void UpdateFontSizesCombo(size_t a_selSize = 0);
 	void ReadBlockSize();
 	void DoPreview();
 

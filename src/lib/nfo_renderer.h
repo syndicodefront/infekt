@@ -206,7 +206,7 @@ public:
 	// for the classic mode:
 	size_t GetFontSize() const { return (m_classic ? m_settings.uFontSize : (size_t)-1); }
 	void SetFontSize(unsigned int r) {
-		if(m_classic) { m_rendered = m_rendered && (m_settings.uFontSize == r); m_settings.uFontSize = r; }
+		if(m_classic) { m_rendered = m_rendered && (m_settings.uFontSize == r); m_settings.uFontSize = r; m_fontSize = -1; }
 	}
 
 	// for quick switching between settings:

@@ -897,6 +897,7 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	SetUnderlineHyperLinks(ns.bUnderlineHyperlinks);
 
 	SetFontAntiAlias(ns.bFontAntiAlias);
+	SetFontFace(ns.sFontFace);
 
 	if(!m_rendered && m_imgSurface != NULL)
 	{
