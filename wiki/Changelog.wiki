@@ -9,6 +9,7 @@
 == v0.1.6 (24 Feb 2010) ===
   * Implemented block size (Rendered view) setting
   * Added "Default View Mode" setting
+  * Added Anti-Alias setting
   * Implemented Preview button
   * Implemented Always on Top setting
   * Slightly better UI experience on Windows Vista and 7
