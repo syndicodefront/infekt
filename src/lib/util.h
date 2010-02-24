@@ -131,13 +131,13 @@ public:
 	{
 		int l_newIdx = CTab::AddTabPage(pWnd, szTitle, hIcon);
 
-		LONG_PTR l_style = GetWindowLongPtr(GWL_STYLE);
+		LONG l_style = this->GetWindowLong(GWL_STYLE);
 		if((l_style & TCS_OWNERDRAWFIXED) != 0)
 		{
-			SetWindowLongPtr(GWL_STYLE, l_style & ~TCS_OWNERDRAWFIXED);
+			this->SetWindowLong(GWL_STYLE, l_style & ~TCS_OWNERDRAWFIXED);
 		}
 
-		if(SendMessage(CCM_GETVERSION, 0, 0) >= 6)
+		if(this->SendMessage(CCM_GETVERSION, 0, 0) >= 6)
 		{
 			// adjust XP style background...
 			CThemeAPI::GetInstance()->EnableThemeDialogTexture(GetTabPageInfo(l_newIdx).pWnd->GetHwnd(), ETDT_ENABLETAB);

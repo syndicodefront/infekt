@@ -76,9 +76,11 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 
 void CSettingsWindowDialog::OnOK()
 {
-	m_tabPageRendered->SaveViewSettings();
-	m_tabPageClassic->SaveViewSettings();
-	m_tabPageTextOnly->SaveViewSettings();
+	m_tabPageGeneral->SaveSettings();
+
+	m_tabPageRendered->SaveSettings();
+	m_tabPageClassic->SaveSettings();
+	m_tabPageTextOnly->SaveSettings();
 
 	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
 
@@ -251,6 +253,18 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 			}
 		}
+	}
+	else if(m_pageId == TAB_PAGE_GENERAL)
+	{
+		HWND l_hCb = GetDlgItem(IDC_COMBO_DEFAULTVIEW);
+
+		ComboBox_AddString(l_hCb, _T("(Remember)"));
+		ComboBox_AddString(l_hCb, _T("Rendered"));
+		ComboBox_AddString(l_hCb, _T("Classic"));
+		ComboBox_AddString(l_hCb, _T("Text Only"));
+
+		ComboBox_SetCurSel(l_hCb,
+			(m_mainWin->GetSettings()->iDefaultView == -1 ? 0 : m_mainWin->GetSettings()->iDefaultView));
 	}
 
 	return TRUE;
@@ -697,9 +711,9 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 }
 
 
-bool CSettingsTabDialog::SaveViewSettings()
+bool CSettingsTabDialog::SaveSettings()
 {
-	if(m_viewSettings)
+	if(IsViewSettingPage() && m_viewSettings)
 	{
 		std::_tstring l_keyName;
 		bool l_classic = true;
@@ -714,6 +728,16 @@ bool CSettingsTabDialog::SaveViewSettings()
 		ReadBlockSize();
 
 		return m_mainWin->SaveRenderSettingsToRegistry(l_keyName, *m_viewSettings, l_classic);
+	}
+	else if(m_pageId == TAB_PAGE_GENERAL)
+	{
+		PMainSettings l_set = m_mainWin->GetSettings();
+
+		l_set->iDefaultView = ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_DEFAULTVIEW));
+		if(l_set->iDefaultView < 1 || l_set->iDefaultView >= _MAIN_VIEW_MAX)
+			l_set->iDefaultView = -1;
+
+		return l_set->SaveToRegistry();
 	}
 
 	return false;

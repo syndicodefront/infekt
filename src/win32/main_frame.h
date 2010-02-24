@@ -17,6 +17,28 @@
 
 #include "main_view.h"
 
+
+class CMainSettings
+{
+public:
+	CMainSettings(bool bFromRegistry) {
+		iDefaultView = -1;
+		iLastView = MAIN_VIEW_RENDERED;
+		bCopyOnSelect = bAlwaysOnTop = bAlwaysShowMenubar = false;
+		if(bFromRegistry) LoadFromRegistry();
+	}
+	bool LoadFromRegistry();
+	bool SaveToRegistry();
+
+	int32_t iDefaultView, iLastView;
+	bool bCopyOnSelect;
+	bool bAlwaysOnTop;
+	bool bAlwaysShowMenubar;
+};
+
+typedef boost::shared_ptr<CMainSettings> PMainSettings;
+
+
 class CMainFrame : public CFrame
 {
 public:
@@ -28,12 +50,15 @@ public:
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 
 	void SwitchView(EMainView a_view);
+	void UpdateAlwaysOnTop();
+	PMainSettings GetSettings() { return m_settings; }
 
 	static const std::_tstring InfektVersionAsString();
 protected:
 	CViewContainer m_view;
 	bool m_menuBarVisible;
 	bool m_showingAbout;
+	PMainSettings m_settings;
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);

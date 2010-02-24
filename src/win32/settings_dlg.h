@@ -75,7 +75,7 @@ public:
 	CSettingsTabDialog(CSettingsWindowDialog* a_dlg, int a_pageId, UINT nResID);
 	virtual ~CSettingsTabDialog();
 
-	bool SaveViewSettings();
+	bool SaveSettings();
 	void OnCancelled();
 	const CNFORenderSettings* GetViewSettings() { return m_viewSettings; }
 protected:
