@@ -887,6 +887,12 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	SetHilightHyperLinks(ns.bHilightHyperlinks);
 	SetHyperLinkColor(ns.cHyperlinkColor);
 	SetUnderlineHyperLinks(ns.bUnderlineHyperlinks);
+
+	if(!m_rendered && m_imgSurface != NULL)
+	{
+		cairo_surface_destroy(m_imgSurface);
+		m_imgSurface = NULL;
+	}
 }
 
 

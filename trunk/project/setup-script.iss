@@ -17,6 +17,8 @@ OutputBaseFilename=infekt-setup
 Compression=lzma
 SolidCompression=yes
 WizardSmallImageFile=setup-bmp-small.bmp
+WizardImageFile=setup-bmp-left.bmp
+WizardImageStretch=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -33,7 +35,7 @@ Source: "{#SourceFileDir}\libpng14.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceFileDir}\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceFileDir}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceFileDir}\make-default-app.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\temp\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
+;Source: "C:\temp\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\iNFEKT NFO Viewer"; Filename: "{app}\infekt-win32.exe"
@@ -43,7 +45,7 @@ Name: "{commondesktop}\iNFEKT NFO Viewer"; Filename: "{app}\infekt-win32.exe"; T
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFEKT NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: quicklaunchicon
 
 [Run]
-Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."
+;Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."
 Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFEKT NFO Viewer}"; Flags: nowait postinstall skipifsilent
 
 [Registry]

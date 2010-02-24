@@ -422,6 +422,15 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 		::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, (!m_nfo->GetLink(l_row, l_col) ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 		::EnableMenuItem(l_popup, IDMC_SELECTALL, (!IsTextChar(l_row, l_col, true) ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 
+		if(::GetWindowLong(m_contextMenuCommandTarget, GWL_EXSTYLE) & WS_EX_TOPMOST)
+		{
+			::CheckMenuItem(l_popup, IDMC_ALWAYSONTOP, MF_CHECKED | MF_BYCOMMAND);
+		}
+		else
+		{
+			::CheckMenuItem(l_popup, IDMC_ALWAYSONTOP, MF_UNCHECKED | MF_BYCOMMAND);
+		}
+
 		LPTSTR l_oldCursor = m_cursor;
 		m_cursor = IDC_ARROW;
 
@@ -622,14 +631,14 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 
 	if(::OpenClipboard(m_hwnd))
 	{
-		HGLOBAL l_hGlobal = ::GlobalAlloc(GMEM_MOVEABLE,
-			sizeof(wchar_t) * (l_wstr.size() + 1));
+		size_t l_size = sizeof(wchar_t) * (l_wstr.size() + 1);
+		HGLOBAL l_hGlobal = ::GlobalAlloc(GMEM_MOVEABLE, l_size);
 
 		if(l_hGlobal)
 		{
 			wchar_t* l_hCopy = (wchar_t*)::GlobalLock(l_hGlobal);
 
-			memcpy(l_hCopy, l_wstr.c_str(), sizeof(wchar_t) * l_wstr.size());
+			memcpy_s(l_hCopy, l_size, l_wstr.c_str(), sizeof(wchar_t) * l_wstr.size());
 			l_hCopy[l_wstr.size()] = 0;
 			::GlobalUnlock(l_hCopy); 
 

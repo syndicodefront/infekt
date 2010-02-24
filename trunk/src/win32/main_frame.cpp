@@ -15,6 +15,8 @@ enum _toolbar_button_ids {
 	TBBID_ABOUT
 };
 
+#define VIEW_MENU_POS 1
+
 
 CMainFrame::CMainFrame() : CFrame(),
 	m_showingAbout(false)
@@ -22,6 +24,8 @@ CMainFrame::CMainFrame() : CFrame(),
 	SetView(m_view);
 
 	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
+
+	m_settings = PMainSettings(new CMainSettings(true));
 }
 
 
@@ -76,7 +80,14 @@ void CMainFrame::OnInitialUpdate()
 
 	GetStatusbar().SetPartText(0, _T("Hit the Alt key to toggle the menu bar."));
 
-	SwitchView(MAIN_VIEW_CLASSIC);
+	if(GetSettings()->iDefaultView == -1)
+	{
+		SwitchView((EMainView)GetSettings()->iLastView);
+	}
+	else
+	{
+		SwitchView((EMainView)GetSettings()->iDefaultView);
+	}
 
 	ShowWindow();
 
@@ -229,6 +240,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDM_VIEW_TEXTONLY:
 		SwitchView(MAIN_VIEW_TEXTONLY);
 		break;
+
+	case IDM_ALWAYSONTOP:
+	case IDMC_ALWAYSONTOP:
+		GetSettings()->bAlwaysOnTop = !GetSettings()->bAlwaysOnTop;
+		UpdateAlwaysOnTop();
+		break;
 	}
 
 	return FALSE;
@@ -254,13 +271,19 @@ void CMainFrame::SwitchView(EMainView a_view)
 	// WARNING: We use menu positions here exclusively. Using
 	// the COMMAND identifiers just didn't work for no apparent reason :(
 
-	HMENU l_hPopup = ::GetSubMenu(GetMenubar().GetMenu(), 1);
+	HMENU l_hPopup = ::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS);
 
 	if(l_hPopup)
 	{
 		::CheckMenuRadioItem(l_hPopup, 0, 2,
 			(a_view == MAIN_VIEW_RENDERED ? 0 : (a_view == MAIN_VIEW_CLASSIC ? 1 : 2)),
 			MF_BYPOSITION);
+	}
+
+	GetSettings()->iLastView = a_view;
+	if(GetSettings()->iDefaultView == -1)
+	{
+		GetSettings()->SaveToRegistry();
 	}
 
 	m_view.SwitchView(a_view);
@@ -344,10 +367,31 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 
+void CMainFrame::UpdateAlwaysOnTop()
+{
+	if(GetSettings()->bAlwaysOnTop)
+	{
+		this->SetForegroundWindow();
+		this->SetFocus();
+		this->SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+		::CheckMenuItem(::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS), IDM_ALWAYSONTOP, MF_CHECKED | MF_BYCOMMAND);
+	}
+	else
+	{
+		this->SetWindowPos(HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+
+		::CheckMenuItem(::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS), IDM_ALWAYSONTOP, MF_UNCHECKED | MF_BYCOMMAND);
+	}
+
+	GetSettings()->SaveToRegistry();
+}
+
+
 void CMainFrame::OpenChooseFileName()
 {
 	_tstring l_fileName = CUtil::OpenFileDialog(g_hInstance, GetHwnd(),
-		_T("NFO Files\0*.nfo;*.diz\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0"));
+		_T("NFO Files\0*.nfo;*.diz;*.asc\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0"));
 
 	if(!l_fileName.empty())
 	{
@@ -683,3 +727,78 @@ CMainFrame::~CMainFrame()
 {
 
 }
+
+
+/************************************************************************/
+/* CMAINSETTINGS                                                        */
+/************************************************************************/
+
+bool CMainSettings::SaveToRegistry()
+{
+	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\MainSettings");
+
+	HKEY l_hKey;
+	if(RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	{
+		return false;
+	}
+
+	int32_t dwDefaultView = this->iDefaultView,
+		dwLastView = this->iLastView,
+		dwCopySelect = (this->bCopyOnSelect ? 1 : 0),
+		dwAlwaysOnTop = (this->bAlwaysOnTop ? 1 : 0),
+		dwAlwaysMenuBar = (this->bAlwaysShowMenubar ? 1 : 0);
+
+	RegSetValueEx(l_hKey, _T("DefaultView"),		0, REG_DWORD, (LPBYTE)&dwDefaultView,		sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("LastView"),			0, REG_DWORD, (LPBYTE)&dwLastView,			sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("CopyOnSelect"),		0, REG_DWORD, (LPBYTE)&dwCopySelect,		sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("AlwaysOnTop"),		0, REG_DWORD, (LPBYTE)&dwAlwaysOnTop,		sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("AlwaysShowMenubar"),	0, REG_DWORD, (LPBYTE)&dwAlwaysMenuBar,		sizeof(int32_t));
+
+	RegCloseKey(l_hKey);
+
+	return true;
+}
+
+
+bool CMainSettings::LoadFromRegistry()
+{
+	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\MainSettings");
+
+	HKEY l_hKey;
+	if(RegOpenKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	{
+		return false;
+	}
+
+	int32_t dwDefaultView, dwLastView, dwCopySelect, dwAlwaysOnTop, dwAlwaysMenuBar;
+
+	DWORD l_dwType = REG_DWORD;
+	DWORD l_dwBufSz = sizeof(int32_t);
+
+	RegQueryValueEx(l_hKey, _T("DefaultView"),			NULL, &l_dwType, (LPBYTE)&dwDefaultView,	&l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("LastView"),				NULL, &l_dwType, (LPBYTE)&dwLastView,		&l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("CopyOnSelect"),			NULL, &l_dwType, (LPBYTE)&dwCopySelect,		&l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("AlwaysOnTop"),			NULL, &l_dwType, (LPBYTE)&dwAlwaysOnTop,	&l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("AlwaysShowMenubar"),	NULL, &l_dwType, (LPBYTE)&dwAlwaysMenuBar,	&l_dwBufSz);
+
+	RegCloseKey(l_hKey);
+
+	if(dwDefaultView == -1 || (dwDefaultView >= MAIN_VIEW_RENDERED && dwDefaultView < _MAIN_VIEW_MAX))
+	{
+		this->iDefaultView = dwDefaultView;
+	}
+
+	if(dwLastView >= MAIN_VIEW_RENDERED && dwLastView < _MAIN_VIEW_MAX)
+	{
+		this->iLastView = dwLastView;
+	}
+
+	this->bCopyOnSelect = (dwCopySelect != 0);
+	this->bAlwaysOnTop = (dwAlwaysOnTop != 0);
+	this->bAlwaysShowMenubar = (dwAlwaysMenuBar != 0);
+
+	return true;
+}
+

@@ -182,7 +182,7 @@ static cairo_status_t _read_from_resource(void *a_closure, unsigned char *a_data
 	size_t l_bytes =
 		(l_buf->pos + a_length > l_buf->len ? l_buf->len - l_buf->pos : a_length);
 
-	memmove(a_data, (void*)((intptr_t)l_buf->data + (intptr_t)l_buf->pos), l_bytes);
+	memmove_s(a_data, a_length, (void*)((intptr_t)l_buf->data + (intptr_t)l_buf->pos), l_bytes);
 
 	l_buf->pos += l_bytes;
 
