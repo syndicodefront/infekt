@@ -80,6 +80,7 @@ public:
 		bFontAntiAlias = true;
 		bHilightHyperlinks = bUnderlineHyperlinks = true;
 		memset(sFontFace, 0, LF_FACESIZE + 1);
+		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("Lucida Console"));
 	}
 
 	// main settings:
@@ -182,12 +183,18 @@ public:
 		} else m_padding = 8;
 	}
 	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
+
 	void SetHilightHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bHilightHyperlinks == nb); m_settings.bHilightHyperlinks = nb; }
 	bool GetHilightHyperLinks() const { return m_settings.bHilightHyperlinks; }
 	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bUnderlineHyperlinks == nb); m_settings.bUnderlineHyperlinks = nb; }
 	bool GetUnderlineHyperLinks() const { return m_settings.bUnderlineHyperlinks; }
+
 	void SetFontAntiAlias(bool nb) { m_rendered = m_rendered && (m_settings.bFontAntiAlias == nb); m_settings.bFontAntiAlias = nb; }
 	bool GetFontAntiAlias() const { return m_settings.bFontAntiAlias; }
+	void SetFontFace(const std::_tstring ns) { m_rendered = m_rendered && (_tcscmp(m_settings.sFontFace, ns.c_str()) == 0);
+		_tcsnccpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
+	}
+	std::_tstring GetFontFace() const { return m_settings.sFontFace; }
 
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&
