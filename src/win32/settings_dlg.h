@@ -100,6 +100,8 @@ protected:
 	void ReadBlockSize();
 	void DoPreview();
 
+	void FixCommCtrls5ComboBug(HWND a_combo);
+
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);

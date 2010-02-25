@@ -262,21 +262,10 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			else
 			{
 				UpdateFontSizesCombo(m_viewSettings->uFontSize);
+				FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTSIZE_COMBO));
 			}
 
-			if(CUtil::IsWin2000())
-			{
-				// work around Common Controls 5 problem...
-				RECT rc;
-				::GetWindowRect(GetDlgItem(IDC_FONTNAME_COMBO), &rc);
-				POINT ptLT = { rc.left, rc.top }, ptRB = { rc.right, rc.bottom };
-				::ScreenToClient(m_hWnd, &ptLT);
-				::ScreenToClient(m_hWnd, &ptRB);
-				::MoveWindow(GetDlgItem(IDC_FONTNAME_COMBO), ptLT.x, ptLT.y, ptRB.x - ptLT.x,
-					(ptRB.y - ptLT.y) * 5, TRUE);
-				// The window height includes the drop-down list, so it needs to be raised or
-				// no drop down list will show up. Pretty stupid.
-			}
+			FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTNAME_COMBO));
 		}
 	}
 	else if(m_pageId == TAB_PAGE_GENERAL)
@@ -290,6 +279,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		ComboBox_SetCurSel(l_hCb,
 			(m_mainWin->GetSettings()->iDefaultView == -1 ? 0 : m_mainWin->GetSettings()->iDefaultView));
+		FixCommCtrls5ComboBug(l_hCb);
 
 		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, m_mainWin->GetSettings()->bAlwaysOnTop);
 	}
@@ -795,6 +785,24 @@ bool CSettingsTabDialog::SaveSettings()
 	}
 
 	return false;
+}
+
+
+void CSettingsTabDialog::FixCommCtrls5ComboBug(HWND a_combo)
+{
+	if(CUtil::IsWin2000())
+	{
+		// work around Common Controls 5 problem...
+		RECT rc;
+		::GetWindowRect(a_combo, &rc);
+		POINT ptLT = { rc.left, rc.top }, ptRB = { rc.right, rc.bottom };
+		::ScreenToClient(m_hWnd, &ptLT);
+		::ScreenToClient(m_hWnd, &ptRB);
+		::MoveWindow(a_combo, ptLT.x, ptLT.y, ptRB.x - ptLT.x,
+			(ptRB.y - ptLT.y) * 5, TRUE);
+		// The window height includes the drop-down list, so it needs to be raised or
+		// no drop down list will show up. Pretty stupid.
+	}
 }
 
 
