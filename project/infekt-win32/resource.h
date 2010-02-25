@@ -93,13 +93,15 @@
 #define IDM_VIEW_CLASSIC                40052
 #define IDM_VIEW_RENDERED               40053
 #define IDM_VIEW_TEXTONLY               40054
+#define IDM_HIDDENGIMMICK               40055
+#define ID_ACCELERATOR40056             40056
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        117
-#define _APS_NEXT_COMMAND_VALUE         40055
+#define _APS_NEXT_COMMAND_VALUE         40058
 #define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

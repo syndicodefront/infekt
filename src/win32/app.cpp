@@ -15,6 +15,7 @@
 #include "stdafx.h"
 #include "app.h"
 #include "default_app.h"
+#include <mbctype.h>
 
 using namespace std;
 
@@ -26,6 +27,8 @@ using namespace std;
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszCommandLine, int nShowCmd)
 {
 	g_hInstance = hInstance;
+
+	_wsetlocale(LC_CTYPE, L"C");
 
 	try
 	{
