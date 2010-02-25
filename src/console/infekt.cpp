@@ -34,7 +34,7 @@ static const struct ::option g_longOpts[] = {
 	{ _T("version"),		no_argument,		0,	'v' },
 
 	{ _T("png"),			no_argument,		0,	'P' },
-	{ _T("png-basic"),		no_argument,		0,	'p' },
+	{ _T("png-classic"),	no_argument,		0,	'p' },
 	{ _T("utf-8"),			no_argument,		0,	'f' },
 	{ _T("utf-16"),			no_argument,		0,	't' },
 	{ _T("out-file"),		required_argument,	0,	'O' },
@@ -70,7 +70,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 
 	printf("Mode of operation:\n");
 	printf("  -P, --png                   Renders a PNG (default).\n");
-	//printf("  -p, --png-basic             Prints the NFO file into a PNG file as text.\n"); // :TODO: for v0.2
+	printf("  -p, --png-classic           Prints the NFO file into a PNG file as text.\n");
 	printf("  -f, --utf-8                 Converts the NFO file into UTF-8.\n");
 	printf("  -t, --utf-16                Converts the NFO file into UTF-16.\n");
 	printf("  -O, --out-file <PATH>       Sets the output filename. Defaults to input file name plus .png/.nfo.\n");
@@ -97,7 +97,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 #define OutputHelp() _OutputHelp(argv[0], NULL)
 #endif
 
-#define _CHECK_COLOR_OPT(CHAR, STRING_NAME, METHOD_NAME, EXTRA_CODE) \
+#define _CHECK_COLOR_OPT(CHAR, STRING_NAME, PROP_NAME, EXTRA_CODE) \
 	case CHAR: \
 	if(!CNFORenderer::ParseColor(::optarg, &l_color)) \
 	{ \
@@ -105,7 +105,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 		return 1; \
 	} \
 	EXTRA_CODE; \
-	l_renderer.METHOD_NAME(l_color); \
+	l_pngSettings.PROP_NAME = l_color; \
 	break;
 
 
@@ -120,24 +120,27 @@ int main(int argc, char* argv[])
 #endif
 {
 	std::_tstring l_outFileName;
-
-	// Renderer instance that we are going to use:
-	CNFORenderer l_renderer;
+	bool l_classic = false, l_makePng = true, l_textUtf8 = true;
 
 	// our defaults:
-	l_renderer.SetTextColor(_S_COLOR_RGB(0, 0, 0));
-	l_renderer.SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
-	l_renderer.SetEnableGaussShadow(true);
-	l_renderer.SetGaussBlurRadius(10);
-	l_renderer.SetHilightHyperLinks(false);
+	CNFORenderSettings l_pngSettings;
+	l_pngSettings.bHilightHyperlinks = false;
+	l_pngSettings.cTextColor = _S_COLOR_RGB(0, 0, 0);
+	l_pngSettings.cBackColor = _S_COLOR_RGB(0xFF, 0xFF, 0xFF);
+	l_pngSettings.cArtColor = l_pngSettings.cTextColor;
+	l_pngSettings.cGaussColor = l_pngSettings.cArtColor;
+	l_pngSettings.cHyperlinkColor = _S_COLOR_RGB(0, 0, 0xFF);
+	l_pngSettings.uBlockHeight = 12;
+	l_pngSettings.uBlockWidth = 7;
+	l_pngSettings.bGaussShadow = true;
+	l_pngSettings.uFontSize = 12;
+	l_pngSettings.uGaussBlurRadius = 10;
 
 	// keep track of changed stuff for advanced defaults:
-	bool bSetBlockColor = false, bSetGlowColor = false;
+	bool l_setBlockColor = false, l_setGlowColor = false;
 
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
-
-	// :TODO: implement Ppft!
 
 	while((l_arg = getopt_long(argc, argv, L"hvT:B:A:gG:W:H:R:LuU:O:pPft", g_longOpts, &l_optIdx)) != -1)
 	{
@@ -151,24 +154,24 @@ int main(int argc, char* argv[])
 			return 0;
 		case 'v':
 			printf("VERSION: iNFEKT v%d.%d.%d\n", INFEKT_VERSION_MAJOR, INFEKT_VERSION_MINOR, INFEKT_VERSION_REVISION);
-			printf("using cairo v%d.%d.%d", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO);
+			printf("using Cairo v%d.%d.%d, PCRE v%d.%d", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO, PCRE_MAJOR, PCRE_MINOR);
 			return 0;
 		case 'O':
 			l_outFileName = ::optarg;
 			break;
-		_CHECK_COLOR_OPT('T', "text-color", SetTextColor,);
-		_CHECK_COLOR_OPT('B', "back-color", SetBackColor,);
-		_CHECK_COLOR_OPT('A', "block-color", SetArtColor, bSetBlockColor = true);
-		_CHECK_COLOR_OPT('G', "glow-color", SetGaussColor, bSetGlowColor = true);
-		_CHECK_COLOR_OPT('U', "link-color", SetHyperLinkColor,);
+		_CHECK_COLOR_OPT('T', "text-color", cTextColor,);
+		_CHECK_COLOR_OPT('B', "back-color", cBackColor,);
+		_CHECK_COLOR_OPT('A', "block-color", cArtColor, l_setBlockColor = true);
+		_CHECK_COLOR_OPT('G', "glow-color", cGaussColor, l_setGlowColor = true);
+		_CHECK_COLOR_OPT('U', "link-color", cHyperlinkColor,);
 		case 'g':
-			l_renderer.SetEnableGaussShadow(false);
+			l_pngSettings.bGaussShadow = false;
 			break;
 		case 'u':
-			l_renderer.SetUnderlineHyperLinks(false);
+			l_pngSettings.bUnderlineHyperlinks = false;
 			break;
 		case 'L':
-			l_renderer.SetHilightHyperLinks(true);
+			l_pngSettings.bHilightHyperlinks = true;
 			break;
 		case 'W':
 			l_int = _tstoi(::optarg);
@@ -177,7 +180,7 @@ int main(int argc, char* argv[])
 				fprintf(stderr, "ERROR: Invalid or unsupported block-width.");
 				return 1;
 			}
-			l_renderer.SetBlockSize(l_int, l_renderer.GetBlockHeight());
+			l_pngSettings.uBlockWidth = l_int;
 			break;
 		case 'H':
 			l_int = _tstoi(::optarg);
@@ -186,7 +189,7 @@ int main(int argc, char* argv[])
 				fprintf(stderr, "ERROR: Invalid or unsupported block-height.");
 				return 1;
 			}
-			l_renderer.SetBlockSize(l_renderer.GetBlockWidth(), l_int);
+			l_pngSettings.uBlockHeight = l_int;
 			break;
 		case 'R':
 			l_int = _tstoi(::optarg);
@@ -195,23 +198,25 @@ int main(int argc, char* argv[])
 				fprintf(stderr, "ERROR: Invalid or unsupported glow-radius.");
 				return 1;
 			}
-			l_renderer.SetGaussBlurRadius(l_int);
+			l_pngSettings.uGaussBlurRadius = l_int;
+			break;
+		case 'P':
+			l_makePng = true; l_classic = false;
+			break;
+		case 'p':
+			l_makePng = l_classic = true;
+			break;
+		case 'f':
+			l_makePng = false; l_textUtf8 = true;
+			break;
+		case 't':
+			l_makePng = false; l_textUtf8 = false;
 			break;
 		case '?':
 		default:
 			fprintf(stderr, "Try --help.");
 			return 1;
 		}
-	}
-
-	if(!bSetBlockColor)
-	{
-		l_renderer.SetArtColor(l_renderer.GetTextColor());
-	}
-
-	if(!bSetGlowColor && l_renderer.GetEnableGaussShadow())
-	{
-		l_renderer.SetGaussColor(l_renderer.GetArtColor());
 	}
 
 	std::_tstring l_nfoFileName;
@@ -247,8 +252,6 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	l_renderer.AssignNFO(&l_nfoData);
-
 	// determine output file name if none has been given:
 	if(l_outFileName.empty())
 	{
@@ -260,50 +263,97 @@ int main(int argc, char* argv[])
 			l_outFileName.erase(l_nfoFileName.size() - 4);
 		}
 
-		l_outFileName += _T(".png");
+		if(l_makePng)
+		{
+			l_outFileName += _T(".png");
+		}
+		else if(l_textUtf8)
+		{
+			l_outFileName += _T("-utf8.nfo");
+		}
+		else
+		{
+			l_outFileName += _T("-utf16.nfo");
+		}
 	}
 
-	// render!
-	size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
-
-	if(!l_imgWidth || !l_imgHeight)
+	if(l_makePng)
 	{
-		fprintf(stderr, "ERROR: Unable to render an empty file.");
-		return 1;
-	}
+		// Renderer instance that we are going to use:
+		CNFORenderer l_renderer(l_classic);
 
-	cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight);
+		l_renderer.InjectSettings(l_pngSettings);
 
-	if(!l_surface)
-	{
-		fprintf(stderr, "ERROR: Unable to create an image surface (%u x %u)", l_imgWidth, l_imgHeight);
-		return 1;
-	}
+		if(!l_classic)
+		{
+			if(!l_setBlockColor)
+			{
+				l_renderer.SetArtColor(l_renderer.GetTextColor());
+			}
 
-	if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0,  l_imgWidth, l_imgHeight))
-	{
-		fprintf(stderr, "ERROR: Rendering failed.");
+			if(!l_setGlowColor && l_renderer.GetEnableGaussShadow())
+			{
+				l_renderer.SetGaussColor(l_renderer.GetArtColor());
+			}
+		}
+
+		l_renderer.AssignNFO(&l_nfoData);
+
+		// render!
+		size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
+
+		if(!l_imgWidth || !l_imgHeight)
+		{
+			fprintf(stderr, "ERROR: Unable to render an empty file.");
+			return 1;
+		}
+
+		cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight);
+
+		if(!l_surface)
+		{
+			fprintf(stderr, "ERROR: Unable to create an image surface (%u x %u)", l_imgWidth, l_imgHeight);
+			return 1;
+		}
+
+		if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0,  l_imgWidth, l_imgHeight))
+		{
+			fprintf(stderr, "ERROR: Rendering failed.");
+			cairo_surface_destroy(l_surface);
+			return 1;
+		}
+
+	#ifdef _UNICODE
+		const std::string l_utfOutFileName = CUtil::FromWideStr(l_outFileName, CP_UTF8);
+		if(cairo_surface_write_to_png(l_surface, l_utfOutFileName.c_str()) != CAIRO_STATUS_SUCCESS)
+	#else
+		if(!cairo_surface_write_to_png(l_surface, l_outFileName.c_str()) != CAIRO_STATUS_SUCCESS)
+	#endif
+		{
+			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+			cairo_surface_destroy(l_surface);
+			return 1;
+		}
+		else
+		{
+			_tprintf(_T("Rendered `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+		}
+
 		cairo_surface_destroy(l_surface);
-		return 1;
-	}
-
-#ifdef _UNICODE
-	const std::string l_utfOutFileName = CUtil::FromWideStr(l_outFileName, CP_UTF8);
-	if(cairo_surface_write_to_png(l_surface, l_utfOutFileName.c_str()) != CAIRO_STATUS_SUCCESS)
-#else
-	if(!cairo_surface_write_to_png(l_surface, l_outFileName.c_str()) != CAIRO_STATUS_SUCCESS)
-#endif
-	{
-		_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
-		cairo_surface_destroy(l_surface);
-		return 1;
 	}
 	else
 	{
-		_tprintf(_T("Rendered `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
-	}
+		// text export
 
-	cairo_surface_destroy(l_surface);
+		if(l_nfoData.SaveToFile(l_outFileName, l_textUtf8))
+		{
+			_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+		}
+		else
+		{
+			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+		}
+	}
 
 	return 0;
 }

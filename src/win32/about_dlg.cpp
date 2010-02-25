@@ -94,7 +94,14 @@ BOOL CAboutDialog::OnInitDialog()
 		_T("as published by the Free Software Foundation."), l_top, 60);
 	l_top += 65;
 
-	_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. \x2764"), l_top, 20);
+	if(CUtil::IsWin6x())
+	{
+		_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. \x2764"), l_top, 20);
+	}
+	else
+	{
+		_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. <3"), l_top, 20);
+	}
 
 	return TRUE;
 }
