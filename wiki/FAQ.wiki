@@ -1,0 +1,6 @@
+#summary Frequently Asked Questions
+#labels Featured,Phase-Support
+
+===I get an error message "Side-by-side configuration is incorrect" or "MSVCR90.DLL is missing" when trying to start the application. ===
+
+You need to download and install the [http://www.microsoft.com/downloads/details.aspx?familyid=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2&displaylang=en Microsoft Visual C++ 2008 SP1 Redistributable Package (x86)] from Microsoft 
