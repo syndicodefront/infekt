@@ -162,7 +162,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 		m_filePath = _T("");
 
-		// normalize new lines... blergh:
+		// normalize whitespace... blergh:
 		for(size_t p = 0; p < m_textContent.size(); p++)
 		{
 			if(m_textContent[p] == L'\r')
@@ -173,8 +173,12 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 				}
 				m_textContent[p] = L'\n';
 			}
+			else if(m_textContent[p] == L'\t')
+			{
+				m_textContent[p] = L' ';
+			}
 		}
-		// we should only have \ns now.
+		// we should only have \ns and no tabs now.
 
 		CUtil::StrTrimRight(m_textContent);
 		m_textContent += L'\n';
@@ -691,9 +695,9 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 	//bool l_prevWasNl = false;
 	for(size_t p = 0; p < a_text.size(); p++)
 	{
-		if(iswpunct(a_text[p]) || iswalnum(a_text[p]) || (iswspace(a_text[p]) && a_text[p] != L'\t'))
+		if(iswascii(a_text[p]) || iswalnum(a_text[p]) || iswspace(a_text[p]))
 		{
-			if(a_text[p] == L'\n') CUtil::StrTrimRight(l_tmpw, L" \t");
+			if(a_text[p] == L'\n') CUtil::StrTrimRight(l_tmpw, L" ");
 			l_tmpw += a_text[p];
 		}
 		else
