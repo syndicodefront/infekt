@@ -33,6 +33,9 @@ public:
 
 	static int VersionCompare(const std::_tstring& a_vA, const std::_tstring& a_vB);
 
+	static std::string RegExReplaceUtf8(const std::string& a_subject, const std::string& a_pattern,
+		const std::string& a_replacement);
+
 #ifdef _WIN32_UI
 	static int AddPngToImageList(HIMAGELIST a_imgList,
 		HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
@@ -147,6 +150,15 @@ public:
 	}
 };
 
+#endif
+
+
+#ifdef _WIN32
+# ifdef  _WIN64
+typedef __int64 ssize_t;
+# else
+typedef int ssize_t;
+# endif
 #endif
 
 

@@ -112,6 +112,60 @@ void CUtil::StrTrim(wstring& a_str, const wstring a_chars) { StrTrimLeft(a_str, 
 
 
 /************************************************************************/
+/* Reg Ex Utils                                                         */
+/************************************************************************/
+
+#define OVECTOR_SIZE 60
+string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern, const string& a_replacement)
+{
+	string l_result;
+
+	const char *szErrDescr;
+	int iErrOffset;
+	int ovector[OVECTOR_SIZE];
+
+	pcre* re;
+	pcre_extra *pe;
+
+	ssize_t l_prevEndPos = 0; // the index of the character that follows the last character of the previous match.
+
+	if((re = pcre_compile(a_pattern.c_str(), PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL)) != NULL)
+	{
+		pe = pcre_study(re, 0, &szErrDescr); // this could be NULL but it wouldn't matter.
+
+		while(l_prevEndPos < numeric_limits<int>::max())
+		{
+			int l_execResult = pcre_exec(re, pe, a_subject.c_str(), a_subject.size(), (int)l_prevEndPos, 0, ovector, OVECTOR_SIZE);
+
+			if(l_execResult == PCRE_ERROR_NOMATCH)
+			{
+				l_result += a_subject.substr(l_prevEndPos);
+				break;
+			}
+			else if(l_execResult < 1)
+			{
+				// ovector is too small (= 0) or some other internal error (< 0).
+				break;
+			}
+
+			_ASSERT(ovector[0] >= l_prevEndPos);
+
+			// append string between end of last match and the start of this one:
+			l_result += a_subject.substr(l_prevEndPos, ovector[0] - l_prevEndPos);
+
+			l_result += a_replacement;
+
+			// this is where we will start searching again:
+			l_prevEndPos = ovector[1];
+		}
+	}
+
+	return l_result;
+}
+#undef OVECTOR_SIZE
+
+
+/************************************************************************/
 /* Misc                                                                 */
 /************************************************************************/
 
@@ -286,7 +340,7 @@ _tstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTST
 	ofn.nMaxFile = 999;
 	ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
 
-	if(GetOpenFileName(&ofn))
+	if(::GetOpenFileName(&ofn))
 	{
 		return ofn.lpstrFile;
 	}
@@ -315,7 +369,7 @@ _tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTST
 	ofn.nMaxFile = 999;
 	ofn.Flags = OFN_ENABLESIZING | OFN_OVERWRITEPROMPT;
 
-	if(GetSaveFileName(&ofn))
+	if(::GetSaveFileName(&ofn))
 	{
 		return ofn.lpstrFile;
 	}
@@ -328,13 +382,13 @@ void CUtil::PopUpLastWin32Error()
 {
 	LPTSTR lpMsgBuf = NULL;
 	DWORD dwSize;
-	dwSize = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+	dwSize = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR)&lpMsgBuf, 0, NULL);
 
 	if(lpMsgBuf && dwSize)
 	{
-		MessageBox(0, lpMsgBuf, _T("Error"), MB_ICONSTOP);
+		::MessageBox(0, lpMsgBuf, _T("Error"), MB_ICONSTOP);
 		::LocalFree(lpMsgBuf);
 	}
 }
@@ -437,28 +491,28 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 
 bool CUtil::IsWin2000()
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 0);
 }
 
 bool CUtil::IsWinXP()
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1);
 }
 
 bool CUtil::IsWin5x()
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5);
 }
 
 bool CUtil::IsWin6x(bool a_orHigher)
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ms_osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO); GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 6 || (ms_osver.dwMajorVersion > 6 && a_orHigher));
 }
 
-OSVERSIONINFO CUtil::ms_osver = {0};
+OSVERSIONINFO CUtil::ms_osver = {sizeof(OSVERSIONINFO), 0};
 
 #endif
