@@ -6,6 +6,7 @@
   * Implemented font face setting
   * Fixed nasty Windows 2000 / Common Control 5 Combo Box bug
   * Fixed issue 7 and issue 13
+  * Fixed issue that "forgot" the last line of files
   * Made an optional installer
 
 == v0.1.6 (24 Feb 2010) ===
