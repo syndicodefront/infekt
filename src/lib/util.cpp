@@ -116,9 +116,15 @@ void CUtil::StrTrim(wstring& a_str, const wstring a_chars) { StrTrimLeft(a_str, 
 /************************************************************************/
 
 #define OVECTOR_SIZE 60
-string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern, const string& a_replacement)
+string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern, const string& a_replacement,
+	int a_flags)
 {
 	string l_result;
+
+	if(a_subject.size() > (int64_t)std::numeric_limits<int>::max())
+	{
+		return "";
+	}
 
 	const char *szErrDescr;
 	int iErrOffset;
@@ -127,15 +133,15 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 	pcre* re;
 	pcre_extra *pe;
 
-	ssize_t l_prevEndPos = 0; // the index of the character that follows the last character of the previous match.
-
-	if((re = pcre_compile(a_pattern.c_str(), PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL)) != NULL)
+	if((re = pcre_compile(a_pattern.c_str(), PCRE_UTF8 | PCRE_NEWLINE_ANYCRLF | a_flags, &szErrDescr, &iErrOffset, NULL)) != NULL)
 	{
+		int l_prevEndPos = 0; // the index of the character that follows the last character of the previous match.
+
 		pe = pcre_study(re, 0, &szErrDescr); // this could be NULL but it wouldn't matter.
 
-		while(l_prevEndPos < numeric_limits<int>::max())
+		while(1)
 		{
-			int l_execResult = pcre_exec(re, pe, a_subject.c_str(), a_subject.size(), (int)l_prevEndPos, 0, ovector, OVECTOR_SIZE);
+			int l_execResult = pcre_exec(re, pe, a_subject.c_str(), (int)a_subject.size(), l_prevEndPos, 0, ovector, OVECTOR_SIZE);
 
 			if(l_execResult == PCRE_ERROR_NOMATCH)
 			{
@@ -153,11 +159,50 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 			// append string between end of last match and the start of this one:
 			l_result += a_subject.substr(l_prevEndPos, ovector[0] - l_prevEndPos);
 
-			l_result += a_replacement;
+			if(!a_replacement.empty())
+			{
+				// insert back references of form $1 $2 $3 ...
+				string l_replacement;
+				string::size_type l_pos = a_replacement.find('$'), l_prevPos = 0;
+
+				while(l_pos != string::npos)
+				{
+					l_replacement += a_replacement.substr(l_prevPos, l_pos - l_prevPos);
+
+					string l_numBuf;
+					while(l_pos + 1 < a_replacement.size() &&
+						(a_replacement[l_pos + 1] >= '0' && a_replacement[l_pos + 1] <= '9'))
+					{
+						l_pos++;
+						l_numBuf += a_replacement[l_pos];
+					}
+					// maybe make "$14" insert $1 + "4" here if there is no $14.
+
+					int l_group = atoi(l_numBuf.c_str());
+					if(l_group >= 0 && l_group <= l_execResult)
+					{
+						int l_len = ovector[l_group * 2 + 1] - ovector[l_group * 2];
+						l_replacement.append(a_subject, ovector[l_group * 2], l_len);
+					}
+
+					l_prevPos = l_pos + 1;
+					l_pos = a_replacement.find('$', l_prevPos);
+				}
+
+				if(l_prevPos < a_replacement.size() - 1)
+				{
+					l_replacement += a_replacement.substr(l_prevPos);
+				}
+
+				l_result += l_replacement;
+			}
 
 			// this is where we will start searching again:
 			l_prevEndPos = ovector[1];
 		}
+
+		if(pe) pcre_free(pe);
+		pcre_free(re);
 	}
 
 	return l_result;

@@ -588,7 +588,7 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 				if(!IsTextChar(row, col, true))
 				{
 					if(!l_dryRun && l_textStarted) l_text += L' ';
-					continue;
+						continue;
 				}
 
 				if(l_dryRun)

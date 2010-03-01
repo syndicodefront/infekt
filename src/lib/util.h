@@ -34,7 +34,7 @@ public:
 	static int VersionCompare(const std::_tstring& a_vA, const std::_tstring& a_vB);
 
 	static std::string RegExReplaceUtf8(const std::string& a_subject, const std::string& a_pattern,
-		const std::string& a_replacement);
+		const std::string& a_replacement, int a_flags = 0);
 
 #ifdef _WIN32_UI
 	static int AddPngToImageList(HIMAGELIST a_imgList,
@@ -150,15 +150,6 @@ public:
 	}
 };
 
-#endif
-
-
-#ifdef _WIN32
-# ifdef  _WIN64
-typedef __int64 ssize_t;
-# else
-typedef int ssize_t;
-# endif
 #endif
 
 

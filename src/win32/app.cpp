@@ -26,12 +26,6 @@ using namespace std;
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszCommandLine, int nShowCmd)
 {
-	std::string lol = CUtil::RegExReplaceUtf8(" hi du schwein! ", "\\s+", ".LOL.");
-
-	MessageBoxA(0, lol.c_str(), "sfds", 0);
-
-	exit(0);
-
 	g_hInstance = hInstance;
 
 	_wsetlocale(LC_CTYPE, L"C");
