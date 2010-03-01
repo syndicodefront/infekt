@@ -173,7 +173,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 				}
 				m_textContent[p] = L'\n';
 			}
-			else if(m_textContent[p] == L'\t')
+			else if(m_textContent[p] == L'\t' || m_textContent[p] == 0xA0)
 			{
 				m_textContent[p] = L' ';
 			}
@@ -206,6 +206,13 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 			l_prevPos = l_pos + 1;
 			l_pos = m_textContent.find(L'\n', l_prevPos);
+		}
+
+		if(l_prevPos < m_textContent.size() - 1)
+		{
+			wstring l_line = m_textContent.substr(l_prevPos);
+			CUtil::StrTrimRight(l_line);
+			l_lines.push_back(l_line);
 		}
 
 		// :TODO: interpret ANSI escape codes.
@@ -686,6 +693,51 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 /* Raw Stripper Code                                                    */
 /************************************************************************/
 
+static string _TrimParagraph(const string& a_text)
+{
+	vector<string> l_lines;
+
+	string::size_type l_pos = a_text.find('\n'), l_prevPos = 0;
+	string::size_type l_minWhite = numeric_limits<string::size_type>::max();
+
+	while(l_pos != string::npos)
+	{
+		const string l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
+
+		l_lines.push_back(l_line);
+
+		l_prevPos = l_pos + 1;
+		l_pos = a_text.find('\n', l_prevPos);
+	}
+
+	if(l_prevPos < a_text.size() - 1)
+	{
+		l_lines.push_back(a_text.substr(l_prevPos));
+	}
+
+	for(vector<string>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
+	{
+		string::size_type p = 0;
+		while(p < (*it).size() && (*it)[p] == ' ') p++;
+
+		if(p < l_minWhite)
+		{
+			l_minWhite = p;
+		}
+	}
+
+	string l_result;
+	l_result.reserve(a_text.size());
+
+	for(vector<string>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
+	{
+		l_result += (*it).substr(l_minWhite);
+		l_result += '\n';
+	}
+
+	return l_result;
+}
+
 string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 {
 	string l_text;
@@ -715,11 +767,46 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 			p += 2;
 			while(l_tmpw[p] == L'\n') l_tmpw.erase(p, 1);
 		}
-	}
+	}	
 
 	l_text = CUtil::FromWideStr(l_tmpw, CP_UTF8);
 
-	// :TODO: 
+	l_text = CUtil::RegExReplaceUtf8(l_text, "^[^a-zA-Z0-9]+$", "",
+		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+
+	l_text = CUtil::RegExReplaceUtf8(l_text, "^(.)\\1+$", "",
+		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+
+	l_text = CUtil::RegExReplaceUtf8(l_text, "^([\\S])\\1+\\s{3,}(.+?)$", "$2",
+		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+
+	l_text = CUtil::RegExReplaceUtf8(l_text, "^(.+?)\\s{3,}([\\S])\\2*$", "$1",
+		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+
+	l_text = CUtil::RegExReplaceUtf8(l_text, "\\n{2,}", "\n\n", PCRE_NO_UTF8_CHECK);
+
+	CUtil::StrTrimLeft(l_text, "\n");
+
+	// adjust indentation for each paragraph:
+	if(true)
+	{
+		string l_newText;
+
+		string::size_type l_pos = l_text.find("\n\n"), l_prevPos = 0;
+
+		while(l_pos != string::npos)
+		{
+			const string l_paragraph = l_text.substr(l_prevPos, l_pos - l_prevPos);
+			const string l_newPara = _TrimParagraph(l_paragraph);
+
+			l_newText += l_newPara + "\n\n";
+
+			l_prevPos = l_pos + 2;
+			l_pos = l_text.find("\n\n", l_prevPos);
+		}
+
+		l_text = l_newText;
+	}
 
 	return l_text;
 }
