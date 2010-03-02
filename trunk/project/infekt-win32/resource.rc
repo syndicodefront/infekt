@@ -124,9 +124,9 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        MENUITEM "Rendered",                    IDM_VIEW_RENDERED
-        MENUITEM "Classic",                     IDM_VIEW_CLASSIC
-        MENUITEM "Text Only",                   IDM_VIEW_TEXTONLY
+        MENUITEM "Rendered\tF2",                IDM_VIEW_RENDERED
+        MENUITEM "Classic\tF3",                 IDM_VIEW_CLASSIC
+        MENUITEM "Text Only\tF4",               IDM_VIEW_TEXTONLY
         MENUITEM SEPARATOR
         MENUITEM "Always on Top\tCtrl+T",       IDM_ALWAYSONTOP
     END
@@ -260,10 +260,13 @@ BEGIN
     "P",            IDM_EXPORT_PNG,         VIRTKEY, CONTROL, NOINVERT
     "S",            IDM_EXPORT_UTF8,        VIRTKEY, CONTROL, NOINVERT
     "O",            IDM_FILE_OPEN,          VIRTKEY, CONTROL, NOINVERT
+    VK_F12,         IDM_HIDDENGIMMICK,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
     "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
     "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
-    VK_F12,         IDM_HIDDENGIMMICK,      VIRTKEY, NOINVERT
+    VK_F2,          IDM_VIEW_RENDERED,      VIRTKEY, NOINVERT
+    VK_F3,          IDM_VIEW_CLASSIC,       VIRTKEY, NOINVERT
+    VK_F4,          IDM_VIEW_TEXTONLY,      VIRTKEY, NOINVERT
 END
 
 

@@ -179,7 +179,7 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 					// maybe make "$14" insert $1 + "4" here if there is no $14.
 
 					int l_group = atoi(l_numBuf.c_str());
-					if(l_group >= 0 && l_group <= l_execResult)
+					if(l_group >= 0 && l_group < l_execResult)
 					{
 						int l_len = ovector[l_group * 2 + 1] - ovector[l_group * 2];
 						l_replacement.append(a_subject, ovector[l_group * 2], l_len);
@@ -203,6 +203,10 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 
 		if(pe) pcre_free(pe);
 		pcre_free(re);
+	}
+	else
+	{
+		_ASSERT(false);
 	}
 
 	return l_result;
@@ -536,25 +540,25 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 
 bool CUtil::IsWin2000()
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 0);
 }
 
 bool CUtil::IsWinXP()
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1);
 }
 
 bool CUtil::IsWin5x()
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5);
 }
 
 bool CUtil::IsWin6x(bool a_orHigher)
 {
-	if(!ms_osver.dwOSVersionInfoSize) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
 	return (ms_osver.dwMajorVersion == 6 || (ms_osver.dwMajorVersion > 6 && a_orHigher));
 }
 

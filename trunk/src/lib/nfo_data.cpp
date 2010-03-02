@@ -127,6 +127,188 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 }
 
 
+static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
+{
+	for(size_t p = 0; p < a_text.size(); p++)
+	{
+		if(a_text[p] == L'\r')
+		{
+			if(p < a_text.size() - 1 && a_text[p + 1] == '\n')
+			{
+				a_text.erase(p, 1);
+			}
+			a_text[p] = L'\n';
+		}
+		else if(a_text[p] == L'\t' || a_text[p] == 0xA0)
+		{
+			a_text[p] = L' ';
+		}
+	}
+	// we should only have \ns and no tabs now.
+
+	CUtil::StrTrimRight(a_text);
+	a_text += L'\n';
+}
+
+
+static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLineLen, deque<const wstring>& a_lines)
+{
+	size_t l_prevPos = 0, l_pos = a_text.find(L'\n');
+
+	a_maxLineLen = 1;
+
+	// read lines:
+	while(l_pos != wstring::npos)
+	{
+		wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
+
+		// trim trailing whitespace:
+		CUtil::StrTrimRight(l_line);
+
+		a_lines.push_back(l_line);
+
+		if(l_line.length() > a_maxLineLen)
+		{
+			a_maxLineLen = l_line.length();
+		}
+
+		l_prevPos = l_pos + 1;
+		l_pos = a_text.find(L'\n', l_prevPos);
+	}
+
+	if(l_prevPos < a_text.size() - 1)
+	{
+		wstring l_line = a_text.substr(l_prevPos);
+		CUtil::StrTrimRight(l_line);
+		a_lines.push_back(l_line);
+	}
+}
+
+
+static void _InternalLoad_FixLfLf(wstring& a_text, deque<const wstring>& a_lines)
+{
+	// fix NFOs like Crime.is.King.German.SUB5.5.DVDRiP.DivX-GWL
+	// they use \n\n instead of \r\n
+
+	int l_evenEmpty = 0, l_oddEmpty = 0;
+
+	size_t i = 0;
+	for(deque<const wstring>::const_iterator it = a_lines.begin();
+		it != a_lines.end(); it++, i++)
+	{
+		if(it->empty())
+		{
+			if(i % 2) ++l_oddEmpty; else ++l_evenEmpty;
+		}
+	}
+
+	int l_kill = -1;
+	if(l_evenEmpty <= 0.1 * a_lines.size() && l_oddEmpty > 0.4 * a_lines.size() && l_oddEmpty < 0.6 * a_lines.size())
+	{
+		l_kill = 1;
+	}
+	else if(l_oddEmpty <= 0.1 * a_lines.size() && l_evenEmpty > 0.4 * a_lines.size() && l_evenEmpty < 0.6 * a_lines.size())
+	{
+		l_kill = 0;
+	}
+
+	if(l_kill >= 0)
+	{
+		wstring l_newContent; l_newContent.reserve(a_text.size());
+		deque<const wstring> l_newLines;
+		i = 0;
+		for(deque<const wstring>::const_iterator it = a_lines.begin();
+			it != a_lines.end(); it++, i++)
+		{
+			if(!it->empty() || i % 2 != l_kill)
+			{
+				l_newLines.push_back(*it);
+				l_newContent += *it;
+				l_newContent += L'\n';
+			}
+		}
+		a_lines = l_newLines;
+		a_text = l_newContent;
+	}
+}
+
+
+static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
+{
+	// http://en.wikipedia.org/wiki/ANSI_escape_code
+	// ~(?:\x1B\[|\x9B)((?:\d+;)*\d+|)([\@-\~])~
+
+	wstring::size_type l_pos = a_text.find_first_of(L"\xA2\x2190"), l_prevPos = 0;
+	wstring l_newText;
+
+	while(l_pos != wstring::npos)
+	{
+		bool l_go = false;
+
+		l_newText += a_text.substr(l_prevPos, l_pos - l_prevPos);
+
+		if(a_text[l_pos] == 0xA2)
+			l_go = true; // single byte CIS
+		else if(a_text[l_pos] == 0x2190 && l_pos + 1 < a_text.size() && a_text[l_pos + 1] == L'[')
+		{
+			l_go = true;
+			++l_pos;
+		}
+
+		if(l_go)
+		{
+			wstring::size_type p = l_pos + 1;
+			wstring l_numBuf;
+			wchar_t l_finalChar = 0;
+
+			while(p < a_text.size() && ((a_text[p] >= L'0' && a_text[p] <= L'9') || a_text[p] == L';'))
+			{
+				l_numBuf += a_text[p];
+				++p;
+			}
+
+			if(p < a_text.size()) { l_finalChar = a_text[p]; }
+
+			if(!l_numBuf.empty() && l_finalChar > 0)
+			{
+				// we only honor the first number:
+				wstring::size_type l_end = l_numBuf.find(L';');
+				if(l_end != wstring::npos) l_numBuf.erase(l_end);
+
+				int l_number = _wtoi(l_numBuf.c_str());
+
+				switch(l_finalChar)
+				{
+				case L'C': // Cursor Forward
+					if(l_number < 1) l_number = 1;
+					else if(l_number > 1024) l_number = 1024;
+
+					for(int i = 0; i < l_number; i++) l_newText += L' ';
+					break;
+				}
+
+				l_pos = p;
+			}
+		}
+		else
+			l_newText += a_text[l_pos];
+
+		l_prevPos = l_pos + 1;
+		l_pos = a_text.find_first_of(L"\xA2\x2190", l_prevPos);
+	}
+
+	if(l_prevPos > 0)
+	{
+		if(l_prevPos < a_text.size() - 1)
+		{
+			l_newText += a_text.substr(l_prevPos);
+		}
+
+		a_text = l_newText;
+	}
+}
+
+
 bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen)
 {
 	bool l_loaded = false;
@@ -142,7 +324,6 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen);
 		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
 		break;
-
 	case NFOC_UTF16:
 		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
@@ -160,62 +341,15 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 	if(l_loaded)
 	{
-		m_filePath = _T("");
-
-		// normalize whitespace... blergh:
-		for(size_t p = 0; p < m_textContent.size(); p++)
-		{
-			if(m_textContent[p] == L'\r')
-			{
-				if(p < m_textContent.size() - 1 && m_textContent[p + 1] == '\n')
-				{
-					m_textContent.erase(p, 1);
-				}
-				m_textContent[p] = L'\n';
-			}
-			else if(m_textContent[p] == L'\t' || m_textContent[p] == 0xA0)
-			{
-				m_textContent[p] = L' ';
-			}
-		}
-		// we should only have \ns and no tabs now.
-
-		CUtil::StrTrimRight(m_textContent);
-		m_textContent += L'\n';
-
-		// split raw contents into grid buffer.
-
-		size_t l_maxLineLen = 1;
-		size_t l_prevPos = 0, l_pos = m_textContent.find(L'\n');
+		size_t l_maxLineLen;
 		deque<const wstring> l_lines;
 
-		// read lines:
-		while(l_pos != wstring::npos)
-		{
-			wstring l_line = m_textContent.substr(l_prevPos, l_pos - l_prevPos);
+		m_filePath = _T("");
 
-			// trim trailing whitespace:
-			CUtil::StrTrimRight(l_line);
-
-			l_lines.push_back(l_line);
-
-			if(l_line.length() > l_maxLineLen)
-			{
-				l_maxLineLen = l_line.length();
-			}
-
-			l_prevPos = l_pos + 1;
-			l_pos = m_textContent.find(L'\n', l_prevPos);
-		}
-
-		if(l_prevPos < m_textContent.size() - 1)
-		{
-			wstring l_line = m_textContent.substr(l_prevPos);
-			CUtil::StrTrimRight(l_line);
-			l_lines.push_back(l_line);
-		}
-
-		// :TODO: interpret ANSI escape codes.
+		_InternalLoad_NormalizeWhitespace(m_textContent);
+		_InternalLoad_FixAnsiEscapeCodes(m_textContent);
+		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
+		_InternalLoad_FixLfLf(m_textContent, l_lines);
 
 		// copy lines to grid(s):
 		delete m_grid; m_grid = NULL;
@@ -780,14 +914,25 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 	l_text = CUtil::RegExReplaceUtf8(l_text, "^([\\S])\\1+\\s{3,}(.+?)$", "$2",
 		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf8(l_text, "^(.+?)\\s{3,}([\\S])\\2*$", "$1",
+	l_text = CUtil::RegExReplaceUtf8(l_text, "^(.+?)\\s{3,}([\\S])\\2+$", "$1",
+		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+
+#if 0
+	// this ruins our efforts to keep indention for paragraphs :(
+	// ...but it makes other NFOs look A LOT better...
+	// :TODO: figure out a smart way.
+	l_text = CUtil::RegExReplaceUtf8(l_text, "^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+", "",
+		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+#endif
+
+	l_text = CUtil::RegExReplaceUtf8(l_text, "\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$", "",
 		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
 
 	l_text = CUtil::RegExReplaceUtf8(l_text, "\\n{2,}", "\n\n", PCRE_NO_UTF8_CHECK);
 
 	CUtil::StrTrimLeft(l_text, "\n");
 
-	// adjust indentation for each paragraph:
+	// adjust indention for each paragraph:
 	if(true)
 	{
 		string l_newText;
