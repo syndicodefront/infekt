@@ -362,7 +362,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 /* Utilities for RenderText and RenderClassic                           */
 /************************************************************************/
 
-static inline void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd)
+void CNFORenderer::_FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd)
 {
 	if(a_rowStart != (size_t)-1)
 	{

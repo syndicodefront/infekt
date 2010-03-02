@@ -569,21 +569,22 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 	size_t l_leftStart = std::numeric_limits<size_t>::max();
 	int l_dryRun = 1;
 
+	size_t l_rowStart = m_selStartRow, l_colStart = m_selStartCol,
+		l_rowEnd = m_selEndRow, l_colEnd = m_selEndCol;
+	_FixUpRowColStartEnd(l_rowStart, l_colStart, l_rowEnd, l_colEnd);
+
 	do
 	{
-		for(size_t row = m_selStartRow; row <= m_selEndRow; row++)
+		for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 		{
 			bool l_textStarted = false;
 
 			for(size_t col = 0; col < m_gridData->GetCols(); col++)
 			{
-				if(m_selStartRow != (size_t)-1)
-				{
-					if(row == m_selStartRow && col < m_selStartCol)
-						continue;
-					else if(row == m_selEndRow && col > m_selEndCol)
-						break;
-				}
+				if(row == l_rowStart && col < l_colStart)
+					continue;
+				else if(row == l_rowEnd && col > l_colEnd)
+					break;
 
 				if(!IsTextChar(row, col, true))
 				{
@@ -603,7 +604,11 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 							l_text += L' ';
 					}
 
-					l_text += m_nfo->GetGridChar(row, col);
+					wchar_t x = m_nfo->GetGridChar(row, col);
+					if(x)
+						l_text += x;
+					else
+						break; // reached end of this line
 				}
 
 				l_textStarted = true;
@@ -614,7 +619,7 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 				// do not erase newlines/linebreaks here:
 				CUtil::StrTrimRight(l_text, L" ");
 
-				if(row != m_selEndRow)
+				if(row != l_rowEnd)
 					l_text += L"\r\n"; // SetClipboardContent with CF_UNICODETEXT wants \r\n instead of \n...
 			}
 		}

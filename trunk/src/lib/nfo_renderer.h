@@ -139,6 +139,7 @@ protected:
 
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
 	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);
+	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);
 
 	static const size_t ms_defaultClassicFontSize = 12;
 public:
