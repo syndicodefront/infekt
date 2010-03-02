@@ -4,9 +4,12 @@
 == v0.2 (???) ==
   * Implemented font size (Classic + Text-Only View) setting
   * Implemented font face setting
-  * Fixed nasty Windows 2000 / Common Control 5 Combo Box bug
+  * Implemented "Show Menubar on Startup" setting
+  * Added support for NFOs with ANSI Escape Codes
+  * Added support for broken NFOs with \n\n newlines
   * Fixed issue 7 and issue 13
   * Fixed issue that "forgot" the last line of files
+  * Fixed nasty Windows 2000 / Common Control 5 Combo Box bug
   * Made an optional installer
 
 == v0.1.6 (24 Feb 2010) ===
