@@ -5,6 +5,7 @@
   * Implemented font size (Classic + Text-Only View) setting
   * Implemented font face setting
   * Implemented "Show Menubar on Startup" setting
+  * Implemented "Copy on Select" setting + functionality
   * Added support for NFOs with ANSI Escape Codes
   * Added support for broken NFOs with \n\n newlines
   * Narrow NFOs in wide windows are centered
