@@ -44,6 +44,12 @@ public:
 	void SwitchView(EMainView a_view);
 	EMainView GetViewType() { return m_curViewType; }
 
+	void SetCopyOnSelect(bool nb) {
+		m_renderControl->SetCopyOnSelect(nb);
+		m_classicControl->SetCopyOnSelect(nb);
+		m_textOnlyControl->SetCopyOnSelect(nb);
+	}
+
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
