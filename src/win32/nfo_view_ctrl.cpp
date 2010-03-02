@@ -29,6 +29,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 	m_left = m_top = m_width = m_height = 0;
 	m_hwnd = 0;
 	m_cursor = IDC_ARROW;
+	m_centerNfo = true;
 
 	m_contextMenuHandle = NULL;
 	m_contextMenuCommandTarget = NULL;
@@ -219,8 +220,12 @@ void CNFOViewControl::OnPaint()
 		cairo_destroy(l_cr);
 	}
 
+	int l_destx = 0;
+	if(m_centerNfo && m_width > (int)GetWidth())
+		l_destx = (m_width - GetWidth()) / 2;
+
 	// draw draw draw fight the powa!
-	DrawToSurface(l_surface, 0, 0, l_x * GetBlockWidth(), l_y * GetBlockHeight(), m_width + m_padding, m_height + m_padding);
+	DrawToSurface(l_surface, l_destx, 0, l_x * GetBlockWidth(), l_y * GetBlockHeight(), m_width + m_padding, m_height + m_padding);
 
 	// draw highlighted (selected) text:
 	if(m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1)
