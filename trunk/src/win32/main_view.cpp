@@ -17,6 +17,7 @@ void CViewContainer::OnCreate()
 	m_renderControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd()));
 	m_classicControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd(), true));
 	m_textOnlyControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd(), true));
+	m_textOnlyControl->SetCenterNfo(false);
 
 	// this context menu will be used for all three view controls.
 	m_contextMenuHandle = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
@@ -182,7 +183,18 @@ void CViewContainer::SwitchView(EMainView a_view)
 	m_classicControl->Show(a_view == MAIN_VIEW_CLASSIC);
 	m_textOnlyControl->Show(a_view == MAIN_VIEW_TEXTONLY);
 
+#if 0
+	// we have three controls so we can't reset this here, or
+	// 1. load NFO
+	// 2. switch to 3rd view
+	// 3. switch to 2nd view
+	// 4. switch to first view
+	// 5. resize window
+	// 6. switch to 2nd view
+	// 7. switch to 3rd view
+	// would cause a wrong control size of the 3rd view control.
 	m_resized = false;
+#endif
 
 	SendMessage(WM_SETREDRAW, 1);
 	::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);

@@ -26,6 +26,7 @@ protected:
 	int m_left, m_top;
 	int m_width, m_height;
 	HWND m_hwnd;
+	bool m_centerNfo;
 
 	LPTSTR m_cursor;
 	size_t m_selStartRow, m_selStartCol;
@@ -61,6 +62,7 @@ public:
 	void SelectAll();
 	void Show(bool a_show = true);
 	bool ControlCreated() const { return (m_hwnd != 0); }
+	void SetCenterNfo(bool nb) { m_centerNfo = nb; }
 
 	virtual void InjectSettings(const CNFORenderSettings& ns);
 };
