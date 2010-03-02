@@ -236,13 +236,13 @@ void CNFOViewControl::OnPaint()
 		{
 			RenderText(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(),
 				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
-				l_surface, -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
+				l_surface, l_destx + -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
 		}
 		else
 		{
 			RenderClassic(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(), true,
 				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
-				l_surface, -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
+				l_surface, l_destx + -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
 		}
 	}
 
@@ -381,6 +381,8 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 			{
 				m_selEndRow = l_row;
 				m_selEndCol = l_col;
+
+				Beep(300, 100);
 			}
 			else
 			{
@@ -467,9 +469,13 @@ void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size
 		int l_x, l_y;
 		GetScrollPositions(l_x, l_y);
 
+		int l_centerx = 0;
+		if(m_centerNfo && m_width > (int)GetWidth())
+			l_centerx = (m_width - GetWidth()) / 2;
+
 		// calc real positions:
 		ar_row = l_y + ((a_y - m_padding) / GetBlockHeight());
-		ar_col = l_x + ((a_x - m_padding) / GetBlockWidth());
+		ar_col = l_x + ((a_x - m_padding - l_centerx) / GetBlockWidth());
 	}
 	else
 	{
