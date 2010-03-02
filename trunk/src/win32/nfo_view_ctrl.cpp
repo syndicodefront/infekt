@@ -30,6 +30,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 	m_hwnd = 0;
 	m_cursor = IDC_ARROW;
 	m_centerNfo = true;
+	m_copyOnSelect = false;
 
 	m_contextMenuHandle = NULL;
 	m_contextMenuCommandTarget = NULL;
@@ -377,18 +378,29 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 	{
 		if(m_leftMouseDown)
 		{
+			bool l_reset = true;
+
 			if(m_movedDownMouse)
 			{
 				m_selEndRow = l_row;
 				m_selEndCol = l_col;
 
-				Beep(300, 100);
+				if(m_copyOnSelect)
+				{
+					CopySelectedTextToClipboard();
+				}
+				else
+				{
+					l_reset = false;
+				}
 			}
-			else
+
+			if(l_reset)
 			{
 				m_selStartRow = m_selEndRow = (size_t)-1;
 				m_selStartCol = m_selEndCol = (size_t)-1;
 			}
+
 			m_leftMouseDown = false;
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}

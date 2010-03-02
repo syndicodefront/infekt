@@ -21,6 +21,7 @@
 #define IDC_CLR_BACK                    1008
 #define IDC_ALWAYSONTOP                 1008
 #define IDC_CHECK3                      1009
+#define IDC_COPY_ON_SELECT              1009
 #define IDC_CHECK4                      1010
 #define IDC_MENUBAR_ON_STARTUP          1010
 #define IDC_CLR_ART                     1011

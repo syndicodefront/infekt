@@ -283,6 +283,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, m_mainWin->GetSettings()->bAlwaysOnTop);
 		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, m_mainWin->GetSettings()->bAlwaysShowMenubar);
+		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, m_mainWin->GetSettings()->bCopyOnSelect);
 	}
 
 	return TRUE;
@@ -785,6 +786,9 @@ bool CSettingsTabDialog::SaveSettings()
 		bool l_oldAsm = l_set->bAlwaysShowMenubar;
 		l_set->bAlwaysShowMenubar = (::IsDlgButtonChecked(GetHwnd(), IDC_MENUBAR_ON_STARTUP) != FALSE);
 		if(l_set->bAlwaysShowMenubar != l_oldAsm) m_mainWin->ShowMenuBar(l_set->bAlwaysShowMenubar);
+
+		l_set->bCopyOnSelect = (::IsDlgButtonChecked(GetHwnd(), IDC_COPY_ON_SELECT) != FALSE);
+		dynamic_cast<CViewContainer*>(m_mainWin->GetView())->SetCopyOnSelect(l_set->bCopyOnSelect);
 
 		return l_set->SaveToRegistry();
 	}
