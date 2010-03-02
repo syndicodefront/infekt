@@ -117,9 +117,7 @@ void CMainFrame::SetupToolbar()
 	GetRebar().ShowGripper(GetRebar().IDToIndex(IDW_TOOLBAR), TRUE);
 	GetRebar().ShowGripper(GetRebar().IDToIndex(IDW_MENUBAR), TRUE);
 
-	// hide menubar by default:
-	GetRebar().ShowBand(0, FALSE);
-	m_menuBarVisible = false;
+	ShowMenuBar(m_settings->bAlwaysShowMenubar);
 
 	AddToolbarButtons();
 }
@@ -176,6 +174,13 @@ void CMainFrame::AddToolbarButtons()
 	SIZE l_updatedSize = GetToolbar().GetMaxSize();
 	::SendMessage(GetToolbar().GetParent(), UWM_TOOLBAR_RESIZE,
 		(WPARAM)GetToolbar().GetHwnd(), (LPARAM)&l_updatedSize);
+}
+
+
+void CMainFrame::ShowMenuBar(bool a_show)
+{
+	GetRebar().ShowBand(GetRebar().IDToIndex(IDW_MENUBAR), (a_show ? TRUE : FALSE));
+	m_menuBarVisible = a_show;
 }
 
 
@@ -323,8 +328,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	case WM_SYSKEYUP:
 		if(pMsg->wParam == VK_MENU || pMsg->wParam == VK_F10)
 		{
-			GetRebar().ShowBand(GetRebar().IDToIndex(IDW_MENUBAR), (m_menuBarVisible ? FALSE : TRUE));
-			m_menuBarVisible = !m_menuBarVisible;
+			ShowMenuBar(!m_menuBarVisible);
 
 			/*if(m_menuBarVisible)
 			{

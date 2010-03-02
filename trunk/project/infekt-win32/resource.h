@@ -22,6 +22,7 @@
 #define IDC_ALWAYSONTOP                 1008
 #define IDC_CHECK3                      1009
 #define IDC_CHECK4                      1010
+#define IDC_MENUBAR_ON_STARTUP          1010
 #define IDC_CLR_ART                     1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013

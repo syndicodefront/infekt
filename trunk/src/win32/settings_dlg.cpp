@@ -282,6 +282,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		FixCommCtrls5ComboBug(l_hCb);
 
 		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, m_mainWin->GetSettings()->bAlwaysOnTop);
+		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, m_mainWin->GetSettings()->bAlwaysShowMenubar);
 	}
 
 	return TRUE;
@@ -780,6 +781,10 @@ bool CSettingsTabDialog::SaveSettings()
 		bool l_oldAot = l_set->bAlwaysOnTop;
 		l_set->bAlwaysOnTop = (::IsDlgButtonChecked(GetHwnd(), IDC_ALWAYSONTOP) != FALSE);
 		if(l_set->bAlwaysOnTop != l_oldAot) m_mainWin->UpdateAlwaysOnTop();
+
+		bool l_oldAsm = l_set->bAlwaysShowMenubar;
+		l_set->bAlwaysShowMenubar = (::IsDlgButtonChecked(GetHwnd(), IDC_MENUBAR_ON_STARTUP) != FALSE);
+		if(l_set->bAlwaysShowMenubar != l_oldAsm) m_mainWin->ShowMenuBar(l_set->bAlwaysShowMenubar);
 
 		return l_set->SaveToRegistry();
 	}

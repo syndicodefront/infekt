@@ -51,6 +51,7 @@ public:
 
 	void SwitchView(EMainView a_view);
 	void UpdateAlwaysOnTop();
+	void ShowMenuBar(bool a_show = true);
 	PMainSettings GetSettings() { return m_settings; }
 
 	static const std::_tstring InfektVersionAsString();
