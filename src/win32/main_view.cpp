@@ -168,7 +168,9 @@ void CViewContainer::SwitchView(EMainView a_view)
 
 	if(m_nfoData && !m_curViewCtrl->HasNfoData())
 	{
+		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 		CurAssignNfo();
+		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 	}
 
 	if(m_resized)

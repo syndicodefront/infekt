@@ -164,8 +164,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_SETCURSOR:
-		OnSetCursor();
-		return TRUE;
+		return OnSetCursor(LOWORD(lParam));;
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_LBUTTONDBLCLK:
@@ -326,9 +325,20 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 }
 
 
-void CNFOViewControl::OnSetCursor()
+BOOL CNFOViewControl::OnSetCursor(int a_hitTestCode)
 {
-	::SetCursor(::LoadCursor(NULL, m_cursor));
+	switch(a_hitTestCode)
+	{
+	case HTCLIENT:
+		::SetCursor(::LoadCursor(NULL, m_cursor));
+		return TRUE;
+	case HTVSCROLL:
+	case HTHSCROLL:
+		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		return TRUE;
+	default:
+		return FALSE;
+	}
 }
 
 

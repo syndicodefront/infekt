@@ -759,8 +759,8 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 	// get the rest of the link:
 	const string sLineRemainder = sLine.substr(uBytePos);
 
-	pcre* reUrlRemainder = pcre_compile("^[a-z0-9,/._!:%;?&=+-]{9,}",
-		PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+	pcre* reUrlRemainder = pcre_compile("^[a-zA-Z0-9,/._!#:%;?&=+-]{9,}",
+		PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
 
 	if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
 	{
@@ -776,6 +776,12 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 		urLinkLen = g_utf8_strlen(sWorkUrl.c_str(), -1); // IN CHARACTERS, NOT BYTES!
 
 		pcre_free(reUrlRemainder);
+
+		if(sWorkUrl.find("http://http://") == 0)
+		{
+			// sigh...
+			sWorkUrl.erase(0, 7);
+		}
 
 		if(!sPrevLineLink.empty() && bMatchContinuesLink)
 		{
