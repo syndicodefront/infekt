@@ -7,10 +7,12 @@
   * Implemented "Show Menubar on Startup" setting
   * Added support for NFOs with ANSI Escape Codes
   * Added support for broken NFOs with \n\n newlines
+  * Narrow NFOs in wide windows are centered
   * Fixed an issue where the text selection would not be recognized for Ctrl+C when the text had been selected from bottom to top
   * Fixed issue 7, issue 11 and issue 13
   * Fixed issue that "forgot" the last line of files
   * Fixed nasty Windows 2000 / Common Control 5 Combo Box bug
+  * Other fixes & improvements
   * Made an optional installer
 
 == v0.1.6 (24 Feb 2010) ===
