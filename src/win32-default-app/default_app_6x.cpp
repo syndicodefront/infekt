@@ -20,7 +20,7 @@
 #include <shobjidl.h>
 
 
-CWin6xDefaultApp::CWin6xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
+CWin6xDefaultApp::CWin6xDefaultApp(const CWinDefaultAppInfo& a_info) : CWinDefaultApp(a_info)
 {
 	CoInitializeEx(NULL, COINIT_MULTITHREADED);
 }
@@ -36,10 +36,10 @@ bool CWin6xDefaultApp::IsDefault() const
 
 	if(SUCCEEDED(hr))
 	{
-		hr = pAAR->QueryAppIsDefault(m_extension.c_str(),
+		hr = pAAR->QueryAppIsDefault(m_info.sExtension.c_str(),
 			AT_FILEEXTENSION,
 			AL_EFFECTIVE,
-			m_appRegistryName.c_str(),
+			m_info.sAppRegistryName.c_str(),
 			&pfHasExt);
 
 		pAAR->Release();
@@ -55,12 +55,15 @@ bool CWin6xDefaultApp::MakeDefault() const
 {
 	IApplicationAssociationRegistration* pAAR;
 
+	if(!RegisterProgIdData())
+		return false;
+
 	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL,
 			CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
 
 	if(SUCCEEDED(hr))
 	{
-		hr = pAAR->SetAppAsDefault(m_appRegistryName.c_str(), m_extension.c_str(), AT_FILEEXTENSION);
+		hr = pAAR->SetAppAsDefault(m_info.sAppRegistryName.c_str(), m_info.sExtension.c_str(), AT_FILEEXTENSION);
 
 		pAAR->Release();
 	}
@@ -73,5 +76,8 @@ bool CWin6xDefaultApp::MakeDefault() const
 
 CWin6xDefaultApp::~CWin6xDefaultApp()
 {
+	// To close the COM library gracefully on a thread, each successful call to
+	// or CoInitializeEx, ||including any call that returns S_FALSE||, must be
+	// balanced by a corresponding call to CoUninitialize.
 	CoUninitialize();
 }

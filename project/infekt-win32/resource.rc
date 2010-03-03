@@ -188,7 +188,7 @@ BEGIN
     GROUPBOX        "System Defaults",IDC_STATIC,7,7,323,34
     CONTROL         "Always check if iNFEKT is the default NFO viewer on startup",IDC_CHECK1,
                     "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,15,22,207,10
-    PUSHBUTTON      "Check Now",IDC_BUTTON1,259,19,62,14,WS_DISABLED
+    PUSHBUTTON      "Check Now",IDC_BUTTON_DEFAULT_VIEWER,259,19,62,14
     GROUPBOX        "Miscellaneous",IDC_STATIC,7,43,323,50
     CONTROL         "Always on Top",IDC_ALWAYSONTOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,74,63,10
     CONTROL         "Copy on Select",IDC_COPY_ON_SELECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,57,64,10
