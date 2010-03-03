@@ -226,15 +226,27 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\win32-default-app\default_app.cpp"
+				RelativePath="..\..\src\win32\default_app_5x.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\win32-default-app\default_app_5x.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\win32-default-app\default_app_6x.cpp"
+				RelativePath="..\..\src\win32\default_app_6x.cpp"
 				>
 			</File>
 			<File

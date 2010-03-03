@@ -16,6 +16,7 @@
 #define IDD_ABOUT                       115
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
+#define IDC_CHECK_DEFAULT_VIEWER        1006
 #define IDC_BUTTON1                     1007
 #define IDC_BUTTON_DEFAULT_VIEWER       1007
 #define IDC_CHECK2                      1008
