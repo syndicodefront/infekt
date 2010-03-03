@@ -49,7 +49,10 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFEKT NFO Viewer"
 Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFEKT NFO Viewer}"; Flags: nowait postinstall skipifsilent
 
 [Registry]
-Root: HKCU32; Subkey: "Software\cxxjoe\iNFEKT"; Flags: dontcreatekey uninsdeletekey
+Root: HKCU; Subkey: "Software\cxxjoe\iNFEKT"; Flags: dontcreatekey uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win32.exe"; Flags: dontcreatekey uninsdeletekey
+Root: HKLM; Subkey: "Software\Classes\iNFEKT.NFO.Viewer.NFOFile.1"; Flags: dontcreatekey uninsdeletekey
+
 ; :TODO: delete default viewer keys
 
 

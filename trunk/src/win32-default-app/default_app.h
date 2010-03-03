@@ -16,6 +16,14 @@
 #define _DEFAULT_APP_H
 
 
+struct CWinDefaultAppInfo
+{
+	std::wstring sAppRegistryName;
+	std::wstring sExtension;
+	std::wstring sExePath;
+};
+
+
 // abstract base class
 
 class CWinDefaultApp
@@ -25,8 +33,8 @@ public:
 	 * @param a_appRegistryName e.g. "Company.App.MajorVer"
 	 * @param a_fileExtension e.g. ".htm"
 	 **/
-	CWinDefaultApp(const std::wstring& a_appRegistryName, const std::wstring& a_fileExtension) :
-		m_appRegistryName(a_appRegistryName), m_extension(a_fileExtension)
+	CWinDefaultApp(const CWinDefaultAppInfo& a_info) :
+		m_info(a_info)
 	{ }
 	virtual ~CWinDefaultApp()
 	{ }
@@ -37,11 +45,10 @@ public:
 	bool CWinDefaultApp::RegisterProgIdData() const;
 #endif
 
-protected:
-	std::wstring m_appRegistryName;
-	std::wstring m_extension;
-
 	static std::wstring GetExePath();
+protected:
+	CWinDefaultAppInfo m_info;
+
 private:
 	CWinDefaultApp() {}
 };
@@ -52,7 +59,7 @@ private:
 class CWin6xDefaultApp : public CWinDefaultApp 
 {
 public:
-	CWin6xDefaultApp(const std::wstring& a, const std::wstring& b);
+	CWin6xDefaultApp(const CWinDefaultAppInfo& a_info);
 	virtual ~CWin6xDefaultApp();
 	bool IsDefault() const;
 #ifdef MAKE_DEFAULT_APP_CAPAB
@@ -66,7 +73,7 @@ public:
 class CWin5xDefaultApp : public CWinDefaultApp 
 {
 public:
-	CWin5xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
+	CWin5xDefaultApp(const CWinDefaultAppInfo& a_info) : CWinDefaultApp(a_info)
 	{ }
 
 	bool IsDefault() const;

@@ -14,9 +14,8 @@
 
 #include "stdafx.h"
 #include "settings_dlg.h"
+#include "app.h"
 #include "resource.h"
-#include "theme_api.h"
-#include "vsstyle.h"
 
 
 /************************************************************************/
@@ -472,6 +471,10 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		}
 
 		return TRUE;
+	}
+	else if(LOWORD(wParam) == IDC_BUTTON_DEFAULT_VIEWER)
+	{
+		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer();
 	}
 
 	return FALSE;

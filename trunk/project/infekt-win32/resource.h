@@ -17,6 +17,7 @@
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_BUTTON1                     1007
+#define IDC_BUTTON_DEFAULT_VIEWER       1007
 #define IDC_CHECK2                      1008
 #define IDC_CLR_BACK                    1008
 #define IDC_ALWAYSONTOP                 1008
