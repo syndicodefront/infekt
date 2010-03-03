@@ -283,6 +283,13 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, m_mainWin->GetSettings()->bAlwaysOnTop);
 		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, m_mainWin->GetSettings()->bAlwaysShowMenubar);
 		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, m_mainWin->GetSettings()->bCopyOnSelect);
+
+		if(CUtil::IsWin6x())
+		{
+			int l_status = dynamic_cast<CNFOApp*>(GetApp())->IsDefaultNfoViewer();
+
+			::EnableWindow(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER), (l_status == -1 ? FALSE : TRUE));
+		}
 	}
 
 	return TRUE;
@@ -474,7 +481,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else if(LOWORD(wParam) == IDC_BUTTON_DEFAULT_VIEWER)
 	{
-		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer();
+		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd);
 	}
 
 	return FALSE;

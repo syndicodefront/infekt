@@ -20,13 +20,13 @@
 #include <shobjidl.h>
 
 
-CWin6xDefaultApp::CWin6xDefaultApp(const CWinDefaultAppInfo& a_info) : CWinDefaultApp(a_info)
+CWin6xDefaultApp::CWin6xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
 {
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	m_noSuchProgId = false;
 }
 
 
-bool CWin6xDefaultApp::IsDefault() const
+bool CWin6xDefaultApp::IsDefault()
 {
 	IApplicationAssociationRegistration* pAAR;
 	BOOL pfHasExt = FALSE;
@@ -36,11 +36,14 @@ bool CWin6xDefaultApp::IsDefault() const
 
 	if(SUCCEEDED(hr))
 	{
-		hr = pAAR->QueryAppIsDefault(m_info.sExtension.c_str(),
+		hr = pAAR->QueryAppIsDefault(m_extension.c_str(),
 			AT_FILEEXTENSION,
 			AL_EFFECTIVE,
-			m_info.sAppRegistryName.c_str(),
+			m_appRegistryName.c_str(),
 			&pfHasExt);
+
+		m_noSuchProgId = (hr == 0x80070002); // is there no #define for this?!
+		// 0x80070002 = No such file or directory
 
 		pAAR->Release();
 	}
@@ -49,21 +52,16 @@ bool CWin6xDefaultApp::IsDefault() const
 }
 
 
-#ifdef MAKE_DEFAULT_APP_CAPAB
-
-bool CWin6xDefaultApp::MakeDefault() const
+bool CWin6xDefaultApp::MakeDefault()
 {
 	IApplicationAssociationRegistration* pAAR;
-
-	if(!RegisterProgIdData())
-		return false;
 
 	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL,
 			CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
 
 	if(SUCCEEDED(hr))
 	{
-		hr = pAAR->SetAppAsDefault(m_info.sAppRegistryName.c_str(), m_info.sExtension.c_str(), AT_FILEEXTENSION);
+		hr = pAAR->SetAppAsDefault(m_appRegistryName.c_str(), m_extension.c_str(), AT_FILEEXTENSION);
 
 		pAAR->Release();
 	}
@@ -71,13 +69,3 @@ bool CWin6xDefaultApp::MakeDefault() const
 	return SUCCEEDED(hr);
 }
 
-#endif
-
-
-CWin6xDefaultApp::~CWin6xDefaultApp()
-{
-	// To close the COM library gracefully on a thread, each successful call to
-	// or CoInitializeEx, ||including any call that returns S_FALSE||, must be
-	// balanced by a corresponding call to CoUninitialize.
-	CoUninitialize();
-}

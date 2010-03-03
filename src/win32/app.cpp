@@ -62,14 +62,23 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 			}
 		}
 
+		CoInitializeEx(NULL, COINIT_MULTITHREADED);
+
 		// Run the application:
-		return theApp.Run();
+		int l_exitCode = theApp.Run();
+
+		CoUninitialize();
+
+		return l_exitCode;
 	}
 	catch(CWinException* e)
 	{
 		e->MessageBox();
-		exit(-1);
+
+		return -1;
 	}
+
+	return -2;
 }
 
 
@@ -106,30 +115,35 @@ CNFOApp::~CNFOApp()
 #define DEFAULT_APP_PROGID L"iNFEKT.NFO.Viewer.NFOFile.1"
 #define DEFAULT_APP_EXTENSION L".nfo"
 
-bool CNFOApp::IsDefaultNfoViewer()
+int CNFOApp::IsDefaultNfoViewer()
 {
-	CWinDefaultAppInfo l_info;
-	CWinDefaultApp *l_defApp = NULL;
-	bool l_result = false;
-
-	l_info.sAppRegistryName = DEFAULT_APP_PROGID;
-	l_info.sExtension = DEFAULT_APP_EXTENSION;
-	l_info.sExePath = CWinDefaultApp::GetExePath();
+	int l_result = 0;
 
 	if(CUtil::IsWin5x())
 	{
-		l_defApp = new CWin5xDefaultApp(l_info);
+		CWin5xDefaultApp l_defApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
+
+		l_result = (l_defApp.IsDefault() ? 0 : 1);
 	}
 	else if(CUtil::IsWin6x())
 	{
-		l_defApp = new CWin6xDefaultApp(l_info);
-	}
+		CWin6xDefaultApp l_defApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
 
-	if(l_defApp)
-	{
-		l_result = l_defApp->IsDefault();
-
-		delete l_defApp;
+		if(!l_defApp.IsDefault())
+		{
+			if(l_defApp.GotNoSuchProgId())
+			{
+				return -1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		else
+		{
+			l_result = 1;
+		}
 	}
 
 	return l_result;
@@ -138,56 +152,27 @@ bool CNFOApp::IsDefaultNfoViewer()
 
 bool CNFOApp::MakeDefaultNfoViewer()
 {
-	STARTUPINFO l_si = {sizeof(STARTUPINFO), 0};
-	PROCESS_INFORMATION l_pi;
-
-	_tstring l_cmdLine = CWinDefaultApp::GetExePath();
-	TCHAR l_exePathBuf[1000] = {0};
-	_tcscpy_s(&l_exePathBuf[0], 999, l_cmdLine.c_str());
-	PathRemoveFileSpec(l_exePathBuf);
-	PathAddBackslash(l_exePathBuf);
-	l_cmdLine = l_exePathBuf;
-	l_cmdLine += _T("make-default-app.exe");
-
-	l_si.dwFlags = STARTF_USESHOWWINDOW;
-	l_si.wShowWindow = SW_SHOWNORMAL;
-
-	TCHAR* l_cmdLineBuf = new TCHAR[l_cmdLine.size() + 1];
-	_tcscpy_s(l_cmdLineBuf, l_cmdLine.size() + 1, l_cmdLine.c_str());
-
-	if(CreateProcess(NULL, l_cmdLineBuf, NULL, NULL, TRUE, NORMAL_PRIORITY_CLASS,
-		NULL, NULL, &l_si, &l_pi))
-	{
-		DWORD l_exitCode;
-
-		WaitForSingleObject(l_pi.hProcess, INFINITE);
-
-		GetExitCodeProcess(l_pi.hProcess, &l_exitCode);
-
-		CloseHandle(l_pi.hProcess);
-		CloseHandle(l_pi.hThread);
-
-		TCHAR xxx[10] = {0};
-		swprintf(xxx, L"%d", l_exitCode);
-
-		MessageBox(0,xxx,L"hi",0);
-	}
-
-	delete[] l_cmdLineBuf;
-
 	return false;
 }
 
 
-void CNFOApp::CheckDefaultNfoViewer()
+void CNFOApp::CheckDefaultNfoViewer(HWND a_hwnd)
 {
-	if(!IsDefaultNfoViewer())
+	int l_status = IsDefaultNfoViewer();
+
+	if(l_status == 0)
 	{
-		if(MessageBox(0, _T("iNFEKT is not your default NFO file viewer. Do you want to make it the default viewer now?"),
+		if(MessageBox(a_hwnd, _T("iNFEKT is not your default NFO file viewer. Do you want to make it the default viewer now?"),
 			_T("Important"), MB_ICONQUESTION | MB_YESNO) == IDYES)
 		{
 			MakeDefaultNfoViewer();
 		}
+	}
+	else if(l_status == -1)
+	{
+		MessageBox(a_hwnd, _T("iNFEKT has not been installed properly. Since you are using Windows Vista, 7, or a newer version, ")
+			_T("this means that iNFEKT can not register itself. Please re-install iNFEKT using the setup routine, or manually ")
+			_T("associate iNFEKT with .nfo files."), _T("Problem"), MB_ICONEXCLAMATION);
 	}
 }
 

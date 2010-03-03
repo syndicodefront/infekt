@@ -443,6 +443,18 @@ void CUtil::PopUpLastWin32Error()
 }
 
 
+std::_tstring CUtil::GetExePath()
+{
+	TCHAR l_buf[1000] = {0};
+	TCHAR l_buf2[1000] = {0};
+
+	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetLongPathName(l_buf, l_buf2, 999);
+
+	return l_buf2;
+}
+
+
 /************************************************************************/
 /* Internet/Network Helper Functions                                    */
 /************************************************************************/

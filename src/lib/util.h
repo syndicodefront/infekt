@@ -52,6 +52,8 @@ public:
 	static bool IsWinXP();
 	static bool IsWin5x();
 	static bool IsWin6x(bool a_orHigher = true);
+
+	static std::_tstring GetExePath();
 protected:
 	static OSVERSIONINFO ms_osver;
 #endif

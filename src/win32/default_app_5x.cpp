@@ -12,16 +12,17 @@
  * GNU General Public License for more details.
  **/
 
-#include "targetver.h"
-#include <windows.h>
-#include <shlwapi.h>
-#include <string>
+#include "stdafx.h"
 #include "default_app.h"
+#include "util.h"
 
-bool CWin5xDefaultApp::IsDefault() const
+using namespace std;
+
+
+bool CWin5xDefaultApp::IsDefault()
 {
 	HKEY l_hKey;
-	std::wstring l_keyPath = L"SOFTWARE\\Classes\\" + m_info.sExtension;
+	std::wstring l_keyPath = L"SOFTWARE\\Classes\\" + m_extension;
 
 	/* phase 1: We check the "(Default)" value of the Classes\.nfo key for our ProgId */
 
@@ -35,13 +36,13 @@ bool CWin5xDefaultApp::IsDefault() const
 
 	if(RegQueryValueEx(l_hKey, NULL, NULL, &l_dwType, (LPBYTE)l_buf, &l_maxBuf) == ERROR_SUCCESS)
 	{
-		if(wcscmp(l_buf, m_info.sAppRegistryName.c_str()) == 0)
+		if(wcscmp(l_buf, m_appRegistryName.c_str()) == 0)
 		{
 			RegCloseKey(l_hKey);
 
 			/* phase 2: we found the ProgId, now check the path to our app */
 
-			l_keyPath = L"SOFTWARE\\Classes\\" + m_info.sAppRegistryName + L"\\shell\\open\\command";
+			l_keyPath = L"SOFTWARE\\Classes\\" + m_appRegistryName + L"\\shell\\open\\command";
 
 			if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, KEY_QUERY_VALUE, &l_hKey) != ERROR_SUCCESS)
 			{
@@ -52,7 +53,7 @@ bool CWin5xDefaultApp::IsDefault() const
 
 			if(RegQueryValueEx(l_hKey, NULL, NULL, &l_dwType, (LPBYTE)l_buf, &l_maxBuf) == ERROR_SUCCESS)
 			{
-				std::wstring l_tmpExePath = this->GetExePath();
+				std::wstring l_tmpExePath = CUtil::GetExePath();
 				wchar_t l_regBuf[1002] = {0}, l_tmpRegBuf[1002] = {0}, l_realBuf[1002] = {0};
 
 				wchar_t* l_args = wcsstr(l_buf, L" \"%1");
@@ -92,11 +93,66 @@ bool CWin5xDefaultApp::IsDefault() const
 }
 
 
-#ifdef MAKE_DEFAULT_APP_CAPAB
-
-bool CWin5xDefaultApp::MakeDefault() const
+bool CWin5xDefaultApp::RegisterProgIdData()
 {
+	_tstring l_keyPath = _T("SOFTWARE\\Classes\\") + m_appRegistryName + _T("\\DefaultIcon");
+
+	_tstring l_tmpExePath = CUtil::GetExePath(), l_exePath; // double back slashes... fucking stupid.... arrrgggghhh
+	for(_tstring::size_type p = 0; p < l_tmpExePath.size(); p++)
+	{
+		if(l_tmpExePath[p] == _T('\\'))
+			l_exePath += _T('\\');
+		l_exePath += l_tmpExePath[p];
+	}
+
+	HKEY l_hKey;
+	if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	{
+		return false;
+	}
+
+	// set DefaultIcon
+	TCHAR l_defaultIconInfoBuf[1000] = {0};
+	PathUnExpandEnvStrings(l_exePath.c_str(), l_defaultIconInfoBuf, 999);
+	_tstring l_defaultIconInfo = _T("\"");
+	l_defaultIconInfo += l_defaultIconInfoBuf;
+	l_defaultIconInfo += _T("\", 0");
+	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_defaultIconInfo.c_str(), (l_defaultIconInfo.size() + 1) * sizeof(TCHAR));
+
+	RegCloseKey(l_hKey);
+
+	// now about shell\open\command...
+	l_keyPath = _T("SOFTWARE\\Classes\\") + m_appRegistryName + _T("\\shell\\open\\command");
+
+	if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	{
+		return false;
+	}
+
+	// set exe path
+	TCHAR l_shellOpenCommandBuf[1000] = {0};
+	PathUnExpandEnvStrings(l_exePath.c_str(), l_shellOpenCommandBuf, 999);
+	_tstring l_shellOpenCommand = l_shellOpenCommandBuf;
+	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_shellOpenCommand.c_str(), (l_shellOpenCommand.size() + 1) * sizeof(TCHAR));
+
+	RegCloseKey(l_hKey);
+
+	// JESUS FUCKING CHRIST
+	// I'M GOING TO CUT OFF MY FINGERS
+	// WITH A SPOON
+	// NOW
+
+	return true;
+}
+
+
+bool CWin5xDefaultApp::MakeDefault()
+{
+	if(!RegisterProgIdData())
+		return false;
+
 	return false;
 }
 
-#endif

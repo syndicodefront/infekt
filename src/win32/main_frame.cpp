@@ -26,6 +26,13 @@ CMainFrame::CMainFrame() : CFrame(),
 	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
 
 	m_settings = PMainSettings(new CMainSettings(true));
+
+#if 0
+	if(m_settings->bCheckDefaultOnStartup())
+	{
+		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd);
+	}
+#endif
 }
 
 
