@@ -22,13 +22,13 @@
 
 CWin6xDefaultApp::CWin6xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
 {
-	m_noSuchProgId = false;
+	m_noSuchProgName = false;
 }
 
 
 bool CWin6xDefaultApp::IsDefault()
 {
-	IApplicationAssociationRegistration* pAAR;
+	IApplicationAssociationRegistration* pAAR = NULL;
 	BOOL pfHasExt = FALSE;
 
 	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL,
@@ -42,7 +42,7 @@ bool CWin6xDefaultApp::IsDefault()
 			m_appRegistryName.c_str(),
 			&pfHasExt);
 
-		m_noSuchProgId = (hr == 0x80070002); // is there no #define for this?!
+ 		m_noSuchProgName = (hr == 0x80070002); // is there not a #define for this?!
 		// 0x80070002 = No such file or directory
 
 		pAAR->Release();
@@ -54,7 +54,7 @@ bool CWin6xDefaultApp::IsDefault()
 
 bool CWin6xDefaultApp::MakeDefault()
 {
-	IApplicationAssociationRegistration* pAAR;
+	IApplicationAssociationRegistration* pAAR = NULL;
 
 	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL,
 			CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);

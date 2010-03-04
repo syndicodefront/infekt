@@ -173,7 +173,7 @@ IDB_PNG_EDITCOPY        PNG                     "icons\\editcopy.png"
 
 IDD_DLG_SETTINGS DIALOGEX 0, 0, 355, 257
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "iNFEKT - Settings"
+CAPTION "iNFekt - Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,245,236,50,14
@@ -186,7 +186,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
     GROUPBOX        "System Defaults",IDC_STATIC,7,7,323,34
-    CONTROL         "Always check if iNFEKT is the default NFO viewer on startup",IDC_CHECK_DEFAULT_VIEWER,
+    CONTROL         "Always check if iNFekt is the default NFO viewer on startup",IDC_CHECK_DEFAULT_VIEWER,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,22,207,10
     PUSHBUTTON      "Check Now",IDC_BUTTON_DEFAULT_VIEWER,259,19,62,14
     GROUPBOX        "Miscellaneous",IDC_STATIC,7,43,323,50
@@ -305,10 +305,10 @@ BEGIN
             VALUE "CompanyName", "cxxjoe Development"
             VALUE "FileDescription", "iNFekt NFO Viewer"
             VALUE "FileVersion", "0, 0, 2, 0"
-            VALUE "InternalName", "iNFEKT"
+            VALUE "InternalName", "iNFekt"
             VALUE "LegalCopyright", "Copyright © 2010 cxxjoe & Contributors"
             VALUE "OriginalFilename", "infekt-win32.exe"
-            VALUE "ProductName", "iNFEKT"
+            VALUE "ProductName", "iNFekt"
             VALUE "ProductVersion", "0, 0, 2, 0"
         END
     END

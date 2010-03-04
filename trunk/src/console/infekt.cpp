@@ -56,7 +56,7 @@ static const struct ::option g_longOpts[] = {
 
 static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 {
-	printf("iNFEKT: Renders almost any NFO file into a nice PNG image, with all the "
+	printf("iNFekt: Renders almost any NFO file into a nice PNG image, with all the "
 		"options you could ever imagine!\n\n");
 
 	if(a_exeNameW)
@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 			OutputHelp();
 			return 0;
 		case 'v':
-			printf("VERSION: iNFEKT v%d.%d.%d\n", INFEKT_VERSION_MAJOR, INFEKT_VERSION_MINOR, INFEKT_VERSION_REVISION);
+			printf("VERSION: iNFekt v%d.%d.%d\n", INFEKT_VERSION_MAJOR, INFEKT_VERSION_MINOR, INFEKT_VERSION_REVISION);
 			printf("using Cairo v%d.%d.%d, PCRE v%d.%d", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO, PCRE_MAJOR, PCRE_MINOR);
 			return 0;
 		case 'O':

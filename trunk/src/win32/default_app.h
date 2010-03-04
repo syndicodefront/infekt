@@ -49,9 +49,9 @@ public:
 	CWin6xDefaultApp(const std::wstring& a, const std::wstring& b);
 	bool IsDefault();
 	bool MakeDefault();
-	bool GotNoSuchProgId() const { return m_noSuchProgId; }
+	bool GotNoSuchProgramName() const { return m_noSuchProgName; }
 protected:
-	bool m_noSuchProgId;
+	bool m_noSuchProgName;
 };
 
 

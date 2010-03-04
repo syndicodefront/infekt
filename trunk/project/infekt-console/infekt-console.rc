@@ -92,12 +92,12 @@ BEGIN
         BEGIN
             VALUE "Comments", "http://code.google.com/p/infekt/ - This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation."
             VALUE "CompanyName", "cxxjoe Development"
-            VALUE "FileDescription", "iNFEKT NFO Renderer - Command Line Version"
+            VALUE "FileDescription", "iNFekt NFO Renderer - Command Line Version"
             VALUE "FileVersion", "0, 0, 2, 0"
             VALUE "InternalName", "infekt-console"
             VALUE "LegalCopyright", "Copyright © 2010 cxxjoe & Contributors"
             VALUE "OriginalFilename", "infekt-cmd.exe"
-            VALUE "ProductName", "iNFEKT"
+            VALUE "ProductName", "iNFekt"
             VALUE "ProductVersion", "0, 0, 2, 0"
         END
     END

@@ -58,7 +58,7 @@ BOOL CAboutDialog::OnInitDialog()
 	const int l_left = 70;
 	int l_top = 15;
 
-	_CREATE_STATIC(l_hTitle, _T("iNFEKT v") + m_mainWin->InfektVersionAsString(), l_top, 20);
+	_CREATE_STATIC(l_hTitle, _T("iNFekt v") + m_mainWin->InfektVersionAsString(), l_top, 20);
 	l_top += 20;
 
 	if(l_hTitle)

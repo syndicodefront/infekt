@@ -112,7 +112,7 @@ CNFOApp::~CNFOApp()
 /* DEFAULT APP STUFF                                                    */
 /************************************************************************/
 
-#define DEFAULT_APP_PROGID L"iNFEKT.NFO.Viewer.NFOFile.1"
+#define DEFAULT_APP_REG_NAME L"iNFekt NFO Viewer" // Name in HKLM\SOFTWARE\RegisteredApplications
 #define DEFAULT_APP_EXTENSION L".nfo"
 
 int CNFOApp::IsDefaultNfoViewer()
@@ -121,17 +121,17 @@ int CNFOApp::IsDefaultNfoViewer()
 
 	if(CUtil::IsWin5x())
 	{
-		CWin5xDefaultApp l_defApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
+		CWin5xDefaultApp l_defApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 
 		l_result = (l_defApp.IsDefault() ? 0 : 1);
 	}
 	else if(CUtil::IsWin6x())
 	{
-		CWin6xDefaultApp l_defApp(DEFAULT_APP_PROGID, DEFAULT_APP_EXTENSION);
+		CWin6xDefaultApp l_defApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 
 		if(!l_defApp.IsDefault())
 		{
-			if(l_defApp.GotNoSuchProgId())
+			if(l_defApp.GotNoSuchProgramName())
 			{
 				return -1;
 			}
@@ -152,27 +152,64 @@ int CNFOApp::IsDefaultNfoViewer()
 
 bool CNFOApp::MakeDefaultNfoViewer()
 {
-	return false;
+	CWinDefaultApp* l_defApp = NULL;
+
+	if(CUtil::IsWin5x())
+	{
+		l_defApp = new CWin5xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
+	}
+	else if(CUtil::IsWin6x())
+	{
+		l_defApp = new CWin6xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
+	}
+
+	bool l_result = false;
+
+	if(l_defApp && l_defApp->MakeDefault())
+	{
+		if(l_defApp->IsDefault())
+		{
+			l_result = true;
+		}
+	}
+
+	delete l_defApp;
+
+	return l_result;
 }
 
 
-void CNFOApp::CheckDefaultNfoViewer(HWND a_hwnd)
+void CNFOApp::CheckDefaultNfoViewer(HWND a_hwnd, bool a_confirmation)
 {
 	int l_status = IsDefaultNfoViewer();
 
 	if(l_status == 0)
 	{
-		if(MessageBox(a_hwnd, _T("iNFEKT is not your default NFO file viewer. Do you want to make it the default viewer now?"),
+		if(MessageBox(a_hwnd, _T("iNFekt is not your default NFO file viewer. Do you want to make it the default viewer now?"),
 			_T("Important"), MB_ICONQUESTION | MB_YESNO) == IDYES)
 		{
-			MakeDefaultNfoViewer();
+			if(MakeDefaultNfoViewer())
+			{
+				MessageBox(a_hwnd, _T("iNFekt is now your default NFO viewer!"), _T("Great Success"), MB_ICONINFORMATION);
+			}
+			else
+			{
+				MessageBox(a_hwnd, _T("A problem occured while trying to make iNFekt default NFO viewer. Please do it manually."), _T("Problem"), MB_ICONEXCLAMATION);
+			}
 		}
 	}
-	else if(l_status == -1)
+	else if(a_confirmation)
 	{
-		MessageBox(a_hwnd, _T("iNFEKT has not been installed properly. Since you are using Windows Vista, 7, or a newer version, ")
-			_T("this means that iNFEKT can not register itself. Please re-install iNFEKT using the setup routine, or manually ")
-			_T("associate iNFEKT with .nfo files."), _T("Problem"), MB_ICONEXCLAMATION);
+		if(l_status == -1)
+		{
+			MessageBox(a_hwnd, _T("iNFekt has not been installed properly. Since you are using Windows Vista, 7, or a newer version, ")
+				_T("this means that iNFekt can not register itself. Please re-install iNFekt using the setup routine, or manually ")
+				_T("associate iNFekt with .nfo files."), _T("Problem"), MB_ICONEXCLAMATION);
+		}
+		else
+		{
+			MessageBox(a_hwnd, _T("iNFekt seems to be your default NFO viewer!"), _T("Great Success"), MB_ICONINFORMATION);
+		}
 	}
 }
 
