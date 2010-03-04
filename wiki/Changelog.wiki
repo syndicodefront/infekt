@@ -9,6 +9,7 @@
   * Added support for NFOs with ANSI Escape Codes
   * Added support for broken NFOs with \n\n newlines
   * Narrow NFOs in wide windows are centered
+  * Added View Mode buttons to the toolbar...
   * Fixed an issue where the text selection would not be recognized for Ctrl+C when the text had been selected from bottom to top
   * Fixed issue 7, issue 11 and issue 13
   * Fixed issue that "forgot" the last line of files
