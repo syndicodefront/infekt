@@ -30,7 +30,7 @@ public:
 
 	int IsDefaultNfoViewer();
 	bool MakeDefaultNfoViewer();
-	void CheckDefaultNfoViewer(HWND a_hwnd = 0);
+	void CheckDefaultNfoViewer(HWND a_hwnd = 0, bool a_confirmation = true);
 protected:
 	CMainFrame m_Frame;
 	std::_tstring m_startupFilePath;

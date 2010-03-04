@@ -26,13 +26,6 @@ CMainFrame::CMainFrame() : CFrame(),
 	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
 
 	m_settings = PMainSettings(new CMainSettings(true));
-
-#if 0
-	if(m_settings->bCheckDefaultOnStartup())
-	{
-		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd);
-	}
-#endif
 }
 
 
@@ -97,6 +90,11 @@ void CMainFrame::OnInitialUpdate()
 	}
 
 	ShowWindow();
+
+	if(m_settings->bCheckDefaultOnStartup)
+	{
+		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd, false);
+	}
 
 	std::_tstring l_path = dynamic_cast<CNFOApp*>(GetApp())->GetStartupFilePath();
 	if(!l_path.empty())
@@ -312,7 +310,7 @@ void CMainFrame::UpdateCaption()
 	}
 
 	if(!l_caption.empty()) l_caption += _T(" - ");
-	l_caption += _T("iNFEKT v") + InfektVersionAsString();
+	l_caption += _T("iNFekt v") + InfektVersionAsString();
 
 	SetWindowText(l_caption.c_str());
 }
@@ -714,7 +712,7 @@ void CMainFrame::CheckForUpdates()
 	{
 		if(l_newDownloadUrl.empty()) l_newDownloadUrl = l_projectUrl;
 
-		const _tstring l_msg = _T("Attention! There is a new version (iNFEKT v") + l_serverVersion + _T(") available!") +
+		const _tstring l_msg = _T("Attention! There is a new version (iNFekt v") + l_serverVersion + _T(") available!") +
 			_T("\n\nDo you want to go to the download page now?");
 
 		if(this->MessageBox(l_msg.c_str(), _T("New Version Found"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
@@ -759,13 +757,15 @@ bool CMainSettings::SaveToRegistry()
 		dwLastView = this->iLastView,
 		dwCopySelect = (this->bCopyOnSelect ? 1 : 0),
 		dwAlwaysOnTop = (this->bAlwaysOnTop ? 1 : 0),
-		dwAlwaysMenuBar = (this->bAlwaysShowMenubar ? 1 : 0);
+		dwAlwaysMenuBar = (this->bAlwaysShowMenubar ? 1 : 0),
+		dwCheckDefault = (this->bCheckDefaultOnStartup ? 1 : 0);
 
 	RegSetValueEx(l_hKey, _T("DefaultView"),		0, REG_DWORD, (LPBYTE)&dwDefaultView,		sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("LastView"),			0, REG_DWORD, (LPBYTE)&dwLastView,			sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("CopyOnSelect"),		0, REG_DWORD, (LPBYTE)&dwCopySelect,		sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("AlwaysOnTop"),		0, REG_DWORD, (LPBYTE)&dwAlwaysOnTop,		sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("AlwaysShowMenubar"),	0, REG_DWORD, (LPBYTE)&dwAlwaysMenuBar,		sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("CheckDefViewOnStart"),0, REG_DWORD, (LPBYTE)&dwCheckDefault,		sizeof(int32_t));
 
 	RegCloseKey(l_hKey);
 
@@ -783,7 +783,7 @@ bool CMainSettings::LoadFromRegistry()
 		return false;
 	}
 
-	int32_t dwDefaultView, dwLastView, dwCopySelect, dwAlwaysOnTop, dwAlwaysMenuBar;
+	int32_t dwDefaultView, dwLastView, dwCopySelect, dwAlwaysOnTop, dwAlwaysMenuBar, dwCheckDefault;
 
 	DWORD l_dwType = REG_DWORD;
 	DWORD l_dwBufSz = sizeof(int32_t);
@@ -793,6 +793,7 @@ bool CMainSettings::LoadFromRegistry()
 	RegQueryValueEx(l_hKey, _T("CopyOnSelect"),			NULL, &l_dwType, (LPBYTE)&dwCopySelect,		&l_dwBufSz);
 	RegQueryValueEx(l_hKey, _T("AlwaysOnTop"),			NULL, &l_dwType, (LPBYTE)&dwAlwaysOnTop,	&l_dwBufSz);
 	RegQueryValueEx(l_hKey, _T("AlwaysShowMenubar"),	NULL, &l_dwType, (LPBYTE)&dwAlwaysMenuBar,	&l_dwBufSz);
+	RegQueryValueEx(l_hKey, _T("CheckDefViewOnStart"),	NULL, &l_dwType, (LPBYTE)&dwCheckDefault,	&l_dwBufSz);
 
 	RegCloseKey(l_hKey);
 
@@ -809,6 +810,7 @@ bool CMainSettings::LoadFromRegistry()
 	this->bCopyOnSelect = (dwCopySelect != 0);
 	this->bAlwaysOnTop = (dwAlwaysOnTop != 0);
 	this->bAlwaysShowMenubar = (dwAlwaysMenuBar != 0);
+	this->bCheckDefaultOnStartup = (dwCheckDefault != 0);
 
 	return true;
 }

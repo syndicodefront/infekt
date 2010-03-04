@@ -25,6 +25,7 @@ public:
 		iDefaultView = -1;
 		iLastView = MAIN_VIEW_RENDERED;
 		bCopyOnSelect = bAlwaysOnTop = bAlwaysShowMenubar = false;
+		bCheckDefaultOnStartup = false;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -34,6 +35,7 @@ public:
 	bool bCopyOnSelect;
 	bool bAlwaysOnTop;
 	bool bAlwaysShowMenubar;
+	bool bCheckDefaultOnStartup;
 };
 
 typedef boost::shared_ptr<CMainSettings> PMainSettings;

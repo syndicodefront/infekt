@@ -276,13 +276,14 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		ComboBox_AddString(l_hCb, _T("Classic"));
 		ComboBox_AddString(l_hCb, _T("Text Only"));
 
-		ComboBox_SetCurSel(l_hCb,
-			(m_mainWin->GetSettings()->iDefaultView == -1 ? 0 : m_mainWin->GetSettings()->iDefaultView));
+		const PMainSettings l_global = m_mainWin->GetSettings();
+
+		ComboBox_SetCurSel(l_hCb, (l_global->iDefaultView == -1 ? 0 : l_global->iDefaultView));
 		FixCommCtrls5ComboBug(l_hCb);
 
-		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, m_mainWin->GetSettings()->bAlwaysOnTop);
-		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, m_mainWin->GetSettings()->bAlwaysShowMenubar);
-		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, m_mainWin->GetSettings()->bCopyOnSelect);
+		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, l_global->bAlwaysOnTop);
+		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, l_global->bAlwaysShowMenubar);
+		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, l_global->bCopyOnSelect);
 
 		if(CUtil::IsWin6x())
 		{
@@ -290,6 +291,8 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 			::EnableWindow(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER), (l_status == -1 ? FALSE : TRUE));
 		}
+
+		SET_DLG_CHECKBOX(IDC_CHECK_DEFAULT_VIEWER, l_global->bCheckDefaultOnStartup && ::IsWindowEnabled(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER)));
 	}
 
 	return TRUE;
@@ -799,6 +802,8 @@ bool CSettingsTabDialog::SaveSettings()
 
 		l_set->bCopyOnSelect = (::IsDlgButtonChecked(GetHwnd(), IDC_COPY_ON_SELECT) != FALSE);
 		dynamic_cast<CViewContainer*>(m_mainWin->GetView())->SetCopyOnSelect(l_set->bCopyOnSelect);
+
+		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
 
 		return l_set->SaveToRegistry();
 	}
