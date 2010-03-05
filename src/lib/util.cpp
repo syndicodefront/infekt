@@ -427,6 +427,10 @@ _tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTST
 }
 
 
+/************************************************************************/
+/* Misc Win32 Helpers                                                   */
+/************************************************************************/
+
 void CUtil::PopUpLastWin32Error()
 {
 	LPTSTR lpMsgBuf = NULL;
@@ -452,6 +456,22 @@ std::_tstring CUtil::GetExePath()
 	::GetLongPathName(l_buf, l_buf2, 999);
 
 	return l_buf2;
+}
+
+
+uint32_t CUtil::RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default)
+{
+	DWORD l_dwType;
+	uint32_t l_dwBuf = 0;
+	DWORD l_dwBufSz = sizeof(uint32_t);
+
+	if(RegQueryValueEx(a_key, a_name, NULL, &l_dwType,
+		(LPBYTE)&l_dwBuf, &l_dwBufSz) == ERROR_SUCCESS && l_dwType == REG_DWORD)
+	{
+		return l_dwBuf;
+	}
+
+	return a_default;
 }
 
 

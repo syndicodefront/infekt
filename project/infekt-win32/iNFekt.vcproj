@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Win32xxD.lib comctl32.lib cairo.lib Msimg32.lib pcred.lib shlwapi.lib Wininet.lib"
+				AdditionalDependencies="comctl32.lib cairo.lib Msimg32.lib pcred.lib shlwapi.lib Wininet.lib"
 				OutputFile="$(OutDir)\infekt-win32.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
@@ -142,7 +142,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Win32xxR.lib comctl32.lib cairo.lib pcre.lib shlwapi.lib Wininet.lib"
+				AdditionalDependencies="comctl32.lib cairo.lib pcre.lib shlwapi.lib Wininet.lib"
 				OutputFile="$(OutDir)\infekt-win32.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
@@ -482,6 +482,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\icons\blockdevice.png"
+				>
+			</File>
+			<File
 				RelativePath=".\icons\editcopy.png"
 				>
 			</File>
@@ -498,11 +502,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\icons\mime_colorset.png"
+				>
+			</File>
+			<File
+				RelativePath=".\icons\png1.png"
+				>
+			</File>
+			<File
 				RelativePath=".\resource.h"
 				>
 			</File>
 			<File
 				RelativePath=".\resource.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\icons\template_source.png"
 				>
 			</File>
 		</Filter>

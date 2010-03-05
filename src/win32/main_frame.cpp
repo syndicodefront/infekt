@@ -11,7 +11,9 @@ using namespace std;
 enum _toolbar_button_ids {
 	TBBID_OPEN = 30000,
 	TBBID_SETTINGS,
-	TBBID_EDITCOPY,
+	TBBID_VIEW_RENDERED,
+	TBBID_VIEW_CLASSIC,
+	TBBID_VIEW_TEXTONLY,
 	TBBID_ABOUT
 };
 
@@ -137,7 +139,9 @@ void CMainFrame::AddToolbarButtons()
 		ICO_FILEOPEN = 0,
 		ICO_INFO,
 		ICO_SETTINGS,
-		ICO_EDITCOPY,
+		ICO_VIEW_RENDERED,
+		ICO_VIEW_CLASSIC,
+		ICO_VIEW_TEXTONLY,
 		_ICOMAX
 	};
 
@@ -149,7 +153,9 @@ void CMainFrame::AddToolbarButtons()
 	l_icoId[ICO_FILEOPEN] =	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_FILEOPEN,	22, 22);
 	l_icoId[ICO_INFO] =		CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_INFO,		22, 22);
 	l_icoId[ICO_SETTINGS] =	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_SETTINGS,	22, 22);
-	l_icoId[ICO_EDITCOPY] =	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_EDITCOPY,	22, 22);
+	l_icoId[ICO_VIEW_RENDERED]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_RENDERED,	22, 22);
+	l_icoId[ICO_VIEW_CLASSIC]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_CLASSIC,		22, 22);
+	l_icoId[ICO_VIEW_TEXTONLY]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_TEXTONLY,	22, 22);
 
 	const BYTE defState = TBSTATE_ENABLED;
 	const BYTE defStyle = BTNS_AUTOSIZE;
@@ -164,7 +170,9 @@ void CMainFrame::AddToolbarButtons()
 		_TBSEP,
 		_TBBTN(ICO_SETTINGS, TBBID_SETTINGS, defState, defStyle, "Settings (F6)"),
 		_TBSEP,
-		_TBBTN(ICO_EDITCOPY, TBBID_EDITCOPY, 0, defStyle, "Copy (Ctrl+C)"),
+		_TBBTN(ICO_VIEW_RENDERED, TBBID_VIEW_RENDERED, defState | TBSTATE_CHECKED, defStyle | BTNS_CHECKGROUP, "Rendered (F2)"),
+		_TBBTN(ICO_VIEW_CLASSIC, TBBID_VIEW_CLASSIC, defState, defStyle | BTNS_CHECKGROUP, "Classic (F3)"),
+		_TBBTN(ICO_VIEW_TEXTONLY, TBBID_VIEW_TEXTONLY, defState, defStyle | BTNS_CHECKGROUP, "Text Only (F4)"),
 		_TBSEP,
 		_TBBTN(ICO_INFO, TBBID_ABOUT, defState, defStyle, "About (F1)"),
 	};
@@ -239,14 +247,17 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		DoNfoExport(LOWORD(wParam));
 		return TRUE;
 
+	case TBBID_VIEW_RENDERED:
 	case IDM_VIEW_RENDERED:
 		SwitchView(MAIN_VIEW_RENDERED);
 		break;
 
+	case TBBID_VIEW_CLASSIC:
 	case IDM_VIEW_CLASSIC:
 		SwitchView(MAIN_VIEW_CLASSIC);
 		break;
 
+	case TBBID_VIEW_TEXTONLY:
 	case IDM_VIEW_TEXTONLY:
 		SwitchView(MAIN_VIEW_TEXTONLY);
 		break;
@@ -290,10 +301,14 @@ void CMainFrame::SwitchView(EMainView a_view)
 			MF_BYPOSITION);
 	}
 
-	GetSettings()->iLastView = a_view;
-	if(GetSettings()->iDefaultView == -1)
+	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_RENDERED, (a_view == MAIN_VIEW_RENDERED ? TRUE : FALSE));
+	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_CLASSIC, (a_view == MAIN_VIEW_CLASSIC ? TRUE : FALSE));
+	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_TEXTONLY, (a_view == MAIN_VIEW_TEXTONLY ? TRUE : FALSE));
+
+	m_settings->iLastView = a_view;
+	if(m_settings->iDefaultView == -1)
 	{
-		GetSettings()->SaveToRegistry();
+		m_settings->SaveToRegistry();
 	}
 
 	m_view.SwitchView(a_view);
@@ -545,7 +560,7 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 		RegSetValueEx(l_hKey, _T("GaussShadow"),		0, REG_DWORD, (LPBYTE)&dwGaussShadow,			sizeof(int32_t));
 		RegSetValueEx(l_hKey, _T("GaussBlurRadius"),	0, REG_DWORD, (LPBYTE)&dwGaussBlurRadius,		sizeof(int32_t));
 
-		RegSetValueEx(l_hKey, _T("ClrGauss"),			0, REG_DWORD, (LPBYTE)&dwGaussColor,			sizeof(uint32_t));
+		RegSetValueEx(l_hKey, _T("ClrGauss"),			0, REG_DWORD, (LPBYTE)&dwGaussColor,			sizeof(int32_t));
 	}
 	else
 	{
@@ -553,6 +568,8 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 
 		RegSetValueEx(l_hKey, _T("FontSize"),			0, REG_DWORD, (LPBYTE)&dwFontSize,				sizeof(int32_t));
 	}
+
+	//RegSetValueEx(l_hKey, _T("FontName"), 0, REG_SZ, (LPBYTE)a_settings.sFontFace, wcslen(a_settings.sFontFace) + 1);
 
 	RegCloseKey(l_hKey);
 
@@ -572,38 +589,26 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 
 	CNFORenderSettings l_newSets;
 
-	uint32_t dwTextColor, dwBackColor, dwArtColor, dwLinkColor;
-
-	DWORD l_dwType = REG_DWORD;
-	DWORD l_dwBufSz = sizeof(int32_t);
-
-	RegQueryValueEx(l_hKey, _T("ClrText"),	NULL, &l_dwType,	(LPBYTE)&dwTextColor,	&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("ClrBack"),	NULL, &l_dwType,	(LPBYTE)&dwBackColor,	&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("ClrArt"),	NULL, &l_dwType,	(LPBYTE)&dwArtColor,	&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("ClrLink"),	NULL, &l_dwType,	(LPBYTE)&dwLinkColor,	&l_dwBufSz);
+	uint32_t dwTextColor = CUtil::RegQueryDword(l_hKey, _T("ClrText")),
+		dwBackColor = CUtil::RegQueryDword(l_hKey, _T("ClrBack")),
+		dwArtColor = CUtil::RegQueryDword(l_hKey, _T("ClrArt")),
+		dwLinkColor = CUtil::RegQueryDword(l_hKey, _T("ClrLink"));
 
 	l_newSets.cTextColor = _s_color_t(dwTextColor);
 	l_newSets.cBackColor = _s_color_t(dwBackColor);
 	l_newSets.cArtColor = _s_color_t(dwArtColor);
 	l_newSets.cHyperlinkColor = _s_color_t(dwLinkColor);
 
-	int32_t dwHilightHyperlinks, dwUnderlineHyperlinks;
-
-	RegQueryValueEx(l_hKey, _T("HilightHyperlinks"),		NULL, &l_dwType, (LPBYTE)&dwHilightHyperlinks,		&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("UnderlineHyperlinks"),		NULL, &l_dwType, (LPBYTE)&dwUnderlineHyperlinks,	&l_dwBufSz);
-
-	l_newSets.bHilightHyperlinks = (dwHilightHyperlinks != 0);
-	l_newSets.bUnderlineHyperlinks = (dwUnderlineHyperlinks != 0);
+	l_newSets.bHilightHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("HilightHyperlinks")) != 0);
+	l_newSets.bUnderlineHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("UnderlineHyperlinks")) != 0);
 
 	if(!a_target->IsClassicMode())
 	{
-		uint32_t dwGaussColor, dwGaussShadow, dwBlockHeight, dwBlockWidth, dwGaussBlurRadius;
-
-		RegQueryValueEx(l_hKey, _T("ClrGauss"),				NULL, &l_dwType, (LPBYTE)&dwGaussColor,				&l_dwBufSz);
-		RegQueryValueEx(l_hKey, _T("GaussShadow"),			NULL, &l_dwType, (LPBYTE)&dwGaussShadow,			&l_dwBufSz);
-		RegQueryValueEx(l_hKey, _T("BlockHeight"),			NULL, &l_dwType, (LPBYTE)&dwBlockHeight,			&l_dwBufSz);
-		RegQueryValueEx(l_hKey, _T("BlockWidth"),			NULL, &l_dwType, (LPBYTE)&dwBlockWidth,				&l_dwBufSz);
-		RegQueryValueEx(l_hKey, _T("GaussBlurRadius"),		NULL, &l_dwType, (LPBYTE)&dwGaussBlurRadius,		&l_dwBufSz);
+		uint32_t dwGaussColor = CUtil::RegQueryDword(l_hKey, _T("ClrGauss")),
+			dwGaussShadow = CUtil::RegQueryDword(l_hKey, _T("GaussShadow")),
+			dwBlockHeight = CUtil::RegQueryDword(l_hKey, _T("BlockHeight")),
+			dwBlockWidth = CUtil::RegQueryDword(l_hKey, _T("BlockWidth")),
+			dwGaussBlurRadius = CUtil::RegQueryDword(l_hKey, _T("GaussBlurRadius"));
 
 		l_newSets.cGaussColor = _s_color_t(dwGaussColor);
 		l_newSets.bGaussShadow = (dwGaussShadow != 0);
@@ -613,11 +618,7 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 	}
 	else
 	{
-		uint32_t dwFontSize;
-
-		RegQueryValueEx(l_hKey, _T("FontSize"),				NULL, &l_dwType, (LPBYTE)&dwFontSize,				&l_dwBufSz);
-
-		l_newSets.uFontSize = dwFontSize;
+		l_newSets.uFontSize = CUtil::RegQueryDword(l_hKey, _T("FontSize"));
 	}
 
 	RegCloseKey(l_hKey);
@@ -783,17 +784,12 @@ bool CMainSettings::LoadFromRegistry()
 		return false;
 	}
 
-	int32_t dwDefaultView, dwLastView, dwCopySelect, dwAlwaysOnTop, dwAlwaysMenuBar, dwCheckDefault;
-
-	DWORD l_dwType = REG_DWORD;
-	DWORD l_dwBufSz = sizeof(int32_t);
-
-	RegQueryValueEx(l_hKey, _T("DefaultView"),			NULL, &l_dwType, (LPBYTE)&dwDefaultView,	&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("LastView"),				NULL, &l_dwType, (LPBYTE)&dwLastView,		&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("CopyOnSelect"),			NULL, &l_dwType, (LPBYTE)&dwCopySelect,		&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("AlwaysOnTop"),			NULL, &l_dwType, (LPBYTE)&dwAlwaysOnTop,	&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("AlwaysShowMenubar"),	NULL, &l_dwType, (LPBYTE)&dwAlwaysMenuBar,	&l_dwBufSz);
-	RegQueryValueEx(l_hKey, _T("CheckDefViewOnStart"),	NULL, &l_dwType, (LPBYTE)&dwCheckDefault,	&l_dwBufSz);
+	int32_t dwDefaultView = CUtil::RegQueryDword(l_hKey, _T("DefaultView")),
+		dwLastView = CUtil::RegQueryDword(l_hKey, _T("LastView")),
+		dwCopySelect = CUtil::RegQueryDword(l_hKey, _T("CopyOnSelect")),
+		dwAlwaysOnTop = CUtil::RegQueryDword(l_hKey, _T("AlwaysOnTop")),
+		dwAlwaysMenuBar = CUtil::RegQueryDword(l_hKey, _T("AlwaysShowMenubar")),
+		dwCheckDefault = CUtil::RegQueryDword(l_hKey, _T("CheckDefViewOnStart"));
 
 	RegCloseKey(l_hKey);
 

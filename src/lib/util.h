@@ -54,6 +54,8 @@ public:
 	static bool IsWin6x(bool a_orHigher = true);
 
 	static std::_tstring GetExePath();
+
+	static uint32_t RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default = 0);
 protected:
 	static OSVERSIONINFO ms_osver;
 #endif
