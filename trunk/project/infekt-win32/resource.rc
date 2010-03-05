@@ -164,7 +164,9 @@ END
 IDB_PNG_FILEOPEN        PNG                     "icons\\folder_txt.png"
 IDB_PNG_INFO            PNG                     "icons\\info.png"
 IDB_PNG_SETTINGS        PNG                     "icons\\advancedsettings.png"
-IDB_PNG_EDITCOPY        PNG                     "icons\\editcopy.png"
+IDB_PNG_VIEW_RENDERED   PNG                     "icons\\blockdevice.png"
+IDB_PNG_VIEW_CLASSIC    PNG                     "icons\\mime_colorset.png"
+IDB_PNG_VIEW_TEXTONLY   PNG                     "icons\\template_source.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -192,7 +194,6 @@ BEGIN
     GROUPBOX        "Miscellaneous",IDC_STATIC,7,43,323,50
     CONTROL         "Always on Top",IDC_ALWAYSONTOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,74,63,10
     CONTROL         "Copy on Select",IDC_COPY_ON_SELECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,57,64,10
-    CONTROL         "Work in Progress!",IDC_STATIC,"Static",SS_SIMPLE | WS_GROUP,272,148,58,8
     CONTROL         "Show Menubar on Startup",IDC_MENUBAR_ON_STARTUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,57,99,10
     LTEXT           "Default View:",IDC_STATIC,100,74,44,8
     COMBOBOX        IDC_COMBO_DEFAULTVIEW,148,72,58,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
