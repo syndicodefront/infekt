@@ -554,22 +554,23 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 			dwGaussBlurRadius = a_settings.uGaussBlurRadius,
 			dwGaussColor = a_settings.cGaussColor.AsWord();
 
-		RegSetValueEx(l_hKey, _T("BlockHeight"),		0, REG_DWORD, (LPBYTE)&dwBlockHeight,			sizeof(int32_t));
-		RegSetValueEx(l_hKey, _T("BlockWidth"),			0, REG_DWORD, (LPBYTE)&dwBlockWidth,			sizeof(int32_t));
+		RegSetValueEx(l_hKey, _T("BlockHeight"),		0, REG_DWORD, (LPBYTE)&dwBlockHeight,		sizeof(int32_t));
+		RegSetValueEx(l_hKey, _T("BlockWidth"),			0, REG_DWORD, (LPBYTE)&dwBlockWidth,		sizeof(int32_t));
 
-		RegSetValueEx(l_hKey, _T("GaussShadow"),		0, REG_DWORD, (LPBYTE)&dwGaussShadow,			sizeof(int32_t));
-		RegSetValueEx(l_hKey, _T("GaussBlurRadius"),	0, REG_DWORD, (LPBYTE)&dwGaussBlurRadius,		sizeof(int32_t));
+		RegSetValueEx(l_hKey, _T("GaussShadow"),		0, REG_DWORD, (LPBYTE)&dwGaussShadow,		sizeof(int32_t));
+		RegSetValueEx(l_hKey, _T("GaussBlurRadius"),	0, REG_DWORD, (LPBYTE)&dwGaussBlurRadius,	sizeof(int32_t));
 
-		RegSetValueEx(l_hKey, _T("ClrGauss"),			0, REG_DWORD, (LPBYTE)&dwGaussColor,			sizeof(int32_t));
+		RegSetValueEx(l_hKey, _T("ClrGauss"),			0, REG_DWORD, (LPBYTE)&dwGaussColor,		sizeof(int32_t));
 	}
 	else
 	{
 		int32_t dwFontSize = a_settings.uFontSize;
 
-		RegSetValueEx(l_hKey, _T("FontSize"),			0, REG_DWORD, (LPBYTE)&dwFontSize,				sizeof(int32_t));
+		RegSetValueEx(l_hKey, _T("FontSize"),			0, REG_DWORD, (LPBYTE)&dwFontSize,			sizeof(int32_t));
 	}
 
-	//RegSetValueEx(l_hKey, _T("FontName"), 0, REG_SZ, (LPBYTE)a_settings.sFontFace, wcslen(a_settings.sFontFace) + 1);
+	RegSetValueEx(l_hKey, _T("FontName"), 0, REG_SZ, (LPBYTE)a_settings.sFontFace,
+		(wcslen(a_settings.sFontFace) + 1) * sizeof(TCHAR));
 
 	RegCloseKey(l_hKey);
 
@@ -619,6 +620,14 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 	else
 	{
 		l_newSets.uFontSize = CUtil::RegQueryDword(l_hKey, _T("FontSize"));
+	}
+
+	TCHAR l_fontFaceBuf[LF_FACESIZE + 1] = {0};
+	DWORD l_dwType, l_dwSize = (LF_FACESIZE + 1) * sizeof(TCHAR);
+	if(RegQueryValueEx(l_hKey, _T("FontName"), 0, &l_dwType, (LPBYTE)l_fontFaceBuf,
+		&l_dwSize) == ERROR_SUCCESS && l_dwType == REG_SZ)
+	{
+		_tcsncpy_s(l_newSets.sFontFace, LF_FACESIZE + 1, l_fontFaceBuf, LF_FACESIZE);
 	}
 
 	RegCloseKey(l_hKey);
