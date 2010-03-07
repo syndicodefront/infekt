@@ -113,6 +113,7 @@ CNFOApp::~CNFOApp()
 /************************************************************************/
 
 #define DEFAULT_APP_REG_NAME L"iNFekt NFO Viewer" // Name in HKLM\SOFTWARE\RegisteredApplications
+#define DEFAULT_APP_PROG_ID L"iNFEKT.NFOFile.1"
 #define DEFAULT_APP_EXTENSION L".nfo"
 
 int CNFOApp::IsDefaultNfoViewer()
@@ -121,9 +122,9 @@ int CNFOApp::IsDefaultNfoViewer()
 
 	if(CUtil::IsWin5x())
 	{
-		CWin5xDefaultApp l_defApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
+		CWin5xDefaultApp l_defApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 
-		l_result = (l_defApp.IsDefault() ? 0 : 1);
+		l_result = (l_defApp.IsDefault() ? 1 : 0);
 	}
 	else if(CUtil::IsWin6x())
 	{
@@ -156,7 +157,7 @@ bool CNFOApp::MakeDefaultNfoViewer()
 
 	if(CUtil::IsWin5x())
 	{
-		l_defApp = new CWin5xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
+		l_defApp = new CWin5xDefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 	}
 	else if(CUtil::IsWin6x())
 	{
