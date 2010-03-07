@@ -15,6 +15,7 @@
   * Fixed issue that "forgot" the last line of files
   * Fixed nasty Windows 2000 / Common Control 5 Combo Box bug
   * Other fixes & improvements
+  * Updated dependencies: cairo 1.8.10, pixman, libpng
   * Made an optional installer
 
 == v0.1.6 (24 Feb 2010) ===
