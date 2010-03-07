@@ -13,15 +13,15 @@ curl http://www.zlib.net/zlib-1.2.3.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.0.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.1.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.17.6.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.17.10.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.8.8.tar.gz -o cairo.tgz
+curl http://www.cairographics.org/releases/cairo-1.8.10.tar.gz -o cairo.tgz
 :CZOK
 
 set ROOTDIR=%cd%\work
