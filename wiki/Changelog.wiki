@@ -1,11 +1,12 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
-== v0.2 (???) ==
+== v0.2 (7 March 2010) ==
   * Implemented font size (Classic + Text-Only View) setting
   * Implemented font face setting
   * Implemented "Show Menubar on Startup" setting
   * Implemented "Copy on Select" setting + functionality
+  * Implemented Shell Integration as default NFO viewer
   * Added support for NFOs with ANSI Escape Codes
   * Added support for broken NFOs with \n\n newlines
   * Narrow NFOs in wide windows are centered
