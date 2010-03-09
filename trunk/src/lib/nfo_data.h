@@ -80,7 +80,7 @@ public:
 
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 
-	static bool FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
+	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
 		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
 	static std::string GetStrippedTextUtf8(const std::wstring& a_text);
 
