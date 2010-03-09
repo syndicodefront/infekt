@@ -21,6 +21,9 @@
 
 #define NFOVWR_CTRL_CLASS_NAME _T("iNFEKT_NfoViewCtrl")
 
+#ifndef WM_THEMECHANGED
+#define WM_THEMECHANGED 0x31A
+#endif
 
 CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic) : CNFORenderer(a_classic)
 {
@@ -182,6 +185,12 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			PostMessage(m_contextMenuCommandTarget, WM_COMMAND, wParam, lParam);
 		}
+		return 0;
+	case WM_THEMECHANGED:
+		if(CThemeAPI::GetInstance()->IsThemeActive())
+			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
+		else
+			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);
 		return 0;
 	default:
 		return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
