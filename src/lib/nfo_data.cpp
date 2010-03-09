@@ -397,9 +397,10 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			{
 				size_t l_linkPos, l_linkLen;
 				bool l_linkContinued;
-				string l_url;
+				string l_url, l_prevUrlCopy = l_prevLinkUrl;
+				size_t l_offset = 0;
 
-				if(FindLink(l_utf8Line, l_linkPos, l_linkLen, l_url, l_prevLinkUrl, l_linkContinued))
+				while(FindLink(l_utf8Line, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
 				{
 					const wstring wsUrl = CUtil::ToWideStr(l_url, CP_UTF8);
 					int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
@@ -417,6 +418,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 						l_prevLinkUrl = "";
 					}
 
+					l_prevUrlCopy = "";
 					l_maxLinkIndex++;
 				}
 			}
@@ -678,7 +680,7 @@ const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 
 
 #define OVECTOR_SIZE 30 // multiple of 3!
-bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urLinkLen,
+bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
 			  std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued)
 {
 	typedef pair<const char*, bool> TRGR;
@@ -713,7 +715,8 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 		}
 	}
 
-	if(sLine.size() > (int64_t)std::numeric_limits<int>::max())
+	if(sLine.size() > (int64_t)std::numeric_limits<int>::max()
+		|| uirOffset > (int64_t)std::numeric_limits<int>::max())
 	{
 		return false;
 	}
@@ -731,24 +734,24 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK,
 			&szErrDescr, &iErrOffset, NULL);
 
-		if(pcre_exec(re, NULL, sLine.c_str(), (int)sLine.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+		if(pcre_exec(re, NULL, sLine.c_str(), (int)sLine.size(), (int)uirOffset, 0, ovector, OVECTOR_SIZE) >= 0)
 		{
 			int iCaptures = 0;
 			if(pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
 			{
 				int idx = (iCaptures == 1 ? 1 : 0) * 2;
 				_ASSERT(ovector[idx] >= 0 && ovector[idx + 1] > 0);
-				uBytePos = (size_t)ovector[idx];
+
+				if((size_t)ovector[idx] < uBytePos)
+				{
+					uBytePos = (size_t)ovector[idx];
+
+					bMatchContinuesLink = it->second;
+				}
 			}
 		}
 
 		pcre_free(re);
-
-		if(uBytePos != (size_t)-1)
-		{
-			bMatchContinuesLink = it->second;
-			break;
-		}
 	}
 
 	if(uBytePos == (size_t)-1)
@@ -774,6 +777,8 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& urLinkPos, size_t& urL
 
 		urLinkPos = g_utf8_strlen(sLine.c_str(), uBytePos);
 		urLinkLen = g_utf8_strlen(sWorkUrl.c_str(), -1); // IN CHARACTERS, NOT BYTES!
+
+		uirOffset = uBytePos + uByteLen;
 
 		pcre_free(reUrlRemainder);
 
