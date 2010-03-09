@@ -1,3 +1,17 @@
+/**
+ * Copyright (C) 2010 cxxjoe
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ **/
+
 #include "stdafx.h"
 #include "app.h"
 #include "main_frame.h"
@@ -519,7 +533,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 			l_renderer.InjectSettings(l_settings);
 
-			if(l_renderer.AssignNFO(m_view.GetNfoData()))
+			if(l_renderer.AssignNFO(m_view.GetActiveCtrl()->GetNfoData()))
 			{
 				size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
 
@@ -561,12 +575,39 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if(!l_filePath.empty())
 		{
-			m_view.GetNfoData()->SaveToFile(l_filePath, l_utf8);
+			m_view.GetActiveCtrl()->GetNfoData()->SaveToFile(l_filePath, l_utf8);
 		}
 	}
 	else if(a_id == IDM_EXPORT_XHTML)
 	{
-		// :TODO:
+		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			_T("(X)HTML File\0*.html\0\0"), _T("html"),
+			l_baseFileName + _T(".html"));
+
+		if(!l_filePath.empty())
+		{
+			CNFOToHTML l_exporter(m_view.GetActiveCtrl()->GetNfoData());
+			l_exporter.SetSettings(m_view.GetActiveCtrl()->GetSettings());
+			l_exporter.SetTitle(l_baseFileName + _T(".nfo"));
+
+			wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
+			l_html += l_exporter.GetHTML();
+
+			string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
+
+			FILE* l_file;
+			if(_tfopen_s(&l_file, l_filePath.c_str(), _T("wb")) == 0 && l_file)
+			{
+				fwrite(l_utf8.c_str(), l_utf8.size(), 1, l_file);
+				fclose(l_file);
+
+				this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+			}
+			else
+			{
+				this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
+			}
+		}
 	}
 	else if(a_id == IDM_EXPORT_PDF)
 	{

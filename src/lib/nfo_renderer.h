@@ -39,7 +39,6 @@ typedef enum _render_grid_shape_t
 
 typedef struct _render_grid_block_t
 {
-	wchar_t charCode;
 	ERenderGridShape shape;
 	uint8_t alpha; /* 0 = invisible, 255 = opaque */
 } CRenderGridBlock;
@@ -59,6 +58,7 @@ typedef struct _s_color_t
 
 	_s_color_t Invert() const { return _s_color_t(255 - R, 255 - G, 255 - B, A); }
 	uint32_t AsWord() const { return (A) | (B << 8) | (G << 16) | (R << 24); }
+	std::wstring AsHex(bool a_alpha) const { wchar_t l_buf[100] = {0}; if(a_alpha) wsprintf(l_buf, L"%02x%02x%02x%02x", R, G, B, A); else wsprintf(l_buf, L"%02x%02x%02x", R, G, B); return l_buf; }
 } S_COLOR_T;
 
 #define _S_COLOR(R, G, B, A) _s_color_t(R, G, B, A)
@@ -138,7 +138,6 @@ protected:
 	void CalcClassicModeBlockSizes(bool a_force = false);
 
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
-	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);
 	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);
 
 	static const size_t ms_defaultClassicFontSize = 12;
@@ -146,10 +145,13 @@ public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();
 
+	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);
+
 	// mainly important methods:
 	virtual void UnAssignNFO();
 	virtual bool AssignNFO(const PNFOData& a_nfo);
 	bool HasNfoData() const { return (m_nfo && m_nfo->HasData() ? true : false); }
+	const PNFOData& GetNfoData() const { return m_nfo; }
 	virtual bool DrawToSurface(cairo_surface_t *a_surface, int dest_x, int dest_y,
 		int source_x, int source_y, int width, int height);
 	// you should not call this directly without a good reason, prefer DrawToSurface:
@@ -217,6 +219,28 @@ public:
 	// static color helper methods for anyone to use:
 	static bool ParseColor(const char* a_str, S_COLOR_T* ar);
 	static bool ParseColor(const wchar_t* a_str, S_COLOR_T* ar);
+};
+
+
+class CNFOToHTML
+{
+protected:
+	CNFORenderSettings m_settings;
+	PNFOData m_nfo;
+
+	std::wstring m_title;
+
+	static std::wstring XMLEscape(const std::wstring& s);
+public:
+	CNFOToHTML(const PNFOData& a_nfoData);
+	virtual ~CNFOToHTML();
+
+	const std::wstring GetHTML(bool a_includeHeaderAndFooter = true);
+
+	const CNFORenderSettings GetSettings() const { return m_settings; }
+	void SetSettings(const CNFORenderSettings& ns) { m_settings = ns; }
+
+	void SetTitle(const std::wstring& snt) { m_title = snt; }
 };
 
 
