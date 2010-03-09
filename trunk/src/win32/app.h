@@ -17,6 +17,8 @@
 
 #include "main_frame.h"
 
+#define WM_LOAD_NFO (WM_APP + 1)
+
 class CNFOApp : public CWinApp
 {
 public:

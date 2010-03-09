@@ -62,12 +62,12 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 			}
 		}
 
-		CoInitializeEx(NULL, COINIT_MULTITHREADED);
+		OleInitialize(NULL);
 
 		// Run the application:
 		int l_exitCode = theApp.Run();
 
-		CoUninitialize();
+		OleUninitialize();
 
 		return l_exitCode;
 	}
