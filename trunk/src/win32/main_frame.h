@@ -26,6 +26,7 @@ public:
 		iLastView = MAIN_VIEW_RENDERED;
 		bCopyOnSelect = bAlwaysOnTop = bAlwaysShowMenubar = false;
 		bCheckDefaultOnStartup = false;
+		bSingleInstanceMode = false;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -36,6 +37,7 @@ public:
 	bool bAlwaysOnTop;
 	bool bAlwaysShowMenubar;
 	bool bCheckDefaultOnStartup;
+	bool bSingleInstanceMode;
 };
 
 typedef boost::shared_ptr<CMainSettings> PMainSettings;
@@ -76,6 +78,7 @@ public:
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 
 	void SwitchView(EMainView a_view);
+	bool OpenFile(const std::_tstring& a_filePath);
 	void UpdateAlwaysOnTop();
 	void ShowMenuBar(bool a_show = true);
 	PMainSettings GetSettings() { return m_settings; }

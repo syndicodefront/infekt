@@ -18,6 +18,7 @@
 #include "main_frame.h"
 
 #define WM_LOAD_NFO (WM_APP + 1)
+#define INFEKT_MAIN_WINDOW_CLASS_NAME _T("iNFektMainWindow")
 
 class CNFOApp : public CWinApp
 {
@@ -27,8 +28,10 @@ public:
 	virtual BOOL InitInstance();
 
 	CMainFrame& GetMainFrame() { return m_Frame; }
-	void SetStartupFilePath(std::_tstring a_filePath) { m_startupFilePath = a_filePath; }
 	const std::_tstring& GetStartupFilePath() { return m_startupFilePath; }
+
+	bool ExtractStartupFilePath(const std::_tstring& a_commandLine);
+	bool SwitchToPrevInstance();
 
 	int IsDefaultNfoViewer();
 	bool MakeDefaultNfoViewer();

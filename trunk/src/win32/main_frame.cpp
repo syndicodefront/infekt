@@ -55,6 +55,9 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 
 	// hide the window to avoid flicker:
 	cs.style &= ~WS_VISIBLE;
+
+	// we need a unique class name for the "single window" functionality:
+	cs.lpszClass = INFEKT_MAIN_WINDOW_CLASS_NAME;
 }
 
 
@@ -106,7 +109,7 @@ void CMainFrame::OnInitialUpdate()
 	if(!l_path.empty())
 	{
 		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
-		m_view.OpenFile(l_path);
+		OpenFile(l_path);
 	}
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
@@ -319,6 +322,19 @@ void CMainFrame::SwitchView(EMainView a_view)
 }
 
 
+bool CMainFrame::OpenFile(const std::_tstring& a_filePath)
+{
+	if(m_view.OpenFile(a_filePath))
+	{
+		UpdateCaption();
+
+		return true;
+	}
+
+	return false;
+}
+
+
 void CMainFrame::UpdateCaption()
 {
 	wstring l_caption;
@@ -393,10 +409,36 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		const wstring l_path = (wchar_t*)wParam;
 		if(::PathFileExists(l_path.c_str()))
 		{
-			m_view.OpenFile(l_path);
-			UpdateCaption();
+			OpenFile(l_path);
 		}
 		return 1; }
+	case WM_COPYDATA: {
+		const COPYDATASTRUCT* l_cpds = (PCOPYDATASTRUCT)lParam;
+		if(l_cpds->dwData == WM_LOAD_NFO)
+		{
+			if(l_cpds->cbData < 1000 && l_cpds->lpData &&
+				::IsTextUnicode(l_cpds->lpData, l_cpds->cbData, NULL))
+			{
+				const wstring l_path = (wchar_t*)l_cpds->lpData;
+				if(::PathFileExists(l_path.c_str()))
+				{
+					OpenFile(l_path);
+
+					WINDOWPLACEMENT wplm;
+					GetWindowPlacement(wplm);
+					wplm.showCmd = SW_RESTORE;
+					SetWindowPlacement(wplm);
+
+					ShowWindow(SW_SHOW);
+					BringWindowToTop();
+					SetForegroundWindow();
+					SetActiveWindow();
+
+					return TRUE;
+				}
+			}
+		}
+		break; }
 	case WM_DESTROY:
 		::RevokeDragDrop(m_hWnd);
 		::CoLockObjectExternal(m_dropHelper, FALSE, TRUE);
@@ -431,14 +473,12 @@ void CMainFrame::UpdateAlwaysOnTop()
 
 void CMainFrame::OpenChooseFileName()
 {
-	_tstring l_fileName = CUtil::OpenFileDialog(g_hInstance, GetHwnd(),
+	_tstring l_filePath = CUtil::OpenFileDialog(g_hInstance, GetHwnd(),
 		_T("NFO Files\0*.nfo;*.diz;*.asc\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0"));
 
-	if(!l_fileName.empty())
+	if(!l_filePath.empty())
 	{
-		m_view.OpenFile(l_fileName);
-
-		UpdateCaption();
+		OpenFile(l_filePath);
 	}
 }
 
@@ -785,7 +825,8 @@ bool CMainSettings::SaveToRegistry()
 		dwCopySelect = (this->bCopyOnSelect ? 1 : 0),
 		dwAlwaysOnTop = (this->bAlwaysOnTop ? 1 : 0),
 		dwAlwaysMenuBar = (this->bAlwaysShowMenubar ? 1 : 0),
-		dwCheckDefault = (this->bCheckDefaultOnStartup ? 1 : 0);
+		dwCheckDefault = (this->bCheckDefaultOnStartup ? 1 : 0),
+		dwSingleInstance = (this->bSingleInstanceMode ? 1 : 0);
 
 	RegSetValueEx(l_hKey, _T("DefaultView"),		0, REG_DWORD, (LPBYTE)&dwDefaultView,		sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("LastView"),			0, REG_DWORD, (LPBYTE)&dwLastView,			sizeof(int32_t));
@@ -793,6 +834,7 @@ bool CMainSettings::SaveToRegistry()
 	RegSetValueEx(l_hKey, _T("AlwaysOnTop"),		0, REG_DWORD, (LPBYTE)&dwAlwaysOnTop,		sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("AlwaysShowMenubar"),	0, REG_DWORD, (LPBYTE)&dwAlwaysMenuBar,		sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("CheckDefViewOnStart"),0, REG_DWORD, (LPBYTE)&dwCheckDefault,		sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("SingleInstanceMode"),	0, REG_DWORD, (LPBYTE)&dwSingleInstance,	sizeof(int32_t));
 
 	RegCloseKey(l_hKey);
 
@@ -815,7 +857,8 @@ bool CMainSettings::LoadFromRegistry()
 		dwCopySelect = CUtil::RegQueryDword(l_hKey, _T("CopyOnSelect")),
 		dwAlwaysOnTop = CUtil::RegQueryDword(l_hKey, _T("AlwaysOnTop")),
 		dwAlwaysMenuBar = CUtil::RegQueryDword(l_hKey, _T("AlwaysShowMenubar")),
-		dwCheckDefault = CUtil::RegQueryDword(l_hKey, _T("CheckDefViewOnStart"));
+		dwCheckDefault = CUtil::RegQueryDword(l_hKey, _T("CheckDefViewOnStart")),
+		dwSingleInstance = CUtil::RegQueryDword(l_hKey, _T("SingleInstanceMode"));
 
 	RegCloseKey(l_hKey);
 
@@ -833,6 +876,7 @@ bool CMainSettings::LoadFromRegistry()
 	this->bAlwaysOnTop = (dwAlwaysOnTop != 0);
 	this->bAlwaysShowMenubar = (dwAlwaysMenuBar != 0);
 	this->bCheckDefaultOnStartup = (dwCheckDefault != 0);
+	this->bSingleInstanceMode = (dwSingleInstance != 0);
 
 	return true;
 }

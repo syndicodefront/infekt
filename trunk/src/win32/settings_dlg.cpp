@@ -284,6 +284,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, l_global->bAlwaysOnTop);
 		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, l_global->bAlwaysShowMenubar);
 		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, l_global->bCopyOnSelect);
+		SET_DLG_CHECKBOX(IDC_SINGLEINSTANCEMODE, l_global->bSingleInstanceMode);
 
 		if(CUtil::IsWin6x())
 		{
@@ -804,6 +805,7 @@ bool CSettingsTabDialog::SaveSettings()
 		dynamic_cast<CViewContainer*>(m_mainWin->GetView())->SetCopyOnSelect(l_set->bCopyOnSelect);
 
 		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
+		l_set->bSingleInstanceMode = (::IsDlgButtonChecked(GetHwnd(), IDC_SINGLEINSTANCEMODE) != FALSE);
 
 		return l_set->SaveToRegistry();
 	}
