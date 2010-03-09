@@ -152,7 +152,11 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 				l_curType = l_type;
 			}
 
-			if(l_char >= 0x20 && l_char < 0x80 || iswalnum(l_char) || iswspace(l_char))
+			if(l_char == L'<') l_html << L"&lt;";
+			else if(l_char == L'>') l_html << L"&gt;";
+			else if(l_char == L'"') l_html << L"&quot;";
+			else if(l_char == L'&') l_html << L"&amp;";
+			else if(l_char >= 0x20 && l_char < 0x80 || iswalnum(l_char) || iswspace(l_char))
 			{
 				l_html << l_char;
 			}
