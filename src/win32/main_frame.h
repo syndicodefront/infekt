@@ -41,6 +41,30 @@ public:
 typedef boost::shared_ptr<CMainSettings> PMainSettings;
 
 
+class CMainDropTargetHelper : public IDropTarget
+{
+public:
+	CMainDropTargetHelper(HWND a_hwnd);
+	virtual ~CMainDropTargetHelper();
+
+	// IUnknown implementation
+	HRESULT _stdcall QueryInterface(REFIID iid, void** ppvObject);
+	ULONG _stdcall AddRef();
+	ULONG _stdcall Release();
+
+	// IDropTarget implementation
+	HRESULT _stdcall DragEnter(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+	HRESULT _stdcall DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+	HRESULT _stdcall DragLeave();
+	HRESULT _stdcall Drop(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+protected:
+	LONG m_refCount;
+	HWND m_hwnd;
+
+	bool m_allowDrop;
+};
+
+
 class CMainFrame : public CFrame
 {
 public:
@@ -62,6 +86,7 @@ protected:
 	bool m_menuBarVisible;
 	bool m_showingAbout;
 	PMainSettings m_settings;
+	CMainDropTargetHelper *m_dropHelper;
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);
@@ -69,7 +94,6 @@ protected:
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
 	virtual void OnInitialUpdate();
 	virtual void OnHelp();
-	//LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 	virtual void SetupToolbar();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
