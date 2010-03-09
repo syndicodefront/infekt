@@ -104,7 +104,6 @@ bool CNFORenderer::CalculateGrid()
 	}
 
 	CRenderGridBlock l_emptyBlock;
-	l_emptyBlock.charCode = 0;
 	l_emptyBlock.shape = RGS_NO_BLOCK;
 	l_emptyBlock.alpha = 255;
 
@@ -121,8 +120,7 @@ bool CNFORenderer::CalculateGrid()
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			CRenderGridBlock *l_block = &l_grid[row][col];
-			l_block->charCode = m_nfo->GetGridChar(row, col);
-			l_block->shape = CharCodeToGridShape(l_block->charCode, &l_block->alpha);
+			l_block->shape = CharCodeToGridShape(m_nfo->GetGridChar(row, col), &l_block->alpha);
 			if(l_block->shape == RGS_WHITESPACE && l_textStarted) l_block->shape = RGS_WHITESPACE_IN_TEXT;
 			else if(l_block->shape == RGS_NO_BLOCK) l_textStarted = true;
 		}
