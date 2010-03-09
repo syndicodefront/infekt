@@ -1,6 +1,10 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
+== v0.3 (???) ==
+  * Added support for multiple hyperlinks in one line
+  * Other fixes & improvements
+
 == v0.2 (7 March 2010) ==
   * Implemented font size (Classic + Text-Only View) setting
   * Implemented font face setting
