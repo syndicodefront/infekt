@@ -30,6 +30,8 @@
 #define IDC_CHECK4                      1010
 #define IDC_MENUBAR_ON_STARTUP          1010
 #define IDC_CLR_ART                     1011
+#define IDC_ALWAYSONTOP2                1011
+#define IDC_SINGLEINSTANCEMODE          1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013
 #define IDC_PREVIEW_BTN                 1013

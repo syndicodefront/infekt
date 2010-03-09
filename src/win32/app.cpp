@@ -30,38 +30,26 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 	_wsetlocale(LC_CTYPE, L"C");
 
+	HANDLE l_instMutex = CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
+	bool l_prevInstance = (GetLastError() == ERROR_ALREADY_EXISTS);
+
 	try
 	{
 		// Start Win32++:
 		CNFOApp theApp;
 
 		// extract file path from command line:
-		wstring l_path(wszCommandLine);
-		if(!l_path.empty())
+		if(theApp.ExtractStartupFilePath(wszCommandLine))
 		{
-			bool l_ok = false;
-
-			if(l_path[0] == L'"')
+			// activate prev instance if in single window/view mode:
+			if(l_prevInstance && theApp.SwitchToPrevInstance())
 			{
-				l_path.erase(0, 1);
-
-				wstring::size_type l_pos = l_path.find(L'"');
-
-				if(l_pos != wstring::npos)
-				{
-					l_path.erase(l_pos);
-					l_ok = true;
-				}
-			}
-			else
-				l_ok = true;
-
-			if(l_ok)
-			{
-				theApp.SetStartupFilePath(l_path);
+				return 0;
 			}
 		}
 
+		// we need COM for default app stuff on Vista+,
+		// and OLE for file drag&drop.
 		OleInitialize(NULL);
 
 		// Run the application:
@@ -88,6 +76,77 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 CNFOApp::CNFOApp()
 {
+}
+
+
+bool CNFOApp::ExtractStartupFilePath(const _tstring& a_commandLine)
+{
+	if(!a_commandLine.empty())
+	{
+		_tstring l_path(a_commandLine);
+		bool l_ok = false;
+
+		if(l_path[0] == L'"')
+		{
+			l_path.erase(0, 1);
+
+			wstring::size_type l_pos = l_path.find(L'"');
+
+			if(l_pos != wstring::npos)
+			{
+				l_path.erase(l_pos);
+				l_ok = true;
+			}
+		}
+		else
+			l_ok = true;
+
+		if(l_ok && PathFileExists(l_path.c_str()))
+		{
+			m_startupFilePath = l_path;
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+bool CNFOApp::SwitchToPrevInstance()
+{
+	HKEY l_hKey;
+	_tstring l_regPath = _T("Software\\cxxjoe\\iNFEKT\\MainSettings");
+
+	if(RegOpenKeyEx(HKEY_CURRENT_USER, l_regPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	{
+		return false;
+	}
+
+	bool l_singleInstanceMode = (CUtil::RegQueryDword(l_hKey, _T("SingleInstanceMode")) != 0);
+
+	RegCloseKey(l_hKey);
+
+	if(l_singleInstanceMode)
+	{
+		HWND l_prevMainWin = FindWindowEx(0, 0, INFEKT_MAIN_WINDOW_CLASS_NAME, NULL);
+
+		if(l_prevMainWin)
+		{
+			COPYDATASTRUCT l_cpds = {0};
+			l_cpds.dwData = WM_LOAD_NFO;
+			l_cpds.cbData = (m_startupFilePath.size() + 1) * sizeof(wchar_t);
+			l_cpds.lpData = (void*)m_startupFilePath.c_str();
+
+			if(::SendMessage(l_prevMainWin, WM_COPYDATA, 0, (LPARAM)&l_cpds) == TRUE)
+			{
+				ShowWindow(l_prevMainWin, SW_SHOW);
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 
