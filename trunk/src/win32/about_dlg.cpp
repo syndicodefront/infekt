@@ -84,7 +84,7 @@ BOOL CAboutDialog::OnInitDialog()
 	}
 	l_top += 20;
 
-	_CREATE_STATIC(l_hHomepage, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%d"),
+	_CREATE_STATIC(l_hHomepage, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%02d"),
 		CAIRO_VERSION_MAJOR % CAIRO_VERSION_MINOR % CAIRO_VERSION_MICRO %
 		PCRE_MAJOR % PCRE_MINOR), l_top, 20);
 	l_top += 20;
