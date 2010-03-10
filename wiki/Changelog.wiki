@@ -3,7 +3,9 @@
 
 == v0.3 (???) ==
   * Added support for multiple hyperlinks in one line
+  * Implemented XHTML export
   * Added "Re-use Viewer window (single instance mode)" option
+  * Added list of recently opened files to the Open toolbar button
   * Fixed incorrect window caption when a file was opened via command line/double click
   * Other fixes & improvements
 
