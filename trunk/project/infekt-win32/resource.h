@@ -30,7 +30,6 @@
 #define IDC_CHECK4                      1010
 #define IDC_MENUBAR_ON_STARTUP          1010
 #define IDC_CLR_ART                     1011
-#define IDC_ALWAYSONTOP2                1011
 #define IDC_SINGLEINSTANCEMODE          1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013
@@ -109,8 +108,8 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        121
-#define _APS_NEXT_COMMAND_VALUE         40062
+#define _APS_NEXT_RESOURCE_VALUE        122
+#define _APS_NEXT_COMMAND_VALUE         40063
 #define _APS_NEXT_CONTROL_VALUE         1043
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

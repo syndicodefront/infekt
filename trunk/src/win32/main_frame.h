@@ -78,7 +78,7 @@ public:
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 
 	void SwitchView(EMainView a_view);
-	bool OpenFile(const std::_tstring& a_filePath);
+	bool OpenFile(const std::_tstring a_filePath);
 	void UpdateAlwaysOnTop();
 	void ShowMenuBar(bool a_show = true);
 	PMainSettings GetSettings() { return m_settings; }
@@ -90,11 +90,16 @@ protected:
 	bool m_showingAbout;
 	PMainSettings m_settings;
 	CMainDropTargetHelper *m_dropHelper;
+	std::vector<std::_tstring> m_mruPaths;
+
+	void LoadOpenMruList();
+	void SaveOpenMruList();
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);
 	virtual void OnCreate();
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	virtual LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 	virtual void OnInitialUpdate();
 	virtual void OnHelp();
 	virtual void SetupToolbar();
@@ -107,10 +112,12 @@ protected:
 	void UpdateCaption();
 	void OpenChooseFileName();
 	void DoNfoExport(UINT a_id);
+	bool DoOpenMruMenu(const LPNMTOOLBAR a_lpnm);
 
 	void CheckForUpdates();
 
 	static const int ms_minWidth = 300, ms_minHeight = 150;
+	static const size_t ms_mruLength = 10;
 };
 
 #endif  /* !_MAIN_FRAME_H */

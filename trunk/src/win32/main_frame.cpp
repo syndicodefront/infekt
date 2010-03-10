@@ -28,7 +28,9 @@ enum _toolbar_button_ids {
 	TBBID_VIEW_RENDERED,
 	TBBID_VIEW_CLASSIC,
 	TBBID_VIEW_TEXTONLY,
-	TBBID_ABOUT
+	TBBID_ABOUT,
+	TBBID_CLEARMRU,
+	TBBID_OPENMRUSTART // must be the last item in this list.
 };
 
 #define VIEW_MENU_POS 1
@@ -40,6 +42,7 @@ CMainFrame::CMainFrame() : CFrame(),
 	SetView(m_view);
 
 	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
+	LoadOpenMruList();
 
 	m_settings = PMainSettings(new CMainSettings(true));
 }
@@ -220,7 +223,21 @@ void CMainFrame::ShowMenuBar(bool a_show)
 
 BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-	switch(LOWORD(wParam))
+	DWORD l_item = LOWORD(wParam);
+
+	if(l_item >= TBBID_OPENMRUSTART && l_item < TBBID_OPENMRUSTART + ms_mruLength)
+	{
+		l_item = l_item - TBBID_OPENMRUSTART;
+
+		if(l_item < m_mruPaths.size())
+		{
+			OpenFile(m_mruPaths[l_item]);
+		}
+
+		return TRUE;
+	}
+
+	switch(l_item)
 	{
 	case IDM_EXIT:
 		SendMessage(WM_CLOSE);
@@ -271,26 +288,94 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case TBBID_VIEW_RENDERED:
 	case IDM_VIEW_RENDERED:
 		SwitchView(MAIN_VIEW_RENDERED);
-		break;
+		return TRUE;
 
 	case TBBID_VIEW_CLASSIC:
 	case IDM_VIEW_CLASSIC:
 		SwitchView(MAIN_VIEW_CLASSIC);
-		break;
+		return TRUE;
 
 	case TBBID_VIEW_TEXTONLY:
 	case IDM_VIEW_TEXTONLY:
 		SwitchView(MAIN_VIEW_TEXTONLY);
-		break;
+		return TRUE;
 
 	case IDM_ALWAYSONTOP:
 	case IDMC_ALWAYSONTOP:
 		GetSettings()->bAlwaysOnTop = !GetSettings()->bAlwaysOnTop;
 		UpdateAlwaysOnTop();
-		break;
+		return TRUE;
+
+	case TBBID_CLEARMRU:
+		m_mruPaths.clear();
+		SaveOpenMruList();
+		return TRUE;
 	}
 
 	return FALSE;
+}
+
+
+LRESULT CMainFrame::OnNotify(WPARAM wParam, LPARAM lParam)
+{
+	LPNMHDR l_lpnm = (LPNMHDR)lParam;
+
+	switch(l_lpnm->code)
+	{
+	case TBN_DROPDOWN:
+		if(DoOpenMruMenu((LPNMTOOLBAR)lParam))
+			return FALSE;
+		break;
+	}
+
+	return CFrame::OnNotify(wParam, lParam);
+}
+
+
+bool CMainFrame::DoOpenMruMenu(const LPNMTOOLBAR a_lpnm)
+{
+	if(a_lpnm->iItem == TBBID_OPEN)
+	{
+		// Get the coordinates of the button:
+		RECT rc;
+		::SendMessage(a_lpnm->hdr.hwndFrom, TB_GETRECT, (WPARAM)a_lpnm->iItem, (LPARAM)&rc);        
+		::MapWindowPoints(a_lpnm->hdr.hwndFrom, HWND_DESKTOP, (LPPOINT)&rc, 2);                         
+
+		// Create a temp menu:
+		HMENU hPopupMenu = ::CreatePopupMenu();
+
+		size_t l_idx = 0;
+		for(vector<_tstring>::const_iterator it = m_mruPaths.begin(); it != m_mruPaths.end(); it++, l_idx++)
+		{
+			const wchar_t* l_entry = it->c_str();
+			l_entry = ::PathFindFileName(l_entry);
+			::AppendMenu(hPopupMenu, MF_STRING, TBBID_OPENMRUSTART + l_idx, l_entry);
+		}
+
+		::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+		::AppendMenu(hPopupMenu, MF_STRING | (m_mruPaths.size() == 0 ? MF_DISABLED | MF_GRAYED : 0),
+			TBBID_CLEARMRU, _T("Empty Recently Viewed List"));
+
+		// Set up the popup menu.
+		// Set rcExclude equal to the button rectangle so that if the toolbar
+		// is too close to the bottom of the screen, the menu will appear above
+		// the button rather than below it.
+		TPMPARAMS tpm;
+		tpm.cbSize = sizeof(TPMPARAMS);
+		tpm.rcExclude = rc;
+
+		// Show the menu and wait for input.
+		// If the user selects an item, its WM_COMMAND is sent.
+		::TrackPopupMenuEx(hPopupMenu,
+			TPM_LEFTALIGN | TPM_LEFTBUTTON | TPM_VERTICAL,               
+			rc.left, rc.bottom, m_hWnd, &tpm); 
+
+		::DestroyMenu(hPopupMenu);
+
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -336,11 +421,31 @@ void CMainFrame::SwitchView(EMainView a_view)
 }
 
 
-bool CMainFrame::OpenFile(const std::_tstring& a_filePath)
+bool CMainFrame::OpenFile(const std::_tstring a_filePath)
+// do not use a reference since it might be a string from m_mruPaths and that
+// would turn out badly.
 {
 	if(m_view.OpenFile(a_filePath))
 	{
 		UpdateCaption();
+
+		for(vector<_tstring>::iterator it = m_mruPaths.begin(); it != m_mruPaths.end(); it++)
+		{
+			if(_tcsicmp(it->c_str(), a_filePath.c_str()) == 0)
+			{
+				m_mruPaths.erase(it);
+				break;
+			}
+		}
+
+		m_mruPaths.insert(m_mruPaths.begin(), a_filePath);
+
+		if(m_mruPaths.size() > ms_mruLength)
+		{
+			m_mruPaths.erase(m_mruPaths.begin() + ms_mruLength, m_mruPaths.end());
+		}
+
+		SaveOpenMruList();
 
 		return true;
 	}
@@ -840,9 +945,70 @@ void CMainFrame::CheckForUpdates()
 }
 
 
+void CMainFrame::LoadOpenMruList()
+{
+	m_mruPaths.clear();
+
+	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\OpenMRU");
+
+	HKEY l_hKey;
+	if(RegOpenKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	{
+		return;
+	}
+
+	for(size_t i = 0; i < ms_mruLength; i++)
+	{
+		const wstring l_valName = FORMAT(L"%d", i);
+		DWORD dwType = -1;
+		TCHAR dwBuf[1000] = {0};
+		DWORD dwBufSize = sizeof(TCHAR) * 999;
+
+		if(RegQueryValueEx(l_hKey, l_valName.c_str(), 0, &dwType, (LPBYTE)dwBuf, &dwBufSize) == ERROR_SUCCESS
+			&& dwType == REG_SZ)
+		{
+			if(::PathFileExists(dwBuf))
+			{
+				m_mruPaths.push_back(dwBuf);
+			}
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	RegCloseKey(l_hKey);
+}
+
+
+void CMainFrame::SaveOpenMruList()
+{
+	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\OpenMRU");
+
+	HKEY l_hKey;
+	if(RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	{
+		return;
+	}
+
+	size_t i = 0;
+	for(vector<_tstring>::const_iterator it = m_mruPaths.begin();
+		it != m_mruPaths.end(); it++, i++)
+	{
+		const wstring l_valName = FORMAT(L"%d", i);
+
+		RegSetValueEx(l_hKey, l_valName.c_str(), 0, REG_SZ,
+			(LPBYTE)it->c_str(), (it->size() + 1) * sizeof(TCHAR));
+	}
+
+	RegCloseKey(l_hKey);
+}
+
+
 CMainFrame::~CMainFrame()
 {
-
 }
 
 
