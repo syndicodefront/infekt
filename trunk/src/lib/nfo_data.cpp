@@ -1004,6 +1004,11 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 			l_pos = l_text.find("\n\n", l_prevPos);
 		}
 
+		if(l_prevPos < l_text.size())
+		{
+			l_newText += l_text.substr(l_prevPos);
+		}
+
 		l_text = l_newText;
 	}
 
