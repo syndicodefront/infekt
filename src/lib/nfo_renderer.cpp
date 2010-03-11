@@ -614,7 +614,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 					if(GetUnderlineHyperLinks())
 					{
-						cairo_move_to(cr, l_off_x + col * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight() + 1);
+						cairo_move_to(cr, l_off_x + col * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
 						cairo_rel_line_to(cr, GetBlockWidth(), 0);
 						cairo_stroke(cr);
 					}
@@ -627,7 +627,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 			// finally draw the text:
 			cairo_move_to(cr, l_off_x + col * GetBlockWidth(),
-				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0);
+				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0 - 2);
 
 			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
 
