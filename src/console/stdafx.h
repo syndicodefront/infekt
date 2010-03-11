@@ -33,6 +33,7 @@
 #include <limits>
 #include <stdio.h>
 #include <string>
+#include <sstream>
 #include <map>
 #include <vector>
 #include <deque>

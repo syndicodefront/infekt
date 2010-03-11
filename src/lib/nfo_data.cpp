@@ -350,19 +350,6 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		_InternalLoad_NormalizeWhitespace(m_textContent);
 		_InternalLoad_FixAnsiEscapeCodes(m_textContent);
 		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
-
-		if(l_maxLineLen > 2000)
-		{
-			m_lastErrorDescr = L"This file contains a line longer than 2000 chars. To prevent damage and lock-ups, we do not load it.";
-			return false;
-		}
-
-		if(l_lines.size() > 2000)
-		{
-			m_lastErrorDescr = L"This file contains more than 2000 lines. To prevent damage and lock-ups, we do not load it.";
-			return false;
-		}
-
 		_InternalLoad_FixLfLf(m_textContent, l_lines);
 
 		// copy lines to grid(s):
@@ -374,6 +361,18 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		if(l_lines.size() == 0 || l_maxLineLen == 0)
 		{
 			m_lastErrorDescr = L"Unable to find any lines in this file.";
+			return false;
+		}
+
+		if(l_maxLineLen > 2000)
+		{
+			m_lastErrorDescr = L"This file contains a line longer than 2000 chars. To prevent damage and lock-ups, we do not load it.";
+			return false;
+		}
+
+		if(l_lines.size() > 2000)
+		{
+			m_lastErrorDescr = L"This file contains more than 2000 lines. To prevent damage and lock-ups, we do not load it.";
 			return false;
 		}
 
