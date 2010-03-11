@@ -180,18 +180,23 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 		bool l_useCpu = true;
 
-		if(CCudaUtil::GetInstance()->IsCudaUsable())
+		if(l_rows * cairo_image_surface_get_width(m_imgSurface) < 3000000)
 		{
-			bool l_ok = true;
+			// CUDA hangs and maybe brings down the system with numbers too large.
 
-			if(!CCudaUtil::GetInstance()->IsCudaThreadInitialized())
+			if(CCudaUtil::GetInstance()->IsCudaUsable())
 			{
-				l_ok = CCudaUtil::GetInstance()->InitCudaThread();
-			}
+				bool l_ok = true;
 
-			if(l_ok)
-			{
-				l_useCpu = !CCudaUtil::GetInstance()->DoCudaBoxBlurA8(l_boxData, l_stride, l_rows, l_lobes);
+				if(!CCudaUtil::GetInstance()->IsCudaThreadInitialized())
+				{
+					l_ok = CCudaUtil::GetInstance()->InitCudaThread();
+				}
+
+				if(l_ok)
+				{
+					l_useCpu = !CCudaUtil::GetInstance()->DoCudaBoxBlurA8(l_boxData, l_stride, l_rows, l_lobes);
+				}
 			}
 		}
 
