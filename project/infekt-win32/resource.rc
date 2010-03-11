@@ -117,7 +117,7 @@ BEGIN
             MENUITEM "As UTF-8 Text File...\tCtrl+S", IDM_EXPORT_UTF8
             MENUITEM "As UTF-16 Text File...",      IDM_EXPORT_UTF16
             MENUITEM "As XHTML...",                 IDM_EXPORT_XHTML
-            MENUITEM "As PDF...",                   IDM_EXPORT_PDF
+            MENUITEM "As PDF...",                   IDM_EXPORT_PDF, GRAYED
         END
         MENUITEM SEPARATOR
         MENUITEM "Exit\tAlt+F4",                IDM_EXIT
