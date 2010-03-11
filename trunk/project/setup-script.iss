@@ -38,6 +38,8 @@ Source: "{#SourceFileDir}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceFileDir}\libpng14.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceFileDir}\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SourceFileDir}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceFileDir}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#SourceFileDir}\cudart.dll"; DestDir: "{app}"; Flags: ignoreversion
 ;Source: "C:\temp\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
 
 [Icons]
@@ -75,6 +77,7 @@ Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts
 Root: HKCU; Subkey: "Software\cxxjoe\iNFEKT"; Flags: dontcreatekey uninsdeletekey
 ; Association created by Windows:
 Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win32.exe"; Flags: dontcreatekey uninsdeletekey
+
 
 
 

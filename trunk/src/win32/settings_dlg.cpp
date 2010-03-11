@@ -294,6 +294,15 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		}
 
 		SET_DLG_CHECKBOX(IDC_CHECK_DEFAULT_VIEWER, l_global->bCheckDefaultOnStartup && ::IsWindowEnabled(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER)));
+
+		if(CCudaUtil::GetInstance()->IsCudaUsable())
+		{
+			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: Yes!"));
+		}
+		else
+		{
+			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: No."));
+		}
 	}
 
 	return TRUE;

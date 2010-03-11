@@ -16,6 +16,7 @@
 #include <cairo-win32.h>
 #include <math.h>
 #include "cairo_box_blur.h"
+#include "util.h"
 
 // largely based on
 // http://mxr.mozilla.org/mozilla1.9.2/source/gfx/thebes/src/gfxBlur.cpp
@@ -26,9 +27,9 @@
 #endif
 
 // mozilla code stuff
-#define PRInt32 int32_t
-#define PR_MAX(a, b) std::max(a, b)
-#define PR_MIN(a, b) std::min(a, b)
+typedef int32_t PRInt32;
+#define PR_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define PR_MIN(a, b) ((a) < (b) ? (a) : (b))
 #define NS_ASSERTION(a, b) _ASSERT(a)
 
 
@@ -174,18 +175,45 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 		const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
 		const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
 
-		unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
-
 		PRInt32 l_lobes[3][2];
 		ComputeLobes(m_blurRadius, l_lobes);
 
-		BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
-		BoxBlurHorizontal(l_tmpData, l_boxData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
-		BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+		bool l_useCpu = true;
 
-		BoxBlurVertical(l_tmpData, l_boxData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
-		BoxBlurVertical(l_boxData, l_tmpData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
-		BoxBlurVertical(l_tmpData, l_boxData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+		if(CCudaUtil::GetInstance()->IsCudaUsable())
+		{
+			bool l_ok = true;
+
+			if(!CCudaUtil::GetInstance()->IsCudaThreadInitialized())
+			{
+				l_ok = CCudaUtil::GetInstance()->InitCudaThread();
+			}
+
+			if(l_ok)
+			{
+				l_useCpu = !CCudaUtil::GetInstance()->DoCudaBoxBlurA8(l_boxData, l_stride, l_rows, l_lobes);
+			}
+		}
+
+		_ASSERT(!l_useCpu);
+
+		if(l_useCpu)
+		{
+			unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
+
+			PRInt32 l_lobes[3][2];
+			ComputeLobes(m_blurRadius, l_lobes);
+
+			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
+			BoxBlurHorizontal(l_tmpData, l_boxData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
+			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+
+			BoxBlurVertical(l_tmpData, l_boxData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
+			BoxBlurVertical(l_boxData, l_tmpData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
+			BoxBlurVertical(l_tmpData, l_boxData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+
+			delete[] l_tmpData;
+		}
 
 		m_computed = true;
 	}
