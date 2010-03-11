@@ -167,9 +167,9 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 
 		a_lines.push_back(l_line);
 
-		if(l_line.length() > a_maxLineLen)
+		if(l_line.size() > a_maxLineLen)
 		{
-			a_maxLineLen = l_line.length();
+			a_maxLineLen = l_line.size();
 		}
 
 		l_prevPos = l_pos + 1;
@@ -181,6 +181,7 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 		wstring l_line = a_text.substr(l_prevPos);
 		CUtil::StrTrimRight(l_line);
 		a_lines.push_back(l_line);
+		if(l_line.size() > a_maxLineLen) a_maxLineLen = l_line.size();
 	}
 }
 
@@ -349,6 +350,19 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		_InternalLoad_NormalizeWhitespace(m_textContent);
 		_InternalLoad_FixAnsiEscapeCodes(m_textContent);
 		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
+
+		if(l_maxLineLen > 2000)
+		{
+			m_lastErrorDescr = L"This file contains a line longer than 2000 chars. To prevent damage and lock-ups, we do not load it.";
+			return false;
+		}
+
+		if(l_lines.size() > 2000)
+		{
+			m_lastErrorDescr = L"This file contains more than 2000 lines. To prevent damage and lock-ups, we do not load it.";
+			return false;
+		}
+
 		_InternalLoad_FixLfLf(m_textContent, l_lines);
 
 		// copy lines to grid(s):
@@ -471,6 +485,10 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 	m_textContent.clear();
 	m_textContent.reserve(a_dataLen);
 
+	// kill trailing NULL chars that some NFOs have so our
+	// binary file check doesn't trigger.
+	while(a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
+
 	for(size_t i = 0; i < a_dataLen; i++)
 	{
 		unsigned char p = a_data[i];
@@ -486,7 +504,12 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 		}
 		else if(p <= 0x1F)
 		{
-			if(p == 0x0D && i < a_dataLen - 1 && a_data[i + 1] == 0x0A)
+			if(p == 0)
+			{
+				m_lastErrorDescr = L"Binary files can not be loaded.";
+				return false;
+			}
+			else if(p == 0x0D && i < a_dataLen - 1 && a_data[i + 1] == 0x0A)
 			{
 				m_textContent += L'\r';
 			}
@@ -523,6 +546,12 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen)
 	// ...and load
 	m_textContent = wstring().append((wchar_t*)(a_data), (a_dataLen - 2) / sizeof(wchar_t));
 
+	if(m_textContent.find(L'\0') != wstring::npos)
+	{
+		m_lastErrorDescr = L"Binary files can not be loaded.";
+		return false;
+	}
+
 	return true;
 }
 
@@ -554,9 +583,18 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 	for(size_t p = 0; p < l_numWChars; p++)
 	{
 		l_newBuf[p] = _byteswap_ushort(l_bufStart[p]);
+
+		if(l_newBuf[p] == 0)
+		{
+			m_lastErrorDescr = L"Binary files can not be loaded.";
+			delete[] l_newBuf;
+			return false;
+		}
 	}
 
 	m_textContent = wstring().append(l_newBuf, l_numWChars);
+
+	delete[] l_newBuf;
 
 	return true;
 #endif
@@ -880,6 +918,8 @@ static string _TrimParagraph(const string& a_text)
 		l_result += '\n';
 	}
 
+	CUtil::StrTrimRight(l_result, "\n");
+
 	return l_result;
 }
 
@@ -937,6 +977,9 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 #endif
 
 	l_text = CUtil::RegExReplaceUtf8(l_text, "\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$", "",
+		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+
+	l_text = CUtil::RegExReplaceUtf8(l_text, "^\\s*.{1,3}\\s*$", "",
 		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
 
 	l_text = CUtil::RegExReplaceUtf8(l_text, "\\n{2,}", "\n\n", PCRE_NO_UTF8_CHECK);
