@@ -6,6 +6,7 @@
   * Implemented XHTML export
   * Added "Re-use Viewer window (single instance mode)" option
   * Added list of recently opened files to the Open toolbar button
+  * Made the blur/shadow effect a little bit faster for small radii and a lot faster for big radii
   * Fixed incorrect window caption when a file was opened via command line/double click
   * Other fixes & improvements
 
