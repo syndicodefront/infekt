@@ -179,6 +179,26 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\src\lib\cairo_box_blur.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\win32-support\getopt.cpp"
 				>
 			</File>
@@ -189,18 +209,70 @@
 			<File
 				RelativePath="..\..\src\console\infekt.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\nfo_data.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\nfo_renderer.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\console\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\lib\util.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter

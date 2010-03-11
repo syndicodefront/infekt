@@ -154,6 +154,9 @@ public:
 	}
 };
 
+#endif /* _WIN32_UI */
+
+#ifdef _WIN32
 
 class CCudaUtil
 {
@@ -173,7 +176,7 @@ private:
 	CCudaUtil();
 };
 
-#endif
+#endif /* _WIN32 */
 
 
 #endif /* !_UTIL_H */
