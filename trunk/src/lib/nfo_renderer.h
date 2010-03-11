@@ -16,6 +16,7 @@
 #define _NFO_RENDERER_H
 
 #include "nfo_data.h"
+#include "cairo_box_blur.h"
 
 // http://www.alanwood.net/unicode/block_elements.html
 // http://www.alanwood.net/demos/wgl4.html
@@ -109,11 +110,13 @@ class CNFORenderer
 protected:
 	CNFORenderSettings m_settings;
 	bool m_classic;
+	bool m_trueGaussian;
 
 	// NFO data:
 	PNFOData m_nfo;
 	TwoDimVector<CRenderGridBlock> *m_gridData;
 	cairo_surface_t *m_imgSurface;
+	CCairoBoxBlur* m_cachedBlur;
 
 	// internal state data:
 	// don't mess with these, they are NOT settings:
@@ -123,7 +126,7 @@ protected:
 
 	// internal calls:
 	bool CalculateGrid();
-	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep);
+	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL);
 	void RenderText();
 	void RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 		const S_COLOR_T& a_hyperLinkColor,
@@ -176,7 +179,8 @@ public:
 	S_COLOR_T GetHyperLinkColor() const { return m_settings.cHyperlinkColor; }
 
 	// various other setters & getters:
-	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb; }
+	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb;
+		if(!nb) { delete m_cachedBlur; } }
 	bool GetEnableGaussShadow() const { return m_settings.bGaussShadow; }
 	void SetGaussBlurRadius(unsigned int r) {
 		m_rendered = m_rendered && (m_settings.uGaussBlurRadius == r); m_settings.uGaussBlurRadius = r;
@@ -184,6 +188,7 @@ public:
 		m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
 		if(m_padding < 8) m_padding = 8;
 		} else m_padding = 8;
+		if(!m_rendered) { delete m_cachedBlur; m_cachedBlur = NULL; }
 	}
 	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
 
@@ -202,7 +207,9 @@ public:
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&
 		a_width == m_settings.uBlockWidth && a_height == m_settings.uBlockHeight; m_settings.uBlockWidth = a_width; m_settings.uBlockHeight = a_height;
-		if(!m_rendered) m_fontSize = -1; } }
+		if(!m_rendered) { m_fontSize = -1;
+			delete m_cachedBlur; m_cachedBlur = NULL; }
+	}}
 	size_t GetBlockWidth() const { return m_settings.uBlockWidth; }
 	size_t GetBlockHeight() const { return m_settings.uBlockHeight; }
 

@@ -14,6 +14,7 @@
 
 #include "stdafx.h"
 #include "nfo_renderer.h"
+#include "cairo_box_blur.h"
 
 
 CNFORenderer::CNFORenderer(bool a_classicMode)
@@ -25,6 +26,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	m_rendered = false;
 	m_imgSurface = NULL;
 	m_fontSize = -1;
+	m_cachedBlur = NULL;
 
 	// default settings:
 	if(!m_classic)
@@ -55,6 +57,9 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	SetHilightHyperLinks(true);
 	SetHyperLinkColor(_S_COLOR_RGB(0, 0, 0xFF));
 	SetUnderlineHyperLinks(true);
+
+	// other stuff:
+	m_trueGaussian = false;
 }
 
 
@@ -87,6 +92,9 @@ void CNFORenderer::UnAssignNFO()
 	m_fontSize = -1;
 	delete m_gridData;
 	m_gridData = NULL;
+
+	delete m_cachedBlur;
+	m_cachedBlur = NULL;
 
 	if(m_imgSurface)
 	{
@@ -237,9 +245,36 @@ bool CNFORenderer::Render()
 	{
 		if(GetEnableGaussShadow())
 		{
-			RenderBlocks(true, true);
-			cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
-			/* idea for later: Use NVIDIA CUDA for the gauss blur step. */
+			if(m_trueGaussian)
+			{
+				// this one (true gaussian blur) is much too slow for
+				// big radii.
+				RenderBlocks(true, true);
+				cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
+				/* idea for later: Use NVIDIA CUDA for the gauss blur step. */
+			}
+			else
+			{
+				if(!m_cachedBlur)
+				{
+					m_cachedBlur = new CCairoBoxBlur(GetWidth(), GetHeight(), GetGaussBlurRadius());
+
+					RenderBlocks(false, true, m_cachedBlur->GetContext());
+				}
+
+				cairo_t* cr = cairo_create(m_imgSurface);
+
+				// background:
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+				cairo_paint(cr);
+
+				// shadow effect:
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
+				m_cachedBlur->Paint(cr);
+
+				cairo_destroy(cr);
+			}
+
 			RenderBlocks(false, false);
 		}
 		else
@@ -272,11 +307,19 @@ bool CNFORenderer::Render()
 /* RENDER BLOCKS                                                        */
 /************************************************************************/
 
-void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
+void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context)
 {
 	double l_off_x = 0, l_off_y = 0;
 
-	cairo_t* cr = cairo_create(m_imgSurface);
+	cairo_t* cr;
+	if(!a_context)
+	{
+		cr = cairo_create(m_imgSurface);
+	}
+	else
+	{
+		cr = a_context;
+	}
 
 	if(a_opaqueBg && GetBackColor().A > 0)
 	{
@@ -352,7 +395,10 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep)
 		}
 	}
 
-	cairo_destroy(cr);
+	if(!a_context)
+	{
+		cairo_destroy(cr);
+	}
 }
 
 
