@@ -159,7 +159,9 @@ bool CWin5xDefaultApp::MakeDefault()
 		RegCloseKey(l_hKey);
 	}
 
-	if(RegCreateKeyEx(HKEY_CURRENT_USER, _T("Software\\Classes\\.nfo"), 0, NULL,
+	l_keyPath = _T("Software\\Classes\\") + m_extension;
+
+	if(RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
 	{
 		return false;

@@ -226,6 +226,26 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\lib\cairo_box_blur.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\win32\default_app_5x.cpp"
 				>
 				<FileConfiguration
@@ -449,6 +469,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\win32\app.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\lib\cairo_box_blur.h"
 				>
 			</File>
 			<File
