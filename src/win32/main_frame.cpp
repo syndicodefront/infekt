@@ -1009,6 +1009,10 @@ void CMainFrame::SaveOpenMruList()
 
 CMainFrame::~CMainFrame()
 {
+	if(CCudaUtil::GetInstance()->IsCudaThreadInitialized())
+	{
+		CCudaUtil::GetInstance()->UnInitCudaThread();
+	}
 }
 
 

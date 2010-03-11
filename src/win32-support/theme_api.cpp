@@ -22,7 +22,9 @@
 
 CThemeAPI::CThemeAPI()
 {
+	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
 	m_hUxTheme = LoadLibrary(_T("uxtheme.dll"));
+	::SetErrorMode(l_oldErrorMode);
 }
 
 

@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iNFekt", "infekt-win32\iNFe
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-console", "infekt-console\infekt-console.vcproj", "{CBB123C8-0763-4BFD-BF90-4DD767096287}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cuda-blur", "cuda-blur\cuda-blur.vcproj", "{84A39410-BE45-407D-BF69-C893564B7454}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{CBB123C8-0763-4BFD-BF90-4DD767096287}.Debug|Win32.Build.0 = Debug|Win32
 		{CBB123C8-0763-4BFD-BF90-4DD767096287}.Release|Win32.ActiveCfg = Release|Win32
 		{CBB123C8-0763-4BFD-BF90-4DD767096287}.Release|Win32.Build.0 = Release|Win32
+		{84A39410-BE45-407D-BF69-C893564B7454}.Debug|Win32.ActiveCfg = Debug|Win32
+		{84A39410-BE45-407D-BF69-C893564B7454}.Debug|Win32.Build.0 = Debug|Win32
+		{84A39410-BE45-407D-BF69-C893564B7454}.Release|Win32.ActiveCfg = Release|Win32
+		{84A39410-BE45-407D-BF69-C893564B7454}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

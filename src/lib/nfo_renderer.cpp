@@ -264,9 +264,12 @@ bool CNFORenderer::Render()
 
 				cairo_t* cr = cairo_create(m_imgSurface);
 
-				// background:
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
-				cairo_paint(cr);
+				if(GetBackColor().A > 0)
+				{
+					// background:
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+					cairo_paint(cr);
+				}
 
 				// shadow effect:
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
