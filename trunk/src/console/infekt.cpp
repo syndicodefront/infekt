@@ -37,6 +37,7 @@ static const struct ::option g_longOpts[] = {
 	{ _T("png-classic"),	no_argument,		0,	'p' },
 	{ _T("utf-8"),			no_argument,		0,	'f' },
 	{ _T("utf-16"),			no_argument,		0,	't' },
+	{ _T("html"),			no_argument,		0,	'm' },
 	{ _T("out-file"),		required_argument,	0,	'O' },
 
 	{ _T("text-color"),		required_argument,	0,	'T' },
@@ -121,7 +122,7 @@ int main(int argc, char* argv[])
 #endif
 {
 	std::_tstring l_outFileName;
-	bool l_classic = false, l_makePng = true, l_textUtf8 = true;
+	bool l_classic = false, l_makePng = true, l_textUtf8 = true, l_htmlOut = false;
 
 	// our defaults:
 	CNFORenderSettings l_pngSettings;
@@ -143,7 +144,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, L"hvT:B:A:gG:W:H:R:LuU:O:pPft", g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, L"hvT:B:A:gG:W:H:R:LuU:O:pPftm", g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -213,6 +214,9 @@ int main(int argc, char* argv[])
 		case 't':
 			l_makePng = false; l_textUtf8 = false;
 			break;
+		case 'm':
+			l_makePng = false; l_htmlOut = true;
+			break;
 		case '?':
 		default:
 			fprintf(stderr, "Try --help.");
@@ -267,6 +271,10 @@ int main(int argc, char* argv[])
 		if(l_makePng)
 		{
 			l_outFileName += _T(".png");
+		}
+		else if(l_htmlOut)
+		{
+			l_outFileName += _T(".html");
 		}
 		else if(l_textUtf8)
 		{
@@ -344,15 +352,43 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		// text export
-
-		if(l_nfoData.SaveToFile(l_outFileName, l_textUtf8))
+		if(!l_htmlOut)
 		{
-			_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+			// text export
+
+			if(l_nfoData.SaveToFile(l_outFileName, l_textUtf8))
+			{
+				_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+			}
+			else
+			{
+				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+			}
 		}
 		else
 		{
-			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+			// html export
+
+			CNFOToHTML l_exporter(&l_nfoData);
+			l_exporter.SetSettings(l_pngSettings);
+
+			std::wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
+			l_html += l_exporter.GetHTML();
+
+			const std::string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
+
+			FILE* l_file;
+			if(_tfopen_s(&l_file, l_outFileName.c_str(), _T("wb")) == 0 && l_file)
+			{
+				fwrite(l_utf8.c_str(), l_utf8.size(), 1, l_file);
+				fclose(l_file);
+
+				_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+			}
+			else
+			{
+				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+			}
 		}
 	}
 
