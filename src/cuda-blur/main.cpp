@@ -112,6 +112,12 @@ extern "C" __declspec(dllexport) int DoCudaBoxBlurA8(unsigned char* a_data,
 		return -99;
 	}
 
+	if(l_size <= 0)
+	{
+		// overflow or crap arguments?
+		return -1;
+	}
+
 	// make a host local copy of the data so we can modify it as we please:
 	if(!g_canMapHostMem)
 	{

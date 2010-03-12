@@ -35,27 +35,28 @@ __global__ void BoxBlurA8Horizontal_Device(unsigned char* aInput,
 	unsigned char* aOutput,
 	int aLeftLobe, int aRightLobe, int aStride, int aRows)
 {
-	unsigned int y = (__umul24(blockIdx.x, blockDim.x) + threadIdx.x);
-	if(y >= aRows) return;
+	int y = (__mul24(blockIdx.x, blockDim.x) + threadIdx.x);
+	if(y >= aRows || y < 0) return;
 
 	PRInt32 boxSize = aLeftLobe + aRightLobe + 1;
+	PRInt32 baseOffset = aStride * y;
 
 	PRInt32 alphaSum = 0;
 	for (PRInt32 i = 0; i < boxSize; i++) {
 		PRInt32 pos = i - aLeftLobe;
-		pos = PR_MAX(pos, 0);
+		if(pos < 0) pos = 0;
 		pos = PR_MIN(pos, aStride - 1);
-		alphaSum += aInput[aStride * y + pos];
+		alphaSum += aInput[baseOffset + pos];
 	}
 	for (PRInt32 x = 0; x < aStride; x++) {
 		PRInt32 tmp = x - aLeftLobe;
 		PRInt32 last = PR_MAX(tmp, 0);
 		PRInt32 next = PR_MIN(tmp + boxSize, aStride - 1);
 
-		aOutput[aStride * y + x] = alphaSum/boxSize;
+		aOutput[baseOffset + x] = alphaSum/boxSize;
 
-		alphaSum += aInput[aStride * y + next] -
-				aInput[aStride * y + last];
+		alphaSum += aInput[baseOffset + next] -
+				aInput[baseOffset + last];
 	}
 }
 
@@ -64,27 +65,27 @@ __global__ void BoxBlurA8Vertical_Device(unsigned char* aInput,
 	unsigned char* aOutput,
 	int aTopLobe, int aBottomLobe, int aStride, int aRows)
 {
-	unsigned int x = (__umul24(blockIdx.x, blockDim.x) + threadIdx.x);
-	if(x >= aStride) return;
+	int x = (__mul24(blockIdx.x, blockDim.x) + threadIdx.x);
+	if(x >= aStride || x < 0) return;
 
 	PRInt32 boxSize = aTopLobe + aBottomLobe + 1;
 
 	PRInt32 alphaSum = 0;
 	for (PRInt32 i = 0; i < boxSize; i++) {
 		PRInt32 pos = i - aTopLobe;
-		pos = PR_MAX(pos, 0);
+		if(pos < 0) pos = 0;
 		pos = PR_MIN(pos, aRows - 1);
-		alphaSum += aInput[aStride * pos + x];
+		alphaSum += aInput[__mul24(aStride, pos) + x];
 	}
 	for (PRInt32 y = 0; y < aRows; y++) {
 		PRInt32 tmp = y - aTopLobe;
 		PRInt32 last = PR_MAX(tmp, 0);
 		PRInt32 next = PR_MIN(tmp + boxSize, aRows - 1);
 
-		aOutput[aStride * y + x] = alphaSum/boxSize;
+		aOutput[__mul24(aStride, y) + x] = alphaSum/boxSize;
 
-		alphaSum += aInput[aStride * next + x] -
-				aInput[aStride * last + x];
+		alphaSum += aInput[__mul24(aStride, next) + x] -
+				aInput[__mul24(aStride, last) + x];
 	}
 }
 
