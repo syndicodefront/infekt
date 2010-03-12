@@ -1005,7 +1005,8 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 
 		if(l_prevPos < l_text.size())
 		{
-			l_newText += l_text.substr(l_prevPos);
+			const string l_paragraph = l_text.substr(l_prevPos);
+			l_newText += _TrimParagraph(l_paragraph);
 		}
 
 		l_text = l_newText;
