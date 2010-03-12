@@ -1,7 +1,7 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
-== v0.3 (???) ==
+== v0.3 (12 March 2010) ==
   * Added support for multiple hyperlinks in one line
   * Made the blur/shadow effect a little bit faster for small radii and a lot faster for big radii. In fact, the blur radius does no longer affect the rendering speed at all (on/off still does).
   * Sick stuff: The blur/shadow effect now uses NVIDIA CUDA where available!
