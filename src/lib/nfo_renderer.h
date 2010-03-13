@@ -111,6 +111,7 @@ protected:
 	CNFORenderSettings m_settings;
 	bool m_classic;
 	bool m_trueGaussian;
+	float m_zoomFactor;
 
 	// NFO data:
 	PNFOData m_nfo;
@@ -162,6 +163,9 @@ public:
 
 	bool IsClassicMode() const { return m_classic; }
 
+	unsigned int GetZoom() const { return static_cast<unsigned int>(m_zoomFactor * 100); }
+	void SetZoom(unsigned int a_percent);
+
 	// return the calculated image dimensions:
 	size_t GetWidth();
 	size_t GetHeight();
@@ -210,11 +214,11 @@ public:
 		if(!m_rendered) { m_fontSize = -1;
 			delete m_cachedBlur; m_cachedBlur = NULL; }
 	}}
-	size_t GetBlockWidth() const { return m_settings.uBlockWidth; }
-	size_t GetBlockHeight() const { return m_settings.uBlockHeight; }
+	size_t GetBlockWidth() const { return (!m_classic ? static_cast<size_t>(m_settings.uBlockWidth * m_zoomFactor) : m_settings.uBlockWidth); }
+	size_t GetBlockHeight() const { return (!m_classic ? static_cast<size_t>(m_settings.uBlockHeight * m_zoomFactor) : m_settings.uBlockHeight); }
 
 	// for the classic mode:
-	size_t GetFontSize() const { return (m_classic ? m_settings.uFontSize : (size_t)-1); }
+	size_t GetFontSize() const { return (m_classic ? static_cast<size_t>(m_settings.uFontSize * m_zoomFactor) : (size_t)-1); }
 	void SetFontSize(unsigned int r) {
 		if(m_classic) { m_rendered = m_rendered && (m_settings.uFontSize == r); m_settings.uFontSize = r; m_fontSize = -1; }
 	}
