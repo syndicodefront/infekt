@@ -37,14 +37,11 @@ extern "C" __declspec(dllexport) int IsCudaUsable()
 		return -1;
 	}
 
-	if(cudaSetDevice(cutGetMaxGflopsDeviceId()) != cudaSuccess)
-	{
-		return -2;
-	}
+	int l_devId = cutGetMaxGflopsDeviceId();
 
 	cudaDeviceProp l_props;
 
-	if(cudaGetDeviceProperties(&l_props, cutGetMaxGflopsDeviceId()) != cudaSuccess)
+	if(cudaGetDeviceProperties(&l_props, l_devId) != cudaSuccess)
 	{
 		return -3;
 	}
@@ -54,13 +51,25 @@ extern "C" __declspec(dllexport) int IsCudaUsable()
 		return 0;
 	}
 
+	if(cudaSetDevice(l_devId) != cudaSuccess)
+	{
+		return -4;
+	}
+
+	cudaThreadSynchronize();
+
 	return 1;
 }
 
 
 extern "C" __declspec(dllexport) int InitCudaThread()
 {
-	if(!IsCudaUsable())
+	if(g_initialized)
+	{
+		return 0;
+	}
+
+	if(!IsCudaUsable()) // this calls cudaSetDevice and cudaThreadSynchronize();.
 	{
 		return -1;
 	}
@@ -83,6 +92,8 @@ extern "C" __declspec(dllexport) int InitCudaThread()
 
 	g_initialized = true;
 
+	cudaThreadSynchronize(); // just to be sure.
+
 	return 1;
 }
 
@@ -95,6 +106,7 @@ extern "C" __declspec(dllexport) int IsCudaThreadInitialized()
 
 extern "C" __declspec(dllexport) int UnInitCudaThread()
 {
+	cudaThreadSynchronize();
 	int l_result = (cudaThreadExit() == cudaSuccess ? 1 : 0);
 	g_initialized = false;
 	return l_result;
@@ -125,13 +137,20 @@ extern "C" __declspec(dllexport) int DoCudaBoxBlurA8(unsigned char* a_data,
 	}
 	else
 	{
-		 cudaHostAlloc((void**)&l_dataCopy, l_size, cudaHostAllocMapped);
+		 if(cudaHostAlloc((void**)&l_dataCopy, l_size, cudaHostAllocMapped) != cudaSuccess)
+		 {
+			 return -2;
+		 }
 	}
+
+	cudaThreadSynchronize();
 
 	memcpy(l_dataCopy, a_data, l_size);
 
 	// calculate shit:
 	int l_kernelResult = BoxBlurA8_Device(l_dataCopy, a_stride, a_rows, a_lobes, g_canMapHostMem);
+
+	cudaThreadSynchronize();
 
 	if(l_kernelResult > 0)
 	{
@@ -148,6 +167,8 @@ extern "C" __declspec(dllexport) int DoCudaBoxBlurA8(unsigned char* a_data,
 	{
 		cudaFreeHost(l_dataCopy);
 	}
+
+	cudaThreadSynchronize();
 
 	return l_kernelResult;
 }

@@ -180,7 +180,7 @@ public:
 
 	// various other setters & getters:
 	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb;
-		if(!nb) { delete m_cachedBlur; } }
+		if(!nb) { delete m_cachedBlur; m_cachedBlur = NULL; } }
 	bool GetEnableGaussShadow() const { return m_settings.bGaussShadow; }
 	void SetGaussBlurRadius(unsigned int r) {
 		m_rendered = m_rendered && (m_settings.uGaussBlurRadius == r); m_settings.uGaussBlurRadius = r;
