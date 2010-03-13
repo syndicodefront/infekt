@@ -27,6 +27,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	m_imgSurface = NULL;
 	m_fontSize = -1;
 	m_cachedBlur = NULL;
+	m_zoomFactor = 1.0f;
 
 	// default settings:
 	if(!m_classic)
@@ -846,6 +847,24 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 	}
 
 	return false;
+}
+
+
+void CNFORenderer::SetZoom(unsigned int a_percent)
+{
+	m_zoomFactor = a_percent / 100.0f;
+
+	delete m_cachedBlur;
+	m_cachedBlur = NULL;
+
+	if(m_imgSurface)
+	{
+		cairo_surface_destroy(m_imgSurface);
+		m_imgSurface = NULL;
+	}
+
+	m_fontSize = -1;
+	m_rendered = false;
 }
 
 
