@@ -180,7 +180,9 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 		bool l_useCpu = true;
 
-		if(l_rows * cairo_image_surface_get_width(m_imgSurface) < 3000000)
+#ifdef _WIN32
+		int l_tmpSize = l_rows * cairo_image_surface_get_width(m_imgSurface);
+		if(l_tmpSize < 3000000)
 		{
 			// CUDA hangs and maybe brings down the system with numbers too large.
 
@@ -201,13 +203,11 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 		}
 
 		_ASSERT(!l_useCpu);
+#endif /* _WIN32 */
 
 		if(l_useCpu)
 		{
 			unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
-
-			PRInt32 l_lobes[3][2];
-			ComputeLobes(m_blurRadius, l_lobes);
 
 			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
 			BoxBlurHorizontal(l_tmpData, l_boxData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);

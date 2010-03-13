@@ -16,7 +16,7 @@
 
 
 // how much parallelization?
-#define NUM_THREADS 128
+#define NUM_THREADS 256
 #define PER_THREAD(a_total) ((unsigned int)ceil((float)(a_total + 1) / (float)NUM_THREADS))
 
 
@@ -98,24 +98,30 @@ extern "C" int BoxBlurA8_Device(unsigned char* a_data, int a_stride,
 
 	if(!a_mapped)
 	{
-		cudaMalloc((void**)&l_devImgBuf, l_bufLen);
-		cudaMemcpy(l_devImgBuf, a_data, l_bufLen, cudaMemcpyHostToDevice);
+		if(cudaMalloc((void**)&l_devImgBuf, l_bufLen) != cudaSuccess) return -1;
+		if(cudaMemcpy(l_devImgBuf, a_data, l_bufLen, cudaMemcpyHostToDevice) != cudaSuccess) return -1;
 	}
 	else
 	{
-		cudaHostGetDevicePointer((void**)&l_devImgBuf, (void*)a_data, 0);
+		if(cudaHostGetDevicePointer((void**)&l_devImgBuf, (void*)a_data, 0) != cudaSuccess) return -1;
 	}
 
-	cudaMalloc((void**)&l_devTmpBuf, l_bufLen);
+	if(cudaMalloc((void**)&l_devTmpBuf, l_bufLen) != cudaSuccess) return -1;
 
 	// zomg!
     BoxBlurA8Horizontal_Device<<<PER_THREAD(a_rows), NUM_THREADS>>>(l_devImgBuf, l_devTmpBuf, a_lobes[0][0], a_lobes[0][1], a_stride, a_rows);
+	cudaThreadSynchronize();
 	BoxBlurA8Horizontal_Device<<<PER_THREAD(a_rows), NUM_THREADS>>>(l_devTmpBuf, l_devImgBuf, a_lobes[1][0], a_lobes[1][1], a_stride, a_rows);
+	cudaThreadSynchronize();
 	BoxBlurA8Horizontal_Device<<<PER_THREAD(a_rows), NUM_THREADS>>>(l_devImgBuf, l_devTmpBuf, a_lobes[2][0], a_lobes[2][1], a_stride, a_rows);
+	cudaThreadSynchronize();
 
     BoxBlurA8Vertical_Device<<<PER_THREAD(a_stride), NUM_THREADS>>>(l_devTmpBuf, l_devImgBuf, a_lobes[0][0], a_lobes[0][1], a_stride, a_rows);
+	cudaThreadSynchronize();
 	BoxBlurA8Vertical_Device<<<PER_THREAD(a_stride), NUM_THREADS>>>(l_devImgBuf, l_devTmpBuf, a_lobes[1][0], a_lobes[1][1], a_stride, a_rows);
+	cudaThreadSynchronize();
 	BoxBlurA8Vertical_Device<<<PER_THREAD(a_stride), NUM_THREADS>>>(l_devTmpBuf, l_devImgBuf, a_lobes[2][0], a_lobes[2][1], a_stride, a_rows);
+	cudaThreadSynchronize();
 
 	if(!a_mapped)
 	{
