@@ -251,7 +251,6 @@ bool CNFORenderer::Render()
 				// big radii.
 				RenderBlocks(true, true);
 				cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
-				/* idea for later: Use NVIDIA CUDA for the gauss blur step. */
 			}
 			else
 			{

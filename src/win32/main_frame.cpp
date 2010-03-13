@@ -100,7 +100,7 @@ void CMainFrame::OnInitialUpdate()
 	LoadRenderSettingsFromRegistry(_T("ClassicView"), m_view.GetClassicCtrl().get());
 	LoadRenderSettingsFromRegistry(_T("TextOnlyView"), m_view.GetTextOnlyCtrl().get());
 
-	GetStatusbar().SetPartText(0, _T("Hit the Alt key to toggle the menu bar."));
+	UpdateStatusbar();
 
 	if(GetSettings()->iDefaultView == -1)
 	{
@@ -429,6 +429,9 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 	{
 		UpdateCaption();
 
+		UpdateStatusbar();
+
+		// update MRU list:
 		for(vector<_tstring>::iterator it = m_mruPaths.begin(); it != m_mruPaths.end(); it++)
 		{
 			if(_tcsicmp(it->c_str(), a_filePath.c_str()) == 0)
@@ -447,6 +450,7 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 
 		SaveOpenMruList();
 
+		// yay.
 		return true;
 	}
 
@@ -467,6 +471,91 @@ void CMainFrame::UpdateCaption()
 	l_caption += _T("iNFekt v") + InfektVersionAsString();
 
 	SetWindowText(l_caption.c_str());
+}
+
+
+void CMainFrame::UpdateStatusbar()
+{
+	if(!m_bShowStatusbar)
+		return;
+
+	CStatusbar& l_sb = GetStatusbar();
+
+	l_sb.SendMessage(WM_SIZE, 0, 0);
+
+	if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
+	{
+		RECT l_rc = l_sb.GetWindowRect();
+		LONG l_width = l_rc.right - l_rc.left;
+
+		const wstring l_fileName = m_view.GetNfoData()->GetFileName();
+		const _tstring l_charset = CNFOData::GetCharsetName(m_view.GetNfoData()->GetCharset());
+		
+		_tstring l_timeInfo, l_sizeInfo;
+		if(!m_view.GetNfoData()->GetFilePath().empty())
+		{
+			WIN32_FIND_DATA l_ff = {0};
+			if(HANDLE l_hFile = ::FindFirstFile(m_view.GetNfoData()->GetFilePath().c_str(), &l_ff))
+			{
+				SYSTEMTIME l_sysTime = {0};
+				if(::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTime))
+				{
+					TCHAR l_date[100] = {0};
+
+					if(::GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &l_sysTime,
+						NULL, l_date, 99) != 0)
+					{
+						l_timeInfo = l_date;
+					}
+
+					memset(l_date, 0, 100);
+
+					if(::GetTimeFormat(LOCALE_USER_DEFAULT, 0, &l_sysTime, NULL,
+						l_date, 99) != 0)
+					{
+						l_timeInfo += _T(" ");
+						l_timeInfo += l_date;
+					}
+				}
+
+				long long l_fileSize = (static_cast<long long>(l_ff.nFileSizeHigh) *
+					static_cast<long long>(MAXDWORD) + 1) +
+					static_cast<long long>(l_ff.nFileSizeLow);
+
+				TCHAR l_sizeBuf[100] = {0};
+
+				if(::StrFormatByteSizeW(l_fileSize, l_sizeBuf, 99))
+				{
+					l_sizeInfo = l_sizeBuf;
+				}
+
+				::FindClose(l_hFile);
+			}
+		}
+
+		int l_sbWidths[5] = {0};
+		l_sbWidths[1] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_timeInfo.c_str());
+		l_sbWidths[2] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_sizeInfo.c_str());
+		l_sbWidths[3] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_charset.c_str());
+		l_sbWidths[4] = 25;
+
+		int l_sbParts[5] = { l_width, 0 };
+		for(int i = 1; i < 5; i++) l_sbParts[0] -= l_sbWidths[i];
+		for(int i = 1; i < 5; i++) l_sbParts[i] = l_sbParts[i - 1] + l_sbWidths[i];
+
+		l_sb.CreateParts(5, l_sbParts);
+		l_sb.SetPartText(0, l_fileName.c_str());
+		l_sb.SetPartText(1, l_timeInfo.c_str());
+		l_sb.SetPartText(2, l_sizeInfo.c_str());
+		l_sb.SetPartText(3, l_charset.c_str());
+
+		l_sb.SetSimple(FALSE);
+	}
+	else
+	{
+		l_sb.SendMessage(SB_SETTEXT, SB_SIMPLEID, (LPARAM)_T("Hit the Alt key to toggle the menu bar."));
+		l_sb.SetSimple(TRUE);
+	}
 }
 
 
@@ -558,11 +647,14 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		break; }
+	case WM_SIZE:
+		UpdateStatusbar();
+		break; // also invoke default
 	case WM_DESTROY:
 		::RevokeDragDrop(m_hWnd);
 		::CoLockObjectExternal(m_dropHelper, FALSE, TRUE);
 		m_dropHelper->Release();
-		/* fall through! */
+		break; // also invoke default
 	}
 
 	return WndProcDefault(uMsg, wParam, lParam);

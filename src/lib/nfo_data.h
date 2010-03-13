@@ -85,6 +85,8 @@ public:
 	static std::string GetStrippedTextUtf8(const std::wstring& a_text);
 
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
+	ENfoCharset GetCharset() const { return m_sourceCharset; }
+	static const std::_tstring GetCharsetName(ENfoCharset a_charset);
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;

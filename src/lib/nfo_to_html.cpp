@@ -50,7 +50,7 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 		l_html << L"    margin: 0; padding: 0;" << endl;
 		l_html << L"    text-align: left; text-transform: none; font-style: normal;" << endl;
 		l_html << L"    text-decoration: none; font-weight: normal;" << endl;
-		l_html << L"    font-family: '" << XMLEscape(m_settings.sFontFace) << "', monospace;" << endl;
+		l_html << L"    font-family: '" << XMLEscape(m_settings.sFontFace) << L"', monospace;" << endl;
 		l_html << L"    font-size: " << (m_settings.uFontSize ? m_settings.uFontSize : 12) << L"px;" << endl;
 		l_html << L"    line-height: " << (m_settings.uFontSize ? m_settings.uFontSize : 12) << L"px;" << endl;
 		l_html << L"  }" << endl;
@@ -87,8 +87,8 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 		l_html << endl;
 	}
 
-	l_html << "<div class=\"infekt_nfo\">";
-	l_html << "<pre>";
+	l_html << L"<div class=\"infekt_nfo\">";
+	l_html << L"<pre>";
 
 	typedef enum
 	{
@@ -139,13 +139,13 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 				switch(l_type)
 				{
 				case BT_LINK:
-					l_html << "<a href=\"" << XMLEscape(l_link->GetHref()) << "\" class=\"nfo_link\">";
+					l_html << L"<a href=\"" << XMLEscape(l_link->GetHref()) << L"\" class=\"nfo_link\">";
 					break;
 				case BT_BLOCK:
-					l_html << "<span class=\"nfo_block\">";
+					l_html << L"<span class=\"nfo_block\">";
 					break;
 				case BT_TEXT:
-					l_html << "<span class=\"nfo_text\">";
+					l_html << L"<span class=\"nfo_text\">";
 					break;
 				}
 
@@ -174,9 +174,9 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 		l_html << endl;
 	}
 
-	l_html << "</pre>";
-	l_html << "</div>" << endl;
-	l_html << "<div style=\"clear: both;\"></div>" << endl;
+	l_html << L"</pre>";
+	l_html << L"</div>" << endl;
+	l_html << L"<div style=\"clear: both;\"></div>" << endl;
 
 	if(a_includeHeaderAndFooter)
 	{

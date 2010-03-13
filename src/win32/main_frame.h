@@ -113,6 +113,7 @@ protected:
 	void OpenChooseFileName();
 	void DoNfoExport(UINT a_id);
 	bool DoOpenMruMenu(const LPNMTOOLBAR a_lpnm);
+	void UpdateStatusbar();
 
 	void CheckForUpdates();
 

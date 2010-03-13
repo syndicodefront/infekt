@@ -551,6 +551,8 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen)
 		return false;
 	}
 
+	m_sourceCharset = NFOC_UTF16;
+
 	return true;
 }
 
@@ -594,6 +596,8 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 	m_textContent = wstring().append(l_newBuf, l_numWChars);
 
 	delete[] l_newBuf;
+
+	m_sourceCharset = NFOC_UTF16;
 
 	return true;
 #endif
@@ -695,6 +699,26 @@ char* CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col)
 		a_row >= 0 && a_row < m_grid->GetRows() &&
 		a_col >= 0 && a_col < m_grid->GetCols() ?
 		&m_utf8Grid[a_row * m_grid->GetCols() * 7 + a_col * 7] : NULL);
+}
+
+
+const std::_tstring CNFOData::GetCharsetName(ENfoCharset a_charset)
+{
+	switch(a_charset)
+	{
+	case NFOC_AUTO:
+		return _T("(auto)");
+	case NFOC_UTF16:
+		return _T("UTF-16");
+	case NFOC_UTF8_SIG:
+		return _T("UTF-8 (Signature)");
+	case NFOC_UTF8:
+		return _T("UTF-8");
+	case NFOC_CP437:
+		return _T("CP 437");
+	}
+
+	return _T("(huh?)");
 }
 
 
