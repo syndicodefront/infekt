@@ -45,6 +45,8 @@ public:
 
 	static std::_tstring DownloadHttpTextFile(const std::_tstring& a_url);
 	static void PopUpLastWin32Error();
+
+	static int StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz);
 #endif
 
 #ifdef _WIN32

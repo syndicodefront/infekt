@@ -474,6 +474,25 @@ uint32_t CUtil::RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_defaul
 	return a_default;
 }
 
+int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
+{
+	// Credit: Notepad2 by Florian Balmer (BSD License)
+
+	SIZE  size;
+	HDC   hdc   = GetDC(hwnd);
+	HFONT hfont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
+	HFONT hfold = (HFONT)SelectObject(hdc, hfont);
+	int   mmode = SetMapMode(hdc, MM_TEXT);
+
+	GetTextExtentPoint32(hdc, lpsz, _tcslen(lpsz), &size);
+
+	SetMapMode(hdc, mmode);
+	SelectObject(hdc, hfold);
+	ReleaseDC(hwnd, hdc);
+
+	return(size.cx + 9);
+}
+
 
 /************************************************************************/
 /* Internet/Network Helper Functions                                    */
