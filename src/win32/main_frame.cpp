@@ -836,10 +836,12 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 	RegSetValueEx(l_hKey, _T("ClrLink"),	0, REG_DWORD, (LPBYTE)&dwLinkColor,		sizeof(uint32_t));
 
 	int32_t dwHilightHyperlinks = (a_settings.bHilightHyperlinks ? 1 : 0),
-		dwUnderlineHyperlinks = (a_settings.bUnderlineHyperlinks ? 1 : 0);
+		dwUnderlineHyperlinks = (a_settings.bUnderlineHyperlinks ? 1 : 0),
+		dwFontAA = (a_settings.bFontAntiAlias ? 1 : 0);
 
 	RegSetValueEx(l_hKey, _T("HilightHyperlinks"),		0, REG_DWORD, (LPBYTE)&dwHilightHyperlinks,		sizeof(int32_t));
 	RegSetValueEx(l_hKey, _T("UnderlineHyperlinks"),	0, REG_DWORD, (LPBYTE)&dwUnderlineHyperlinks,	sizeof(int32_t));
+	RegSetValueEx(l_hKey, _T("FontAntiAlias"),			0, REG_DWORD, (LPBYTE)&dwFontAA,				sizeof(int32_t));
 
 	if(!a_classic)
 	{
@@ -895,8 +897,9 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 	l_newSets.cArtColor = _s_color_t(dwArtColor);
 	l_newSets.cHyperlinkColor = _s_color_t(dwLinkColor);
 
-	l_newSets.bHilightHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("HilightHyperlinks")) != 0);
-	l_newSets.bUnderlineHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("UnderlineHyperlinks")) != 0);
+	l_newSets.bHilightHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("HilightHyperlinks"), 1) != 0);
+	l_newSets.bUnderlineHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("UnderlineHyperlinks"), 1) != 0);
+	l_newSets.bFontAntiAlias = (CUtil::RegQueryDword(l_hKey, _T("FontAntiAlias"), 1) != 0);
 
 	if(!a_target->IsClassicMode())
 	{
