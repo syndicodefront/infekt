@@ -139,6 +139,14 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		HandleScrollEvent(SB_HORZ, LOWORD(wParam), 0);
 		return 0;
 	case WM_MOUSEWHEEL:
+		if(LOWORD(wParam) & MK_CONTROL)
+		{
+			if(GET_WHEEL_DELTA_WPARAM(wParam) < 0)
+				ZoomOut();
+			else
+				ZoomIn();
+		}
+		else
 		{
 			UINT l_lines = 0;
 			if(::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0))
@@ -195,6 +203,42 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	default:
 		return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 	}
+}
+
+
+void CNFOViewControl::SetZoom(unsigned int a_percent)
+{
+	CNFORenderer::SetZoom(a_percent);
+
+	UpdateScrollbars(false);
+	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_FRAME);
+}
+
+void CNFOViewControl::ZoomIn()
+{
+	unsigned int l_oldZoom = GetZoom();
+
+	if(l_oldZoom < 10000)
+	{
+		SetZoom(l_oldZoom + 10);
+	}
+}
+
+
+void CNFOViewControl::ZoomOut()
+{
+	unsigned int l_oldZoom = GetZoom();
+
+	if(l_oldZoom > 20)
+	{
+		SetZoom(l_oldZoom - 10);
+	}
+}
+
+
+void CNFOViewControl::ZoomReset()
+{
+	SetZoom(100);
 }
 
 

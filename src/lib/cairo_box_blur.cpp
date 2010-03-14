@@ -200,9 +200,9 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 					l_useCpu = !CCudaUtil::GetInstance()->DoCudaBoxBlurA8(l_boxData, l_stride, l_rows, l_lobes);
 				}
 			}
-		}
 
-		_ASSERT(!l_useCpu);
+			_ASSERT(!l_useCpu);
+		}
 #endif /* _WIN32 */
 
 		if(l_useCpu)
