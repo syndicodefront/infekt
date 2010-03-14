@@ -32,6 +32,13 @@ extern "C" __declspec(dllexport) int IsCudaUsable()
 		return 1;
 	}
 
+	int l_driverVer = -1, l_runTimeVer = -1;
+	if(cudaDriverGetVersion(&l_driverVer) != cudaSuccess || l_driverVer < CUDA_VERSION ||
+		cudaRuntimeGetVersion(&l_runTimeVer) != cudaSuccess || l_runTimeVer < CUDA_VERSION)
+	{
+		return -5;
+	}
+
 	if(cudaGetDeviceCount(&l_count) != cudaSuccess || l_count < 1)
 	{
 		return -1;

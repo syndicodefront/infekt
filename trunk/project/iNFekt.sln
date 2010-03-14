@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iNFekt", "infekt-win32\iNFekt.vcproj", "{1A43C657-CFFD-4BDF-A031-7F9C2449D6A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{84A39410-BE45-407D-BF69-C893564B7454} = {84A39410-BE45-407D-BF69-C893564B7454}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-console", "infekt-console\infekt-console.vcproj", "{CBB123C8-0763-4BFD-BF90-4DD767096287}"
 EndProject
