@@ -51,7 +51,10 @@ extern "C" __declspec(dllexport) int IsCudaUsable()
 		return 0;
 	}
 
-	if(cudaSetDevice(l_devId) != cudaSuccess)
+	int l_curDev = -1;
+	cudaGetDevice(&l_curDev);
+
+	if(l_curDev != l_devId && cudaSetDevice(l_devId) != cudaSuccess)
 	{
 		return -4;
 	}
