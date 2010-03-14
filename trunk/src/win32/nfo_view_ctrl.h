@@ -66,6 +66,11 @@ public:
 	void SetCenterNfo(bool nb) { m_centerNfo = nb; }
 	void SetCopyOnSelect(bool nb) { m_copyOnSelect = nb; }
 
+	void SetZoom(unsigned int a_percent);
+	void ZoomIn();
+	void ZoomOut();
+	void ZoomReset();
+
 	virtual void InjectSettings(const CNFORenderSettings& ns);
 };
 

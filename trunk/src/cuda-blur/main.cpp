@@ -24,8 +24,6 @@ bool g_canMapHostMem = false;
 
 extern "C" __declspec(dllexport) int IsCudaUsable()
 {
-	int l_count = 0;
-
 	if(g_initialized)
 	{
 		// calling cudaSetDevice when it has already been used is bad!
@@ -39,6 +37,7 @@ extern "C" __declspec(dllexport) int IsCudaUsable()
 		return -5;
 	}
 
+	int l_count = 0;
 	if(cudaGetDeviceCount(&l_count) != cudaSuccess || l_count < 1)
 	{
 		return -1;
@@ -47,7 +46,6 @@ extern "C" __declspec(dllexport) int IsCudaUsable()
 	int l_devId = cutGetMaxGflopsDeviceId();
 
 	cudaDeviceProp l_props;
-
 	if(cudaGetDeviceProperties(&l_props, l_devId) != cudaSuccess)
 	{
 		return -3;
@@ -79,7 +77,7 @@ extern "C" __declspec(dllexport) int InitCudaThread()
 		return 0;
 	}
 
-	if(!IsCudaUsable()) // this calls cudaSetDevice and cudaThreadSynchronize();.
+	if(!IsCudaUsable()) // this calls cudaSetDevice and cudaThreadSynchronize.
 	{
 		return -1;
 	}

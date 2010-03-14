@@ -104,13 +104,22 @@
 #define IDM_VIEW_TEXTONLY               40054
 #define IDM_HIDDENGIMMICK               40055
 #define ID_ACCELERATOR40056             40056
+#define ID_VIEW_                        40063
+#define ID_VIEW_ZOOM                    40064
+#define ID_ZOOM_ZOOMIN                  40065
+#define ID_ZOOM_ZOOMOUT                 40066
+#define ID_ZOOM_RESET                   40067
+#define IDM_ZOOM_IN                     40068
+#define ID_ZOOM_OUT                     40069
+#define IDM_ZOOM_RESET                  40070
+#define IDM_ZOOM_OUT                    40071
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        122
-#define _APS_NEXT_COMMAND_VALUE         40063
+#define _APS_NEXT_COMMAND_VALUE         40079
 #define _APS_NEXT_CONTROL_VALUE         1044
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

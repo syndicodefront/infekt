@@ -310,6 +310,21 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		m_mruPaths.clear();
 		SaveOpenMruList();
 		return TRUE;
+
+	case IDM_ZOOM_IN:
+		if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
+			m_view.GetActiveCtrl()->ZoomIn();
+		break;
+
+	case IDM_ZOOM_OUT:
+		if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
+			m_view.GetActiveCtrl()->ZoomOut();
+		break;
+
+	case IDM_ZOOM_RESET:
+		if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
+			m_view.GetActiveCtrl()->ZoomReset();
+		break;
 	}
 
 	return FALSE;
