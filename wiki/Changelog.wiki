@@ -1,6 +1,13 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
+== v0.4 (???) ==
+  * Added useful file information to the status bar
+  * Fixed multiple crashes related to changing settings
+  * Improved CUDA code
+  * Fixed anti-alias setting not being saved
+  * Other fixes & improvements
+
 == v0.3 (12 March 2010) ==
   * Added support for multiple hyperlinks in one line
   * Made the blur/shadow effect a little bit faster for small radii and a lot faster for big radii. In fact, the blur radius does no longer affect the rendering speed at all (on/off still does).
