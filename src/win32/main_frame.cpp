@@ -503,9 +503,10 @@ void CMainFrame::UpdateStatusbar()
 		RECT l_rc = l_sb.GetWindowRect();
 		LONG l_width = l_rc.right - l_rc.left;
 
-		const wstring l_fileName = m_view.GetNfoData()->GetFileName();
+		const _tstring l_fileName = m_view.GetNfoData()->GetFileName();
 		const _tstring l_charset = CNFOData::GetCharsetName(m_view.GetNfoData()->GetCharset());
-		
+		//const _tstring l_zoomPerc = FORMAT(L"%d%%", m_view.GetActiveCtrl()->GetZoom());
+
 		_tstring l_timeInfo, l_sizeInfo;
 		if(!m_view.GetNfoData()->GetFilePath().empty())
 		{
@@ -533,13 +534,13 @@ void CMainFrame::UpdateStatusbar()
 					}
 				}
 
-				long long l_fileSize = (static_cast<long long>(l_ff.nFileSizeHigh) *
-					static_cast<long long>(MAXDWORD) + 1) +
-					static_cast<long long>(l_ff.nFileSizeLow);
+				ULARGE_INTEGER l_tmpFileSize;
+				l_tmpFileSize.HighPart = l_ff.nFileSizeHigh;
+				l_tmpFileSize.LowPart = l_ff.nFileSizeLow;
 
 				TCHAR l_sizeBuf[100] = {0};
 
-				if(::StrFormatByteSizeW(l_fileSize, l_sizeBuf, 99))
+				if(::StrFormatByteSizeW(l_tmpFileSize.QuadPart, l_sizeBuf, 99))
 				{
 					l_sizeInfo = l_sizeBuf;
 				}
@@ -552,6 +553,7 @@ void CMainFrame::UpdateStatusbar()
 		l_sbWidths[1] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_timeInfo.c_str());
 		l_sbWidths[2] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_sizeInfo.c_str());
 		l_sbWidths[3] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_charset.c_str());
+		//l_sbWidths[4] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_zoomPerc.c_str());
 		l_sbWidths[4] = 25;
 
 		int l_sbParts[5] = { l_width, 0 };
@@ -563,6 +565,7 @@ void CMainFrame::UpdateStatusbar()
 		l_sb.SetPartText(1, l_timeInfo.c_str());
 		l_sb.SetPartText(2, l_sizeInfo.c_str());
 		l_sb.SetPartText(3, l_charset.c_str());
+		//l_sb.SetPartText(4, l_zoomPerc.c_str());
 
 		l_sb.SetSimple(FALSE);
 	}

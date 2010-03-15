@@ -208,6 +208,8 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void CNFOViewControl::SetZoom(unsigned int a_percent)
 {
+	::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+
 	CNFORenderer::SetZoom(a_percent);
 
 	UpdateScrollbars(false);
@@ -224,7 +226,6 @@ void CNFOViewControl::ZoomIn()
 	}
 }
 
-
 void CNFOViewControl::ZoomOut()
 {
 	unsigned int l_oldZoom = GetZoom();
@@ -234,7 +235,6 @@ void CNFOViewControl::ZoomOut()
 		SetZoom(l_oldZoom - 10);
 	}
 }
-
 
 void CNFOViewControl::ZoomReset()
 {
