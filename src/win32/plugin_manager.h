@@ -49,6 +49,7 @@ public:
 	virtual ~CPluginManager();
 
 	bool LoadPlugin(std::_tstring a_dllPath);
+	std::_tstring GetLastErrorMessage() const { return m_lastErrorMsg; }
 
 	// don't call this. it's for CLoadedPlugin only.
 	static long _cdecl _pluginToCoreCallback(const char*, long, long, long long, void*, void*);

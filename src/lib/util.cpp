@@ -497,7 +497,7 @@ int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 HMODULE CUtil::SilentLoadLibrary(const std::_tstring a_path)
 {
 	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
-	HMODULE l_hResult = ::LoadLibrary(_T("cuda-blur.dll"));
+	HMODULE l_hResult = ::LoadLibrary(a_path.c_str());
 	::SetErrorMode(l_oldErrorMode);
 
 	return l_hResult;
