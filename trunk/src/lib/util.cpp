@@ -494,6 +494,16 @@ int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 }
 
 
+HMODULE CUtil::SilentLoadLibrary(const std::_tstring a_path)
+{
+	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
+	HMODULE l_hResult = ::LoadLibrary(_T("cuda-blur.dll"));
+	::SetErrorMode(l_oldErrorMode);
+
+	return l_hResult;
+}
+
+
 /************************************************************************/
 /* Internet/Network Helper Functions                                    */
 /************************************************************************/
@@ -623,9 +633,7 @@ OSVERSIONINFO CUtil::ms_osver = {sizeof(OSVERSIONINFO), 0};
 
 CCudaUtil::CCudaUtil()
 {
-	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
-	m_hCudaBlur = LoadLibrary(_T("cuda-blur.dll"));
-	::SetErrorMode(l_oldErrorMode);
+	m_hCudaBlur = CUtil::SilentLoadLibrary(_T("cuda-blur.dll"));
 }
 
 const CCudaUtil* CCudaUtil::GetInstance()
