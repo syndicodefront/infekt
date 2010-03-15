@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
+				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\src\plugin;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
 				PreprocessorDefinitions="WIN32;_DEBUG;HAVE_BOOST"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -122,7 +122,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
+				AdditionalIncludeDirectories=".;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\src\plugin;..\..\dependencies\include;..\..\dependencies\include\win32xx;Y:\Dev\_myinclude"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;HAVE_BOOST"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -394,6 +394,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\win32\plugin_manager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\win32\settings_dlg.cpp"
 				>
 				<FileConfiguration
@@ -497,6 +501,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\win32\nfo_view_ctrl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\plugin_manager.h"
 				>
 			</File>
 			<File
