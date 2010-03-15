@@ -38,10 +38,11 @@ long PluginSend(long lCall, long long lParam, void* pParam)
 
 static void DoPluginInfo(infekt_plugin_info_t* a_info)
 {
-	strcpy_s(a_info->guid, 128, MYGUID);
-	wcscpy_s(a_info->name, 32, L"IMDb Infobar");
-	wcscpy_s(a_info->version, 16, L"0.9");
-	wcscpy_s(a_info->description, 1024, L"For each NFO file that carries an IMDb link, this plugin "
+	strcpy_s(a_info->guid,			48,		MYGUID);
+	wcscpy_s(a_info->name,			32,		L"IMDb Infobar");
+	wcscpy_s(a_info->version,		16,		L"0.9");
+
+	wcscpy_s(a_info->description,	512,	L"For each NFO file that carries an IMDb link, this plugin "
 		L"will download and display information about the movie or TV show.");
 
 	a_info->cap_infobar = true;
