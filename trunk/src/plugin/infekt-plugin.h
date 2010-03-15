@@ -52,6 +52,9 @@ typedef enum {
 	IPE_SUCCESS = 0,
 	_IPE_RESERVED = -65536,
 	IPE_NOT_IMPLEMENTED,
+	IPE_NO_FILE,
+	IPE_BUF_TOO_SMALL,
+	IPE_TOO_LARGE,
 
 	_IPE_MAX
 } infektPluginError;
@@ -80,8 +83,16 @@ struct infekt_plugin_load_t {
 
 	// info given to plugins:
 	infektPluginMethod pluginToCore;
+	HWND hMainWindow;
 };
 
+
+struct infekt_nfo_into_t {
+	size_t _uSize;
+
+	wchar_t* fileName;
+	wchar_t* filePath;
+};
 
 
 #endif /* !_INFEKT_PLUGIN_H */
