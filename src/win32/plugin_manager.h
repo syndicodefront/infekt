@@ -57,6 +57,8 @@ protected:
 	std::map<std::string, PLoadedPlugin> m_loadedPlugins;
 	std::_tstring m_lastErrorMsg;
 
+	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
+
 	long PluginToCoreCallback(const char*, long, long, long long, void*, void*);
 private:
 	CPluginManager();
