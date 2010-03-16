@@ -17,6 +17,7 @@
 #include "main_frame.h"
 #include "settings_dlg.h"
 #include "about_dlg.h"
+#include "plugin_manager.h"
 #include "resource.h"
 
 using namespace std;
@@ -115,7 +116,7 @@ void CMainFrame::OnInitialUpdate()
 	::CoLockObjectExternal(m_dropHelper, TRUE, FALSE);
 	::RegisterDragDrop(m_hWnd, m_dropHelper);
 
-	ShowWindow();
+	ShowWindow(m_maximize ? SW_MAXIMIZE : SW_SHOWNORMAL);
 
 	if(m_settings->bCheckDefaultOnStartup)
 	{
