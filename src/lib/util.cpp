@@ -504,6 +504,36 @@ HMODULE CUtil::SilentLoadLibrary(const std::_tstring a_path)
 }
 
 
+bool CUtil::TextToClipboard(HWND a_hwnd, const wstring& a_text)
+{
+	bool l_ok = false;
+
+	if(::OpenClipboard(a_hwnd))
+	{
+		size_t l_size = sizeof(wchar_t) * (a_text.size() + 1);
+		HGLOBAL l_hGlobal = ::GlobalAlloc(GMEM_MOVEABLE, l_size);
+
+		if(l_hGlobal)
+		{
+			wchar_t* l_hCopy = (wchar_t*)::GlobalLock(l_hGlobal);
+
+			memcpy_s(l_hCopy, l_size, a_text.c_str(), sizeof(wchar_t) * a_text.size());
+			l_hCopy[a_text.size()] = 0;
+			::GlobalUnlock(l_hCopy); 
+
+			::EmptyClipboard();
+			::SetClipboardData(CF_UNICODETEXT, l_hGlobal);
+
+			l_ok = true;
+		}
+
+		::CloseClipboard();
+	}
+
+	return l_ok;
+}
+
+
 /************************************************************************/
 /* Internet/Network Helper Functions                                    */
 /************************************************************************/
