@@ -57,6 +57,7 @@ public:
 
 	static std::_tstring GetExePath();
 	static HMODULE SilentLoadLibrary(const std::_tstring a_path);
+	static bool TextToClipboard(HWND a_hwnd, const std::wstring& a_text);
 
 	static uint32_t RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default = 0);
 protected:

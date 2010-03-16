@@ -37,6 +37,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 
 	m_contextMenuHandle = NULL;
 	m_contextMenuCommandTarget = NULL;
+	m_linkUnderMenu = NULL;
 
 	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
 	m_leftMouseDown = m_movedDownMouse = false;
@@ -191,7 +192,18 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_COMMAND:
 		if(HIWORD(wParam) == 0) // is it a menu?
 		{
-			PostMessage(m_contextMenuCommandTarget, WM_COMMAND, wParam, lParam);
+			if(LOWORD(wParam) == IDMC_COPYSHORTCUT)
+			{
+				if(m_linkUnderMenu)
+				{
+					CUtil::TextToClipboard(m_hwnd, m_linkUnderMenu->GetHref());
+					m_linkUnderMenu = NULL;
+				}
+			}
+			else
+			{
+				PostMessage(m_contextMenuCommandTarget, WM_COMMAND, wParam, lParam);
+			}
 		}
 		return 0;
 	case WM_THEMECHANGED:
@@ -322,6 +334,8 @@ void CNFOViewControl::OnPaint()
 bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 {
 	::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+
+	m_linkUnderMenu = NULL;
 
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
@@ -501,8 +515,10 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 		l_popup = ::GetSubMenu(m_contextMenuHandle, 0);
 
+		m_linkUnderMenu = m_nfo->GetLink(l_row, l_col);
+
 		::EnableMenuItem(l_popup, IDMC_COPY, (m_selStartRow == (size_t)-1 ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
-		::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, (!m_nfo->GetLink(l_row, l_col) ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
+		::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, (!m_linkUnderMenu ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 		::EnableMenuItem(l_popup, IDMC_SELECTALL, (!IsTextChar(l_row, l_col, true) ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 
 		if(::GetWindowLong(m_contextMenuCommandTarget, GWL_EXSTYLE) & WS_EX_TOPMOST)
@@ -515,14 +531,14 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 		}
 
 		LPTSTR l_oldCursor = m_cursor;
-		m_cursor = IDC_ARROW;
+		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_ARROW));
 
 		::ClientToScreen(m_hwnd, &l_pt);
 
 		::TrackPopupMenuEx(l_popup, TPM_LEFTALIGN | TPM_LEFTBUTTON,
 			l_pt.x, l_pt.y, m_hwnd, NULL);
 
-		m_cursor = l_oldCursor;
+		::SetCursor(::LoadCursor(NULL, m_cursor = l_oldCursor));
 	}
 }
 
@@ -721,25 +737,7 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 {
 	const std::wstring l_wstr = GetSelectedText();
 
-	if(::OpenClipboard(m_hwnd))
-	{
-		size_t l_size = sizeof(wchar_t) * (l_wstr.size() + 1);
-		HGLOBAL l_hGlobal = ::GlobalAlloc(GMEM_MOVEABLE, l_size);
-
-		if(l_hGlobal)
-		{
-			wchar_t* l_hCopy = (wchar_t*)::GlobalLock(l_hGlobal);
-
-			memcpy_s(l_hCopy, l_size, l_wstr.c_str(), sizeof(wchar_t) * l_wstr.size());
-			l_hCopy[l_wstr.size()] = 0;
-			::GlobalUnlock(l_hCopy); 
-
-			::EmptyClipboard();
-			::SetClipboardData(CF_UNICODETEXT, l_hGlobal);
-		}
-
-		::CloseClipboard();
-	}
+	CUtil::TextToClipboard(m_hwnd, l_wstr);
 }
 
 

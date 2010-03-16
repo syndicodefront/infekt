@@ -269,10 +269,6 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		m_view.SelectAll();
 		return TRUE;
 
-	case IDMC_COPYSHORTCUT:
-		this->MessageBox(_T("Not implemented!"), _T("Fail"), MB_ICONEXCLAMATION);
-		return TRUE;
-
 	case IDM_CHECKFORUPDATES:
 		this->CheckForUpdates();
 		return TRUE;

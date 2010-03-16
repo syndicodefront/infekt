@@ -36,6 +36,7 @@ protected:
 
 	HMENU m_contextMenuHandle;
 	HWND m_contextMenuCommandTarget;
+	const CNFOHyperLink* m_linkUnderMenu;
 
 	void UpdateScrollbars(bool a_resetPos);
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);
