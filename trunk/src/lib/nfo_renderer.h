@@ -101,7 +101,8 @@ public:
 	S_COLOR_T cHyperlinkColor;
 	bool bUnderlineHyperlinks;
 
-// :TODO: Add methods for serialization
+	std::wstring Serialize() const;
+	bool UnSerialize(std::wstring);
 };
 
 

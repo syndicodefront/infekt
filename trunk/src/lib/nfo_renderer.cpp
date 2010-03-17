@@ -980,3 +980,96 @@ CNFORenderer::~CNFORenderer()
 		cairo_surface_destroy(m_imgSurface);
 }
 
+
+/************************************************************************/
+/* CNFORenderSettings serialization                                     */
+/************************************************************************/
+
+std::wstring CNFORenderSettings::Serialize() const
+{
+	std::wstringstream l_ss;
+	l_ss << "{\n\t";
+
+	l_ss << "blw: " << uBlockWidth << ";\n\t";
+	l_ss << "blh: " << uBlockHeight << ";\n\t";
+	l_ss << "fos: " << uFontSize << ";\n\t";
+	
+	l_ss << "cba: " << cBackColor.AsHex(true) << ";\n\t";
+	l_ss << "cte: " << cTextColor.AsHex(true) << ";\n\t";
+	l_ss << "car: " << cArtColor.AsHex(true) << ";\n\t";
+
+	l_ss << "fof: '" << sFontFace << "';\n\t";
+	l_ss << "foa: " << (bFontAntiAlias ? 1 : 0) << ";\n\t";
+
+	l_ss << "cga: " << cGaussColor.AsHex(true) << ";\n\t";
+	l_ss << "gas: " << (bGaussShadow ? 1 : 0) << ";\n\t";
+	l_ss << "gar: " << uGaussBlurRadius << ";\n\t";
+
+	l_ss << "hhl: " << (bHilightHyperlinks ? 1 : 0) << ";\n\t";
+	l_ss << "chl: " << cHyperlinkColor.AsHex(true) << ";\n\t";
+	l_ss << "hul: " << (bUnderlineHyperlinks ? 1 : 0) << ";\n";
+
+	l_ss << "}";
+	return l_ss.str();
+}
+
+
+bool CNFORenderSettings::UnSerialize(std::wstring a_str)
+{
+	CUtil::StrTrim(a_str);
+
+	if(a_str.size() < 3 || a_str[0] != L'{' || a_str[a_str.size() - 1] != L'}')
+	{
+		return false;
+	}
+
+	a_str.erase(0, 1);
+	a_str.erase(a_str.size() - 1);
+	CUtil::StrTrim(a_str);
+
+	std::wstring::size_type l_colonPos = a_str.find(L':'), l_posBeforeColon = 0;
+	while(l_colonPos != std::wstring::npos)
+	{
+		std::wstring l_key = a_str.substr(l_posBeforeColon, l_colonPos - l_posBeforeColon);
+
+		std::wstring::size_type l_pos = l_colonPos + 1;
+		while(l_pos < a_str.size() && iswspace(a_str[l_pos])) l_pos++;
+
+		if(l_pos >= a_str.size() - 1) break;
+
+		std::wstring::size_type l_valEndPos;
+
+		if(a_str[l_pos] == L'\'')
+		{
+			l_valEndPos = a_str.find(L'\'', l_pos + 1);
+		}
+		else
+		{
+			l_valEndPos = a_str.find(L';', l_pos);
+		}
+
+		if(l_valEndPos == std::wstring::npos)
+		{
+			break;
+		}
+
+		std::wstring l_val = a_str.substr(l_pos, l_valEndPos - l_pos);
+
+		if(a_str[l_pos] == L'\'')
+		{
+			l_val.erase(0, 1);
+
+			l_valEndPos = a_str.find(L';', l_valEndPos);
+
+			if(l_valEndPos == std::wstring::npos)
+			{
+				l_valEndPos = a_str.size();
+			}
+		}
+
+		l_posBeforeColon = l_valEndPos + 1;
+		l_colonPos = a_str.find(L':', l_posBeforeColon);
+	}
+
+	return false;
+}

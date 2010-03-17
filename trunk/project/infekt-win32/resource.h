@@ -34,6 +34,7 @@
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013
 #define IDC_PREVIEW_BTN                 1013
+#define IDC_THEME_EXPORT                1013
 #define IDC_CLR_GAUSS                   1015
 #define IDC_SYNC_FROM_RENDERED          1016
 #define IDC_SYNC_FROM_NORMAL            1017
@@ -60,6 +61,8 @@
 #define IDC_COMBO_DEFAULTVIEW           1041
 #define IDC_FONT_ANTIALIAS              1042
 #define IDC_CUDA_STATUS                 1043
+#define IDC_BUTTON3                     1044
+#define IDC_THEME_IMPORT                1044
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -120,7 +123,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        122
 #define _APS_NEXT_COMMAND_VALUE         40081
-#define _APS_NEXT_CONTROL_VALUE         1044
+#define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
