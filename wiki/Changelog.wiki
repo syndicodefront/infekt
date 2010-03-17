@@ -1,11 +1,14 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
-== v0.4 (???) ==
+== v0.5 (???) ==
+  * Added zoom functionality (speed will be improved later)
   * Added useful file information to the status bar
+  * Added ability to export and import view settings from the preferences
+  * Implemented "Copy Shortcut" context menu entry
   * Fixed multiple crashes related to changing settings
-  * Improved CUDA code
   * Fixed anti-alias setting not being saved
+  * Improved CUDA code
   * Other fixes & improvements
 
 == v0.3 (12 March 2010) ==
