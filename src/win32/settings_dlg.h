@@ -51,6 +51,7 @@ public:
 	void SetMainWin(CMainFrame* a_mainWin) { m_mainWin = a_mainWin; }
 	CMainFrame* GetMainWin() const { return m_mainWin; }
 	const std::vector<PFontListEntry>& GetFonts(bool a_getAll);
+	void DoThemeExImport(bool a_import);
 protected:
 	CNonThemedTab m_tabControl;
 	CMainFrame* m_mainWin;

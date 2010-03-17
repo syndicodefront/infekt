@@ -43,6 +43,7 @@
 #include <io.h>
 #include <string>
 #include <sstream>
+#include <fstream>
 #include <map>
 #include <vector>
 #include <deque>

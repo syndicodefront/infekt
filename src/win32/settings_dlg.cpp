@@ -34,6 +34,9 @@ enum _tab_page_ids {
 #define DLG_SHOW_CTRL_IF(CTRL, CONDITION) \
 	::ShowWindow(this->GetDlgItem(CTRL), (CONDITION) ? TRUE : FALSE);
 
+#ifndef UNLEN
+#define UNLEN 256
+#endif
 
 /************************************************************************/
 /* CSettingsWindowDialog Implementation                                 */
@@ -488,16 +491,31 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			break;
 		case IDC_PREVIEW_BTN:
 			DoPreview();
+		default:
+			return FALSE;
 		}
 
 		return TRUE;
 	}
-	else if(LOWORD(wParam) == IDC_BUTTON_DEFAULT_VIEWER)
+	else
 	{
-		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd);
-	}
+		switch(LOWORD(wParam))
+		{
+		case IDC_BUTTON_DEFAULT_VIEWER:
+			dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd);
+			break;
+		case IDC_THEME_EXPORT:
+			m_dlgWin->DoThemeExImport(false);
+			break;
+		case IDC_THEME_IMPORT:
+			m_dlgWin->DoThemeExImport(true);
+			break;
+		default:
+			return FALSE;
+		}
 
-	return FALSE;
+		return TRUE;
+	}
 }
 
 
@@ -584,6 +602,57 @@ void CSettingsTabDialog::DoPreview()
 	l_view->SwitchView(l_newViewType);
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+}
+
+
+void CSettingsWindowDialog::DoThemeExImport(bool a_import)
+{
+	if(a_import)
+	{
+		std::_tstring l_filePath = CUtil::OpenFileDialog(g_hInstance,
+			m_hWnd, _T("Theme Info (.ini)\0*.ini\0All Files\0*\0\0"));
+
+		if(!l_filePath.empty())
+		{
+			MessageBox(l_filePath.c_str(), _T("x"), 0);
+		}
+	}
+	else
+	{
+		TCHAR l_userName[UNLEN + 1] = {0};
+		DWORD l_dummy = UNLEN;
+		::GetUserName(l_userName, &l_dummy);
+		::CharLower(l_userName);
+
+		std::_tstring l_filePath = CUtil::SaveFileDialog(g_hInstance,
+			m_hWnd, _T("Theme Info (.ini)\0*.ini\0\0"), _T("ini"),
+			std::_tstring(l_userName) + _T("-nfo-settings.ini"));
+
+		if(!l_filePath.empty())
+		{
+			std::wfstream l_file(l_filePath.c_str(), std::ios::out | std::ios::trunc);
+			std::string l_tmp;
+
+			l_file << "# NFO Theme Info File\n";
+			l_file << "# Exported by iNFekt " << m_mainWin->InfektVersionAsString() << "\n";
+			l_file << "# http://infekt.googlecode.com/\n\n";
+
+			l_file << "[rendered]\n";
+			l_tmp = CUtil::FromWideStr(m_tabPageRendered->GetViewSettings()->Serialize(), CP_UTF8);
+			l_file << l_tmp.c_str();
+
+			l_file << "\n\n[classic]\n";
+			l_tmp = CUtil::FromWideStr(m_tabPageClassic->GetViewSettings()->Serialize(), CP_UTF8);
+			l_file << l_tmp.c_str();
+
+			l_file << "\n\n[textonly]\n";
+			l_tmp = CUtil::FromWideStr(m_tabPageTextOnly->GetViewSettings()->Serialize(), CP_UTF8);
+			l_file << l_tmp.c_str();
+			l_file << "\n";
+
+			MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+		}
+	}
 }
 
 
