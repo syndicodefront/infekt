@@ -102,7 +102,7 @@ public:
 	bool bUnderlineHyperlinks;
 
 	std::wstring Serialize() const;
-	bool UnSerialize(std::wstring);
+	bool UnSerialize(std::wstring, bool a_classic);
 };
 
 

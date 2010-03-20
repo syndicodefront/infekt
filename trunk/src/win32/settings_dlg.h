@@ -79,7 +79,9 @@ public:
 
 	bool SaveSettings();
 	void OnCancelled();
-	const CNFORenderSettings* GetViewSettings() { return m_viewSettings; }
+	CNFORenderSettings* GetViewSettings() { return m_viewSettings; }
+
+	void ViewSettingsToGui();
 protected:
 	int m_pageId;
 	CNFORenderSettings* m_viewSettings;
