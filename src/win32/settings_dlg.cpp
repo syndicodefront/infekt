@@ -232,43 +232,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			delete m_viewSettings; m_viewSettings = NULL;
 		}
 
-		AddFontListToComboBox(true);
-
-		if(m_viewSettings)
-		{
-			SET_DLG_CHECKBOX(IDC_HILIGHT_LINKS, m_viewSettings->bHilightHyperlinks);
-			SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
-			SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
-			SET_DLG_CHECKBOX(IDC_FONT_ANTIALIAS, m_viewSettings->bFontAntiAlias);
-
-			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
-			SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETPOS, TRUE, m_viewSettings->uGaussBlurRadius);
-			SendMessage(WM_HSCROLL, 0, (LPARAM)GetDlgItem(IDC_GLOW_RADIUS));
-
-			int l_idx = 0;
-			for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++, l_idx++)
-			{
-				if(_tcscmp((*it)->GetShortName(), m_viewSettings->sFontFace) == 0)
-				{
-					ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), l_idx);
-					m_selectedFontIndex = l_idx;
-					break;
-				}
-			}
-
-			if(m_pageId == TAB_PAGE_RENDERED)
-			{
-				SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETPOS32, 0, m_viewSettings->uBlockWidth);
-				SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETPOS32, 0, m_viewSettings->uBlockHeight);
-			}
-			else
-			{
-				UpdateFontSizesCombo(m_viewSettings->uFontSize);
-				FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTSIZE_COMBO));
-			}
-
-			FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTNAME_COMBO));
-		}
+		ViewSettingsToGui();
 	}
 	else if(m_pageId == TAB_PAGE_GENERAL)
 	{
@@ -309,6 +273,48 @@ BOOL CSettingsTabDialog::OnInitDialog()
 	}
 
 	return TRUE;
+}
+
+
+void CSettingsTabDialog::ViewSettingsToGui()
+{
+	AddFontListToComboBox(true);
+
+	if(m_viewSettings)
+	{
+		SET_DLG_CHECKBOX(IDC_HILIGHT_LINKS, m_viewSettings->bHilightHyperlinks);
+		SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
+		SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
+		SET_DLG_CHECKBOX(IDC_FONT_ANTIALIAS, m_viewSettings->bFontAntiAlias);
+
+		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
+		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETPOS, TRUE, m_viewSettings->uGaussBlurRadius);
+		SendMessage(WM_HSCROLL, 0, (LPARAM)GetDlgItem(IDC_GLOW_RADIUS));
+
+		int l_idx = 0;
+		for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++, l_idx++)
+		{
+			if(_tcscmp((*it)->GetShortName(), m_viewSettings->sFontFace) == 0)
+			{
+				ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), l_idx);
+				m_selectedFontIndex = l_idx;
+				break;
+			}
+		}
+
+		if(m_pageId == TAB_PAGE_RENDERED)
+		{
+			SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETPOS32, 0, m_viewSettings->uBlockWidth);
+			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETPOS32, 0, m_viewSettings->uBlockHeight);
+		}
+		else
+		{
+			UpdateFontSizesCombo(m_viewSettings->uFontSize);
+			FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTSIZE_COMBO));
+		}
+
+		FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTNAME_COMBO));
+	}
 }
 
 
@@ -612,9 +618,86 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 		std::_tstring l_filePath = CUtil::OpenFileDialog(g_hInstance,
 			m_hWnd, _T("Theme Info (.ini)\0*.ini\0All Files\0*\0\0"));
 
-		if(!l_filePath.empty())
+		if(l_filePath.empty())
 		{
-			MessageBox(l_filePath.c_str(), _T("x"), 0);
+			return;
+		}
+
+		std::wifstream l_file(l_filePath.c_str());
+
+		if(!l_file.is_open() || !l_file.good())
+		{
+			MessageBox(_T("Unable to open file for reading."), _T("Error"), MB_ICONEXCLAMATION);
+			return;
+		}
+
+		std::wstring l_dataBuf;
+		wchar_t l_lineBuf[200] = {0};
+		bool l_inData = false;
+		std::wstring l_dataName;
+
+		while(l_file.good())
+		{
+			l_file.getline(l_lineBuf, 199);
+			std::wstring l_line = l_lineBuf;
+
+			CUtil::StrTrim(l_line);
+
+			if(l_line.empty() || l_line[0] == L'#')
+			{
+				continue;
+			}
+
+			if(!l_inData && l_line[0] == L'[' && l_line[l_line.size() - 1] == L']')
+			{
+				l_inData = true;
+				l_dataName = l_line.substr(1, l_line.size() - 2);
+				CUtil::StrTrim(l_dataName);
+				l_dataBuf.clear();
+			}
+			else if(l_inData)
+			{
+				l_dataBuf += l_line;
+
+				if(l_line[l_line.size() - 1] == L'}')
+				{
+					std::wstring l_dataNameFriendly;
+					if(l_dataName == L"rendered") l_dataNameFriendly = L"Rendered";
+					else if(l_dataName == L"classic") l_dataNameFriendly = L"Classic";
+					else if(l_dataName == L"textonly") l_dataNameFriendly = L"Text Only";
+
+					if(!l_dataNameFriendly.empty())
+					{
+						std::wstring l_prompt = L"Do you want to import the theme settings for the '" +
+							l_dataNameFriendly + L"' view from this file?";
+
+						if(MessageBox(l_prompt.c_str(), _T("Question"), MB_ICONQUESTION | MB_YESNO) == IDYES)
+						{
+							CSettingsTabDialog* l_pViewDlg = NULL;
+
+							if(l_dataName == L"rendered") l_pViewDlg = m_tabPageRendered;
+							else if(l_dataName == L"classic") l_pViewDlg = m_tabPageClassic;
+							else if(l_dataName == L"textonly") l_pViewDlg = m_tabPageTextOnly;
+
+							if(!l_pViewDlg || !l_pViewDlg->GetViewSettings()->UnSerialize(l_dataBuf, l_dataName != L"rendered"))
+							{
+								MessageBox(_T("Importing the theme failed for an unknown reason."), _T("Error"), MB_ICONSTOP);
+							}
+							else if(l_pViewDlg)
+							{
+								l_pViewDlg->ViewSettingsToGui();
+							}
+						}
+					}
+
+					l_inData = false;
+				}
+			}
+			else
+			{
+				MessageBox(_T("Encountered an invalid line. Aborting."), _T("Error"), MB_ICONSTOP);
+				break;
+			}
 		}
 	}
 	else
@@ -628,30 +711,38 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 			m_hWnd, _T("Theme Info (.ini)\0*.ini\0\0"), _T("ini"),
 			std::_tstring(l_userName) + _T("-nfo-settings.ini"));
 
-		if(!l_filePath.empty())
+		if(l_filePath.empty())
 		{
-			std::wfstream l_file(l_filePath.c_str(), std::ios::out | std::ios::trunc);
-			std::string l_tmp;
-
-			l_file << "# NFO Theme Info File\n";
-			l_file << "# Exported by iNFekt " << m_mainWin->InfektVersionAsString() << "\n";
-			l_file << "# http://infekt.googlecode.com/\n\n";
-
-			l_file << "[rendered]\n";
-			l_tmp = CUtil::FromWideStr(m_tabPageRendered->GetViewSettings()->Serialize(), CP_UTF8);
-			l_file << l_tmp.c_str();
-
-			l_file << "\n\n[classic]\n";
-			l_tmp = CUtil::FromWideStr(m_tabPageClassic->GetViewSettings()->Serialize(), CP_UTF8);
-			l_file << l_tmp.c_str();
-
-			l_file << "\n\n[textonly]\n";
-			l_tmp = CUtil::FromWideStr(m_tabPageTextOnly->GetViewSettings()->Serialize(), CP_UTF8);
-			l_file << l_tmp.c_str();
-			l_file << "\n";
-
-			MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+			return;
 		}
+
+		std::wfstream l_file(l_filePath.c_str(), std::ios::out | std::ios::trunc);
+		std::string l_tmp;
+
+		if(!l_file.is_open() || !l_file.good())
+		{
+			MessageBox(_T("Unable to open file for writing."), _T("Error"), MB_ICONEXCLAMATION);
+			return;
+		}
+
+		l_file << "# NFO Theme Info File\n";
+		l_file << "# Exported by iNFekt " << m_mainWin->InfektVersionAsString() << "\n";
+		l_file << "# http://infekt.googlecode.com/\n\n";
+
+		l_file << "[rendered]\n";
+		l_tmp = CUtil::FromWideStr(m_tabPageRendered->GetViewSettings()->Serialize(), CP_UTF8);
+		l_file << l_tmp.c_str();
+
+		l_file << "\n\n[classic]\n";
+		l_tmp = CUtil::FromWideStr(m_tabPageClassic->GetViewSettings()->Serialize(), CP_UTF8);
+		l_file << l_tmp.c_str();
+
+		l_file << "\n\n[textonly]\n";
+		l_tmp = CUtil::FromWideStr(m_tabPageTextOnly->GetViewSettings()->Serialize(), CP_UTF8);
+		l_file << l_tmp.c_str();
+		l_file << "\n";
+
+		MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
 	}
 }
 

@@ -993,7 +993,7 @@ std::wstring CNFORenderSettings::Serialize() const
 	l_ss << "blw: " << uBlockWidth << ";\n\t";
 	l_ss << "blh: " << uBlockHeight << ";\n\t";
 	l_ss << "fos: " << uFontSize << ";\n\t";
-	
+
 	l_ss << "cba: " << cBackColor.AsHex(true) << ";\n\t";
 	l_ss << "cte: " << cTextColor.AsHex(true) << ";\n\t";
 	l_ss << "car: " << cArtColor.AsHex(true) << ";\n\t";
@@ -1014,7 +1014,7 @@ std::wstring CNFORenderSettings::Serialize() const
 }
 
 
-bool CNFORenderSettings::UnSerialize(std::wstring a_str)
+bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 {
 	CUtil::StrTrim(a_str);
 
@@ -1026,6 +1026,9 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str)
 	a_str.erase(0, 1);
 	a_str.erase(a_str.size() - 1);
 	CUtil::StrTrim(a_str);
+
+	int l_numExtracted = 0;
+	CNFORenderSettings l_tmpSets;
 
 	std::wstring::size_type l_colonPos = a_str.find(L':'), l_posBeforeColon = 0;
 	while(l_colonPos != std::wstring::npos)
@@ -1067,8 +1070,52 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str)
 			}
 		}
 
+		l_numExtracted++;
+
+		if(l_key == L"blw")
+			l_tmpSets.uBlockWidth = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
+		else if(l_key == L"blh")
+			l_tmpSets.uBlockHeight = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
+		else if(l_key == L"fos")
+			l_tmpSets.uFontSize = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
+		else if(l_key == L"cba")
+			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cBackColor);
+		else if(l_key == L"cte")
+			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cTextColor);
+		else if(l_key == L"car")
+			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cArtColor);
+		else if(l_key == L"fof" && l_val.size() <= LF_FACESIZE)
+			wcscpy_s(l_tmpSets.sFontFace, LF_FACESIZE + 1, l_val.c_str());
+		else if(l_key == L"foa")
+			l_tmpSets.bFontAntiAlias = (wcstol(l_val.c_str(), NULL, 10) != 0);
+		else if(l_key == L"cga")
+			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cGaussColor);
+		else if(l_key == L"gas")
+			l_tmpSets.bGaussShadow = (wcstol(l_val.c_str(), NULL, 10) != 0);
+		else if(l_key == L"gar")
+			l_tmpSets.uGaussBlurRadius = static_cast<unsigned int>(wcstoul(l_val.c_str(), NULL, 10));
+		else if(l_key == L"hhl")
+			l_tmpSets.bHilightHyperlinks = (wcstol(l_val.c_str(), NULL, 10) != 0);
+		else if(l_key == L"chl")
+			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cHyperlinkColor);
+		else if(l_key == L"hul")
+			l_tmpSets.bUnderlineHyperlinks = (wcstol(l_val.c_str(), NULL, 10) != 0);
+		else
+			l_numExtracted--;
+
 		l_posBeforeColon = l_valEndPos + 1;
 		l_colonPos = a_str.find(L':', l_posBeforeColon);
+	}
+
+	if(l_numExtracted > 0)
+	{
+		// we use this to validate the raw data from a_str:
+		CNFORenderer l_dummyRenderer(a_classic);
+		l_dummyRenderer.InjectSettings(l_tmpSets);
+
+		*this = l_dummyRenderer.GetSettings();
+
+		return true;
 	}
 
 	return false;

@@ -66,7 +66,7 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 		l_html << L"    color: #" << m_settings.cArtColor.AsHex(false) << L";" << endl;
 		if(m_settings.cArtColor.A != 255) l_html << L"    color: #" << m_settings.cArtColor.AsHex(true) << L";" << endl;
 		if(m_settings.bGaussShadow) l_html << L"/*  text-shadow: 0px 0px " << m_settings.uGaussBlurRadius <<
-			"px #" << m_settings.cGaussColor.AsHex(false) << "; */ /* You can enable this but it won't look like it does in iNFekt. */" << endl;
+			L"px #" << m_settings.cGaussColor.AsHex(false) << L"; */ /* You can enable this but it won't look like it does in iNFekt. */" << endl;
 		l_html << L"  }" << endl;
 
 		if(m_settings.bHilightHyperlinks)
