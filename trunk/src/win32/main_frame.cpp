@@ -18,6 +18,7 @@
 #include "settings_dlg.h"
 #include "about_dlg.h"
 #include "plugin_manager.h"
+#include "nfo_renderer_export.h"
 #include "resource.h"
 
 using namespace std;
@@ -279,6 +280,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDM_EXPORT_UTF16:
 	case IDM_EXPORT_XHTML:
 	case IDM_EXPORT_PDF:
+	case IDM_EXPORT_PDF_DIN:
 		DoNfoExport(LOWORD(wParam));
 		return TRUE;
 
@@ -821,9 +823,28 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			}
 		}
 	}
-	else if(a_id == IDM_EXPORT_PDF)
+	else if(a_id == IDM_EXPORT_PDF || a_id == IDM_EXPORT_PDF_DIN)
 	{
-		// :TODO:
+		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			_T("PDF File\0*.pdf\0\0"), _T("pdf"),
+			l_baseFileName + _T(".pdf"));
+
+		if(!l_filePath.empty())
+		{
+			CNFOToPDF l_exporter(m_view.GetActiveCtrl() != m_view.GetRenderCtrl());
+			l_exporter.SetUseDINSizes(a_id == IDM_EXPORT_PDF_DIN);
+			l_exporter.AssignNFO(m_view.GetNfoData());
+			l_exporter.InjectSettings(m_view.GetActiveCtrl()->GetSettings());
+
+			if(l_exporter.SavePDF(l_filePath))
+			{
+				this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+			}
+			else
+			{
+				this->MessageBox(_T("An error occured while trying to save this NFO as PDF!"), _T("Fail"), MB_ICONEXCLAMATION);
+			}
+		}
 	}
 }
 
