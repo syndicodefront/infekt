@@ -15,6 +15,7 @@
 #include "stdafx.h"
 #include "nfo_data.h"
 #include "nfo_renderer.h"
+#include "nfo_renderer_export.h"
 #include "util.h"
 #include "getopt.h"
 
@@ -38,6 +39,8 @@ static const struct ::option g_longOpts[] = {
 	{ _T("utf-8"),			no_argument,		0,	'f' },
 	{ _T("utf-16"),			no_argument,		0,	't' },
 	{ _T("html"),			no_argument,		0,	'm' },
+	{ _T("pdf"),			no_argument,		0,	'd' },
+	{ _T("pdf-din"),		no_argument,		0,	'D' },
 	{ _T("out-file"),		required_argument,	0,	'O' },
 
 	{ _T("text-color"),		required_argument,	0,	'T' },
@@ -75,6 +78,10 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -f, --utf-8                 Converts the NFO file into UTF-8.\n");
 	printf("  -t, --utf-16                Converts the NFO file into UTF-16.\n");
 	printf("  -m, --html                  Makes a nice HTML document.\n");
+#ifdef CAIRO_HAS_PDF_SURFACE
+	printf("  -d, --pdf                   Makes a PDF document.\n");
+	printf("  -D, --pdf-din               Makes a PDF document (DIN size).\n");
+#endif
 	printf("  -O, --out-file <PATH>       Sets the output filename. Defaults to input file name plus .png/.nfo.\n");
 
 	printf("Render settings:\n");
@@ -122,7 +129,8 @@ int main(int argc, char* argv[])
 #endif
 {
 	std::_tstring l_outFileName;
-	bool l_classic = false, l_makePng = true, l_textUtf8 = true, l_htmlOut = false;
+	bool l_classic = false, l_makePng = true, l_textUtf8 = true,
+		l_htmlOut = false, l_makePdf = false, l_pdfDin = false;
 
 	// our defaults:
 	CNFORenderSettings l_pngSettings;
@@ -144,7 +152,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, L"hvT:B:A:gG:W:H:R:LuU:O:pPftm", g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, L"hvT:B:A:gG:W:H:R:LuU:O:pPftmdD", g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -217,6 +225,12 @@ int main(int argc, char* argv[])
 		case 'm':
 			l_makePng = false; l_htmlOut = true;
 			break;
+		case 'd':
+			l_makePng = false; l_makePdf = true;
+			break;
+		case 'D':
+			l_makePng = false; l_makePdf = true; l_pdfDin = true;
+			break;
 		case '?':
 		default:
 			fprintf(stderr, "Try --help.");
@@ -275,6 +289,10 @@ int main(int argc, char* argv[])
 		else if(l_htmlOut)
 		{
 			l_outFileName += _T(".html");
+		}
+		else if(l_makePdf)
+		{
+			l_outFileName += _T(".pdf");
 		}
 		else if(l_textUtf8)
 		{
@@ -349,6 +367,24 @@ int main(int argc, char* argv[])
 		}
 
 		cairo_surface_destroy(l_surface);
+	}
+	else if(l_makePdf)
+	{
+#ifdef CAIRO_HAS_PDF_SURFACE
+		CNFOToPDF l_exporter(l_classic);
+		l_exporter.SetUseDINSizes(l_pdfDin);
+		l_exporter.AssignNFO(&l_nfoData);
+		l_exporter.InjectSettings(l_pngSettings);
+
+		if(l_exporter.SavePDF(l_outFileName))
+		{
+			_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+		}
+		else
+		{
+			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+		}
+#endif
 	}
 	else
 	{
