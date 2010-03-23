@@ -13,7 +13,7 @@
  **/
 
 #include "stdafx.h"
-#include "nfo_renderer.h"
+#include "nfo_renderer_export.h"
 
 using namespace std;
 

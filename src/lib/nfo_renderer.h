@@ -233,27 +233,4 @@ public:
 	static bool ParseColor(const wchar_t* a_str, S_COLOR_T* ar);
 };
 
-
-class CNFOToHTML
-{
-protected:
-	CNFORenderSettings m_settings;
-	PNFOData m_nfo;
-
-	std::wstring m_title;
-
-	static std::wstring XMLEscape(const std::wstring& s);
-public:
-	CNFOToHTML(const PNFOData& a_nfoData);
-	virtual ~CNFOToHTML();
-
-	const std::wstring GetHTML(bool a_includeHeaderAndFooter = true);
-
-	const CNFORenderSettings GetSettings() const { return m_settings; }
-	void SetSettings(const CNFORenderSettings& ns) { m_settings = ns; }
-
-	void SetTitle(const std::wstring& snt) { m_title = snt; }
-};
-
-
 #endif /* !_NFO_RENDERER_H */

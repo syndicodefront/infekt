@@ -116,13 +116,15 @@
 #define ID_ZOOM_OUT                     40069
 #define IDM_ZOOM_RESET                  40070
 #define IDM_ZOOM_OUT                    40071
+#define ID_EXPORT_ASPDF40081            40081
+#define IDM_EXPORT_PDF_DIN              40082
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        122
-#define _APS_NEXT_COMMAND_VALUE         40081
+#define _APS_NEXT_COMMAND_VALUE         40083
 #define _APS_NEXT_CONTROL_VALUE         1045
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
