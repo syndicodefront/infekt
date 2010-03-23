@@ -494,16 +494,6 @@ int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 }
 
 
-HMODULE CUtil::SilentLoadLibrary(const std::_tstring a_path)
-{
-	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
-	HMODULE l_hResult = ::LoadLibrary(a_path.c_str());
-	::SetErrorMode(l_oldErrorMode);
-
-	return l_hResult;
-}
-
-
 bool CUtil::TextToClipboard(HWND a_hwnd, const wstring& a_text)
 {
 	bool l_ok = false;
@@ -620,10 +610,21 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 	}
 }
 
-#endif
+#endif /* _WIN32_UI */
 
 
 #ifdef _WIN32
+
+
+HMODULE CUtil::SilentLoadLibrary(const std::_tstring a_path)
+{
+	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
+	HMODULE l_hResult = ::LoadLibrary(a_path.c_str());
+	::SetErrorMode(l_oldErrorMode);
+
+	return l_hResult;
+}
+
 
 /************************************************************************/
 /* Windows OS Version Helper Functions                                  */
