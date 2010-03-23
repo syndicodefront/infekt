@@ -5,6 +5,7 @@
   * Added zoom functionality (speed will be improved later)
   * Added useful file information to the status bar
   * Added ability to export and import view settings from the preferences
+  * Implemented PDF export
   * Implemented "Copy Shortcut" context menu entry
   * Fixed multiple crashes related to changing settings
   * Fixed anti-alias setting not being saved
