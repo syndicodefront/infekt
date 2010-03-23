@@ -1199,7 +1199,7 @@ bool CMainSettings::LoadFromRegistry()
 		dwCopySelect = CUtil::RegQueryDword(l_hKey, _T("CopyOnSelect")),
 		dwAlwaysOnTop = CUtil::RegQueryDword(l_hKey, _T("AlwaysOnTop")),
 		dwAlwaysMenuBar = CUtil::RegQueryDword(l_hKey, _T("AlwaysShowMenubar")),
-		dwCheckDefault = CUtil::RegQueryDword(l_hKey, _T("CheckDefViewOnStart")),
+		dwCheckDefault = CUtil::RegQueryDword(l_hKey, _T("CheckDefViewOnStart"), 1),
 		dwSingleInstance = CUtil::RegQueryDword(l_hKey, _T("SingleInstanceMode"));
 
 	RegCloseKey(l_hKey);
