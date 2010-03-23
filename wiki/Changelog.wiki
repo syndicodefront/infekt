@@ -1,7 +1,7 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
-== v0.5 (???) ==
+== v0.5 (23 March 2010) ==
   * Added zoom functionality (speed will be improved later)
   * Added useful file information to the status bar
   * Added ability to export and import view settings from the preferences
