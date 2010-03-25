@@ -995,6 +995,11 @@ bool CSettingsTabDialog::SaveSettings()
 
 		ReadBlockSize();
 
+		if(m_beforePreviewViewType != _MAIN_VIEW_MAX)
+		{
+			m_mainWin->SwitchView(m_beforePreviewViewType);
+		}
+
 		return m_mainWin->SaveRenderSettingsToRegistry(l_keyName, *m_viewSettings, l_classic);
 	}
 	else if(m_pageId == TAB_PAGE_GENERAL)

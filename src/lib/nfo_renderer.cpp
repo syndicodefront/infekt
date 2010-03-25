@@ -795,7 +795,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 
 				if(l_curType == BT_LINK && GetUnderlineHyperLinks())
 				{
-					cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight() - 1);
+					cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
 					cairo_rel_line_to(cr, GetBlockWidth() * l_len, 0);
 					cairo_stroke(cr);
 				}
