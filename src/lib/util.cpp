@@ -459,6 +459,20 @@ std::_tstring CUtil::GetExePath()
 }
 
 
+std::_tstring CUtil::GetExeDir()
+{
+	TCHAR l_buf[1000] = {0};
+	TCHAR l_buf2[1000] = {0};
+
+	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetLongPathName(l_buf, l_buf2, 999);
+	::PathRemoveFileSpec(l_buf2);
+	::PathRemoveBackslash(l_buf2);
+
+	return l_buf2;
+}
+
+
 uint32_t CUtil::RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default)
 {
 	DWORD l_dwType;

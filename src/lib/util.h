@@ -56,6 +56,7 @@ public:
 	static bool IsWin6x(bool a_orHigher = true);
 
 	static std::_tstring GetExePath();
+	static std::_tstring GetExeDir();
 	static HMODULE SilentLoadLibrary(const std::_tstring a_path);
 	static bool TextToClipboard(HWND a_hwnd, const std::wstring& a_text);
 

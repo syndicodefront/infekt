@@ -15,6 +15,7 @@
 #include "stdafx.h"
 #include "settings_dlg.h"
 #include "app.h"
+#include "plugin_manager.h"
 #include "resource.h"
 
 
@@ -26,7 +27,8 @@ enum _tab_page_ids {
 	TAB_PAGE_GENERAL = 1,
 	TAB_PAGE_RENDERED,
 	TAB_PAGE_CLASSIC,
-	TAB_PAGE_TEXTONLY
+	TAB_PAGE_TEXTONLY,
+	TAB_PAGE_PLUGINS
 };
 
 #define SET_DLG_CHECKBOX(ID, BOOLV) \
@@ -61,13 +63,15 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 	m_tabPageRendered = new CSettingsTabDialog(this, TAB_PAGE_RENDERED, IDD_TAB_VIEWSETTINGS);
 	m_tabPageClassic = new CSettingsTabDialog(this, TAB_PAGE_CLASSIC, IDD_TAB_VIEWSETTINGS);
 	m_tabPageTextOnly = new CSettingsTabDialog(this, TAB_PAGE_TEXTONLY, IDD_TAB_VIEWSETTINGS);
+	m_tabPagePlugins = new CSettingsTabDialog(this, TAB_PAGE_PLUGINS, IDD_TAB_PLUGINS);
 
 	m_tabControl.AddTabPage(m_tabPageGeneral, _T("General"));
 	m_tabControl.AddTabPage(m_tabPageRendered, _T("Rendered View"));
 	m_tabControl.AddTabPage(m_tabPageClassic, _T("Classic View"));
 	m_tabControl.AddTabPage(m_tabPageTextOnly, _T("Text-Only View"));
+	m_tabControl.AddTabPage(m_tabPagePlugins, _T("Plugins"));
 
-	m_tabControl.SetItemSize(110, 20);
+	m_tabControl.SetItemSize(100, 20);
 	m_tabControl.SelectPage(0);
 
 	ShowWindow(SW_SHOW);
@@ -270,6 +274,19 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		{
 			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: No."));
 		}
+	}
+	else if(m_pageId == TAB_PAGE_PLUGINS)
+	{
+		m_pluginListView.AttachDlgItem(IDC_PLUGIN_LIST, this);
+
+		m_pluginListView.InsertColumn(0, _T("Name"), LVCFMT_LEFT, 100);
+		m_pluginListView.InsertColumn(1, _T("Version"), LVCFMT_LEFT, 60);
+		m_pluginListView.InsertColumn(2, _T("Description"), LVCFMT_LEFT, 320);
+
+		ListView_SetExtendedListViewStyleEx(m_pluginListView.GetHwnd(),
+			LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES, LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
+
+		PopulatePluginList();
 	}
 
 	return TRUE;
@@ -522,6 +539,32 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		return TRUE;
 	}
+}
+
+
+LRESULT CSettingsTabDialog::OnNotify(WPARAM wParam, LPARAM lParam)
+{
+	if(m_pageId == TAB_PAGE_PLUGINS)
+	{
+		LPNMHDR l_shit = (LPNMHDR)lParam;
+
+		if(l_shit->idFrom == IDC_PLUGIN_LIST && l_shit->code == LVN_ITEMCHANGING)
+		{
+			LPNMLISTVIEW l_pnmv = (LPNMLISTVIEW)lParam;
+
+			if(l_pnmv->lParam == -1)
+			{
+				if((l_pnmv->uNewState & LVIS_FOCUSED) != 0 ||
+					(l_pnmv->uNewState & LVIS_STATEIMAGEMASK) != 0)
+				{
+					SetWindowLongPtr(DWLP_MSGRESULT, TRUE); // cancel change
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	return CDialog::OnNotify(wParam, lParam);
 }
 
 
@@ -998,6 +1041,72 @@ void CSettingsTabDialog::FixCommCtrls5ComboBug(HWND a_combo)
 		// The window height includes the drop-down list, so it needs to be raised or
 		// no drop down list will show up. Pretty stupid.
 	}
+}
+
+
+static int CALLBACK _PluginSortCallback(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
+{
+	if(lParam1 == -1)
+		return 1;
+	else if(lParam2 == -1)
+		return -1;
+
+	std::map<int, std::wstring>* l_map = (std::map<int, std::wstring>*)lParamSort;
+
+	return wcsicmp((*l_map)[lParam1].c_str(), (*l_map)[lParam2].c_str());
+}
+
+void CSettingsTabDialog::PopulatePluginList()
+{
+	m_pluginListView.DeleteAllItems();
+
+	std::_tstring l_pluginDirPath = CUtil::GetExeDir() + _T("\\plugins\\"),
+		l_pluginDirPattern = l_pluginDirPath + _T("*.dll");
+
+	WIN32_FIND_DATA l_ffd = {0};
+	HANDLE l_fh;
+
+	if((l_fh = ::FindFirstFile(l_pluginDirPattern.c_str(), &l_ffd)) == INVALID_HANDLE_VALUE)
+	{
+		return;
+	}
+
+	do 
+	{
+		std::_tstring l_dllPath = l_pluginDirPath + l_ffd.cFileName;
+		std::_tstring l_pluginName = l_ffd.cFileName,
+			l_pluginVersion, l_pluginDescr, l_saveFileName;
+
+		if(CPluginManager::GetInstance()->LoadPlugin(l_dllPath, true))
+		{
+			CPluginManager::GetInstance()->GetLastProbedInfo(l_pluginName, l_pluginVersion, l_pluginDescr);
+			l_saveFileName = l_ffd.cFileName;
+		}
+		else
+		{
+			l_pluginVersion = _T("Error");
+			l_pluginDescr = _T("Error: ") + CPluginManager::GetInstance()->GetLastErrorMessage();
+		}
+
+		LVITEM l_item = {0};
+		l_item.iItem = m_pluginListView.GetItemCount();
+		l_item.mask = LVIF_TEXT | LVIF_PARAM;
+		l_item.lParam = (l_saveFileName.empty() ? -1 : l_item.iItem);
+		l_item.pszText = (LPTSTR)l_pluginName.c_str();
+
+		int l_idx = m_pluginListView.InsertItem(l_item);
+		if(l_idx >= 0)
+		{
+			m_pluginListView.SetItemText(l_idx, 1, l_pluginVersion.c_str());
+			m_pluginListView.SetItemText(l_idx, 2, l_pluginDescr.c_str());
+
+			m_pluginFileNames[l_idx] = l_saveFileName;
+		}
+	} while(::FindNextFile(l_fh, &l_ffd));
+
+	m_pluginListView.SortItems(_PluginSortCallback, (DWORD_PTR)&m_pluginFileNames);
+
+	FindClose(l_fh);
 }
 
 

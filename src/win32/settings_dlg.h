@@ -60,6 +60,7 @@ protected:
 	CSettingsTabDialog* m_tabPageRendered;
 	CSettingsTabDialog* m_tabPageClassic;
 	CSettingsTabDialog* m_tabPageTextOnly;
+	CSettingsTabDialog* m_tabPagePlugins;
 
 	std::vector<PFontListEntry> m_fonts;
 	std::vector<PFontListEntry> m_allFonts;
@@ -84,14 +85,21 @@ public:
 	void ViewSettingsToGui();
 protected:
 	int m_pageId;
-	CNFORenderSettings* m_viewSettings;
 	CMainFrame* m_mainWin;
 	CSettingsWindowDialog* m_dlgWin;
+
+	// vars for view settings tabs:
+	CNFORenderSettings* m_viewSettings;
 	std::vector<PFontListEntry> m_fonts;
 	int m_selectedFontIndex;
 	CNFORenderSettings* m_previewSettingsBackup;
 	EMainView m_beforePreviewViewType;
 
+	// vars for the plugins tab:
+	CListView m_pluginListView;
+	std::map<int, std::wstring> m_pluginFileNames;
+
+	// methods for view settings tabs:
 	bool IsViewSettingPage() const;
 	static bool IsColorButton(UINT a_id);
 	void DrawColorButton(const LPDRAWITEMSTRUCT a_dis);
@@ -103,11 +111,17 @@ protected:
 	void ReadBlockSize();
 	void DoPreview();
 
+	// methods for all tabs:
 	void FixCommCtrls5ComboBug(HWND a_combo);
 
+	// methods for the plugins tab:
+	void PopulatePluginList();
+
+	// Win32++ inherited stuff:
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual BOOL OnCommand(WPARAM wParam, LPARAM lParam);
+	virtual LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 
 	static const int ms_fontComboPadding = 3;
 };

@@ -152,7 +152,7 @@ bool CNFOApp::SwitchToPrevInstance()
 
 BOOL CNFOApp::InitInstance()
 {
-	if(!m_Frame.Create())
+	if(!m_frame.Create())
 	{
 		::MessageBox(NULL, _T("Failed to create Frame window"), _T("ERROR"), MB_ICONERROR);
 		return FALSE;

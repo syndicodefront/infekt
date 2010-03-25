@@ -48,14 +48,16 @@ public:
 	static CPluginManager* GetInstance();
 	virtual ~CPluginManager();
 
-	bool LoadPlugin(std::_tstring a_dllPath);
+	bool LoadPlugin(std::_tstring a_dllPath, bool a_probeInfoOnly = false);
 	std::_tstring GetLastErrorMessage() const { return m_lastErrorMsg; }
+	void GetLastProbedInfo(std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description);
 
 	// don't call this. it's for CLoadedPlugin only.
 	static long _cdecl _pluginToCoreCallback(const char*, long, long, long long, void*, void*);
 protected:
 	std::map<std::string, PLoadedPlugin> m_loadedPlugins;
 	std::_tstring m_lastErrorMsg;
+	std::wstring m_probedName, m_probedVer, m_probedDescr;
 
 	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
 

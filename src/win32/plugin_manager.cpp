@@ -41,7 +41,7 @@ CPluginManager* CPluginManager::GetInstance()
 }
 
 
-bool CPluginManager::LoadPlugin(_tstring a_dllPath)
+bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
 {
 	HMODULE l_hModule = CUtil::SilentLoadLibrary(a_dllPath);
 
@@ -102,6 +102,17 @@ bool CPluginManager::LoadPlugin(_tstring a_dllPath)
 		return false;
 	}
 
+	if(a_probeInfoOnly)
+	{
+		m_probedName = l_info.name;
+		m_probedVer = l_info.version;
+		m_probedDescr = l_info.description;
+
+		FreeLibrary(l_hModule);
+
+		return true;
+	}
+
 	PLoadedPlugin l_newPlugin = PLoadedPlugin(new CLoadedPlugin(l_hModule, &l_info));
 
 	m_loadedPlugins[l_info.guid] = l_newPlugin;
@@ -119,6 +130,14 @@ bool CPluginManager::LoadPlugin(_tstring a_dllPath)
 		// PLoadedPlugin will free the instance and close the HMODULE.
 		return false;
 	}
+}
+
+
+void CPluginManager::GetLastProbedInfo(std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description)
+{
+	ar_name = m_probedName;
+	ar_version = m_probedVer;
+	ar_description = m_probedDescr;
 }
 
 

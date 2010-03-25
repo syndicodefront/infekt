@@ -27,7 +27,7 @@ public:
 	virtual ~CNFOApp();
 	virtual BOOL InitInstance();
 
-	CMainFrame& GetMainFrame() { return m_Frame; }
+	CMainFrame& GetMainFrame() { return m_frame; }
 	const std::_tstring& GetStartupFilePath() { return m_startupFilePath; }
 
 	bool ExtractStartupFilePath(const std::_tstring& a_commandLine);
@@ -37,7 +37,7 @@ public:
 	bool MakeDefaultNfoViewer();
 	void CheckDefaultNfoViewer(HWND a_hwnd = 0, bool a_confirmation = true);
 protected:
-	CMainFrame m_Frame;
+	CMainFrame m_frame;
 	std::_tstring m_startupFilePath;
 };
 
