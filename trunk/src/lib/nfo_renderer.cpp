@@ -543,6 +543,13 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		cairo_set_font_size(cr, m_fontSize);
 	}
 
+	if(m_fontSize < 4)
+	{
+		// disable anti-alias to avoid colorful artifacts in low zoom levels:
+		cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_NONE);
+		cairo_set_font_options(cr, l_fontOptions);
+	}
+
 	// get general font info to vertically center chars into the blocks:
 	cairo_font_extents_t l_font_extents;
 	cairo_font_extents(cr, &l_font_extents);

@@ -17,6 +17,7 @@
 #define IDB_PNG_VIEW_CLASSIC            119
 #define IDB_PNG3                        120
 #define IDB_PNG_VIEW_TEXTONLY           120
+#define IDD_TAB_PLUGINS                 122
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_CHECK_DEFAULT_VIEWER        1006
@@ -44,7 +45,6 @@
 #define IDC_ACTIVATE_GLOW               1021
 #define IDC_LABEL_ART                   1022
 #define IDC_CLR_LINKS                   1023
-#define IDC_PRERELEASE                  1024
 #define IDC_HILIGHT_LINKS               1025
 #define IDC_UNDERL_LINKS                1026
 #define IDC_GLOW_RADIUS_LABEL           1027
@@ -63,6 +63,7 @@
 #define IDC_CUDA_STATUS                 1043
 #define IDC_BUTTON3                     1044
 #define IDC_THEME_IMPORT                1044
+#define IDC_PLUGIN_LIST                 1045
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -123,9 +124,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        122
+#define _APS_NEXT_RESOURCE_VALUE        123
 #define _APS_NEXT_COMMAND_VALUE         40083
-#define _APS_NEXT_CONTROL_VALUE         1045
+#define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
