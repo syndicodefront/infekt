@@ -15,6 +15,8 @@
 #ifndef _INFEKT_PLUGIN_H
 #define _INFEKT_PLUGIN_H
 
+// This will always have to be a word. It should not be changed a lot
+// since all versions/calls are supposed to be backwards compatible.
 #define INFEKT_PLUGIN_H_VERSION ((WORD)0x001)
 
 
@@ -26,7 +28,6 @@ typedef long (*infektPluginMethod)(const char* szGuid, long lReserved, long lCal
 // call IDs for infektPluginMethod's lCall (plugin -> core):
 typedef enum {
 	IPCI_REGISTER_NFO_LOAD_EVENTS = 1001,
-	IPCI_GET_LOADED_NFO_INFO,
 	IPCI_GET_LOADED_NFO_TEXTW,
 	IPCI_GET_LOADED_NFO_TEXTUTF8,
 
@@ -50,7 +51,7 @@ typedef enum {
 // error/return codes, used in various places, most notably as infektPluginMethod's return value:
 typedef enum {
 	IPE_SUCCESS = 0,
-	_IPE_RESERVED = -65536,
+	_IPE_RESERVED1 = -65536,
 	IPE_NOT_IMPLEMENTED,
 	IPE_NO_FILE,
 	IPE_BUF_TOO_SMALL,

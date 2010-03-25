@@ -1063,6 +1063,8 @@ void CSettingsTabDialog::PopulatePluginList()
 	std::_tstring l_pluginDirPath = CUtil::GetExeDir() + _T("\\plugins\\"),
 		l_pluginDirPattern = l_pluginDirPath + _T("*.dll");
 
+	CPluginManager* l_plugMgr = CPluginManager::GetInstance();
+
 	WIN32_FIND_DATA l_ffd = {0};
 	HANDLE l_fh;
 
@@ -1076,10 +1078,11 @@ void CSettingsTabDialog::PopulatePluginList()
 		std::_tstring l_dllPath = l_pluginDirPath + l_ffd.cFileName;
 		std::_tstring l_pluginName = l_ffd.cFileName,
 			l_pluginVersion, l_pluginDescr, l_saveFileName;
+		std::string l_guid;
 
-		if(CPluginManager::GetInstance()->LoadPlugin(l_dllPath, true))
+		if(l_plugMgr->LoadPlugin(l_dllPath, true))
 		{
-			CPluginManager::GetInstance()->GetLastProbedInfo(l_pluginName, l_pluginVersion, l_pluginDescr);
+			l_plugMgr->GetLastProbedInfo(l_guid, l_pluginName, l_pluginVersion, l_pluginDescr);
 			l_saveFileName = l_ffd.cFileName;
 		}
 		else
@@ -1100,13 +1103,20 @@ void CSettingsTabDialog::PopulatePluginList()
 			m_pluginListView.SetItemText(l_idx, 1, l_pluginVersion.c_str());
 			m_pluginListView.SetItemText(l_idx, 2, l_pluginDescr.c_str());
 
+			m_pluginListView.SetCheckState(l_idx, l_plugMgr->IsPluginLoaded(l_guid));
+
 			m_pluginFileNames[l_idx] = l_saveFileName;
 		}
 	} while(::FindNextFile(l_fh, &l_ffd));
 
 	m_pluginListView.SortItems(_PluginSortCallback, (DWORD_PTR)&m_pluginFileNames);
 
-	FindClose(l_fh);
+	for(WPARAM i = 0; i < 3; i++)
+	{
+		m_pluginListView.SendMessage(LVM_SETCOLUMNWIDTH, i, LVSCW_AUTOSIZE_USEHEADER);
+	}
+
+	::FindClose(l_fh);
 }
 
 
