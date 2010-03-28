@@ -512,8 +512,9 @@ void CMainFrame::UpdateStatusbar()
 			WIN32_FIND_DATA l_ff = {0};
 			if(HANDLE l_hFile = ::FindFirstFile(m_view.GetNfoData()->GetFilePath().c_str(), &l_ff))
 			{
-				SYSTEMTIME l_sysTime = {0};
-				if(::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTime))
+				SYSTEMTIME l_sysTimeUTC = {0}, l_sysTime = {0};
+				if(::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTimeUTC) &&
+					::SystemTimeToTzSpecificLocalTime(NULL, &l_sysTimeUTC, &l_sysTime))
 				{
 					TCHAR l_date[100] = {0};
 
