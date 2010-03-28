@@ -47,6 +47,7 @@ public:
 	static void PopUpLastWin32Error();
 
 	static int StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz);
+	static BOOL GenericOnSetCursor(const LPTSTR a_cursor, LPARAM lParam);
 #endif
 
 #ifdef _WIN32

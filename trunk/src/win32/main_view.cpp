@@ -1,3 +1,17 @@
+/**
+ * Copyright (C) 2010 cxxjoe
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ **/
+
 #include "stdafx.h"
 #include "app.h"
 #include "nfo_view_ctrl.h"
@@ -9,6 +23,10 @@ CViewContainer::CViewContainer()
 	m_contextMenuHandle = NULL;
 	m_resized = true;
 	m_curViewType = _MAIN_VIEW_MAX;
+	m_showInfoBar = true;
+
+	m_infoBarHeight = 200;
+	m_infoBarResizing = false;
 }
 
 
@@ -21,6 +39,9 @@ void CViewContainer::OnCreate()
 
 	// this context menu will be used for all three view controls.
 	m_contextMenuHandle = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
+
+	m_infoBar = boost::shared_ptr<CInfektInfoBar>(new CInfektInfoBar(g_hInstance, GetHwnd()));
+	m_infoBar->CreateControl(0, 0, 100, m_infoBarHeight);
 }
 
 
@@ -72,6 +93,68 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_ERASEBKGND:
 		// intercept message to avoid flicker during resize
 		return 1;
+	case WM_PAINT:
+		if(m_showInfoBar)
+		{
+			// we need to paint the splitter manually because
+			// we intercept WM_ERASEBKGND.
+			RECT l_viewArea = GetClientRect();
+			int l_nfoAreaHeight = l_viewArea.bottom - l_viewArea.top - m_infoBarHeight;
+
+			PAINTSTRUCT l_ps;
+			HDC l_dc = ::BeginPaint(GetHwnd(), &l_ps);
+
+			RECT l_rect = { 0, l_nfoAreaHeight - ::GetSystemMetrics(SM_CYSIZEFRAME),
+				l_viewArea.right - l_viewArea.left, l_nfoAreaHeight };
+			::FillRect(l_dc, &l_rect, ::GetSysColorBrush(COLOR_BTNFACE));
+
+			::EndPaint(GetHwnd(), &l_ps);
+		}
+		return 0;
+	case WM_LBUTTONDOWN:
+		if(IsYOnSplitter(GET_Y_LPARAM(lParam)))
+		{
+			m_infoBarResizing = true;
+			::SetCursor(::LoadCursor(NULL, IDC_SIZENS));
+			SetCapture();
+		}
+		break;
+	case WM_LBUTTONUP:
+		if(IsYOnSplitter(GET_Y_LPARAM(lParam)))
+		{
+			m_infoBarResizing = false;
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+			ReleaseCapture();
+		}
+		break;
+	case WM_MOUSEMOVE:
+		if(m_infoBarResizing)
+		{
+			RECT l_client = GetClientRect();
+			int l_infoBarHeight = (l_client.bottom - l_client.top -
+				::GetSystemMetrics(SM_CYSIZEFRAME) / 2) - GET_Y_LPARAM(lParam);
+
+			// 50 = minimum infobar height
+			if(l_infoBarHeight > 50 && l_infoBarHeight < l_client.bottom - l_client.top - 50)
+			{
+				m_infoBarHeight = l_infoBarHeight;
+				OnAfterResize(false);
+			}
+		}
+		else if(IsYOnSplitter(GET_Y_LPARAM(lParam)))
+		{
+			m_cursor = IDC_SIZENS;
+		}
+		else
+		{
+			m_cursor = IDC_ARROW;
+		}
+		break;
+	case WM_CAPTURECHANGED:
+		m_infoBarResizing = false;
+		break;
+	case WM_SETCURSOR:
+		return CUtil::GenericOnSetCursor(m_cursor, lParam);
 	}
 
 	return WndProcDefault(uMsg, wParam, lParam);
@@ -83,10 +166,33 @@ void CViewContainer::OnAfterResize(bool a_fake)
 	if(m_curViewCtrl)
 	{
 		RECT l_viewArea = GetClientRect();
+		int l_viewAreaHeight = l_viewArea.bottom - l_viewArea.top;
+		int l_splitHeight = ::GetSystemMetrics(SM_CYSIZEFRAME);
 
 		::MoveWindow(m_curViewCtrl->GetHwnd(), 0, 0, l_viewArea.right - l_viewArea.left,
-			l_viewArea.bottom - l_viewArea.top, TRUE);
+			l_viewAreaHeight - (m_showInfoBar ? m_infoBarHeight + l_splitHeight : 0), TRUE);
+
+		if(m_showInfoBar)
+		{
+			::MoveWindow(m_infoBar->GetHwnd(), 0, l_viewAreaHeight - m_infoBarHeight,
+				l_viewArea.right - l_viewArea.left, m_infoBarHeight, TRUE);
+		}
 	}
+}
+
+
+bool CViewContainer::IsYOnSplitter(int a_y)
+{
+	if(!m_showInfoBar)
+	{
+		return false;
+	}
+
+	RECT l_viewArea = GetClientRect();
+	int l_nfoAreaHeight = l_viewArea.bottom - l_viewArea.top - m_infoBarHeight;
+	int l_splitHeight = ::GetSystemMetrics(SM_CYSIZEFRAME);
+
+	return (a_y >= l_nfoAreaHeight - l_splitHeight && a_y <= l_nfoAreaHeight);
 }
 
 

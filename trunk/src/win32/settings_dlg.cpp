@@ -113,6 +113,7 @@ typedef struct
 	std::vector<PFontListEntry>* ptr;
 	bool fixed;
 	HDC hdc;
+	cairo_t* testCr;
 } _temp_font_enum_data;
 
 const std::vector<PFontListEntry>& CSettingsWindowDialog::GetFonts(bool a_getAll)
@@ -129,22 +130,46 @@ const std::vector<PFontListEntry>& CSettingsWindowDialog::GetFonts(bool a_getAll
 		l_data.fixed = !a_getAll;
 		l_data.hdc = ::GetDC(0);
 
+#if 0
+		cairo_surface_t* l_surface;
+		l_surface = cairo_win32_surface_create(l_data.hdc);
+		l_data.testCr = cairo_create(l_surface);
+		cairo_set_font_size(l_data.testCr, 20);
+#endif
+
 		EnumFontFamiliesEx(l_data.hdc, &l_lf, (FONTENUMPROC)FontNamesProc, (LPARAM)&l_data, 0);
+
+#if 0
+		cairo_destroy(l_data.testCr);
+		cairo_surface_destroy(l_surface);
+#endif
+
 		::ReleaseDC(0, l_data.hdc);
 	}
 
 	return *l_pList;
 }
 
+#if 0
+static bool IsFixedWidthFont(const _temp_font_enum_data* a_data, const std::string& a_fontNameUtf8)
+{
+	cairo_select_font_face(a_data->testCr, a_fontNameUtf8.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+
+	cairo_text_extents_t l_e1, l_e2;
+	cairo_text_extents(a_data->testCr, "i", &l_e1);
+	cairo_text_extents(a_data->testCr, "W", &l_e2);
+
+	return (l_e1.x_advance == l_e2.x_advance);
+}
+#endif
 
 int CALLBACK CSettingsWindowDialog::FontNamesProc(const ENUMLOGFONTEX *lpelfe, const NEWTEXTMETRICEX *lpntme, DWORD FontType, LPARAM lParam)
 {
 	const _temp_font_enum_data* l_data = (_temp_font_enum_data*)lParam;
 	std::vector<PFontListEntry>* l_fonts = l_data->ptr;
 
-	if(lpelfe->elfLogFont.lfCharSet == ANSI_CHARSET &&
-		(!l_data->fixed || (lpelfe->elfLogFont.lfPitchAndFamily & FIXED_PITCH) != 0) &&
-		lpelfe->elfFullName[0] != _T('@'))
+	if(lpelfe->elfLogFont.lfCharSet == ANSI_CHARSET && lpelfe->elfFullName[0] != _T('@') &&
+		(!l_data->fixed || (lpelfe->elfLogFont.lfPitchAndFamily & FIXED_PITCH) != 0))
 	{
 		const std::string l_fontNameUtf = CUtil::FromWideStr(lpelfe->elfFullName, CP_UTF8);
 
@@ -575,6 +600,12 @@ void CSettingsTabDialog::UpdateFontSizesCombo(size_t a_selSize)
 		HWND l_hFontCombo = GetDlgItem(IDC_FONTSIZE_COMBO);
 
 		ComboBox_ResetContent(l_hFontCombo);
+
+		if(m_fonts.size() == 0)
+		{
+			// we're totally screwed but well, we shouldn't crash...
+			return;
+		}
 
 		if(a_selSize == 0)
 		{
