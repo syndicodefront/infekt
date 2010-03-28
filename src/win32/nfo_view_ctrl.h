@@ -45,7 +45,6 @@ protected:
 
 	void OnPaint();
 	void OnMouseMove(int a_x, int a_y);
-	BOOL OnSetCursor(int a_hitTestCode);
 	void OnMouseClickEvent(UINT a_event, int a_x, int a_y);
 
 	static LRESULT CALLBACK _WindowProc(HWND, UINT, WPARAM, LPARAM);

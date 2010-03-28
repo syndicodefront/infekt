@@ -55,7 +55,7 @@ public:
 	bool IsPluginLoaded(const std::string& a_guid) const;
 
 	// don't call this. it's for CLoadedPlugin only.
-	static long _cdecl _pluginToCoreCallback(const char*, long, long, long long, void*, void*);
+	static INFEKT_PLUGIN_METHOD(_pluginToCoreCallback);
 protected:
 	std::map<std::string, PLoadedPlugin> m_loadedPlugins;
 	std::_tstring m_lastErrorMsg;

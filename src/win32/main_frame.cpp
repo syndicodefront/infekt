@@ -25,7 +25,7 @@ using namespace std;
 
 
 enum _toolbar_button_ids {
-	TBBID_OPEN = 30000,
+	TBBID_OPEN = 9001, // over 9000!
 	TBBID_SETTINGS,
 	TBBID_VIEW_RENDERED,
 	TBBID_VIEW_CLASSIC,

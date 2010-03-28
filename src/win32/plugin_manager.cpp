@@ -149,7 +149,7 @@ bool CPluginManager::IsPluginLoaded(const std::string& a_guid) const
 }
 
 
-/*static*/ long _cdecl CPluginManager::_pluginToCoreCallback(const char* szGuid, long lReserved, long lCall, long long lParam, void* pParam, void* pUser)
+/*static*/ INFEKT_PLUGIN_METHOD(CPluginManager::_pluginToCoreCallback)
 {
 	CPluginManager* l_mgr = CPluginManager::GetInstance();
 

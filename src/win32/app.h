@@ -17,7 +17,7 @@
 
 #include "main_frame.h"
 
-#define WM_LOAD_NFO (WM_APP + 1)
+#define WM_LOAD_NFO (WM_APP + 30)
 #define INFEKT_MAIN_WINDOW_CLASS_NAME _T("iNFektMainWindow")
 
 class CNFOApp : public CWinApp

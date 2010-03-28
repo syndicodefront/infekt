@@ -21,8 +21,12 @@
 
 
 // pretty much all calls between plugins and the core use this signature:
-typedef long (*infektPluginMethod)(const char* szGuid, long lReserved, long lCall,
+typedef long (_cdecl *infektPluginMethod)(const char* szGuid, long lReserved, long lCall,
 	long long lParam, void* pParam, void* pUser);
+
+// useful for both declarations and method bodies:
+#define INFEKT_PLUGIN_METHOD(NAME) long _cdecl NAME(const char* szGuid, long lReserved, long lCall, \
+	long long lParam, void* pParam, void* pUser)
 
 
 // call IDs for infektPluginMethod's lCall (plugin -> core):
@@ -43,9 +47,12 @@ typedef enum {
 
 	IPV_NFO_LOAD_BEFORE = 3001,
 	IPV_NFO_LOADED,
+	IPV_NFO_VIEW_CHANGED,
+	IPV_NFO_VIEW_SETTINGS_CHANGED,
+	IPV_SETTINGS_CHANGED,
 
 	_IPV_MAX
-} infektPluginEvent;
+} infektPluginEventId;
 
 
 // error/return codes, used in various places, most notably as infektPluginMethod's return value:
@@ -58,7 +65,7 @@ typedef enum {
 	IPE_TOO_LARGE,
 
 	_IPE_MAX
-} infektPluginError;
+} infektPluginErrorId;
 
 
 // use this to initialize structs before passing them around:

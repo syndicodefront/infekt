@@ -21,7 +21,7 @@ static infektPluginMethod s_fPluginToCore = NULL;
 /* PluginToCore wrapper method                                          */
 /************************************************************************/
 
-long PluginSend(long lCall, long long lParam, void* pParam)
+long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam)
 {
 	if(s_fPluginToCore)
 	{
@@ -40,10 +40,10 @@ static void DoPluginInfo(infekt_plugin_info_t* a_info)
 {
 	strcpy_s(a_info->guid,			48,		MYGUID);
 	wcscpy_s(a_info->name,			32,		L"IMDb Infobar");
-	wcscpy_s(a_info->version,		16,		L"0.9");
+	wcscpy_s(a_info->version,		16,		L"0.1");
 
 	wcscpy_s(a_info->description,	512,	L"For each NFO file that carries an IMDb link, this plugin "
-		L"will download and display information about the movie or TV show.");
+		L"downloads and displays information about the movie or TV show.");
 
 	a_info->cap_infobar = true;
 }
@@ -66,8 +66,8 @@ static void DoPluginUnLoad()
 /* DLL Exports                                                          */
 /************************************************************************/
 
-extern "C" __declspec(dllexport) long _cdecl
-	infektPluginMain(const char* szGuid, long lReserved, long lCall, long long lParam, void* pParam, void* pUser)
+extern "C" __declspec(dllexport)
+	INFEKT_PLUGIN_METHOD(infektPluginMain)
 {
 	switch(lCall)
 	{

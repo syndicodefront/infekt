@@ -16,6 +16,7 @@
 #define _MAIN_VIEW_H
 
 #include "nfo_view_ctrl.h"
+#include "infobar.h"
 
 typedef enum _main_view_view_t
 {
@@ -62,6 +63,12 @@ protected:
 	PNFOViewControl m_curViewCtrl;
 	PNFOData m_nfoData;
 
+	bool m_showInfoBar;
+	boost::shared_ptr<CInfektInfoBar> m_infoBar;
+	int m_infoBarHeight;
+	bool m_infoBarResizing;
+
+	LPTSTR m_cursor;
 	HMENU m_contextMenuHandle;
 	bool m_resized;
 
@@ -70,6 +77,7 @@ protected:
 
 	void OnAfterResize(bool a_fake);
 	bool CurAssignNfo();
+	bool IsYOnSplitter(int a_y);
 };
 
 #endif /* !_MAIN_VIEW_H */

@@ -508,6 +508,23 @@ int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 }
 
 
+BOOL CUtil::GenericOnSetCursor(const LPTSTR a_cursor, LPARAM lParam)
+{
+	switch(LOWORD(lParam)) // hit test code
+	{
+	case HTCLIENT:
+		::SetCursor(::LoadCursor(NULL, a_cursor));
+		return TRUE;
+	case HTVSCROLL:
+	case HTHSCROLL:
+		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		return TRUE;
+	default:
+		return FALSE;
+	}
+}
+
+
 bool CUtil::TextToClipboard(HWND a_hwnd, const wstring& a_text)
 {
 	bool l_ok = false;
