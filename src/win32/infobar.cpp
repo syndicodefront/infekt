@@ -18,6 +18,10 @@
 
 #define INFOBAR_CTRL_CLASS_NAME _T("iNFEKT_InfoBarCtrl")
 
+#ifndef WM_THEMECHANGED
+#define WM_THEMECHANGED 0x31A
+#endif
+
 
 CInfektInfoBar::CInfektInfoBar(HINSTANCE a_hInstance, HWND a_parent)
 {
@@ -43,7 +47,7 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 		l_class.cbSize = sizeof(WNDCLASSEX);
 
 		l_class.hInstance = m_instance;
-		l_class.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
+		l_class.style = CS_HREDRAW | CS_VREDRAW;
 		l_class.lpszClassName = INFOBAR_CTRL_CLASS_NAME;
 		l_class.lpfnWndProc = &_WindowProc;
 		l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
@@ -59,7 +63,7 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 	m_width = a_width;
 	m_height = a_height;
 
-	m_hwnd = ::CreateWindowEx(WS_EX_CLIENTEDGE,
+	m_hwnd = ::CreateWindowEx(CThemeAPI::GetInstance()->IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
 		INFOBAR_CTRL_CLASS_NAME, NULL,
 		WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
@@ -121,6 +125,12 @@ LRESULT CInfektInfoBar::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 	case WM_SETCURSOR:
 		return CUtil::GenericOnSetCursor(m_cursor, lParam);
+	case WM_THEMECHANGED:
+		if(CThemeAPI::GetInstance()->IsThemeActive())
+			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
+		else
+			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);
+		return 0;
 	default:
 		return ::DefWindowProc(m_hwnd, uMsg, wParam, lParam);
 	}
