@@ -16,6 +16,7 @@
 #include "targetver.h"
 #include <windows.h>
 #include <uxtheme.h>
+#include <dwmapi.h>
 #include <theme_api.h>
 #include <tchar.h>
 
@@ -23,7 +24,10 @@
 CThemeAPI::CThemeAPI()
 {
 	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
-	m_hUxTheme = LoadLibrary(_T("uxtheme.dll"));
+
+	m_hUxTheme = ::LoadLibrary(_T("uxtheme.dll"));
+	m_hDwmApi = ::LoadLibrary(_T("Dwmapi.dll"));
+
 	::SetErrorMode(l_oldErrorMode);
 }
 
@@ -58,6 +62,21 @@ bool CThemeAPI::IsThemeActive() const
 }
 
 
+bool CThemeAPI::DwmIsCompositionEnabled()
+{
+	BOOL b = FALSE;
+
+	typedef HRESULT (STDAPICALLTYPE *fnc)(BOOL*);
+
+	if(fnc dice = (fnc)GetProcAddress(m_hDwmApi, "DwmIsCompositionEnabled"))
+	{
+		dice(&b);
+	}
+
+	return (b != FALSE);
+}
+
+
 HRESULT CThemeAPI::EnableThemeDialogTexture(HWND hwnd, DWORD dwFlags) const
 {
 	typedef HRESULT (WINAPI *fnc)(HWND, DWORD dwFlags);
@@ -67,7 +86,7 @@ HRESULT CThemeAPI::EnableThemeDialogTexture(HWND hwnd, DWORD dwFlags) const
 		return etdt(hwnd, dwFlags);
 	}
 
-	return 0;
+	return S_FALSE;
 }
 
 
@@ -80,7 +99,7 @@ HANDLE CThemeAPI::OpenThemeData(HWND hwnd, LPCWSTR pszClassList) const
 		return otd(hwnd, pszClassList);
 	}
 
-	return 0;
+	return NULL;
 }
 
 
@@ -114,6 +133,11 @@ CThemeAPI::~CThemeAPI()
 {
 	if(m_hUxTheme)
 	{
-		FreeLibrary(m_hUxTheme);
+		::FreeLibrary(m_hUxTheme);
+	}
+
+	if(m_hDwmApi)
+	{
+		::FreeLibrary(m_hDwmApi);
 	}
 }

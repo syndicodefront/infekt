@@ -26,9 +26,11 @@ public:
 	HANDLE OpenThemeData(HWND, LPCWSTR) const;
 	HRESULT DrawThemeBackground(HANDLE, HDC, int, int, const RECT*, const RECT*) const;
 	HRESULT CloseThemeData(HANDLE) const;
+	bool DwmIsCompositionEnabled();
 
 protected:
 	HMODULE m_hUxTheme;
+	HMODULE m_hDwmApi;
 private:
 	CThemeAPI();
 };
