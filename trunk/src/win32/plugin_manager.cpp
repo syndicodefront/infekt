@@ -221,6 +221,55 @@ bool CLoadedPlugin::_DoLoad()
 }
 
 
+long CLoadedPlugin::AddReg(EPluginReg a_reg, infektPluginMethod a_callback, void* a_userData)
+{
+	if(!a_callback)
+		return IPE_NULLCALLBACK;
+
+	reg_event_data l_data = { a_callback, a_userData };
+
+	m_activeRegs.insert(std::pair<EPluginReg, reg_event_data>(a_reg, l_data));
+
+	return IPE_SUCCESS;
+}
+
+
+long CLoadedPlugin::RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback)
+{
+	if(!a_callback)
+		return IPE_NULLCALLBACK;
+
+	int l_count = 0;
+	TMRegData::iterator l_remove = m_activeRegs.end();
+
+	for(TMRegData::iterator it = m_activeRegs.begin(); it != m_activeRegs.end(); it++)
+	{
+		// maybe use some methods of multimap here instead... maybe...
+		if(it->first == a_reg)
+		{
+			if(it->second.pCallback == a_callback)
+				l_remove = it;
+			else
+				l_count++;
+		}
+	}
+
+	if(l_remove != m_activeRegs.end())
+	{
+		m_activeRegs.erase(l_remove);
+
+		if(l_count == 0)
+		{
+			m_activeRegBits = m_activeRegBits & ~a_reg;
+		}
+
+		return IPE_SUCCESS;
+	}
+
+	return IPE_NOT_FOUND;
+}
+
+
 CLoadedPlugin::~CLoadedPlugin()
 {
 	if(m_successfullyLoaded)

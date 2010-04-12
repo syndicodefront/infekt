@@ -25,18 +25,39 @@ public:
 
 	bool _DoLoad();
 
-	enum EPluginCaps
+	enum EPluginCap
 	{
 		CAPAB_INFOBAR = 1
 	};
 
-	bool HasCapab(EPluginCaps a_cap) const { return (m_capabs & a_cap) != 0; }
+	enum EPluginReg
+	{
+		REG_NFO_LOAD_EVENTS = 1,
+		REG_NFO_VIEW_EVENTS = 2,
+		REG_SETTINGS_EVENTS = 4
+	};
+
+	bool HasCapab(EPluginCap a_cap) const { return (m_capabs & a_cap) != 0; }
+	bool HasRegSet(EPluginReg a_reg) const { return (m_activeRegBits & a_reg) != 0; }
+
+	long AddReg(EPluginReg a_reg, infektPluginMethod a_callback, void* a_userData);
+	long RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback);
 protected:
 	HMODULE m_hModule;
 	std::string m_guid;
 	std::wstring m_name, m_version, m_description;
 	bool m_successfullyLoaded;
 	unsigned long long m_capabs;
+	unsigned long long m_activeRegBits;
+
+	struct reg_event_data
+	{
+		infektPluginMethod pCallback;
+		void* pUser;
+	};
+
+	typedef std::multimap<EPluginReg, reg_event_data> TMRegData;
+	TMRegData m_activeRegs;
 };
 
 typedef boost::shared_ptr<CLoadedPlugin> PLoadedPlugin;
@@ -57,12 +78,15 @@ public:
 	// don't call this. it's for CLoadedPlugin only.
 	static INFEKT_PLUGIN_METHOD(_pluginToCoreCallback);
 protected:
-	std::map<std::string, PLoadedPlugin> m_loadedPlugins;
+	typedef std::map<std::string, PLoadedPlugin> TMGuidPlugins;
+
+	TMGuidPlugins m_loadedPlugins;
 	std::_tstring m_lastErrorMsg;
 	std::wstring m_probedName, m_probedVer, m_probedDescr;
 	std::string m_probedGuid;
 
 	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
+	long DoRegister(const std::string& a_guid, bool a_unregister, CLoadedPlugin::EPluginReg a_regType, void* a_pParam, void* a_userData);
 
 	long PluginToCoreCallback(const char*, long, long, long long, void*, void*);
 private:
