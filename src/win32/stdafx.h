@@ -19,6 +19,7 @@
 #include "targetver.h"
 
 #define _WIN32_UI
+#define INFEKT_PLUGIN_HOST
 
 /* Win32++ headers */
 #include <wincore.h>
@@ -70,5 +71,8 @@
 #else
 #define _tstring wstring
 #endif
+
+// disable "switch statement contains 'default' but no 'case' labels"
+#pragma warning(disable : 4065)
 
 #endif /* !_STDAFX_H */

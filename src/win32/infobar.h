@@ -15,6 +15,41 @@
 #ifndef _INFOBAR_H
 #define _INFOBAR_H
 
+
+/*
+WIDGET SPECS
+
+* All Controls:
+  - Styles:
+    background-color: ...
+	margin: T R B L
+  - Width
+  - Height
+  - Left: X px or -1 = auto
+  - Top: Y px or -1 = auto
+  - Clickable Yes/No
+    If yes, cursor changes to hand.
+	Calls callback on click.
+
+* StaticText
+  - Styles:
+    text-align: left/center/right
+	color: ...
+  - Text Content
+  + Needs only one of width/height, the other
+    one will be calculated accordingly (incl. text wrap)
+
+* StaticImage
+  - Image URL (that's gonna be nice coding)
+  - Image Path
+
+* OwnerDrawn:
+  - Calls a callback with a cairo_surface_t
+    that has the appropriate device_offset set.
+
+*/
+
+
 class CInfektInfoBar
 {
 protected:

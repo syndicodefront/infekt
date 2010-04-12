@@ -23,9 +23,24 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lReserved, lo
 {
 	switch(lCall)
 	{
-	case IPCI_GET_LOADED_NFO_TEXTW:
+	case IPCI_GET_LOADED_NFO_TEXTWIDE:
 	case IPCI_GET_LOADED_NFO_TEXTUTF8:
-		return DoGetLoadedNfoText(lParam, pParam, (lCall != IPCI_GET_LOADED_NFO_TEXTW));
+		return DoGetLoadedNfoText(lParam, pParam, (lCall != IPCI_GET_LOADED_NFO_TEXTWIDE));
+
+	case IPCI_REGISTER_NFO_LOAD_EVENTS:
+		return DoRegister(szGuid, false, CLoadedPlugin::REG_NFO_LOAD_EVENTS, pParam, pUser);
+	case IPCI_UNREGISTER_NFO_LOAD_EVENTS:
+		return DoRegister(szGuid, true, CLoadedPlugin::REG_NFO_LOAD_EVENTS, pParam, pUser);
+
+	case IPCI_REGISTER_NFO_VIEW_EVENTS:
+		return DoRegister(szGuid, false, CLoadedPlugin::REG_NFO_VIEW_EVENTS, pParam, pUser);
+	case IPCI_UNREGISTER_NFO_VIEW_EVENTS:
+		return DoRegister(szGuid, true, CLoadedPlugin::REG_NFO_VIEW_EVENTS, pParam, pUser);
+
+	case IPCI_REGISTER_SETTINGS_EVENTS:
+		return DoRegister(szGuid, false, CLoadedPlugin::REG_SETTINGS_EVENTS, pParam, pUser);
+	case IPCI_UNREGISTER_SETTINGS_EVENTS:
+		return DoRegister(szGuid, true, CLoadedPlugin::REG_SETTINGS_EVENTS, pParam, pUser);
 	}
 
 	return IPE_NOT_IMPLEMENTED;
@@ -82,3 +97,25 @@ long CPluginManager::DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_
 		return IPE_SUCCESS;
 	}
 }
+
+
+long CPluginManager::DoRegister(const std::string& a_guid, bool a_unregister, CLoadedPlugin::EPluginReg a_regType,
+	void* a_pParam, void* a_userData)
+{
+	TMGuidPlugins::iterator l_find = m_loadedPlugins.find(a_guid);
+	if(l_find == m_loadedPlugins.end()) return IPE_NO_FILE;
+	PLoadedPlugin l_plugin = l_find->second;
+
+	infektPluginMethod l_callback = NULL;
+	switch(a_regType)
+	{
+	default:
+		l_callback = reinterpret_cast<infektPluginMethod>(a_pParam);
+	}
+
+	if(a_unregister)
+		return l_plugin->RemoveReg(a_regType, l_callback);
+	else
+		return l_plugin->AddReg(a_regType, l_callback, a_userData);
+}
+

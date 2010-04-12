@@ -15,6 +15,10 @@
 #ifndef _INFEKT_PLUGIN_H
 #define _INFEKT_PLUGIN_H
 
+#include <windows.h>
+#include <string.h>
+
+
 // This will always have to be a word. It should not be changed a lot
 // since all versions/calls are supposed to be backwards compatible.
 #define INFEKT_PLUGIN_H_VERSION ((WORD)0x001)
@@ -31,9 +35,15 @@ typedef long (_cdecl *infektPluginMethod)(const char* szGuid, long lReserved, lo
 
 // call IDs for infektPluginMethod's lCall (plugin -> core):
 typedef enum {
-	IPCI_REGISTER_NFO_LOAD_EVENTS = 1001,
-	IPCI_GET_LOADED_NFO_TEXTW,
+	IPCI_GET_LOADED_NFO_TEXTWIDE = 1001,
 	IPCI_GET_LOADED_NFO_TEXTUTF8,
+
+	IPCI_REGISTER_NFO_LOAD_EVENTS,
+	IPCI_UNREGISTER_NFO_LOAD_EVENTS,
+	IPCI_REGISTER_NFO_VIEW_EVENTS,
+	IPCI_UNREGISTER_NFO_VIEW_EVENTS,
+	IPCI_REGISTER_SETTINGS_EVENTS,
+	IPCI_UNREGISTER_SETTINGS_EVENTS,
 
 	_IPCI_MAX
 } infektPluginCallId;
@@ -41,14 +51,20 @@ typedef enum {
 
 // call IDs for infektPluginMethod's lCall (core -> plugin) aka event:
 typedef enum {
+	// events sent to infektPluginMain:
 	IPV_PLUGIN_INFO = 2001,
 	IPV_PLUGIN_LOAD,
 	IPV_PLUGIN_UNLOAD,
 
+	// register for these events using IPCI_REGISTER_NFO_LOAD_EVENTS:
 	IPV_NFO_LOAD_BEFORE = 3001,
 	IPV_NFO_LOADED,
+
+	// register for these events using IPCI_REGISTER_NFO_VIEW_EVENTS:
 	IPV_NFO_VIEW_CHANGED,
 	IPV_NFO_VIEW_SETTINGS_CHANGED,
+
+	// register for these events using IPCI_REGISTER_SETTINGS_EVENTS:
 	IPV_SETTINGS_CHANGED,
 
 	_IPV_MAX
@@ -63,6 +79,9 @@ typedef enum {
 	IPE_NO_FILE,
 	IPE_BUF_TOO_SMALL,
 	IPE_TOO_LARGE,
+	IPE_ALREADY,
+	IPE_NOT_FOUND,
+	IPE_NULLCALLBACK,
 
 	_IPE_MAX
 } infektPluginErrorId;
