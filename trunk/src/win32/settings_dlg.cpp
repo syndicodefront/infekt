@@ -88,6 +88,8 @@ void CSettingsWindowDialog::OnOK()
 	m_tabPageClassic->SaveSettings();
 	m_tabPageTextOnly->SaveSettings();
 
+	m_tabPagePlugins->SaveSettings();
+
 	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
 
 	l_view->GetRenderCtrl()->InjectSettings(*m_tabPageRendered->GetViewSettings());
@@ -1057,6 +1059,42 @@ bool CSettingsTabDialog::SaveSettings()
 
 		return l_set->SaveToRegistry();
 	}
+	else if(m_pageId == TAB_PAGE_PLUGINS)
+	{
+		CPluginManager* l_plugMgr = CPluginManager::GetInstance();
+		std::_tstring l_pluginDirPath = CUtil::GetExeDir() + _T("\\plugins\\");
+
+		for(std::map<int, std::string>::const_iterator it = m_pluginGuids.begin();
+			it != m_pluginGuids.end(); it++)
+		{
+			LVFINDINFO l_findInfo = { LVFI_PARAM };
+			l_findInfo.lParam = it->first;
+
+			int l_index = m_pluginListView.FindItem(l_findInfo);
+
+			if(l_index > -1)
+			{
+				bool l_new = (m_pluginListView.GetCheckState(l_index) != FALSE),
+					l_old = l_plugMgr->IsPluginLoaded(it->second);
+
+				if(l_new && !l_old)
+				{
+					if(!l_plugMgr->LoadPlugin(l_pluginDirPath + m_pluginFileNames[it->first]))
+					{
+						std::_tstring l_msg = _T("An error occured while trying to load a plugin (\"")
+							+ m_pluginFileNames[it->first] + _T("\"):\r\n") +
+							l_plugMgr->GetLastErrorMessage();
+
+						this->MessageBox(l_msg.c_str(), _T("Error"), MB_ICONEXCLAMATION);
+					}
+				}
+				else if(!l_new && l_old)
+				{
+					l_plugMgr->UnLoadPlugin(it->second);
+				}
+			}
+		}
+	}
 
 	return false;
 }
@@ -1109,7 +1147,7 @@ void CSettingsTabDialog::PopulatePluginList()
 		return;
 	}
 
-	do 
+	do
 	{
 		std::_tstring l_dllPath = l_pluginDirPath + l_ffd.cFileName;
 		std::_tstring l_pluginName = l_ffd.cFileName,
@@ -1134,14 +1172,18 @@ void CSettingsTabDialog::PopulatePluginList()
 		l_item.pszText = (LPTSTR)l_pluginName.c_str();
 
 		int l_idx = m_pluginListView.InsertItem(l_item);
-		if(l_idx >= 0)
+		if(l_idx == l_item.iItem)
 		{
 			m_pluginListView.SetItemText(l_idx, 1, l_pluginVersion.c_str());
 			m_pluginListView.SetItemText(l_idx, 2, l_pluginDescr.c_str());
 
-			m_pluginListView.SetCheckState(l_idx, l_plugMgr->IsPluginLoaded(l_guid));
+			if(!l_saveFileName.empty())
+			{
+				m_pluginListView.SetCheckState(l_idx, l_plugMgr->IsPluginLoaded(l_guid));
 
-			m_pluginFileNames[l_idx] = l_saveFileName;
+				m_pluginFileNames[l_idx] = l_saveFileName;
+				m_pluginGuids[l_idx] = l_guid;
+			}
 		}
 	} while(::FindNextFile(l_fh, &l_ffd));
 

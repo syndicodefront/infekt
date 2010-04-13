@@ -53,6 +53,8 @@ static long DoPluginLoad(infekt_plugin_load_t* a_load)
 {
 	s_fPluginToCore = a_load->pluginToCore;
 
+	PluginSend(IPCI_REGISTER_NFO_LOAD_EVENTS, 0, ImdbMainEventCallback);
+
 	return IPE_SUCCESS;
 }
 

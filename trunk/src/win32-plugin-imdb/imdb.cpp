@@ -12,18 +12,19 @@
  * GNU General Public License for more details.
  **/
 
-#ifndef _IMDB_PLUGIN_H
-#define _IMDB_PLUGIN_H
+#include "imdb-plugin.h"
 
-#include "targetver.h"
-#include <windows.h>
-#include "infekt-plugin.h"
 
-#define MYGUID "{157BDD72-24D2-4d7c-94F2-FC463069A74B}"
+INFEKT_PLUGIN_METHOD(ImdbMainEventCallback)
+{
+	switch(lCall)
+	{
+	case IPV_NFO_LOADED: {
+		infekt_nfo_info_t* l_info = (infekt_nfo_info_t*)pParam;
+		MessageBox(0, l_info->filePath, L"LOADED", 0);
+						 }
+		break;
+	}
 
-long PluginSend(long lCall, long long lParam, void* pParam);
-
-/* from imdb.cpp: */
-INFEKT_PLUGIN_METHOD(ImdbMainEventCallback);
-
-#endif /* !_IMDB_PLUGIN_H */
+	return IPE_NOT_IMPLEMENTED;
+}

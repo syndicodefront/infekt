@@ -45,6 +45,8 @@ typedef enum {
 	IPCI_REGISTER_SETTINGS_EVENTS,
 	IPCI_UNREGISTER_SETTINGS_EVENTS,
 
+	IPCI_INFOBAR_ANNOUNCE,
+
 	_IPCI_MAX
 } infektPluginCallId;
 
@@ -73,9 +75,15 @@ typedef enum {
 
 // error/return codes, used in various places, most notably as infektPluginMethod's return value:
 typedef enum {
+	// don't use !blah, use == IPE_SUCCESS. Please.
 	IPE_SUCCESS = 0,
+
+	// internal/reserved:
 	_IPE_RESERVED1 = -65536,
-	IPE_NOT_IMPLEMENTED,
+	_IPE_NOT_IMPLEMENTED_INTERNAL, // do not fucking use!
+
+	// you are free to use these. You'll even have to in some places!
+	IPE_NOT_IMPLEMENTED = -65001,
 	IPE_NO_FILE,
 	IPE_BUF_TOO_SMALL,
 	IPE_TOO_LARGE,
@@ -114,11 +122,11 @@ struct infekt_plugin_load_t {
 };
 
 
-struct infekt_nfo_into_t {
+struct infekt_nfo_info_t {
 	size_t _uSize;
 
-	wchar_t* fileName;
-	wchar_t* filePath;
+	const wchar_t* fileName;
+	const wchar_t* filePath;
 };
 
 
