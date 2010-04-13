@@ -95,13 +95,6 @@ bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
 		return false;
 	}
 
-	if(m_loadedPlugins.find(l_info.guid) != m_loadedPlugins.end())
-	{
-		m_lastErrorMsg = _T("This plugin or a plugin that erroneously uses the same GUID has already been loaded.");
-		FreeLibrary(l_hModule);
-		return false;
-	}
-
 	if(a_probeInfoOnly)
 	{
 		m_probedName = l_info.name;
@@ -112,6 +105,13 @@ bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
 		FreeLibrary(l_hModule);
 
 		return true;
+	}
+
+	if(m_loadedPlugins.find(l_info.guid) != m_loadedPlugins.end())
+	{
+		m_lastErrorMsg = _T("This plugin or a plugin that erroneously uses the same GUID has already been loaded.");
+		FreeLibrary(l_hModule);
+		return false;
 	}
 
 	PLoadedPlugin l_newPlugin = PLoadedPlugin(new CLoadedPlugin(l_hModule, &l_info));
@@ -162,6 +162,26 @@ bool CPluginManager::IsPluginLoaded(const std::string& a_guid) const
 }
 
 
+bool CPluginManager::UnLoadPlugin(const std::string& a_guid)
+{
+	TMGuidPlugins::iterator l_find = m_loadedPlugins.find(a_guid);
+	if(l_find == m_loadedPlugins.end()) return false;
+
+	m_loadedPlugins.erase(l_find);
+
+	return true;
+}
+
+
+void CPluginManager::TriggerRegEvents(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam)
+{
+	for(TMGuidPlugins::iterator it = m_loadedPlugins.begin(); it != m_loadedPlugins.end(); it++)
+	{
+		it->second->TriggerRegEvent(a_reg, a_event, a_lParam, a_pParam);
+	}
+}
+
+
 CPluginManager::~CPluginManager()
 {
 	if(s_plManInst == this) s_plManInst = NULL;
@@ -176,6 +196,7 @@ CLoadedPlugin::CLoadedPlugin(HMODULE a_hModule, infekt_plugin_info_t* a_info)
 {
 	// initialize members:
 	m_capabs = 0;
+	m_activeRegBits = 0;
 
 	// copy data:
 	m_hModule = a_hModule;
@@ -225,10 +246,12 @@ long CLoadedPlugin::AddReg(EPluginReg a_reg, infektPluginMethod a_callback, void
 {
 	if(!a_callback)
 		return IPE_NULLCALLBACK;
+	else if(HasRegSet(a_reg))
+		return IPE_ALREADY;
 
 	reg_event_data l_data = { a_callback, a_userData };
-
-	m_activeRegs.insert(std::pair<EPluginReg, reg_event_data>(a_reg, l_data));
+	m_activeRegs[a_reg] = l_data;
+	m_activeRegBits = m_activeRegBits | a_reg;
 
 	return IPE_SUCCESS;
 }
@@ -238,35 +261,33 @@ long CLoadedPlugin::RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback)
 {
 	if(!a_callback)
 		return IPE_NULLCALLBACK;
+	else if(!HasRegSet(a_reg))
+		return IPE_NOT_FOUND;
 
-	int l_count = 0;
-	TMRegData::iterator l_remove = m_activeRegs.end();
-
-	for(TMRegData::iterator it = m_activeRegs.begin(); it != m_activeRegs.end(); it++)
-	{
-		// maybe use some methods of multimap here instead... maybe...
-		if(it->first == a_reg)
-		{
-			if(it->second.pCallback == a_callback)
-				l_remove = it;
-			else
-				l_count++;
-		}
-	}
+	TMRegData::iterator l_remove = m_activeRegs.find(a_reg);
 
 	if(l_remove != m_activeRegs.end())
 	{
 		m_activeRegs.erase(l_remove);
-
-		if(l_count == 0)
-		{
-			m_activeRegBits = m_activeRegBits & ~a_reg;
-		}
+		m_activeRegBits = m_activeRegBits & ~a_reg;
 
 		return IPE_SUCCESS;
 	}
 
 	return IPE_NOT_FOUND;
+}
+
+
+long CLoadedPlugin::TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam)
+{
+	TMRegData::iterator l_itCallback = m_activeRegs.find(a_reg);
+
+	if(l_itCallback != m_activeRegs.end())
+	{
+		return l_itCallback->second.pCallback(NULL, 0, a_event, a_lParam, a_pParam, l_itCallback->second.pUser);
+	}
+
+	return _IPE_NOT_IMPLEMENTED_INTERNAL;
 }
 
 

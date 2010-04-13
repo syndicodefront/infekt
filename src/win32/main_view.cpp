@@ -16,6 +16,7 @@
 #include "app.h"
 #include "nfo_view_ctrl.h"
 #include "resource.h"
+#include "plugin_manager.h"
 
 
 CViewContainer::CViewContainer()
@@ -57,11 +58,15 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 
 	m_nfoData = PNFOData(new CNFOData());
 
+	CPluginManager::GetInstance()->TriggerNfoLoad(true, a_filePath.c_str());
+
 	if(m_nfoData->LoadFromFile(a_filePath))
 	{
 		if(m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
 		if(m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
 		if(m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
+
+		CPluginManager::GetInstance()->TriggerNfoLoad(false, a_filePath.c_str());
 
 		if(CurAssignNfo())
 		{

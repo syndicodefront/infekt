@@ -98,6 +98,7 @@ protected:
 	// vars for the plugins tab:
 	CListView m_pluginListView;
 	std::map<int, std::wstring> m_pluginFileNames;
+	std::map<int, std::string> m_pluginGuids;
 
 	// methods for view settings tabs:
 	bool IsViewSettingPage() const;

@@ -17,6 +17,15 @@
 
 #include "infekt-plugin.h"
 
+
+enum EPluginReg
+{
+	REG_NFO_LOAD_EVENTS = 1,
+	REG_NFO_VIEW_EVENTS = 2,
+	REG_SETTINGS_EVENTS = 4
+};
+
+
 class CLoadedPlugin
 {
 public:
@@ -30,18 +39,13 @@ public:
 		CAPAB_INFOBAR = 1
 	};
 
-	enum EPluginReg
-	{
-		REG_NFO_LOAD_EVENTS = 1,
-		REG_NFO_VIEW_EVENTS = 2,
-		REG_SETTINGS_EVENTS = 4
-	};
-
 	bool HasCapab(EPluginCap a_cap) const { return (m_capabs & a_cap) != 0; }
 	bool HasRegSet(EPluginReg a_reg) const { return (m_activeRegBits & a_reg) != 0; }
 
 	long AddReg(EPluginReg a_reg, infektPluginMethod a_callback, void* a_userData);
 	long RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback);
+
+	long TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam);
 protected:
 	HMODULE m_hModule;
 	std::string m_guid;
@@ -56,7 +60,7 @@ protected:
 		void* pUser;
 	};
 
-	typedef std::multimap<EPluginReg, reg_event_data> TMRegData;
+	typedef std::map<EPluginReg, reg_event_data> TMRegData;
 	TMRegData m_activeRegs;
 };
 
@@ -69,11 +73,16 @@ public:
 	static CPluginManager* GetInstance();
 	virtual ~CPluginManager();
 
+	// real managing stuff:
 	bool LoadPlugin(std::_tstring a_dllPath, bool a_probeInfoOnly = false);
 	std::_tstring GetLastErrorMessage() const { return m_lastErrorMsg; }
 	void GetLastProbedInfo(std::string& ar_guid, std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description);
 
 	bool IsPluginLoaded(const std::string& a_guid) const;
+	bool UnLoadPlugin(const std::string& a_guid);
+
+	// event triggers (app -> plugins):
+	void TriggerNfoLoad(bool a_before, const std::wstring& a_filePath);
 
 	// don't call this. it's for CLoadedPlugin only.
 	static INFEKT_PLUGIN_METHOD(_pluginToCoreCallback);
@@ -85,10 +94,14 @@ protected:
 	std::wstring m_probedName, m_probedVer, m_probedDescr;
 	std::string m_probedGuid;
 
-	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
-	long DoRegister(const std::string& a_guid, bool a_unregister, CLoadedPlugin::EPluginReg a_regType, void* a_pParam, void* a_userData);
-
+	// plugin -> core implementation things:
 	long PluginToCoreCallback(const char*, long, long, long long, void*, void*);
+
+	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
+	long DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData);
+
+	// core -> plugin stuff:
+	void TriggerRegEvents(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam);
 private:
 	CPluginManager();
 };

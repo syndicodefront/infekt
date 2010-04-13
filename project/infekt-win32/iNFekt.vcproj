@@ -434,7 +434,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\win32\plugin_api.cpp"
+				RelativePath="..\..\src\win32\plugin_manager.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -454,7 +454,27 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\win32\plugin_manager.cpp"
+				RelativePath="..\..\src\win32\plugin_methods.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\win32\plugin_triggers.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
