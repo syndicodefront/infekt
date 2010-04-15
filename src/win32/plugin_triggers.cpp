@@ -14,7 +14,6 @@
 
 #include "stdafx.h"
 #include "plugin_manager.h"
-#include "app.h"
 
 using namespace std;
 
@@ -29,9 +28,7 @@ void CPluginManager::TriggerNfoLoad(bool a_before, const std::wstring& a_filePat
 	}
 	else
 	{
-		CNFOApp* l_app = dynamic_cast<CNFOApp*>(GetApp());
-		CViewContainer* l_view = dynamic_cast<CViewContainer*>(l_app->GetMainFrame().GetView());
-		PNFOData l_nfoData = l_view->GetNfoData();
+		PNFOData l_nfoData = GetAppView()->GetNfoData();
 
 		l_fileName = l_nfoData->GetFileName();
 		l_filePath = l_nfoData->GetFilePath();

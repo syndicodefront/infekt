@@ -19,7 +19,7 @@
 using namespace std;
 
 
-long CPluginManager::PluginToCoreCallback(const char* szGuid, long lReserved, long lCall, long long lParam, void* pParam, void* pUser)
+long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long long lParam, void* pParam, void* pUser)
 {
 	switch(lCall)
 	{
@@ -49,9 +49,7 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lReserved, lo
 
 long CPluginManager::DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8)
 {
-	CNFOApp* l_app = dynamic_cast<CNFOApp*>(GetApp());
-	CViewContainer* l_view = dynamic_cast<CViewContainer*>(l_app->GetMainFrame().GetView());
-	PNFOData l_nfoData = l_view->GetNfoData();
+	PNFOData l_nfoData = GetAppView()->GetNfoData();
 
 	if(!l_nfoData || !l_nfoData->HasData())
 	{

@@ -18,6 +18,7 @@
 #include "main_frame.h"
 
 #define WM_LOAD_NFO (WM_APP + 30)
+#define WM_SYNC_PLUGIN_TO_CORE (WM_APP + 31)
 #define INFEKT_MAIN_WINDOW_CLASS_NAME _T("iNFektMainWindow")
 
 class CNFOApp : public CWinApp

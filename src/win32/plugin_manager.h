@@ -16,6 +16,7 @@
 #define _PLUGIN_MANAGER_H
 
 #include "infekt-plugin.h"
+#include "app.h"
 
 
 enum EPluginReg
@@ -86,6 +87,8 @@ public:
 
 	// don't call this. it's for CLoadedPlugin only.
 	static INFEKT_PLUGIN_METHOD(_pluginToCoreCallback);
+	// don't call this either, it's used for thread sync:
+	long SynchedPluginToCore(void *a_data);
 protected:
 	typedef std::map<std::string, PLoadedPlugin> TMGuidPlugins;
 
@@ -94,8 +97,11 @@ protected:
 	std::wstring m_probedName, m_probedVer, m_probedDescr;
 	std::string m_probedGuid;
 
+	CNFOApp* GetApp() { return dynamic_cast<CNFOApp*>(::Win32xx::GetApp()); }
+	CViewContainer* GetAppView() { return dynamic_cast<CViewContainer*>(GetApp()->GetMainFrame().GetView()); }
+
 	// plugin -> core implementation things:
-	long PluginToCoreCallback(const char*, long, long, long long, void*, void*);
+	long PluginToCoreCallback(const char*, long, long long, void*, void*);
 
 	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
 	long DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData);
