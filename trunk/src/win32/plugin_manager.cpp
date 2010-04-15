@@ -149,16 +149,40 @@ bool CPluginManager::IsPluginLoaded(const std::string& a_guid) const
 }
 
 
+struct _sync_call_data
+{
+	const char* szGuid;
+	long lCall;
+	long long lParam;
+	void* pParam;
+	void* pUser;
+};
+
 /*static*/ INFEKT_PLUGIN_METHOD(CPluginManager::_pluginToCoreCallback)
 {
 	CPluginManager* l_mgr = CPluginManager::GetInstance();
 
 	if(l_mgr)
 	{
-		return l_mgr->PluginToCoreCallback(szGuid, lReserved, lCall, lParam, pParam, pUser);
+		_sync_call_data l_data;
+		l_data.szGuid = szGuid;
+		l_data.lCall = lCall;
+		l_data.lParam = lParam;
+		l_data.pParam = pParam;
+		l_data.pUser = pUser;
+
+		return l_mgr->GetApp()->GetMainFrame().SendMessage(WM_SYNC_PLUGIN_TO_CORE, 0, (LPARAM)&l_data);
 	}
 
 	return IPE_NOT_IMPLEMENTED;
+}
+
+
+long CPluginManager::SynchedPluginToCore(void *a_data)
+{
+	const _sync_call_data* l_data = (_sync_call_data*)a_data;
+
+	return PluginToCoreCallback(l_data->szGuid, l_data->lCall, l_data->lParam, l_data->pParam, l_data->pUser);
 }
 
 

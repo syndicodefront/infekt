@@ -638,6 +638,8 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			OpenFile(l_path);
 		}
 		return 1; }
+	case WM_SYNC_PLUGIN_TO_CORE:
+		return CPluginManager::GetInstance()->SynchedPluginToCore((void*)lParam);
 	case WM_COPYDATA: {
 		const COPYDATASTRUCT* l_cpds = (PCOPYDATASTRUCT)lParam;
 		if(l_cpds->dwData == WM_LOAD_NFO)
