@@ -409,29 +409,34 @@ void CMainFrame::OnHelp()
 
 void CMainFrame::SwitchView(EMainView a_view)
 {
-	// WARNING: We use menu positions here exclusively. Using
-	// the COMMAND identifiers just didn't work for no apparent reason :(
-
-	HMENU l_hPopup = ::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS);
-
-	if(l_hPopup)
+	if(CPluginManager::GetInstance()->TriggerViewChanging(a_view))
 	{
-		::CheckMenuRadioItem(l_hPopup, 0, 2,
-			(a_view == MAIN_VIEW_RENDERED ? 0 : (a_view == MAIN_VIEW_CLASSIC ? 1 : 2)),
-			MF_BYPOSITION);
+		// WARNING: We use menu positions here exclusively. Using
+		// the COMMAND identifiers just didn't work for no apparent reason :(
+
+		HMENU l_hPopup = ::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS);
+
+		if(l_hPopup)
+		{
+			::CheckMenuRadioItem(l_hPopup, 0, 2,
+				(a_view == MAIN_VIEW_RENDERED ? 0 : (a_view == MAIN_VIEW_CLASSIC ? 1 : 2)),
+				MF_BYPOSITION);
+		}
+
+		GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_RENDERED, (a_view == MAIN_VIEW_RENDERED ? TRUE : FALSE));
+		GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_CLASSIC, (a_view == MAIN_VIEW_CLASSIC ? TRUE : FALSE));
+		GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_TEXTONLY, (a_view == MAIN_VIEW_TEXTONLY ? TRUE : FALSE));
+
+		m_settings->iLastView = a_view;
+		if(m_settings->iDefaultView == -1)
+		{
+			m_settings->SaveToRegistry();
+		}
+
+		m_view.SwitchView(a_view);
+
+		CPluginManager::GetInstance()->TriggerViewChanged();
 	}
-
-	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_RENDERED, (a_view == MAIN_VIEW_RENDERED ? TRUE : FALSE));
-	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_CLASSIC, (a_view == MAIN_VIEW_CLASSIC ? TRUE : FALSE));
-	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_VIEW_TEXTONLY, (a_view == MAIN_VIEW_TEXTONLY ? TRUE : FALSE));
-
-	m_settings->iLastView = a_view;
-	if(m_settings->iDefaultView == -1)
-	{
-		m_settings->SaveToRegistry();
-	}
-
-	m_view.SwitchView(a_view);
 }
 
 

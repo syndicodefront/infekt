@@ -37,6 +37,7 @@ typedef long (_cdecl *infektPluginMethod)(const char* szGuid, long lReserved, lo
 typedef enum {
 	IPCI_GET_LOADED_NFO_TEXTWIDE = 1001,
 	IPCI_GET_LOADED_NFO_TEXTUTF8,
+	IPCI_ENUM_LOADED_NFO_LINKS,
 
 	IPCI_REGISTER_NFO_LOAD_EVENTS,
 	IPCI_UNREGISTER_NFO_LOAD_EVENTS,
@@ -46,6 +47,7 @@ typedef enum {
 	IPCI_UNREGISTER_SETTINGS_EVENTS,
 
 	IPCI_INFOBAR_ANNOUNCE,
+	IPCI_INFOBAR_CREATE,
 
 	_IPCI_MAX
 } infektPluginCallId;
@@ -54,20 +56,30 @@ typedef enum {
 // call IDs for infektPluginMethod's lCall (core -> plugin) aka event:
 typedef enum {
 	// events sent to infektPluginMain:
-	IPV_PLUGIN_INFO = 2001,
+	IPV_PLUGIN_INFO = 5001,
 	IPV_PLUGIN_LOAD,
 	IPV_PLUGIN_UNLOAD,
 
+	// multi-purpose enumeration callback events:
+	IPV_ENUM_BEGIN = 5101,
+	IPV_ENUM_ITEM,
+	IPV_ENUM_END,
+
 	// register for these events using IPCI_REGISTER_NFO_LOAD_EVENTS:
-	IPV_NFO_LOAD_BEFORE = 3001,
+	IPV_NFO_LOAD_BEFORE = 6001,
 	IPV_NFO_LOADED,
 
 	// register for these events using IPCI_REGISTER_NFO_VIEW_EVENTS:
+	IPV_NFO_VIEW_CHANGING,
 	IPV_NFO_VIEW_CHANGED,
 	IPV_NFO_VIEW_SETTINGS_CHANGED,
 
 	// register for these events using IPCI_REGISTER_SETTINGS_EVENTS:
 	IPV_SETTINGS_CHANGED,
+
+	// plugins with cap_infobar will get this
+	// (if they also sent IPCI_INFOBAR_ANNOUNCE):
+	IPV_INFOBAR_REQUEST,
 
 	_IPV_MAX
 } infektPluginEventId;
@@ -90,6 +102,7 @@ typedef enum {
 	IPE_ALREADY,
 	IPE_NOT_FOUND,
 	IPE_NULLCALLBACK,
+	IPE_STOP,
 
 	_IPE_MAX
 } infektPluginErrorId;
@@ -127,6 +140,17 @@ struct infekt_nfo_info_t {
 
 	const wchar_t* fileName;
 	const wchar_t* filePath;
+};
+
+
+struct infekt_nfo_link_t {
+	size_t _uSize;
+
+	int linkId;
+	const wchar_t* href;
+	size_t row;
+	size_t colStart;
+	size_t colEnd;
 };
 
 

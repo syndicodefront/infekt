@@ -84,6 +84,9 @@ public:
 
 	// event triggers (app -> plugins):
 	void TriggerNfoLoad(bool a_before, const std::wstring& a_filePath);
+	void TriggerSettingsChanged();
+	bool TriggerViewChanging(EMainView a_view);
+	void TriggerViewChanged();
 
 	// don't call this. it's for CLoadedPlugin only.
 	static INFEKT_PLUGIN_METHOD(_pluginToCoreCallback);
@@ -104,6 +107,7 @@ protected:
 	long PluginToCoreCallback(const char*, long, long long, void*, void*);
 
 	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
+	long DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser);
 	long DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData);
 
 	// core -> plugin stuff:

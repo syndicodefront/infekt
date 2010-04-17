@@ -96,6 +96,8 @@ void CSettingsWindowDialog::OnOK()
 	l_view->GetClassicCtrl()->InjectSettings(*m_tabPageClassic->GetViewSettings());
 	l_view->GetTextOnlyCtrl()->InjectSettings(*m_tabPageTextOnly->GetViewSettings());
 
+	CPluginManager::GetInstance()->TriggerSettingsChanged();
+
 	CDialog::OnOK();
 }
 
