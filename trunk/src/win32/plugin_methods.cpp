@@ -27,6 +27,9 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long l
 	case IPCI_GET_LOADED_NFO_TEXTUTF8:
 		return DoGetLoadedNfoText(lParam, pParam, (lCall != IPCI_GET_LOADED_NFO_TEXTWIDE));
 
+	case IPCI_ENUM_LOADED_NFO_LINKS:
+		return DoEnumLoadedNfoLinks(pParam, pUser);
+
 	case IPCI_REGISTER_NFO_LOAD_EVENTS:
 		return DoRegister(szGuid, false, REG_NFO_LOAD_EVENTS, pParam, pUser);
 	case IPCI_UNREGISTER_NFO_LOAD_EVENTS:
@@ -97,6 +100,48 @@ long CPluginManager::DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_
 }
 
 
+long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
+{
+	PNFOData l_nfoData = GetAppView()->GetNfoData();
+
+	if(!l_nfoData || !l_nfoData->HasData())
+	{
+		return IPE_NO_FILE;
+	}
+
+	infektPluginMethod l_callback = (infektPluginMethod)a_pCallback;
+
+	if(!l_callback)
+	{
+		return IPE_NULLCALLBACK;
+	}
+
+	size_t l_count = 0;
+
+	l_callback(NULL, 0, IPV_ENUM_BEGIN, l_count, NULL, a_pUser);
+
+	while(const CNFOHyperLink* l_link = l_nfoData->GetLinkByIndex(l_count))
+	{
+		infektDeclareStruct(infekt_nfo_link_t, l_linkInfo);
+
+		l_linkInfo.colEnd = l_link->GetColEnd();
+		l_linkInfo.colStart = l_link->GetColStart();
+		l_linkInfo.href = l_link->GetHref().c_str();
+		l_linkInfo.linkId = l_link->GetLinkID();
+		l_linkInfo.row = l_link->GetRow();
+
+		if(l_callback(NULL, 0, IPV_ENUM_ITEM, l_count, &l_linkInfo, a_pUser) == IPE_STOP)
+		{
+			break;
+		}
+	}
+
+	l_callback(NULL, 0, IPV_ENUM_END, l_count, NULL, a_pUser);
+
+	return l_count;
+}
+
+
 long CPluginManager::DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData)
 {
 	TMGuidPlugins::iterator l_find = m_loadedPlugins.find(a_guid);
@@ -111,8 +156,12 @@ long CPluginManager::DoRegister(const std::string& a_guid, bool a_unregister, EP
 	}
 
 	if(a_unregister)
+	{
 		return l_plugin->RemoveReg(a_regType, l_callback);
+	}
 	else
+	{
 		return l_plugin->AddReg(a_regType, l_callback, a_userData);
+	}
 }
 

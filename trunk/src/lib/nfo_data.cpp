@@ -740,6 +740,17 @@ const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 }
 
 
+const CNFOHyperLink* CNFOData::GetLinkByIndex(size_t a_index) const
+{
+	if(a_index < m_hyperLinks.size())
+	{
+		return &m_hyperLinks[a_index];
+	}
+
+	return NULL;
+}
+
+
 #define OVECTOR_SIZE 30 // multiple of 3!
 bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
 			  std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued)

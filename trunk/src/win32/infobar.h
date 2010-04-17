@@ -46,7 +46,7 @@ WIDGET SPECS
 * OwnerDrawn:
   - Calls a callback with a cairo_surface_t
     that has the appropriate device_offset set.
-
+ 
 */
 
 

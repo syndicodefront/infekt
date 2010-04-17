@@ -40,3 +40,22 @@ void CPluginManager::TriggerNfoLoad(bool a_before, const std::wstring& a_filePat
 
 	TriggerRegEvents(REG_NFO_LOAD_EVENTS, (a_before ? IPV_NFO_LOAD_BEFORE : IPV_NFO_LOADED), 0, &l_info);
 }
+
+
+void CPluginManager::TriggerSettingsChanged()
+{
+	TriggerRegEvents(REG_SETTINGS_EVENTS, IPV_SETTINGS_CHANGED, 0, NULL);
+}
+
+
+bool CPluginManager::TriggerViewChanging(EMainView a_view) // :TODO:
+{
+	//if(TriggerRegEvents(REG_SETTINGS_EVENTS, IPV_NFO_VIEW_CHANGING, a_view, NULL) != IPE_STOP)
+	return true;
+}
+
+
+void CPluginManager::TriggerViewChanged() // :TODO: view information
+{
+	TriggerRegEvents(REG_SETTINGS_EVENTS, IPV_NFO_VIEW_CHANGING, 0, NULL);
+}
