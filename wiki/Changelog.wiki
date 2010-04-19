@@ -1,6 +1,12 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
+== v0.9 (???) ==
+  * Added plugin selection list to the preferences
+  * Fleshed out plugin interface
+  * Fixed bug where a cleared open MRU list was not being saved
+  * Fixed time zone of "last modified" timestamp in the status bar
+
 == v0.5 (23 March 2010) ==
   * Added zoom functionality (speed will be improved later)
   * Added useful file information to the status bar
