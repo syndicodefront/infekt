@@ -1132,14 +1132,22 @@ void CMainFrame::SaveOpenMruList()
 		return;
 	}
 
-	size_t i = 0;
-	for(vector<_tstring>::const_iterator it = m_mruPaths.begin();
-		it != m_mruPaths.end(); it++, i++)
+	vector<_tstring>::const_iterator l_it = m_mruPaths.begin();
+	for(size_t i = 0; i < ms_mruLength; i++)
 	{
 		const wstring l_valName = FORMAT(L"%d", i);
 
-		RegSetValueEx(l_hKey, l_valName.c_str(), 0, REG_SZ,
-			(LPBYTE)it->c_str(), (it->size() + 1) * sizeof(TCHAR));
+		if(l_it != m_mruPaths.end())
+		{
+			RegSetValueEx(l_hKey, l_valName.c_str(), 0, REG_SZ,
+				(LPBYTE)l_it->c_str(), (l_it->size() + 1) * sizeof(TCHAR));
+
+			l_it++;
+		}
+		else
+		{
+			RegDeleteValue(l_hKey, l_valName.c_str());
+		}
 	}
 
 	RegCloseKey(l_hKey);
