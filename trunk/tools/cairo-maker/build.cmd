@@ -9,7 +9,7 @@ set CONFIG=release
 rem set CONFIG=debug
 
 IF EXIST zlib.tgz GOTO AZOK
-curl http://www.zlib.net/zlib-1.2.3.tar.gz -o zlib.tgz
+curl http://zlib.net/zlib-1.2.5.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
@@ -17,7 +17,7 @@ curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.1.tar.gz -o libpn
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.17.10.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.18.0.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
@@ -45,8 +45,12 @@ move cairo-* cairo
 
 REM Copy ZLIB project file
 mkdir %ROOTDIR%\zlib\projects\visualc71
-cd %ROOTDIR%\zlib\projects\visualc71
-copy %ROOTDIR%\libpng\projects\visualc71\zlib.vcproj .
+cd %ROOTDIR%\libpng\projects\visualc71
+
+sed "s/gzio.c\"^>/gzread.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzwrite.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzclose.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzlib.c\">/" zlib.vcproj > zlib.vcproj.fixed
+move /Y zlib.vcproj.fixed zlib.vcproj
+
+copy zlib.vcproj %ROOTDIR%\zlib\projects\visualc71
 
 REM Build ZLIB
 cd %ROOTDIR%\libpng\projects\visualc71
@@ -122,6 +126,8 @@ move /Y build\Makefile.fixed build\Makefile.win32.common
 sed "s/D_CRT_NONSTDC_NO_DEPRECATE/D_CRT_NONSTDC_NO_DEPRECATE -DZLIB_DLL/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
+REM we can toggle SVG support here but we MUST NOT remove these two lines
+REM else the make file will fail to regenerate cairo-features.h
 sed s/CAIRO_HAS_SVG_SURFACE=1/CAIRO_HAS_SVG_SURFACE=0/ build\Makefile.win32.features > build\Makefile.ffixed
 move /Y build\Makefile.ffixed build\Makefile.win32.features
 
@@ -153,6 +159,7 @@ copy %ROOTDIR%\cairo\src\cairo-deprecated.h include
 copy %ROOTDIR%\cairo\src\cairo-win32.h include
 copy %ROOTDIR%\cairo\src\cairo-ps.h include
 copy %ROOTDIR%\cairo\src\cairo-pdf.h include
+REM copy %ROOTDIR%\cairo\src\cairo-svg.h include
 
 IF %CONFIG%==debug GOTO FINALCOPYDEBUG
 copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Release\libpng14.dll out-%CONFIG%
