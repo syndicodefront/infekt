@@ -14,31 +14,93 @@
 
 #include "imdb-plugin.h"
 
+static INFEKT_PLUGIN_METHOD(ImdbMainEventCallback);
+
+
+/************************************************************************/
+/* CONSTRUCTOR                                                          */
+/************************************************************************/
+
+CImdbPlugin::CImdbPlugin(const infekt_plugin_load_t* a_load)
+{
+	m_fPluginToCore = a_load->pluginToCore;
+
+	PluginSend(IPCI_REGISTER_NFO_LOAD_EVENTS, 0, ImdbMainEventCallback, this);
+}
+
+/************************************************************************/
+/* SOME EVENT CALLBACK BUSINESS                                         */
+/************************************************************************/
+
+long CImdbPlugin::PluginSend(infektPluginCallId lCall, long long lParam, void* pParam, void *pUser)
+{
+	if(m_fPluginToCore)
+	{
+		return m_fPluginToCore(MYGUID, 0, lCall, lParam, pParam, pUser);
+	}
+
+	return IPE_NOT_IMPLEMENTED;
+}
+
+INFEKT_PLUGIN_METHOD(ImdbMainEventCallback)
+{
+	CImdbPlugin* pInstance = reinterpret_cast<CImdbPlugin*>(pUser);
+
+	_ASSERTE(pUser != NULL);
+
+	switch(lCall)
+	{
+	case IPV_NFO_LOADED:
+		pInstance->OnNfoLoaded(reinterpret_cast<infekt_nfo_info_t*>(pParam));
+		return IPE_SUCCESS;
+	}
+
+	return IPE_NOT_IMPLEMENTED;
+}
+
+
+void CImdbPlugin::OnFoundImdbLink(const std::wstring a_href)
+{
+}
+
 
 INFEKT_PLUGIN_METHOD(EnumNfoLinksCallback)
 {
 	if(lCall == IPV_ENUM_ITEM)
 	{
 		infekt_nfo_link_t* l_link = reinterpret_cast<infekt_nfo_link_t*>(pParam);
+		wchar_t* l_hrefLower = _wcsdup(l_link->href);
 
-		MessageBox(0, l_link->href, L"HYPER HYPER", 0);
+		wchar_t* l_p = l_hrefLower;
+		while(*l_p) 
+		{
+			*l_p = towlower(*l_p);
+			l_p++;
+		}
+
+		l_p = wcsstr(l_hrefLower, L"imdb.com");
+		if(l_p != NULL && l_p < wcsstr(l_hrefLower, L"/tt"))
+		{
+			reinterpret_cast<CImdbPlugin*>(pUser)->OnFoundImdbLink(l_hrefLower);
+
+			free(l_hrefLower);
+			return IPE_STOP; // we only use the first imdb link.
+		}
+
+		free(l_hrefLower);
 	}
 
 	return IPE_SUCCESS;
 }
 
-INFEKT_PLUGIN_METHOD(ImdbMainEventCallback)
+
+void CImdbPlugin::OnNfoLoaded(const infekt_nfo_info_t*)
 {
-	switch(lCall)
-	{
-	case IPV_NFO_LOADED:
-		{
-			infekt_nfo_info_t* l_info = reinterpret_cast<infekt_nfo_info_t*>(pParam);
+	// find the imdb link:
+	PluginSend(IPCI_ENUM_LOADED_NFO_LINKS, 0, (void*)EnumNfoLinksCallback, this);
+}
 
-			PluginSend(IPCI_ENUM_LOADED_NFO_LINKS, 0, (void*)EnumNfoLinksCallback);
-		}
-		break;
-	}
 
-	return IPE_NOT_IMPLEMENTED;
+CImdbPlugin::~CImdbPlugin()
+{
 }
