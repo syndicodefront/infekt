@@ -14,26 +14,11 @@
 
 #include "imdb-plugin.h"
 
-static infektPluginMethod s_fPluginToCore = NULL;
+static CImdbPlugin* s_pPlugin = NULL;
 
 
 /************************************************************************/
-/* PluginToCore wrapper method                                          */
-/************************************************************************/
-
-long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam)
-{
-	if(s_fPluginToCore)
-	{
-		return s_fPluginToCore(MYGUID, 0, lCall, lParam, pParam, NULL);
-	}
-
-	return IPE_NOT_IMPLEMENTED;
-}
-
-
-/************************************************************************/
-/* Methods for infektPluginMain                                         */
+/* Helper Method that populates infekt_plugin_info_t                    */
 /************************************************************************/
 
 static void DoPluginInfo(infekt_plugin_info_t* a_info)
@@ -49,21 +34,6 @@ static void DoPluginInfo(infekt_plugin_info_t* a_info)
 }
 
 
-static long DoPluginLoad(infekt_plugin_load_t* a_load)
-{
-	s_fPluginToCore = a_load->pluginToCore;
-
-	PluginSend(IPCI_REGISTER_NFO_LOAD_EVENTS, 0, ImdbMainEventCallback);
-
-	return IPE_SUCCESS;
-}
-
-
-static void DoPluginUnLoad()
-{
-}
-
-
 /************************************************************************/
 /* DLL Exports                                                          */
 /************************************************************************/
@@ -76,17 +46,27 @@ extern "C" __declspec(dllexport)
 	case IPV_PLUGIN_INFO:
 		if(pParam)
 		{
-			DoPluginInfo((infekt_plugin_info_t*)pParam);
+			DoPluginInfo(reinterpret_cast<infekt_plugin_info_t*>(pParam));
 			return IPE_SUCCESS;
 		}
 		break;
 
 	case IPV_PLUGIN_LOAD:
-		return DoPluginLoad((infekt_plugin_load_t*)pParam);
+		if(pParam && !s_pPlugin)
+		{
+			s_pPlugin = new CImdbPlugin(reinterpret_cast<infekt_plugin_load_t*>(pParam));
+			return IPE_SUCCESS;
+		}
+		break;
 
 	case IPV_PLUGIN_UNLOAD:
-		DoPluginUnLoad();
-		return IPE_SUCCESS;
+		if(s_pPlugin)
+		{
+			delete s_pPlugin;
+			s_pPlugin = NULL;
+			return IPE_SUCCESS;
+		}
+		break;
 	}
 
 	return IPE_NOT_IMPLEMENTED;

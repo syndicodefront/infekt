@@ -18,12 +18,25 @@
 #include "targetver.h"
 #include <windows.h>
 #include "infekt-plugin.h"
+#include <string>
 
 #define MYGUID "{157BDD72-24D2-4d7c-94F2-FC463069A74B}"
 
-long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam);
 
-/* from imdb.cpp: */
-INFEKT_PLUGIN_METHOD(ImdbMainEventCallback);
+class CImdbPlugin
+{
+public:
+	CImdbPlugin(const infekt_plugin_load_t* a_load);
+	virtual ~CImdbPlugin();
+
+	long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam, void *pUser = NULL);
+
+	void OnFoundImdbLink(const std::wstring a_href);
+	void OnNfoLoaded(const infekt_nfo_info_t*);
+
+private:
+	infektPluginMethod m_fPluginToCore;
+};
+
 
 #endif /* !_IMDB_PLUGIN_H */
