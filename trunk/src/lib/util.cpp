@@ -473,6 +473,23 @@ std::_tstring CUtil::GetExeDir()
 }
 
 
+std::_tstring CUtil::PathRemoveFileSpec(const std::_tstring& a_path)
+{
+	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
+	memset(l_buf, 0, a_path.size() + 1);
+
+	_tcscpy_s(l_buf, a_path.size() + 1, a_path.c_str());
+
+	::PathRemoveFileSpec(l_buf);
+	::PathRemoveBackslash(l_buf);
+
+	std::_tstring l_result(l_buf);
+	delete[] l_buf;
+
+	return l_result;
+}
+
+
 uint32_t CUtil::RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default)
 {
 	DWORD l_dwType;
@@ -647,7 +664,7 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 #ifdef _WIN32
 
 
-HMODULE CUtil::SilentLoadLibrary(const std::_tstring a_path)
+HMODULE CUtil::SilentLoadLibrary(const std::_tstring& a_path)
 {
 	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
 	HMODULE l_hResult = ::LoadLibrary(a_path.c_str());

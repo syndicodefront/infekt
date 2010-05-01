@@ -114,7 +114,7 @@ bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
 		return false;
 	}
 
-	PLoadedPlugin l_newPlugin = PLoadedPlugin(new CLoadedPlugin(l_hModule, &l_info));
+	PLoadedPlugin l_newPlugin = PLoadedPlugin(new CLoadedPlugin(a_dllPath, l_hModule, &l_info));
 
 	m_loadedPlugins[l_info.guid] = l_newPlugin;
 
@@ -216,7 +216,7 @@ CPluginManager::~CPluginManager()
 /* CLoadedPlugin Implementation                                         */
 /************************************************************************/
 
-CLoadedPlugin::CLoadedPlugin(HMODULE a_hModule, infekt_plugin_info_t* a_info)
+CLoadedPlugin::CLoadedPlugin(const std::_tstring& a_dllPath, HMODULE a_hModule, infekt_plugin_info_t* a_info)
 {
 	// initialize members:
 	m_capabs = 0;
@@ -224,6 +224,7 @@ CLoadedPlugin::CLoadedPlugin(HMODULE a_hModule, infekt_plugin_info_t* a_info)
 
 	// copy data:
 	m_hModule = a_hModule;
+	m_dllPath = a_dllPath;
 
 	m_guid = a_info->guid;
 	m_name = a_info->name;
@@ -252,6 +253,9 @@ bool CLoadedPlugin::_DoLoad()
 		// fill info for the plugin:
 		l_loadInfo.pluginToCore = CPluginManager::_pluginToCoreCallback;
 		l_loadInfo.hMainWindow = l_app->GetMainFrame().GetHwnd();
+
+		const std::_tstring l_pluginDir = CUtil::PathRemoveFileSpec(m_dllPath);
+		l_loadInfo.pluginDir = l_pluginDir.c_str();
 
 		// send the load event to the plugin:
 		long l_loadResult = l_fPluginMain(NULL, 0, IPV_PLUGIN_LOAD, 0, &l_loadInfo, NULL);

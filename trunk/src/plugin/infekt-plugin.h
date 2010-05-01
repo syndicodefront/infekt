@@ -132,6 +132,7 @@ struct infekt_plugin_load_t {
 	// info given to plugins:
 	infektPluginMethod pluginToCore;
 	HWND hMainWindow;
+	const wchar_t *pluginDir;
 };
 
 

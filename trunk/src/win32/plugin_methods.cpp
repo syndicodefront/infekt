@@ -134,6 +134,8 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 		{
 			break;
 		}
+
+		l_count++;
 	}
 
 	l_callback(NULL, 0, IPV_ENUM_END, l_count, NULL, a_pUser);

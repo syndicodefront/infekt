@@ -15,6 +15,37 @@
 #ifndef _INFOBAR_H
 #define _INFOBAR_H
 
+/*
+INFOBAR SPECS
+
+1. plugins register for NFO load events
+
+2. plugins do stuff, examine the NFO etc.
+	If they support showing an infobar for this NFO, they
+	send IPCI_INFOBAR_ANNOUNCE. They are asked to do that
+	directly from their IPV_NFO_LOADED handler.
+
+	They need to send a flag that says how qualified they are
+	for handling this plugin's infobar.
+	Example: SFV checker = very generic, sends a low priority
+	value. MP3 player in MP3 NFO = very specialized, sends a
+	high priority value. IMDb = somewhere inbetween.
+
+3. the core determines which infobar to show and sends an
+	IPV_INFOBAR_REQUEST to that plugin. This happens in a background
+	thread created by core, so the plugin does not necessarily have
+	to worry about keeping network calls async and stuff.
+
+4. when the plugin has gathered its (initial) data, it sends
+	IPCI_INFOBAR_CREATE to the core.
+
+5. the core pops up the infobar once it gets IPCI_INFOBAR_CREATE
+	from the preferred plugin. At this point, it also asks the less
+	preferred plugins to do their thing via IPV_INFOBAR_REQUEST.
+	The infobar will have a context menu to switch to another plugin's
+	view once they sent IPCI_INFOBAR_CREATE.
+
+*/
 
 /*
 WIDGET SPECS

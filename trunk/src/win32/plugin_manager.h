@@ -30,7 +30,7 @@ enum EPluginReg
 class CLoadedPlugin
 {
 public:
-	CLoadedPlugin(HMODULE a_hModule, infekt_plugin_info_t* a_info);
+	CLoadedPlugin(const std::_tstring& a_dllPath, HMODULE a_hModule, infekt_plugin_info_t* a_info);
 	virtual ~CLoadedPlugin();
 
 	bool _DoLoad();
@@ -49,6 +49,7 @@ public:
 	long TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam);
 protected:
 	HMODULE m_hModule;
+	std::_tstring m_dllPath;
 	std::string m_guid;
 	std::wstring m_name, m_version, m_description;
 	bool m_successfullyLoaded;
