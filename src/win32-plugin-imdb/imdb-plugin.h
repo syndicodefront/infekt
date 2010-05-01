@@ -21,7 +21,7 @@
 
 #define MYGUID "{157BDD72-24D2-4d7c-94F2-FC463069A74B}"
 
-long PluginSend(long lCall, long long lParam, void* pParam);
+long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam);
 
 /* from imdb.cpp: */
 INFEKT_PLUGIN_METHOD(ImdbMainEventCallback);

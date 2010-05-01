@@ -963,7 +963,6 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 	wstring l_tmpw;
 	l_text.reserve(a_text.size() / 2);
 
-	//bool l_prevWasNl = false;
 	for(size_t p = 0; p < a_text.size(); p++)
 	{
 		if(iswascii(a_text[p]) || iswalnum(a_text[p]) || iswspace(a_text[p]))
@@ -986,7 +985,7 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 			p += 2;
 			while(l_tmpw[p] == L'\n') l_tmpw.erase(p, 1);
 		}
-	}	
+	}
 
 	l_text = CUtil::FromWideStr(l_tmpw, CP_UTF8);
 

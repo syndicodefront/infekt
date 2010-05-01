@@ -58,7 +58,8 @@ public:
 
 	static std::_tstring GetExePath();
 	static std::_tstring GetExeDir();
-	static HMODULE SilentLoadLibrary(const std::_tstring a_path);
+	static std::_tstring PathRemoveFileSpec(const std::_tstring& a_path);
+	static HMODULE SilentLoadLibrary(const std::_tstring& a_path);
 	static bool TextToClipboard(HWND a_hwnd, const std::wstring& a_text);
 
 	static uint32_t RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default = 0);
