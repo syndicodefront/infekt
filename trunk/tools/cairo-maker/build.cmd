@@ -7,17 +7,18 @@ REM * curl in PATH
 
 set CONFIG=release
 rem set CONFIG=debug
+set X64=n
 
 IF EXIST zlib.tgz GOTO AZOK
 curl http://zlib.net/zlib-1.2.5.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.1.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.2.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.18.0.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.18.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
@@ -26,11 +27,28 @@ curl http://www.cairographics.org/releases/cairo-1.8.10.tar.gz -o cairo.tgz
 
 set ROOTDIR=%cd%\work
 set PATH=%PATH%;C:\msys\1.0\bin
-call "%VS90COMNTOOLS%/vsvars32.bat"
 
-rmdir /S /Q %ROOTDIR%
-IF EXIST %ROOTDIR% GOTO ROOTDIRDELFAIL
+IF %X64%==y GOTO SWITCHX64
+call "%VS90COMNTOOLS%/vsvars32.bat"
+set PLATFORM=Win32
+GOTO SWITCHNOX64
+:SWITCHX64
+call "%VS90COMNTOOLS%\..\..\VC\bin\amd64\vcvarsamd64.bat"
+set PLATFORM=x64
+:SWITCHNOX64
+
+IF EXIST %ROOTDIR% GOTO KILLROOTDIR
+:MAKEROOTDIR
 mkdir %ROOTDIR%
+GOTO ROOTDIROK
+:KILLROOTDIR
+move %ROOTDIR% %ROOTDIR%.bak
+rmdir /S /Q %ROOTDIR%.bak
+sleep 1
+IF EXIST %ROOTDIR% GOTO ROOTDIRDELFAIL
+goto MAKEROOTDIR
+
+:ROOTDIROK
 cd %ROOTDIR%
 
 tar xzf ../zlib.tgz
@@ -43,26 +61,32 @@ move libpng-* libpng
 move pixman-* pixman
 move cairo-* cairo
 
-REM Copy ZLIB project file
-mkdir %ROOTDIR%\zlib\projects\visualc71
+IF %CONFIG%==debug GOTO SWITCHDEBUG
+set DBD=
+goto SWITCHDONE
+:SWITCHDEBUG
+set DBD=d
+:SWITCHDONE
+
+REM Fix ZLIB project file
 cd %ROOTDIR%\libpng\projects\visualc71
 
 sed "s/gzio.c\"^>/gzread.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzwrite.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzclose.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzlib.c\">/" zlib.vcproj > zlib.vcproj.fixed
 move /Y zlib.vcproj.fixed zlib.vcproj
 
-copy zlib.vcproj %ROOTDIR%\zlib\projects\visualc71
-
 REM Build ZLIB
-cd %ROOTDIR%\libpng\projects\visualc71
 vcbuild /upgrade zlib.vcproj
+
+IF %X64%==n GOTO ZLIBNOX64
+sed "s/Win32/x64/" zlib.vcproj > zlib.vcproj.fixed
+move /Y zlib.vcproj.fixed zlib.vcproj
+:ZLIBNOX64
 
 IF %CONFIG%==debug GOTO ZLIBDEBUG
 vcbuild zlib.vcproj "DLL Release"
-set DBD=
 GOTO ZLIBDONE
 :ZLIBDEBUG
 vcbuild zlib.vcproj "DLL Debug"
-set DBD=d
 :ZLIBDONE
 
 REM Build LIBPNG
@@ -74,6 +98,11 @@ move /Y %ROOTDIR%\libpng\scripts\pngwin.def.tmp %ROOTDIR%\libpng\scripts\pngwin.
 sed "s/DataExecutionPrevention=\"0\"/AdditionalDependencies=\"zlib1%DBD%.lib\" AdditionalLibraryDirectories=\"$(OutDir)\\\\Zlib\"/" libpng.vcproj > libpng.vcproj.tmp
 move /Y libpng.vcproj.tmp libpng.vcproj
 
+IF %X64%==n GOTO LIBPNGNOX64
+sed "s/Win32/x64/" libpng.vcproj > libpng.vcproj.fixed
+move /Y libpng.vcproj.fixed libpng.vcproj
+:LIBPNGNOX64
+
 IF %CONFIG%==debug GOTO LIBPNGDEBUG
 vcbuild libpng.vcproj "DLL Release"
 GOTO LIBPNGDONE
@@ -82,6 +111,11 @@ vcbuild libpng.vcproj "DLL Debug"
 :LIBPNGDONE
 
 REM Build Pixman
+IF %X64%==n GOTO PIXMANNOX64
+set MMX=off
+rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit mode
+:PIXMANNOX64
+
 cd %ROOTDIR%\pixman\pixman
 IF %CONFIG%==debug GOTO PIXMANDEBUG
 make -f Makefile.win32 "CFG=release"
@@ -98,12 +132,12 @@ set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\boilerplate
 set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\src
 
 IF %CONFIG%==debug GOTO FINALLIBDEBUG
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Release
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Release\Zlib
+set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release
+set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\Zlib
 GOTO FINALLIBDONE
 :FINALLIBDEBUG
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug\Zlib
+set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug
+set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\Zlib
 :FINALLIBDONE
 
 REM Patch Cairo
@@ -142,14 +176,14 @@ make -f Makefile.win32 "CFG=debug"
 cd %ROOTDIR%\..
 
 REM Copy results
-IF EXIST out-%CONFIG% GOTO BLAH
-mkdir out-%CONFIG%
+IF EXIST out-%CONFIG%-%PLATFORM% GOTO BLAH
+mkdir out-%CONFIG%-%PLATFORM%
 :BLAH
 IF EXIST include GOTO BLAH2
 mkdir include
 :BLAH2
 
-del /Q out-%CONFIG%\*
+del /Q out-%CONFIG%-%PLATFORM%\*
 del /Q include\*
 
 copy %ROOTDIR%\cairo\cairo-version.h include
@@ -162,22 +196,22 @@ copy %ROOTDIR%\cairo\src\cairo-pdf.h include
 REM copy %ROOTDIR%\cairo\src\cairo-svg.h include
 
 IF %CONFIG%==debug GOTO FINALCOPYDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Release\libpng14.dll out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Release\libpng14.lib out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Release\ZLib\zlib1.dll out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Release\ZLib\zlib1.lib out-%CONFIG%
-copy %ROOTDIR%\cairo\src\release\cairo.dll out-%CONFIG%
-copy %ROOTDIR%\cairo\src\release\cairo.lib out-%CONFIG%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng14.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng14.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\ZLib\zlib1.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\ZLib\zlib1.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\cairo\src\release\cairo.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\cairo\src\release\cairo.lib out-%CONFIG%-%PLATFORM%
 GOTO FINALCOPYDONE
 :FINALCOPYDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug\libpng14d.dll out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug\libpng14d.lib out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug\libpng14d.pdb out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug\ZLib\zlib1d.dll out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug\ZLib\zlib1d.lib out-%CONFIG%
-copy %ROOTDIR%\libpng\projects\visualc71\Win32_DLL_Debug\ZLib\zlib1d.pdb out-%CONFIG%
-copy %ROOTDIR%\cairo\src\debug\cairo.dll out-%CONFIG%
-copy %ROOTDIR%\cairo\src\debug\cairo.lib out-%CONFIG%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.pdb out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.pdb out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\cairo\src\debug\cairo.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\cairo\src\debug\cairo.lib out-%CONFIG%-%PLATFORM%
 :FINALCOPYDONE
 
 goto END
