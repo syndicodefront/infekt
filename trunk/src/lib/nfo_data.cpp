@@ -408,7 +408,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			// find hyperlinks:
 			if(/* m_bFindHyperlinks == */true)
 			{
-				size_t l_linkPos, l_linkLen;
+				size_t l_linkPos = (size_t)-1, l_linkLen;
 				bool l_linkContinued;
 				string l_url, l_prevUrlCopy = l_prevLinkUrl;
 				size_t l_offset = 0;
@@ -434,9 +434,14 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 					l_prevUrlCopy = "";
 					l_maxLinkIndex++;
 				}
-			}
-		}
 
+				if(l_linkPos == (size_t)-1)
+				{
+					// do not try to continue links when a line without any link on it is met.
+					l_prevLinkUrl = "";
+				}
+			}
+		} // end of foreach line loop.
 
 	}
 
