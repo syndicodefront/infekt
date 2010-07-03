@@ -37,9 +37,9 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	HANDLE l_instMutex = CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
 	bool l_prevInstance = (GetLastError() == ERROR_ALREADY_EXISTS);
 
-	if(CUtil::IsWinXP())
+	if(CUtil::IsWinXP() || CUtil::IsWin6x())
 	{
-		// Activate DEP for XP SP3. Vista and 7 activate it via a PE flag.
+		// Explicitly activate DEP, especially important for XP SP3.
 		// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
 		typedef BOOL (WINAPI *fspdp)(DWORD);
 		fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
