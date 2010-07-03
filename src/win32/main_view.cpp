@@ -24,7 +24,7 @@ CViewContainer::CViewContainer()
 	m_contextMenuHandle = NULL;
 	m_resized = true;
 	m_curViewType = _MAIN_VIEW_MAX;
-	m_showInfoBar = true;
+	m_showInfoBar = false;
 
 	m_infoBarHeight = 200;
 	m_infoBarResizing = false;
@@ -114,8 +114,10 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			::FillRect(l_dc, &l_rect, ::GetSysColorBrush(COLOR_BTNFACE));
 
 			::EndPaint(GetHwnd(), &l_ps);
+
+			return 0;
 		}
-		return 0;
+		else break;
 	case WM_LBUTTONDOWN:
 		if(IsYOnSplitter(GET_Y_LPARAM(lParam)))
 		{
