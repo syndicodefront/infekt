@@ -19,6 +19,10 @@
 
 using namespace std;
 
+#ifndef PROCESS_DEP_ENABLE
+#define PROCESS_DEP_ENABLE 0x01
+#endif
+
 
 /************************************************************************/
 /* APP ENTRY POINT                                                      */
@@ -32,6 +36,18 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 	HANDLE l_instMutex = CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
 	bool l_prevInstance = (GetLastError() == ERROR_ALREADY_EXISTS);
+
+	if(CUtil::IsWinXP())
+	{
+		// Activate DEP for XP SP3. Vista and 7 activate it via a PE flag.
+		// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
+		typedef BOOL (WINAPI *fspdp)(DWORD);
+		fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
+		if(l_fSpDp)
+		{
+			l_fSpDp(PROCESS_DEP_ENABLE);
+		}
+	}
 
 	try
 	{
