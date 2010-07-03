@@ -31,7 +31,7 @@ public:
 	const size_t GetRow() const { return m_row; }
 	const size_t GetColStart() const { return m_colStart; }
 	const size_t GetColEnd() const { return m_colEnd; }
-	const size_t GetLength() const { return m_colEnd - m_colStart; }
+	const size_t GetLength() const { return m_colEnd - m_colStart + 1; }
 protected:
 	int m_linkID;
 	std::wstring m_href;
@@ -80,6 +80,7 @@ public:
 
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
+	const std::vector<const CNFOHyperLink*> GetLinksForLine(size_t a_row) const;
 
 	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
 		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
@@ -95,7 +96,7 @@ protected:
 	TwoDimVector<wchar_t> *m_grid;
 	char *m_utf8Grid;
 	bool m_loaded;
-	std::deque<CNFOHyperLink> m_hyperLinks;
+	std::multimap<size_t, CNFOHyperLink> m_hyperLinks;
 	std::_tstring m_filePath;
 	ENfoCharset m_sourceCharset;
 
