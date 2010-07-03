@@ -4,8 +4,14 @@
 == v0.9 (???) ==
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
+
+== v0.6 (4th July 2010) ==
+  * Made text output in Rendered View a lot faster (also improves zoom speed)
   * Fixed bug where a cleared open MRU list was not being saved
   * Fixed time zone of "last modified" timestamp in the status bar
+  * Activated DEP for XP SP3
+  * Updated PCRE, pixman and zlib
+  * Other fixes & improvements
 
 == v0.5 (23 March 2010) ==
   * Added zoom functionality (speed will be improved later)
