@@ -517,9 +517,22 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 						continue;
 					}
 
-					cairo_text_extents_t l_extents;
-					cairo_text_extents(cr, m_nfo->GetGridCharUtf8(row, col), &l_extents);
 
+					cairo_text_extents_t l_extents = {0};
+
+					// measure the inked area of this glyph (char):
+					cairo_scaled_font_t *l_csf = cairo_get_scaled_font(cr);
+					cairo_glyph_t *l_glyphs = NULL;
+					int l_numGlyphs = 0;
+
+					if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, m_nfo->GetGridCharUtf8(row, col), 1,
+						&l_glyphs, &l_numGlyphs, NULL, NULL, NULL) == CAIRO_STATUS_SUCCESS)
+					{
+						cairo_scaled_font_glyph_extents(l_csf, l_glyphs, l_numGlyphs, &l_extents);
+						cairo_glyph_free(l_glyphs);
+					}
+
+					// find char that covers the largest area...
 					if(l_extents.width > GetBlockWidth() || l_extents.height > GetBlockHeight())
 					{
 						l_broken = true;
@@ -554,7 +567,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	cairo_font_extents_t l_font_extents;
 	cairo_font_extents(cr, &l_font_extents);
 
-	// draw the chars:
+	// determine ranges to draw (important for selection/highlights):
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
 	if(a_rowStart != (size_t)-1)
 	{
@@ -562,19 +575,30 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
 	}
 
+	// set main text color:
 	cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
+
+	// get a scaled font reference from cr.
+	// remember this reference will become invalid as soon as cr does.
+	cairo_scaled_font_t *l_csf = cairo_get_scaled_font(cr);
+
+	std::string l_utfBuf;
+	l_utfBuf.reserve(m_nfo->GetGridWidth());
 
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
-		size_t l_linkPos = 0;
-		bool l_inLink = false;
+		size_t l_firstCol = (size_t)-1;
 
+		// collect an UTF-8 buffer of each line:
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
 			if(l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE_IN_TEXT)
 			{
+				if(l_firstCol != (size_t)-1)
+					l_utfBuf += ' '; // add whitespace between non-whitespace chars that are skipped
+
 				continue;
 			}
 
@@ -586,62 +610,89 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					break;
 			}
 
-			if(GetHilightHyperLinks())
+			l_utfBuf += m_nfo->GetGridCharUtf8(row, col);
+
+			if(col < l_firstCol) l_firstCol = col;
+		}
+
+		if(l_firstCol != (size_t)-1)
+		{
+			cairo_glyph_t *l_glyphs = NULL, *l_pg;
+			int l_numGlyphs = -1, i;
+
+			// remove trailing whitespace added above:
+			CUtil::StrTrimRight(l_utfBuf);
+
+			// we call this to get the glyph indexes from the backend.
+			// the actual position/coordinates of the glyphs will be calculated below.
+			cairo_scaled_font_text_to_glyphs(l_csf,
+				0,
+				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0 - 2,
+				l_utfBuf.c_str(), l_utfBuf.size(), &l_glyphs, &l_numGlyphs, NULL, NULL, NULL);
+
+			// put each char/glyph into its cell in the grid:
+			for(l_pg = l_glyphs, i = 0; i < l_numGlyphs; i++, l_pg++)
 			{
-				// deal with hyper links:
-				if(!l_linkPos)
-				{
-					const CNFOHyperLink* l_linkInfo = m_nfo->GetLink(row, col);
-					if(l_linkInfo)
-					{
-						l_linkPos = l_linkInfo->GetLength();
-						l_inLink = true;
-					}
-				}
-				else
-				{
-					l_linkPos--;
-				}
+				l_pg->x = l_off_x + (l_firstCol + i) * GetBlockWidth();
 			}
 
-			// draw char background for highlights/selection etc:
+			// draw background for highlights/selection etc:
 			if(a_backColor)
 			{
+				cairo_save(cr);
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
-				cairo_rectangle(cr, l_off_x + col * GetBlockWidth(), l_off_y + row * GetBlockHeight(), GetBlockWidth(), GetBlockHeight());
+				cairo_rectangle(cr, l_off_x + l_firstCol * GetBlockWidth(), l_off_y + row * GetBlockHeight(),
+					GetBlockWidth() * l_numGlyphs, GetBlockHeight());
 				cairo_fill(cr);
+				cairo_restore(cr);
 			}
 
-			if(GetHilightHyperLinks())
+			// check for hyperlinks...
+			const std::vector<const CNFOHyperLink*> l_links = m_nfo->GetLinksForLine(row);
+
+			if(l_links.size() == 0)
 			{
-				// set color...
-				if(l_inLink)
+				// ... no hyperlinks, draw the entire line in one go:
+				cairo_show_glyphs(cr, l_glyphs, l_numGlyphs);
+			}
+			else
+			{
+				size_t l_nextCol = l_firstCol;
+
+				// go through each hyperlink and hilight them as requested:
+				for(std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
 				{
+					const CNFOHyperLink* l_link = *it;
+
+					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol, l_link->GetColStart() - l_nextCol);
+
+					cairo_save(cr);
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
 
 					if(GetUnderlineHyperLinks())
 					{
-						cairo_move_to(cr, l_off_x + col * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
-						cairo_rel_line_to(cr, GetBlockWidth(), 0);
+						cairo_move_to(cr, l_off_x + l_link->GetColStart() * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
+						cairo_rel_line_to(cr, l_link->GetLength() * GetBlockWidth(), 0);
 						cairo_stroke(cr);
 					}
+
+					cairo_show_glyphs(cr, l_glyphs + l_link->GetColStart() - l_firstCol, l_link->GetLength());
+					cairo_restore(cr);
+
+					l_nextCol = l_link->GetColEnd() + 1;
 				}
-				else
+
+				// draw remaining text following the last link:
+				if(l_nextCol - l_firstCol < (size_t)l_numGlyphs)
 				{
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
+					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol, l_numGlyphs - l_nextCol);
 				}
 			}
 
-			// finally draw the text:
-			cairo_move_to(cr, l_off_x + col * GetBlockWidth(),
-				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0 - 2);
+			// free glyph array (allocated by cairo_scaled_font_text_to_glyphs):
+			cairo_glyph_free(l_glyphs);
 
-			cairo_show_text(cr, m_nfo->GetGridCharUtf8(row, col));
-
-			if(l_inLink && !l_linkPos)
-			{
-				l_inLink = false;
-			}
+			l_utfBuf = "";
 		}
 	}
 
