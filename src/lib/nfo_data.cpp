@@ -418,7 +418,11 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 					const wstring wsUrl = CUtil::ToWideStr(l_url, CP_UTF8);
 					int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
 
-					m_hyperLinks.push_back(CNFOHyperLink(l_linkID, wsUrl, i, l_linkPos, l_linkLen));
+					std::multimap<size_t, CNFOHyperLink>::iterator l_newItem =
+						m_hyperLinks.insert(
+						std::pair<size_t, CNFOHyperLink>
+							(i, CNFOHyperLink(l_linkID, wsUrl, i, l_linkPos, l_linkLen))
+						);
 
 					if(!l_linkContinued)
 					{
@@ -427,7 +431,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 					}
 					else
 					{
-						m_hyperLinks[l_maxLinkIndex - 1].SetHref(wsUrl);
+						(*l_newItem).second.SetHref(wsUrl);
 						l_prevLinkUrl = "";
 					}
 
@@ -733,11 +737,14 @@ const std::_tstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 
 const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 {
-	for(deque<CNFOHyperLink>::const_iterator it = m_hyperLinks.begin(); it != m_hyperLinks.end(); it++)
+	pair<multimap<size_t, CNFOHyperLink>::const_iterator, multimap<size_t, CNFOHyperLink>::const_iterator> l_range
+		= m_hyperLinks.equal_range(a_row);
+
+	for(multimap<size_t, CNFOHyperLink>::const_iterator it = l_range.first; it != l_range.second; it++)
 	{
-		if(it->GetRow() == a_row && (a_col >= it->GetColStart() && a_col <= it->GetColEnd()))
+		if(a_col >= it->second.GetColStart() && a_col <= it->second.GetColEnd())
 		{
-			return &(*it);
+			return &it->second;
 		}
 	}
 
@@ -749,10 +756,28 @@ const CNFOHyperLink* CNFOData::GetLinkByIndex(size_t a_index) const
 {
 	if(a_index < m_hyperLinks.size())
 	{
-		return &m_hyperLinks[a_index];
+		multimap<size_t, CNFOHyperLink>::const_iterator it = m_hyperLinks.begin();
+		for(size_t i = 0; i < a_index; i++, it++) ;
+		return &it->second;
 	}
 
 	return NULL;
+}
+
+
+const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
+{
+	vector<const CNFOHyperLink*> l_result;
+
+	pair<multimap<size_t, CNFOHyperLink>::const_iterator, multimap<size_t, CNFOHyperLink>::const_iterator> l_range
+		= m_hyperLinks.equal_range(a_row);
+
+	for(multimap<size_t, CNFOHyperLink>::const_iterator it = l_range.first; it != l_range.second; it++)
+	{
+		l_result.push_back(&it->second);
+	}
+
+	return l_result;
 }
 
 
