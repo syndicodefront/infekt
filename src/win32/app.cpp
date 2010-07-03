@@ -37,6 +37,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	HANDLE l_instMutex = CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
 	bool l_prevInstance = (GetLastError() == ERROR_ALREADY_EXISTS);
 
+#ifndef _WIN64
 	if(CUtil::IsWinXP() || CUtil::IsWin6x())
 	{
 		// Explicitly activate DEP, especially important for XP SP3.
@@ -48,6 +49,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 			l_fSpDp(PROCESS_DEP_ENABLE);
 		}
 	}
+#endif
 
 	try
 	{
