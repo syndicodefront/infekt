@@ -297,18 +297,19 @@ void CNFOViewControl::OnPaint()
 	if(m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1)
 	{
 		S_COLOR_T l_back = GetBackColor().Invert();
+		double l_bw = GetBlockWidth(), l_bh = GetBlockHeight();
 
 		if(!m_classic)
 		{
 			RenderText(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(),
 				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
-				l_surface, l_destx + -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
+				l_surface, l_destx + -l_x * l_bw, -l_y * l_bh);
 		}
 		else
 		{
 			RenderClassic(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(), true,
 				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
-				l_surface, l_destx + -l_x * GetBlockWidth(), -l_y * GetBlockHeight());
+				l_surface, l_destx + -l_x * l_bw, -l_y * l_bh);
 		}
 	}
 
