@@ -9,6 +9,7 @@
   * Made text output in Rendered View a lot faster (also improves zoom speed)
   * Fixed bug where a cleared open MRU list was not being saved
   * Fixed time zone of "last modified" timestamp in the status bar
+  * Added F5, Ctrl+R and View Menu/Reload triggers to reload the current NFO file from disk
   * Activated DEP for XP SP3
   * Updated PCRE, pixman and zlib
   * Other fixes & improvements
