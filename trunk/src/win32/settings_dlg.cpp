@@ -69,7 +69,7 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 	m_tabControl.AddTabPage(m_tabPageRendered, _T("Rendered View"));
 	m_tabControl.AddTabPage(m_tabPageClassic, _T("Classic View"));
 	m_tabControl.AddTabPage(m_tabPageTextOnly, _T("Text-Only View"));
-	m_tabControl.AddTabPage(m_tabPagePlugins, _T("Plugins"));
+	//m_tabControl.AddTabPage(m_tabPagePlugins, _T("Plugins"));
 
 	m_tabControl.SetItemSize(100, 20);
 	m_tabControl.SelectPage(0);

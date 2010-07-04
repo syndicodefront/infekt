@@ -305,6 +305,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		UpdateAlwaysOnTop();
 		return TRUE;
 
+	case IDM_VIEW_RELOAD:
+		m_view.ReloadFile();
+		return TRUE;
+
 	case TBBID_CLEARMRU:
 		m_mruPaths.clear();
 		SaveOpenMruList();
