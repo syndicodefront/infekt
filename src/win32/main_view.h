@@ -54,6 +54,7 @@ public:
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
+	bool ReloadFile();
 protected:
 	PNFOViewControl m_renderControl;
 	PNFOViewControl m_classicControl;

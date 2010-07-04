@@ -18,6 +18,8 @@
 #include "resource.h"
 #include "plugin_manager.h"
 
+#define INFOBAR_MINIMUM_HEIGHT 50
+
 
 CViewContainer::CViewContainer()
 {
@@ -43,6 +45,7 @@ void CViewContainer::OnCreate()
 
 	m_infoBar = boost::shared_ptr<CInfektInfoBar>(new CInfektInfoBar(g_hInstance, GetHwnd()));
 	m_infoBar->CreateControl(0, 0, 100, m_infoBarHeight);
+	if(!m_showInfoBar) ::ShowWindow(m_infoBar->GetHwnd(), SW_HIDE);
 }
 
 
@@ -82,6 +85,24 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 	}
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+
+	return false;
+}
+
+
+bool CViewContainer::ReloadFile()
+{
+	if(m_nfoData)
+	{
+		if(OpenFile(m_nfoData->GetFilePath()))
+		{
+			// redraw scrollbars and such:
+			SendMessage(WM_SETREDRAW, 1);
+			::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -141,8 +162,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			int l_infoBarHeight = (l_client.bottom - l_client.top -
 				::GetSystemMetrics(SM_CYSIZEFRAME) / 2) - GET_Y_LPARAM(lParam);
 
-			// 50 = minimum infobar height
-			if(l_infoBarHeight > 50 && l_infoBarHeight < l_client.bottom - l_client.top - 50)
+			if(l_infoBarHeight > INFOBAR_MINIMUM_HEIGHT && l_infoBarHeight < l_client.bottom - l_client.top - INFOBAR_MINIMUM_HEIGHT)
 			{
 				m_infoBarHeight = l_infoBarHeight;
 				OnAfterResize(false);
