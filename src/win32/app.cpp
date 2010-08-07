@@ -51,6 +51,20 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	}
 #endif
 
+#ifndef _DEBUG
+	if(true)
+	{
+		// Activate program termination on heap corruption.
+		// http://msdn.microsoft.com/en-us/library/aa366705%28VS.85%29.aspx
+		typedef BOOL (WINAPI *fhsi)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
+		fhsi l_fHSI = (fhsi)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "HeapSetInformation");
+		if(l_fHSI)
+		{
+			l_fHSI(GetProcessHeap(), HeapEnableTerminationOnCorruption, NULL, 0);
+		}
+	}
+#endif
+
 	try
 	{
 		// Start Win32++:
