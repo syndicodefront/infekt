@@ -23,6 +23,7 @@
 #define _T(STR) STR
 #define _tprintf printf
 #define _ftprintf fprintf
+#define _tfopen_s fopen
 #define _tstoi atoi
 #endif
 
@@ -152,7 +153,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, L"hvT:B:A:gG:W:H:R:LuU:O:pPftmdD", g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdD"), g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;

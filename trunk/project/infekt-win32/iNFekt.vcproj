@@ -612,6 +612,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\lib\settings_backend.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\win32\settings_dlg.h"
 				>
 			</File>
