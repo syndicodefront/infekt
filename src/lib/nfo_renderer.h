@@ -59,7 +59,9 @@ typedef struct _s_color_t
 
 	_s_color_t Invert() const { return _s_color_t(255 - R, 255 - G, 255 - B, A); }
 	uint32_t AsWord() const { return (A) | (B << 8) | (G << 16) | (R << 24); }
-	std::wstring AsHex(bool a_alpha) const { wchar_t l_buf[100] = {0}; if(a_alpha) wsprintf(l_buf, L"%02x%02x%02x%02x", R, G, B, A); else wsprintf(l_buf, L"%02x%02x%02x", R, G, B); return l_buf; }
+	std::wstring AsHex(bool a_alpha) const { wchar_t l_buf[100] = {0};
+		if(a_alpha) swprintf(l_buf, 99, L"%02x%02x%02x%02x", R, G, B, A); else swprintf(l_buf, 99, L"%02x%02x%02x", R, G, B);
+		return l_buf; }
 } S_COLOR_T;
 
 #define _S_COLOR(R, G, B, A) _s_color_t(R, G, B, A)
@@ -81,14 +83,14 @@ public:
 		bFontAntiAlias = true;
 		bHilightHyperlinks = bUnderlineHyperlinks = true;
 		memset(sFontFace, 0, LF_FACESIZE + 1);
-		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("Lucida Console"));
+		wcscpy_s(sFontFace, LF_FACESIZE + 1, L"Lucida Console");
 	}
 
 	// main settings:
 	size_t uBlockHeight, uBlockWidth;
 	size_t uFontSize;
 	S_COLOR_T cBackColor, cTextColor, cArtColor;
-	TCHAR sFontFace[LF_FACESIZE + 1];
+	wchar_t sFontFace[LF_FACESIZE + 1];
 	bool bFontAntiAlias;
 
 	// blur effect settings:
@@ -204,10 +206,10 @@ public:
 
 	void SetFontAntiAlias(bool nb) { m_rendered = m_rendered && (m_settings.bFontAntiAlias == nb); m_settings.bFontAntiAlias = nb; }
 	bool GetFontAntiAlias() const { return m_settings.bFontAntiAlias; }
-	void SetFontFace(const std::_tstring ns) { m_rendered = m_rendered && (_tcscmp(m_settings.sFontFace, ns.c_str()) == 0);
-		_tcsnccpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
+	void SetFontFace(const std::wstring ns) { m_rendered = m_rendered && (wcscmp(m_settings.sFontFace, ns.c_str()) == 0);
+		wcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
 	}
-	std::_tstring GetFontFace() const { return m_settings.sFontFace; }
+	std::wstring GetFontFace() const { return m_settings.sFontFace; }
 
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&

@@ -15,7 +15,9 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+#ifdef _WIN32_UI
 #include "theme_api.h"
+#endif
 
 class CUtil
 {
@@ -48,7 +50,7 @@ public:
 
 	static int StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz);
 	static BOOL GenericOnSetCursor(const LPTSTR a_cursor, LPARAM lParam);
-#endif
+#endif /* _WIN32_UI */
 
 #ifdef _WIN32
 	static bool IsWin2000();
@@ -65,7 +67,7 @@ public:
 	static uint32_t RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default = 0);
 protected:
 	static OSVERSIONINFO ms_osver;
-#endif
+#endif /* _WIN32 */
 };
 
 
