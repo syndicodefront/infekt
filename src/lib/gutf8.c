@@ -305,7 +305,7 @@ g_utf8_strlen (const gchar *p,
   const gchar *start = p;
   g_return_val_if_fail (p != NULL || max == 0, 0);
 
-  if (max < 0)
+  if (max == (size_t)-1)
     {
       while (*p)
         {
