@@ -107,7 +107,7 @@ protected:
 	// plugin -> core implementation things:
 	long PluginToCoreCallback(const char*, long, long long, void*, void*);
 
-	long DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8);
+	long DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8);
 	long DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser);
 	long DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData);
 

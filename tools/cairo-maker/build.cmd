@@ -5,8 +5,8 @@ REM * mingw's msys in C:\msys\1.0\bin
 REM * Visual Studio 2008
 REM * curl in PATH
 
-set CONFIG=release
-rem set CONFIG=debug
+rem set CONFIG=release
+set CONFIG=debug
 set X64=n
 
 IF EXIST zlib.tgz GOTO AZOK
@@ -14,11 +14,11 @@ curl http://zlib.net/zlib-1.2.5.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.2.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.3.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.18.2.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.19.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK

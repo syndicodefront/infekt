@@ -106,13 +106,13 @@ void CNFOViewControl::UpdateScrollbars(bool a_resetPos)
 	if(HasNfoData())
 	{
 		// update horizontal scrollbar info:
-		l_si.nPage = m_width / GetBlockWidth();
-		l_si.nMax = GetWidth() / GetBlockWidth();
+		l_si.nPage = static_cast<UINT>(m_width / GetBlockWidth());
+		l_si.nMax = static_cast<int>(GetWidth() / GetBlockWidth());
 		::SetScrollInfo(m_hwnd, SB_HORZ, &l_si, FALSE);
 
 		// update vertical scrollbar info:
-		l_si.nPage = m_height / GetBlockHeight();
-		l_si.nMax = GetHeight() / GetBlockHeight();
+		l_si.nPage = static_cast<UINT>(m_height / GetBlockHeight());
+		l_si.nMax = static_cast<int>(GetHeight() / GetBlockHeight());
 		::SetScrollInfo(m_hwnd, SB_VERT, &l_si, FALSE);
 	}
 	else
@@ -288,16 +288,16 @@ void CNFOViewControl::OnPaint()
 
 	int l_destx = 0;
 	if(m_centerNfo && m_width > (int)GetWidth())
-		l_destx = (m_width - GetWidth()) / 2;
+		l_destx = (m_width - (int)GetWidth()) / 2;
 
 	// draw draw draw fight the powa!
-	DrawToSurface(l_surface, l_destx, 0, l_x * GetBlockWidth(), l_y * GetBlockHeight(), m_width + m_padding, m_height + m_padding);
+	DrawToSurface(l_surface, l_destx, 0, l_x * (int)GetBlockWidth(), l_y * (int)GetBlockHeight(), m_width + m_padding, m_height + m_padding);
 
 	// draw highlighted (selected) text:
 	if(m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1)
 	{
 		S_COLOR_T l_back = GetBackColor().Invert();
-		double l_bw = GetBlockWidth(), l_bh = GetBlockHeight();
+		double l_bw = (double)GetBlockWidth(), l_bh = (double)GetBlockHeight();
 
 		if(!m_classic)
 		{
@@ -536,7 +536,7 @@ void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size
 
 		int l_centerx = 0;
 		if(m_centerNfo && m_width > (int)GetWidth())
-			l_centerx = (m_width - GetWidth()) / 2;
+			l_centerx = (m_width - (int)GetWidth()) / 2;
 
 		// calc real positions:
 		ar_row = l_y + ((a_y - m_padding) / GetBlockHeight());
@@ -617,8 +617,8 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	// If the position has changed, scroll the window:
 	if(l_si.nPos != l_prevPos)
 	{
-		::ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? GetBlockWidth() * (l_prevPos - l_si.nPos) : 0),
-			(a_dir == SB_VERT ? GetBlockHeight() * (l_prevPos - l_si.nPos) : 0),
+		::ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? (int)GetBlockWidth() * (l_prevPos - l_si.nPos) : 0),
+			(a_dir == SB_VERT ? (int)GetBlockHeight() * (l_prevPos - l_si.nPos) : 0),
 			NULL, NULL);
 	}
 }

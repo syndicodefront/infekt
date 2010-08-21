@@ -25,7 +25,7 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long l
 	{
 	case IPCI_GET_LOADED_NFO_TEXTWIDE:
 	case IPCI_GET_LOADED_NFO_TEXTUTF8:
-		return DoGetLoadedNfoText(lParam, pParam, (lCall != IPCI_GET_LOADED_NFO_TEXTWIDE));
+		return DoGetLoadedNfoText(static_cast<long>(lParam), pParam, (lCall != IPCI_GET_LOADED_NFO_TEXTWIDE));
 
 	case IPCI_ENUM_LOADED_NFO_LINKS:
 		return DoEnumLoadedNfoLinks(pParam, pUser);
@@ -50,7 +50,7 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long l
 }
 
 
-long CPluginManager::DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_utf8)
+long CPluginManager::DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8)
 {
 	PNFOData l_nfoData = GetAppView()->GetNfoData();
 
@@ -79,7 +79,7 @@ long CPluginManager::DoGetLoadedNfoText(long long a_bufLen, void* a_buf, bool a_
 	{
 		// copy shit to buffer
 
-		if(a_bufLen < l_bufSize)
+		if(a_bufLen < (long)l_bufSize)
 		{
 			return IPE_BUF_TOO_SMALL;
 		}
@@ -116,7 +116,7 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 		return IPE_NULLCALLBACK;
 	}
 
-	size_t l_count = 0;
+	long l_count = 0;
 
 	l_callback(NULL, 0, IPV_ENUM_BEGIN, l_count, NULL, a_pUser);
 

@@ -121,7 +121,7 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 {
 	string l_result;
 
-	if(a_subject.size() > (int64_t)std::numeric_limits<int>::max())
+	if(a_subject.size() > (uint64_t)std::numeric_limits<int>::max())
 	{
 		return "";
 	}
@@ -262,7 +262,7 @@ int CUtil::VersionCompare(const _tstring& a_vA, const _tstring& a_vB)
 			return 1;
 	}
 
-	return l_vA.size() - l_vB.size();
+	return static_cast<int>(l_vA.size() - l_vB.size());
 }
 
 
@@ -515,7 +515,7 @@ int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 	HFONT hfold = (HFONT)SelectObject(hdc, hfont);
 	int   mmode = SetMapMode(hdc, MM_TEXT);
 
-	GetTextExtentPoint32(hdc, lpsz, _tcslen(lpsz), &size);
+	GetTextExtentPoint32(hdc, lpsz, (int)_tcslen(lpsz), &size);
 
 	SetMapMode(hdc, mmode);
 	SelectObject(hdc, hfold);

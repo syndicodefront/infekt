@@ -114,7 +114,7 @@ extern "C"
 {
 	int g_utf8_validate(const char *str, size_t max_len, const char **end);
 	char *g_utf8_find_next_char(const char *p, const char *end = NULL);
-	size_t g_utf8_strlen(const char *p, long max_bytes);
+	size_t g_utf8_strlen(const char *p, size_t max_bytes);
 }
 
 
@@ -147,10 +147,10 @@ public:
 	{
 		int l_newIdx = CTab::AddTabPage(pWnd, szTitle, hIcon);
 
-		LONG l_style = this->GetWindowLong(GWL_STYLE);
+		LONG_PTR l_style = this->GetWindowLongPtr(GWL_STYLE);
 		if((l_style & TCS_OWNERDRAWFIXED) != 0)
 		{
-			this->SetWindowLong(GWL_STYLE, l_style & ~TCS_OWNERDRAWFIXED);
+			this->SetWindowLongPtr(GWL_STYLE, l_style & ~TCS_OWNERDRAWFIXED);
 		}
 
 		if(this->SendMessage(CCM_GETVERSION, 0, 0) >= 6)

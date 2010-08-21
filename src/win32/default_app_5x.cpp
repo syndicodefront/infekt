@@ -120,7 +120,7 @@ bool CWin5xDefaultApp::RegisterProgIdData()
 
 	// set DefaultIcon
 	_tstring l_defaultIconInfo = _T("\"") + l_exePath + _T("\", 0");
-	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_defaultIconInfo.c_str(), (l_defaultIconInfo.size() + 1) * sizeof(TCHAR));
+	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_defaultIconInfo.c_str(), (DWORD)(l_defaultIconInfo.size() + 1) * sizeof(TCHAR));
 
 	RegCloseKey(l_hKey);
 
@@ -135,7 +135,7 @@ bool CWin5xDefaultApp::RegisterProgIdData()
 
 	// set exe path
 	_tstring l_shellOpenCommand = _T("\"") + l_exePath + _T("\" \"%1\"");
-	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_shellOpenCommand.c_str(), (l_shellOpenCommand.size() + 1) * sizeof(TCHAR));
+	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_shellOpenCommand.c_str(), (DWORD)(l_shellOpenCommand.size() + 1) * sizeof(TCHAR));
 
 	RegCloseKey(l_hKey);
 
@@ -169,7 +169,7 @@ bool CWin5xDefaultApp::MakeDefault()
 
 	bool l_success = (RegSetValueEx(l_hKey,
 		NULL, 0, REG_SZ, (LPBYTE)m_appRegistryName.c_str(),
-		sizeof(TCHAR) * (m_appRegistryName.size() + 1))
+		sizeof(TCHAR) * (DWORD)(m_appRegistryName.size() + 1))
 		== ERROR_SUCCESS);
 
 	if(l_success)

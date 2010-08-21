@@ -84,7 +84,8 @@ bool CNFOToPDF::CalcPageDimensions(double& a_width, double& a_height)
 			{ 1682, 2378 },
 		};
 
-		double l_pw = GetWidth(), l_ph = GetHeight();
+		double l_pw = static_cast<double>(GetWidth()),
+			l_ph = static_cast<double>(GetHeight());
 
 		for(int i = 0; i < 8; i++)
 		{
@@ -105,8 +106,8 @@ bool CNFOToPDF::CalcPageDimensions(double& a_width, double& a_height)
 	else
 	{
 		// 50 = some extra padding
-		a_width = GetWidth() + 50;
-		a_height = GetHeight() + 50;
+		a_width = static_cast<double>(GetWidth() + 50);
+		a_height = static_cast<double>(GetHeight() + 50);
 
 		return true;
 	}

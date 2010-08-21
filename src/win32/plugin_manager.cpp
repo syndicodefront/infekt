@@ -171,7 +171,7 @@ struct _sync_call_data
 		l_data.pParam = pParam;
 		l_data.pUser = pUser;
 
-		return l_mgr->GetApp()->GetMainFrame().SendMessage(WM_SYNC_PLUGIN_TO_CORE, 0, (LPARAM)&l_data);
+		return (long)l_mgr->GetApp()->GetMainFrame().SendMessage(WM_SYNC_PLUGIN_TO_CORE, 0, (LPARAM)&l_data);
 	}
 
 	return IPE_NOT_IMPLEMENTED;

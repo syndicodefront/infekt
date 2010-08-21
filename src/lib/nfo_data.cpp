@@ -817,8 +817,8 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 		}
 	}
 
-	if(sLine.size() > (int64_t)std::numeric_limits<int>::max()
-		|| uirOffset > (int64_t)std::numeric_limits<int>::max())
+	if(sLine.size() > (uint64_t)std::numeric_limits<int>::max()
+		|| uirOffset > (uint64_t)std::numeric_limits<int>::max())
 	{
 		return false;
 	}

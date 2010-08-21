@@ -5,9 +5,9 @@ REM * mingw's msys in C:\msys\1.0\bin
 REM * Visual Studio 2008
 REM * curl in PATH
 
-set CONFIG=release
-rem set CONFIG=debug
-set X64=n
+rem set CONFIG=release
+set CONFIG=debug
+set X64=y
 
 IF EXIST pcre.tgz GOTO PCREOK
 curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.10.tar.gz -o pcre.tgz
@@ -92,12 +92,12 @@ mkdir out-%CONFIG%-%PLATFORM%
 del /Q out-%CONFIG%-%PLATFORM%\*
 
 IF %X64%==n GOTO FINALCOPYX86
-xcopy "%BDIR%\x64\%CONFIG%\pcre.dll" out-%CONFIG%-%PLATFORM%
-xcopy "%BDIR%\x64\%CONFIG%\pcre.lib" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\x64\%CONFIG%\pcre%DBD%.dll" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\x64\%CONFIG%\pcre%DBD%.lib" out-%CONFIG%-%PLATFORM%
 GOTO FINALCOPYDONE
 :FINALCOPYX86
-xcopy "%BDIR%\%CONFIG%\pcre.dll" out-%CONFIG%-%PLATFORM%
-xcopy "%BDIR%\%CONFIG%\pcre.lib" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\%CONFIG%\pcre%DBD%.dll" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\%CONFIG%\pcre%DBD%.lib" out-%CONFIG%-%PLATFORM%
 :FINALCOPYDONE
 
 goto END
