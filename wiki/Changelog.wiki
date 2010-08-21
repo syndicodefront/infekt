@@ -5,6 +5,11 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
+== v0.6.1 (???) ==
+  * Native 64-bit version
+  * Real portable mode support by using an INI file instead of the Registry
+  * Hyperlink-and-text-on-the-same-line bugfix
+
 == v0.6 (4th July 2010) ==
   * Made text output in Rendered View a lot faster (also improves zoom speed)
   * Fixed bug where a cleared open MRU list was not being saved
