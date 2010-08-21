@@ -97,12 +97,12 @@ protected:
 
 	// vars for the plugins tab:
 	CListView m_pluginListView;
-	std::map<int, std::wstring> m_pluginFileNames;
-	std::map<int, std::string> m_pluginGuids;
+	std::map<size_t, std::wstring> m_pluginFileNames;
+	std::map<size_t, std::string> m_pluginGuids;
 
 	// methods for view settings tabs:
 	bool IsViewSettingPage() const;
-	static bool IsColorButton(UINT a_id);
+	static bool IsColorButton(UINT_PTR a_id);
 	void DrawColorButton(const LPDRAWITEMSTRUCT a_dis);
 	S_COLOR_T* ColorFromControlId(UINT a_id);
 	void AddFontListToComboBox(bool a_addCustom);

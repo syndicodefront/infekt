@@ -299,7 +299,7 @@ g_utf8_find_next_char (const gchar *p,
  **/
 gssize
 g_utf8_strlen (const gchar *p,
-               long       max)
+               size_t       max)
 {
   gssize len = 0;
   const gchar *start = p;

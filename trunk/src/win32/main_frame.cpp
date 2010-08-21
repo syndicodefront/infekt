@@ -763,9 +763,11 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			{
 				size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
 
-				if(cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight))
+				_ASSERT(l_imgWidth < (unsigned int)std::numeric_limits<int>::max() && l_imgHeight < (unsigned int)std::numeric_limits<int>::max());
+
+				if(cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, (int)l_imgWidth, (int)l_imgHeight))
 				{
-					if(l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0, l_imgWidth, l_imgHeight))
+					if(l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0, (int)l_imgWidth, (int)l_imgHeight))
 					{
 						const std::string l_utfFilePath = CUtil::FromWideStr(l_filePath, CP_UTF8);
 						if(cairo_surface_write_to_png(l_surface, l_utfFilePath.c_str()) != CAIRO_STATUS_SUCCESS)
@@ -893,7 +895,7 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 
 	if(!a_classic)
 	{
-		int32_t dwBlockHeight = a_settings.uBlockHeight,
+		size_t dwBlockHeight = a_settings.uBlockHeight,
 			dwBlockWidth = a_settings.uBlockWidth,
 			dwGaussShadow = (a_settings.bGaussShadow ? 1 : 0),
 			dwGaussBlurRadius = a_settings.uGaussBlurRadius,
@@ -909,13 +911,13 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 	}
 	else
 	{
-		int32_t dwFontSize = a_settings.uFontSize;
+		size_t dwFontSize = a_settings.uFontSize;
 
 		RegSetValueEx(l_hKey, _T("FontSize"),			0, REG_DWORD, (LPBYTE)&dwFontSize,			sizeof(int32_t));
 	}
 
 	RegSetValueEx(l_hKey, _T("FontName"), 0, REG_SZ, (LPBYTE)a_settings.sFontFace,
-		(wcslen(a_settings.sFontFace) + 1) * sizeof(TCHAR));
+		(DWORD)(wcslen(a_settings.sFontFace) + 1) * sizeof(TCHAR));
 
 	RegCloseKey(l_hKey);
 
@@ -1144,7 +1146,7 @@ void CMainFrame::SaveOpenMruList()
 		if(l_it != m_mruPaths.end())
 		{
 			RegSetValueEx(l_hKey, l_valName.c_str(), 0, REG_SZ,
-				(LPBYTE)l_it->c_str(), (l_it->size() + 1) * sizeof(TCHAR));
+				(LPBYTE)l_it->c_str(), (DWORD)(l_it->size() + 1) * sizeof(TCHAR));
 
 			l_it++;
 		}

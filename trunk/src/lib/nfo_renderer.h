@@ -222,7 +222,7 @@ public:
 
 	// for the classic mode:
 	size_t GetFontSize() const { return (m_classic ? static_cast<size_t>(m_settings.uFontSize * m_zoomFactor + 0.5) : (size_t)-1); }
-	void SetFontSize(unsigned int r) {
+	void SetFontSize(size_t r) {
 		if(m_classic) { m_rendered = m_rendered && (m_settings.uFontSize == r); m_settings.uFontSize = r; m_fontSize = -1; }
 	}
 

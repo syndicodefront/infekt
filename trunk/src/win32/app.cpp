@@ -167,7 +167,7 @@ bool CNFOApp::SwitchToPrevInstance()
 		{
 			COPYDATASTRUCT l_cpds = {0};
 			l_cpds.dwData = WM_LOAD_NFO;
-			l_cpds.cbData = (m_startupFilePath.size() + 1) * sizeof(wchar_t);
+			l_cpds.cbData = (DWORD)(m_startupFilePath.size() + 1) * sizeof(wchar_t);
 			l_cpds.lpData = (void*)m_startupFilePath.c_str();
 
 			if(::SendMessage(l_prevMainWin, WM_COPYDATA, 0, (LPARAM)&l_cpds) == TRUE)

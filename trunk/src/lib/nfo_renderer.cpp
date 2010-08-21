@@ -225,8 +225,10 @@ bool CNFORenderer::Render()
 
 	if(!m_imgSurface)
 	{
+		_ASSERT(GetWidth() < (unsigned int)std::numeric_limits<int>::max() && GetHeight() < (unsigned int)std::numeric_limits<int>::max());
+
 		m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-			GetWidth(), GetHeight());
+			(int)GetWidth(), (int)GetHeight());
 
 		if(!m_imgSurface)
 		{
@@ -257,7 +259,10 @@ bool CNFORenderer::Render()
 			{
 				if(!m_cachedBlur)
 				{
-					m_cachedBlur = new CCairoBoxBlur(GetWidth(), GetHeight(), GetGaussBlurRadius());
+					_ASSERT(GetWidth() < (unsigned int)std::numeric_limits<int>::max() && GetHeight() < (unsigned int)std::numeric_limits<int>::max() &&
+						GetGaussBlurRadius() < (uint64_t)std::numeric_limits<int>::max());
+
+					m_cachedBlur = new CCairoBoxBlur((int)GetWidth(), (int)GetHeight(), (int)GetGaussBlurRadius());
 
 					RenderBlocks(false, true, m_cachedBlur->GetContext());
 				}
@@ -364,10 +369,10 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 				l_oldAlpha = l_block->alpha;
 			}
 
-			double l_pos_x = col * GetBlockWidth(),
-				l_pos_y = row * GetBlockHeight(),
-				l_width = GetBlockWidth(),
-				l_height = GetBlockHeight();
+			double l_pos_x = static_cast<double>(col * GetBlockWidth()),
+				l_pos_y = static_cast<double>(row * GetBlockHeight()),
+				l_width = static_cast<double>(GetBlockWidth()),
+				l_height = static_cast<double>(GetBlockHeight());
 
 			switch(l_block->shape)
 			{
@@ -454,7 +459,7 @@ static inline void _SetUpDrawingTools(CNFORenderer* r, cairo_surface_t* a_surfac
 
 	if(r->IsClassicMode())
 	{
-		cairo_set_font_size(cr, r->GetFontSize());
+		cairo_set_font_size(cr, static_cast<double>(r->GetFontSize()));
 	}
 
 	*pcr = cr;
@@ -498,7 +503,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 	if(m_fontSize < 1)
 	{
-		double l_fontSize = GetBlockWidth();
+		double l_fontSize = static_cast<double>(GetBlockWidth());
 		bool l_broken = false, l_foundText = false;
 
 		// calculate font size that fits into blocks of the given size:
@@ -628,7 +633,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			cairo_scaled_font_text_to_glyphs(l_csf,
 				0,
 				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0 - 2,
-				l_utfBuf.c_str(), l_utfBuf.size(), &l_glyphs, &l_numGlyphs, NULL, NULL, NULL);
+				l_utfBuf.c_str(), (int)l_utfBuf.size(), &l_glyphs, &l_numGlyphs, NULL, NULL, NULL);
 
 			// put each char/glyph into its cell in the grid:
 			for(l_pg = l_glyphs, i = 0; i < l_numGlyphs; i++, l_pg++)
@@ -642,7 +647,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				cairo_save(cr);
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
 				cairo_rectangle(cr, l_off_x + l_firstCol * GetBlockWidth(), l_off_y + row * GetBlockHeight(),
-					GetBlockWidth() * l_numGlyphs, GetBlockHeight());
+					static_cast<double>(GetBlockWidth() * l_numGlyphs), static_cast<double>(GetBlockHeight()));
 				cairo_fill(cr);
 				cairo_restore(cr);
 			}
@@ -664,7 +669,8 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				{
 					const CNFOHyperLink* l_link = *it;
 
-					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol, l_link->GetColStart() - l_nextCol);
+					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol,
+						static_cast<int>(l_link->GetColStart() - l_nextCol));
 
 					cairo_save(cr);
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
@@ -672,11 +678,11 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					if(GetUnderlineHyperLinks())
 					{
 						cairo_move_to(cr, l_off_x + l_link->GetColStart() * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
-						cairo_rel_line_to(cr, l_link->GetLength() * GetBlockWidth(), 0);
+						cairo_rel_line_to(cr, static_cast<double>(l_link->GetLength() * GetBlockWidth()), 0);
 						cairo_stroke(cr);
 					}
 
-					cairo_show_glyphs(cr, l_glyphs + l_link->GetColStart() - l_firstCol, l_link->GetLength());
+					cairo_show_glyphs(cr, l_glyphs + l_link->GetColStart() - l_firstCol, (int)l_link->GetLength());
 					cairo_restore(cr);
 
 					l_nextCol = l_link->GetColEnd() + 1;
@@ -685,7 +691,8 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				// draw remaining text following the last link:
 				if(l_nextCol - l_firstCol < (size_t)l_numGlyphs)
 				{
-					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol, l_numGlyphs + l_firstCol - l_nextCol);
+					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol,
+						static_cast<int>(l_numGlyphs + l_firstCol - l_nextCol));
 				}
 			}
 
@@ -838,16 +845,21 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 				{
 					cairo_save(cr);
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
-					cairo_rectangle(cr, l_off_x + l_bufStart * GetBlockWidth(), row * GetBlockHeight() + l_off_y,
-						GetBlockWidth() * l_len, GetBlockHeight());
+					cairo_rectangle(cr,
+						static_cast<double>(l_off_x + l_bufStart * GetBlockWidth()),
+						static_cast<double>(row * GetBlockHeight() + l_off_y),
+						static_cast<double>(GetBlockWidth() * l_len),
+						static_cast<double>(GetBlockHeight()));
 					cairo_fill(cr);
 					cairo_restore(cr);
 				}
 
 				if(l_curType == BT_LINK && GetUnderlineHyperLinks())
 				{
-					cairo_move_to(cr, l_off_x + l_bufStart * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
-					cairo_rel_line_to(cr, GetBlockWidth() * l_len, 0);
+					cairo_move_to(cr,
+						static_cast<double>(l_off_x + l_bufStart * GetBlockWidth()),
+						static_cast<double>(l_off_y + (row + 1) * GetBlockHeight()));
+					cairo_rel_line_to(cr, static_cast<double>(GetBlockWidth() * l_len), 0);
 					cairo_stroke(cr);
 				}
 

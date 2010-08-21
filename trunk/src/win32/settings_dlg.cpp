@@ -396,7 +396,7 @@ bool CSettingsTabDialog::IsViewSettingPage() const
 }
 
 
-bool CSettingsTabDialog::IsColorButton(UINT a_id)
+bool CSettingsTabDialog::IsColorButton(UINT_PTR a_id)
 {
 	switch(a_id)
 	{
@@ -446,7 +446,7 @@ BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_HSCROLL:
 		if(m_pageId == TAB_PAGE_RENDERED && (HWND)lParam == GetDlgItem(IDC_GLOW_RADIUS))
 		{
-			int l_pos = SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_GETPOS, 0, 0);
+			int l_pos = (int)SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_GETPOS, 0, 0);
 			std::_tstring l_posStr = FORMAT(_T("%d"), l_pos);
 			SetDlgItemText(IDC_GLOW_RADIUS_LABEL, l_posStr.c_str());
 
@@ -1066,7 +1066,7 @@ bool CSettingsTabDialog::SaveSettings()
 		CPluginManager* l_plugMgr = CPluginManager::GetInstance();
 		std::_tstring l_pluginDirPath = CUtil::GetExeDir() + _T("\\plugins\\");
 
-		for(std::map<int, std::string>::const_iterator it = m_pluginGuids.begin();
+		for(std::map<size_t, std::string>::const_iterator it = m_pluginGuids.begin();
 			it != m_pluginGuids.end(); it++)
 		{
 			LVFINDINFO l_findInfo = { LVFI_PARAM };
@@ -1127,7 +1127,7 @@ static int CALLBACK _PluginSortCallback(LPARAM lParam1, LPARAM lParam2, LPARAM l
 	else if(lParam2 == -1)
 		return -1;
 
-	std::map<int, std::wstring>* l_map = (std::map<int, std::wstring>*)lParamSort;
+	std::map<size_t, std::wstring>* l_map = (std::map<size_t, std::wstring>*)lParamSort;
 
 	return wcsicmp((*l_map)[lParam1].c_str(), (*l_map)[lParam2].c_str());
 }
