@@ -685,7 +685,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				// draw remaining text following the last link:
 				if(l_nextCol - l_firstCol < (size_t)l_numGlyphs)
 				{
-					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol, l_numGlyphs - l_nextCol);
+					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol, l_numGlyphs + l_firstCol - l_nextCol);
 				}
 			}
 
