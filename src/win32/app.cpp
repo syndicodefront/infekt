@@ -248,11 +248,11 @@ bool CNFOApp::MakeDefaultNfoViewer()
 
 	if(CUtil::IsWin5x())
 	{
-		l_defApp = new CWin5xDefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
+		l_defApp = new (std::nothrow) CWin5xDefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 	}
 	else if(CUtil::IsWin6x())
 	{
-		l_defApp = new CWin6xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
+		l_defApp = new (std::nothrow) CWin6xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 	}
 
 	bool l_result = false;
