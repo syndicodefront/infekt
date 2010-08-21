@@ -1,15 +1,16 @@
-#define SourceFileDir "C:\temp\free\Release"
+#define SourceFileDir32 "C:\temp\free\Release"
+#define SourceFileDir64 "C:\temp\free\Release-x64"
 #define NfoProgId "iNFEKT.NFOFile.1"
 
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.6
+AppVerName=iNFekt 0.6.1
 AppPublisher=cxxjoe & Contributors
 AppPublisherURL=http://infekt.googlecode.com/
 AppSupportURL=http://infekt.googlecode.com/
 AppUpdatesURL=http://infekt.googlecode.com/
-DefaultDirName={pf}\iNFEKT
+DefaultDirName={pf}\iNFekt
 DefaultGroupName=iNFekt NFO Viewer
 AllowNoIcons=yes
 LicenseFile=C:\temp\free\LICENSE.txt
@@ -22,6 +23,7 @@ WizardImageFile=setup-bmp-left.bmp
 WizardImageStretch=yes
 ChangesAssociations=yes
 PrivilegesRequired=admin
+ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -32,26 +34,44 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 Name: "nfoassoc"; Description: "Make iNFekt the default viewer for .nfo files"; GroupDescription: "Shell Integration"; Flags: checkedonce
 
 [Files]
-Source: "{#SourceFileDir}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceFileDir}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceFileDir}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceFileDir}\libpng14.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceFileDir}\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceFileDir}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceFileDir}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#SourceFileDir}\cudart.dll"; DestDir: "{app}"; Flags: ignoreversion
-;Source: "C:\temp\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion
+Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\infekt-win64.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\libpng14.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\libpng14.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\zlib1.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\cudart32_31_9.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\cudart64_31_9.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+;Source: "C:\temp\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion; Flags: ignoreversion; Check: not Is64BitInstallMode
+;Source: "C:\temp\vcredist_x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion; Flags: ignoreversion; Check: Is64BitInstallMode
+
+[InstallDelete]
+Type: files; Name: "{app}\cudart.dll"
+; cudart.dll has been used up to v0.6.0
 
 [Icons]
-Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"
+Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Check: not Is64BitInstallMode
+Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Check: Is64BitInstallMode
 Name: "{group}\{cm:ProgramOnTheWeb,iNFekt NFO Viewer}"; Filename: "http://infekt.googlecode.com/"
 Name: "{group}\{cm:UninstallProgram,iNFekt NFO Viewer}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: desktopicon
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: quicklaunchicon
+Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: desktopicon; Check: not Is64BitInstallMode
+Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: desktopicon; Check: Is64BitInstallMode
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: quicklaunchicon; Check: not Is64BitInstallMode
+Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: quicklaunchicon; Check: Is64BitInstallMode
 
 [Run]
-;Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."
-Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent
+;Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."; Check: not Is64BitInstallMode
+;Filename: "{tmp}\vcredist_x64.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."; Check: Is64BitInstallMode
+Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: not Is64BitInstallMode
+Filename: "{app}\infekt-win64.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: Is64BitInstallMode
 
 [Registry]
 ; Set up ProgId for file associations:
