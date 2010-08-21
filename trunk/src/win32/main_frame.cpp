@@ -113,9 +113,12 @@ void CMainFrame::OnInitialUpdate()
 		SwitchView((EMainView)GetSettings()->iDefaultView);
 	}
 
-	m_dropHelper = new CMainDropTargetHelper(m_hWnd);
-	::CoLockObjectExternal(m_dropHelper, TRUE, FALSE);
-	::RegisterDragDrop(m_hWnd, m_dropHelper);
+	m_dropHelper = new (std::nothrow) CMainDropTargetHelper(m_hWnd);
+	if(m_dropHelper)
+	{
+		::CoLockObjectExternal(m_dropHelper, TRUE, FALSE);
+		::RegisterDragDrop(m_hWnd, m_dropHelper);
+	}
 
 	ShowWindow(m_maximize ? SW_MAXIMIZE : SW_SHOWNORMAL);
 
@@ -681,8 +684,11 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break; // also invoke default
 	case WM_DESTROY:
 		::RevokeDragDrop(m_hWnd);
-		::CoLockObjectExternal(m_dropHelper, FALSE, TRUE);
-		m_dropHelper->Release();
+		if(m_dropHelper)
+		{
+			::CoLockObjectExternal(m_dropHelper, FALSE, TRUE);
+			m_dropHelper->Release();
+		}
 		break; // also invoke default
 	}
 
