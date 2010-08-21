@@ -660,19 +660,22 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				// ... no hyperlinks, draw the entire line in one go:
 				cairo_show_glyphs(cr, l_glyphs, l_numGlyphs);
 			}
-			else
+			else if(a_rowStart == (size_t)-1)
 			{
 				size_t l_nextCol = l_firstCol;
+
+				cairo_save(cr);
 
 				// go through each hyperlink and hilight them as requested:
 				for(std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
 				{
 					const CNFOHyperLink* l_link = *it;
 
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
+
 					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol,
 						static_cast<int>(l_link->GetColStart() - l_nextCol));
 
-					cairo_save(cr);
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
 
 					if(GetUnderlineHyperLinks())
@@ -683,10 +686,11 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					}
 
 					cairo_show_glyphs(cr, l_glyphs + l_link->GetColStart() - l_firstCol, (int)l_link->GetLength());
-					cairo_restore(cr);
 
 					l_nextCol = l_link->GetColEnd() + 1;
 				}
+
+				cairo_restore(cr);
 
 				// draw remaining text following the last link:
 				if(l_nextCol - l_firstCol < (size_t)l_numGlyphs)
@@ -694,6 +698,79 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol,
 						static_cast<int>(l_numGlyphs + l_firstCol - l_nextCol));
 				}
+			}
+			else
+			{
+				// this is rather slow, but required to get lines with hyperlinks and selection in them right:
+				size_t l_showStart = 0;
+				int l_showLen = 0;
+				bool l_inLink;
+				size_t l_linkRest = 0;
+
+				cairo_save(cr);
+
+				for(int p = 0; p <= l_numGlyphs; p++) /* excess run: draw remaining stuff */
+				{
+					bool l_linkAtPos = (l_linkRest > 0);
+
+					if(p == 0 || (!l_linkAtPos && p < l_numGlyphs))
+					{
+						for(std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
+						{
+							if(p + l_firstCol >= (*it)->GetColStart() && p + l_firstCol <= (*it)->GetColEnd())
+							{
+								l_linkAtPos = true;
+								l_linkRest = (*it)->GetLength() - (p + l_firstCol - (*it)->GetColStart()) - 1;
+								break;
+							}
+						}
+
+						if(p == 0) l_inLink = l_linkAtPos;
+					}
+					else
+						l_linkRest--;
+
+					if(l_linkAtPos == l_inLink)
+					{
+						l_showLen++;
+					}
+
+					if((l_linkAtPos != l_inLink || p == l_numGlyphs) && l_showLen > 0)
+					{
+						if(p == l_numGlyphs && l_linkAtPos == l_inLink)
+						{
+							l_showLen--;
+						}
+
+						if(l_inLink) // "buffer" contains hyperlink text
+						{
+							cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
+
+							if(GetUnderlineHyperLinks())
+							{
+								cairo_move_to(cr, l_off_x + (l_showStart + l_firstCol) * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
+								cairo_rel_line_to(cr, static_cast<double>(l_showLen * GetBlockWidth()), 0);
+								cairo_stroke(cr);
+							}
+						}
+						else
+						{
+							cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
+						}
+
+						cairo_show_glyphs(cr, l_glyphs + l_showStart, l_showLen);
+
+						if(p < l_numGlyphs)
+						{
+							l_showStart = (size_t)p;
+							l_showLen = 1;
+						}
+					}
+
+					l_inLink = l_linkAtPos;
+				}
+
+				cairo_restore(cr);
 			}
 
 			// free glyph array (allocated by cairo_scaled_font_text_to_glyphs):
