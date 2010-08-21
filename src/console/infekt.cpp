@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight);
+		cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, (int)l_imgWidth, (int)l_imgHeight);
 
 		if(!l_surface)
 		{
@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0,  l_imgWidth, l_imgHeight))
+		if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0,  (int)l_imgWidth, (int)l_imgHeight))
 		{
 			fprintf(stderr, "ERROR: Rendering failed.");
 			cairo_surface_destroy(l_surface);
