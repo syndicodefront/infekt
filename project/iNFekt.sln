@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cuda-blur", "cuda-blur\cuda
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-plugin-imdb", "win32-plugin-imdb\win32-plugin-imdb.vcproj", "{89B1A3CF-F817-4824-8477-A5DFF0F62AD4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-shell-dll", "infekt-win32-shell-dll\infekt-win32-shell-dll.vcproj", "{398F9B1D-82AC-4D6C-A88E-68401EBC831A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -52,6 +54,14 @@ Global
 		{89B1A3CF-F817-4824-8477-A5DFF0F62AD4}.Release|Win32.Build.0 = Release|Win32
 		{89B1A3CF-F817-4824-8477-A5DFF0F62AD4}.Release|x64.ActiveCfg = Release|x64
 		{89B1A3CF-F817-4824-8477-A5DFF0F62AD4}.Release|x64.Build.0 = Release|x64
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Debug|Win32.Build.0 = Debug|Win32
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Debug|x64.ActiveCfg = Debug|x64
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Debug|x64.Build.0 = Debug|x64
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Release|Win32.ActiveCfg = Release|Win32
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Release|Win32.Build.0 = Release|Win32
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Release|x64.ActiveCfg = Release|x64
+		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
