@@ -326,9 +326,7 @@ int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 	l_bi.bmiHeader.biYPelsPerMeter = l_bi.bmiHeader.biXPelsPerMeter = 1000;
 
 	unsigned char* l_rawData;
-	HDC l_hdc = ::GetDC(NULL);
-	HBITMAP l_hBitmap = ::CreateDIBSection(l_hdc, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, NULL, 0);
-	::ReleaseDC(NULL, l_hdc);
+	HBITMAP l_hBitmap = ::CreateDIBSection(NULL, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, NULL, 0);
 
 	if(l_hBitmap)
 	{

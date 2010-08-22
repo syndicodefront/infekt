@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
 			return 1;
 		}
 
-		if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0,  (int)l_imgWidth, (int)l_imgHeight))
+		if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0, (int)l_imgWidth, (int)l_imgHeight))
 		{
 			fprintf(stderr, "ERROR: Rendering failed.");
 			cairo_surface_destroy(l_surface);
