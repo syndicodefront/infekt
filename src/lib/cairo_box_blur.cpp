@@ -33,7 +33,7 @@ typedef int32_t PRInt32;
 #define NS_ASSERTION(a, b) _ASSERT(a)
 
 
-CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius)
+CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a_allowHwAccel)
 {
 	m_blurRadius = a_blurRadius;
 
@@ -43,6 +43,7 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius)
 
 	m_context = cairo_create(m_imgSurface);
 
+	m_allowHwAccel = a_allowHwAccel;
 	m_computed = false;
 }
 
@@ -181,27 +182,30 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 		bool l_useCpu = true;
 
 #ifdef _WIN32
-		int l_tmpSize = l_rows * cairo_image_surface_get_width(m_imgSurface);
-		if(l_tmpSize < 3000000)
+		if(m_allowHwAccel)
 		{
-			// CUDA hangs and maybe brings down the system with numbers too large.
-
-			if(CCudaUtil::GetInstance()->IsCudaUsable())
+			int l_tmpSize = l_rows * cairo_image_surface_get_width(m_imgSurface);
+			if(l_tmpSize < 3000000)
 			{
-				bool l_ok = true;
+				// CUDA hangs and maybe brings down the system with numbers too large.
 
-				if(!CCudaUtil::GetInstance()->IsCudaThreadInitialized())
+				if(CCudaUtil::GetInstance()->IsCudaUsable())
 				{
-					l_ok = CCudaUtil::GetInstance()->InitCudaThread();
+					bool l_ok = true;
+
+					if(!CCudaUtil::GetInstance()->IsCudaThreadInitialized())
+					{
+						l_ok = CCudaUtil::GetInstance()->InitCudaThread();
+					}
+
+					if(l_ok)
+					{
+						l_useCpu = !CCudaUtil::GetInstance()->DoCudaBoxBlurA8(l_boxData, l_stride, l_rows, l_lobes);
+					}
 				}
 
-				if(l_ok)
-				{
-					l_useCpu = !CCudaUtil::GetInstance()->DoCudaBoxBlurA8(l_boxData, l_stride, l_rows, l_lobes);
-				}
+				_ASSERT(!l_useCpu);
 			}
-
-			_ASSERT(!l_useCpu);
 		}
 #endif /* _WIN32 */
 

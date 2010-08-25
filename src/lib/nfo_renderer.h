@@ -114,6 +114,7 @@ protected:
 	CNFORenderSettings m_settings;
 	bool m_classic;
 	bool m_trueGaussian;
+	bool m_allowHwAccel;
 	float m_zoomFactor;
 
 	// NFO data:
@@ -210,6 +211,9 @@ public:
 		wcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
 	}
 	std::wstring GetFontFace() const { return m_settings.sFontFace; }
+
+	void SetAllowHwAccel(bool nb) { m_allowHwAccel = nb; }
+	bool GetAllowHwAccel() const { return m_allowHwAccel; }
 
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&
