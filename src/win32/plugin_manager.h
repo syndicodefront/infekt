@@ -78,7 +78,7 @@ public:
 	// real managing stuff:
 	bool LoadPlugin(std::_tstring a_dllPath, bool a_probeInfoOnly = false);
 	std::_tstring GetLastErrorMessage() const { return m_lastErrorMsg; }
-	void GetLastProbedInfo(std::string& ar_guid, std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description);
+	void GetLastProbedInfo(std::string& ar_guid, std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description) const;
 
 	bool IsPluginLoaded(const std::string& a_guid) const;
 	bool UnLoadPlugin(const std::string& a_guid);

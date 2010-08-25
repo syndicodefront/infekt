@@ -134,7 +134,7 @@ bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
 }
 
 
-void CPluginManager::GetLastProbedInfo(std::string& ar_guid, std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description)
+void CPluginManager::GetLastProbedInfo(std::string& ar_guid, std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description) const
 {
 	ar_guid = m_probedGuid;
 	ar_name = m_probedName;

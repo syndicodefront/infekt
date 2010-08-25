@@ -50,7 +50,7 @@ public:
 	bool GetUseDINSizes() const { return m_dinSizes; }
 	void SetUseDINSizes(bool nb) { m_dinSizes = nb; }
 
-	bool SavePDF(const std::_tstring a_filePath);
+	bool SavePDF(const std::_tstring& a_filePath);
 protected:
 	bool m_dinSizes;
 
