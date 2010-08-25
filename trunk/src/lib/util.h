@@ -66,6 +66,8 @@ public:
 
 	static uint32_t RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default = 0);
 	static bool RemoveCwdFromDllSearchPath();
+	static bool HardenHeap();
+	static bool EnforceDEP();
 protected:
 	static OSVERSIONINFOEX ms_osver;
 #endif /* _WIN32 */

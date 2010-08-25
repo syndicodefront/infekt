@@ -32,40 +32,15 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 {
 	g_hInstance = hInstance;
 
+	// harden this process a bit:
+	CUtil::EnforceDEP();
+	CUtil::HardenHeap();
+	CUtil::RemoveCwdFromDllSearchPath();
+
 	_wsetlocale(LC_CTYPE, L"C");
 
 	HANDLE l_instMutex = CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
 	bool l_prevInstance = (GetLastError() == ERROR_ALREADY_EXISTS);
-
-#ifndef _WIN64
-	if(CUtil::IsWinXP() || CUtil::IsWin6x())
-	{
-		// Explicitly activate DEP, especially important for XP SP3.
-		// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
-		typedef BOOL (WINAPI *fspdp)(DWORD);
-		fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
-		if(l_fSpDp)
-		{
-			l_fSpDp(PROCESS_DEP_ENABLE);
-		}
-	}
-#endif
-
-#ifndef _DEBUG
-	if(true)
-	{
-		// Activate program termination on heap corruption.
-		// http://msdn.microsoft.com/en-us/library/aa366705%28VS.85%29.aspx
-		typedef BOOL (WINAPI *fhsi)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
-		fhsi l_fHSI = (fhsi)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "HeapSetInformation");
-		if(l_fHSI)
-		{
-			l_fHSI(GetProcessHeap(), HeapEnableTerminationOnCorruption, NULL, 0);
-		}
-	}
-#endif
-
-	CUtil::RemoveCwdFromDllSearchPath();
 
 	try
 	{

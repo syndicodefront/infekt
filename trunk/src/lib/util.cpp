@@ -696,6 +696,44 @@ std::_tstring CUtil::GetExeDir()
 }
 
 
+bool CUtil::HardenHeap()
+{
+#ifndef _DEBUG
+	// Activate program termination on heap corruption.
+	// http://msdn.microsoft.com/en-us/library/aa366705%28VS.85%29.aspx
+	typedef BOOL (WINAPI *fhsi)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
+	fhsi l_fHSI = (fhsi)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "HeapSetInformation");
+	if(l_fHSI)
+	{
+		return (l_fHSI(GetProcessHeap(), HeapEnableTerminationOnCorruption, NULL, 0) != FALSE);
+	}
+#endif
+	return false;
+}
+
+
+bool CUtil::EnforceDEP()
+{
+#ifndef _WIN64
+	if(CUtil::IsWinXP() || CUtil::IsWin6x())
+	{
+		// Explicitly activate DEP, especially important for XP SP3.
+		// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
+		typedef BOOL (WINAPI *fspdp)(DWORD);
+		fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
+		if(l_fSpDp)
+		{
+			return (l_fSpDp(PROCESS_DEP_ENABLE) != FALSE);
+		}
+	}
+
+	return false;
+#else
+	return true; // always enabled on x64 anyway.
+#endif
+}
+
+
 /************************************************************************/
 /* Windows OS Version Helper Functions                                  */
 /************************************************************************/

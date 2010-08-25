@@ -133,6 +133,12 @@ int main(int argc, char* argv[])
 	bool l_classic = false, l_makePng = true, l_textUtf8 = true,
 		l_htmlOut = false, l_makePdf = false, l_pdfDin = false;
 
+#ifdef _WIN32
+	CUtil::EnforceDEP();
+	CUtil::HardenHeap();
+	CUtil::RemoveCwdFromDllSearchPath();
+#endif
+
 	// our defaults:
 	CNFORenderSettings l_pngSettings;
 	l_pngSettings.bHilightHyperlinks = false;
