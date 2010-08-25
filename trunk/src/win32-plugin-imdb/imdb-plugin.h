@@ -31,7 +31,7 @@ public:
 
 	long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam, void *pUser = NULL);
 
-	void OnFoundImdbLink(const std::wstring a_href);
+	void OnFoundImdbLink(const std::wstring& a_href);
 	void OnNfoLoaded(const infekt_nfo_info_t*);
 
 private:

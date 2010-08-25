@@ -25,7 +25,7 @@ CNFOToPDF::CNFOToPDF(bool a_classicMode)
 }
 
 
-bool CNFOToPDF::SavePDF(const std::_tstring a_filePath)
+bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 {
 	double l_pageWidth, l_pageHeight;
 

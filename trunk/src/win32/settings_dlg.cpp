@@ -48,6 +48,9 @@ CSettingsWindowDialog::CSettingsWindowDialog(HWND hWndParent) :
 	CDialog(IDD_DLG_SETTINGS, hWndParent)
 {
 	m_mainWin = NULL;
+
+	m_tabPageGeneral = m_tabPageRendered = m_tabPageClassic = 
+		m_tabPageTextOnly = m_tabPagePlugins = NULL;
 }
 
 

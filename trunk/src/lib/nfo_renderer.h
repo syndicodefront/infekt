@@ -207,7 +207,7 @@ public:
 
 	void SetFontAntiAlias(bool nb) { m_rendered = m_rendered && (m_settings.bFontAntiAlias == nb); m_settings.bFontAntiAlias = nb; }
 	bool GetFontAntiAlias() const { return m_settings.bFontAntiAlias; }
-	void SetFontFace(const std::wstring ns) { m_rendered = m_rendered && (wcscmp(m_settings.sFontFace, ns.c_str()) == 0);
+	void SetFontFace(const std::wstring& ns) { m_rendered = m_rendered && (wcscmp(m_settings.sFontFace, ns.c_str()) == 0);
 		wcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
 	}
 	std::wstring GetFontFace() const { return m_settings.sFontFace; }

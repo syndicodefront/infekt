@@ -447,7 +447,7 @@ void CMainFrame::SwitchView(EMainView a_view)
 }
 
 
-bool CMainFrame::OpenFile(const std::_tstring a_filePath)
+bool CMainFrame::OpenFile(const std::_tstring& a_filePath)
 // do not use a reference since it might be a string from m_mruPaths and that
 // would turn out badly.
 {

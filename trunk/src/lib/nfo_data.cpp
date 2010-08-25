@@ -36,7 +36,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 #ifdef _WIN32
 	if(_tfopen_s(&l_file, a_filePath.c_str(), _T("rb")) != 0 || !l_file)
 #else
-	if(l_file = fopen(a_filePath.c_str(), "rb"))
+	if(!(l_file = fopen(a_filePath.c_str(), "rb")))
 #endif
 	{
 #ifdef HAVE_BOOST
@@ -613,13 +613,13 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 }
 
 
-const wstring& CNFOData::GetLastErrorDescription()
+const wstring& CNFOData::GetLastErrorDescription() const
 {
 	return m_lastErrorDescr;
 }
 
 
-const std::_tstring CNFOData::GetFileName()
+const std::_tstring CNFOData::GetFileName() const
 {
 #ifdef _WIN32
 	const TCHAR* l_name = PathFindFileName(m_filePath.c_str());
@@ -637,7 +637,7 @@ bool CNFOData::SaveToFile(std::_tstring a_filePath, bool a_utf8)
 #ifdef _WIN32
 	if(_tfopen_s(&l_file, a_filePath.c_str(), _T("wb")) != 0 || !l_file)
 #else
-	if(l_file = fopen(a_filePath.c_str(), "wb"))
+	if(!(l_file = fopen(a_filePath.c_str(), "wb")))
 #endif
 	{
 #ifdef HAVE_BOOST

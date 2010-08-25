@@ -59,7 +59,7 @@ INFEKT_PLUGIN_METHOD(ImdbMainEventCallback)
 }
 
 
-void CImdbPlugin::OnFoundImdbLink(const std::wstring a_href)
+void CImdbPlugin::OnFoundImdbLink(const std::wstring& a_href)
 {
 }
 

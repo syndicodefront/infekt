@@ -64,10 +64,10 @@ public:
 	bool LoadFromMemory(const unsigned char* a_data, size_t a_dataLen);
 
 	bool HasData() const { return m_loaded; }
-	const std::_tstring GetFilePath() { return m_filePath; }
-	const std::_tstring GetFileName();
+	const std::_tstring GetFilePath() const { return m_filePath; }
+	const std::_tstring GetFileName() const;
 
-	const std::wstring& GetLastErrorDescription();
+	const std::wstring& GetLastErrorDescription() const;
 	size_t GetGridWidth();
 	size_t GetGridHeight();
 	wchar_t GetGridChar(size_t a_row, size_t a_col);
