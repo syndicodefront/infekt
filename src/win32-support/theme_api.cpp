@@ -19,14 +19,33 @@
 #include <dwmapi.h>
 #include <theme_api.h>
 #include <tchar.h>
+#include <string>
 
 
 CThemeAPI::CThemeAPI()
 {
 	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
+	TCHAR l_buf[1000] = {0};
+	OSVERSIONINFO l_osVer = { sizeof(OSVERSIONINFO), 0 };
 
-	m_hUxTheme = ::LoadLibrary(_T("uxtheme.dll"));
-	m_hDwmApi = ::LoadLibrary(_T("Dwmapi.dll"));
+	if(GetSystemDirectory(l_buf, 999) <= 999 && GetVersionEx(&l_osVer))
+	{
+		if(l_osVer.dwMajorVersion > 5 ||
+			(l_osVer.dwMajorVersion == 5 && l_osVer.dwMinorVersion >= 1))
+		{
+			std::wstring l_pathUx(l_buf);
+
+			l_pathUx.append(_T("\\uxtheme.dll"));
+			m_hUxTheme = ::LoadLibrary(l_pathUx.c_str());
+		}
+
+		if(l_osVer.dwMajorVersion >= 6)
+		{
+			std::wstring l_pathDwm(l_buf);
+			l_pathDwm.append(_T("\\Dwmapi.dll"));
+			m_hDwmApi = ::LoadLibrary(l_pathDwm.c_str());
+		}
+	}
 
 	::SetErrorMode(l_oldErrorMode);
 }

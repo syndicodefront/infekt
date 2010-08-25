@@ -445,32 +445,6 @@ void CUtil::PopUpLastWin32Error()
 }
 
 
-std::_tstring CUtil::GetExePath()
-{
-	TCHAR l_buf[1000] = {0};
-	TCHAR l_buf2[1000] = {0};
-
-	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
-	::GetLongPathName(l_buf, l_buf2, 999);
-
-	return l_buf2;
-}
-
-
-std::_tstring CUtil::GetExeDir()
-{
-	TCHAR l_buf[1000] = {0};
-	TCHAR l_buf2[1000] = {0};
-
-	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
-	::GetLongPathName(l_buf, l_buf2, 999);
-	::PathRemoveFileSpec(l_buf2);
-	::PathRemoveBackslash(l_buf2);
-
-	return l_buf2;
-}
-
-
 std::_tstring CUtil::PathRemoveFileSpec(const std::_tstring& a_path)
 {
 	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
@@ -664,11 +638,61 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 
 HMODULE CUtil::SilentLoadLibrary(const std::_tstring& a_path)
 {
+	_ASSERT(!PathIsRelative(a_path.c_str()));
+
 	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
 	HMODULE l_hResult = ::LoadLibrary(a_path.c_str());
 	::SetErrorMode(l_oldErrorMode);
 
 	return l_hResult;
+}
+
+
+bool CUtil::RemoveCwdFromDllSearchPath()
+{
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
+
+	// requirements for SetDllDirectory availability:
+	if(ms_osver.dwMajorVersion > 5 ||
+		(ms_osver.dwMajorVersion == 5 && ms_osver.wServicePackMajor >= 1))
+	{
+		typedef BOOL (WINAPI *fsdd)(LPCTSTR);
+
+		// remove the current directory from the DLL search path by calling SetDllDirectory:
+		fsdd l_fsdd = (fsdd)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetDllDirectory");
+		if(l_fsdd)
+		{
+			return (l_fsdd(_T("")) != FALSE);
+		}
+	}
+
+	return false;
+}
+
+
+std::_tstring CUtil::GetExePath()
+{
+	TCHAR l_buf[1000] = {0};
+	TCHAR l_buf2[1000] = {0};
+
+	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetLongPathName(l_buf, l_buf2, 999);
+
+	return l_buf2;
+}
+
+
+std::_tstring CUtil::GetExeDir()
+{
+	TCHAR l_buf[1000] = {0};
+	TCHAR l_buf2[1000] = {0};
+
+	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetLongPathName(l_buf, l_buf2, 999);
+	::PathRemoveFileSpec(l_buf2);
+	::PathRemoveBackslash(l_buf2);
+
+	return l_buf2;
 }
 
 
@@ -678,29 +702,29 @@ HMODULE CUtil::SilentLoadLibrary(const std::_tstring& a_path)
 
 bool CUtil::IsWin2000()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 0);
 }
 
 bool CUtil::IsWinXP()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1);
 }
 
 bool CUtil::IsWin5x()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5);
 }
 
 bool CUtil::IsWin6x(bool a_orHigher)
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx(&ms_osver); }
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
 	return (ms_osver.dwMajorVersion == 6 || (ms_osver.dwMajorVersion > 6 && a_orHigher));
 }
 
-OSVERSIONINFO CUtil::ms_osver = {sizeof(OSVERSIONINFO), 0};
+OSVERSIONINFOEX CUtil::ms_osver = {sizeof(OSVERSIONINFOEX), 0};
 
 
 /************************************************************************/
@@ -710,7 +734,8 @@ OSVERSIONINFO CUtil::ms_osver = {sizeof(OSVERSIONINFO), 0};
 
 CCudaUtil::CCudaUtil()
 {
-	m_hCudaBlur = CUtil::SilentLoadLibrary(_T("cuda-blur.dll"));
+	m_hCudaBlur = CUtil::SilentLoadLibrary(
+		CUtil::GetExeDir() + _T("\\cuda-blur.dll"));
 }
 
 const CCudaUtil* CCudaUtil::GetInstance()
