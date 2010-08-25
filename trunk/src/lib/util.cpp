@@ -711,6 +711,9 @@ bool CUtil::HardenHeap()
 	return false;
 }
 
+#ifndef PROCESS_DEP_ENABLE
+#define PROCESS_DEP_ENABLE 0x01
+#endif
 
 bool CUtil::EnforceDEP()
 {
@@ -760,6 +763,37 @@ bool CUtil::IsWin6x(bool a_orHigher)
 {
 	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
 	return (ms_osver.dwMajorVersion == 6 || (ms_osver.dwMajorVersion > 6 && a_orHigher));
+}
+
+bool CUtil::IsWinVista()
+{
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
+	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 0);
+}
+
+bool CUtil::IsWin7()
+{
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
+	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 1);
+}
+
+bool CUtil::IsWow64()
+{
+	typedef BOOL (WINAPI *fiw6p)(HANDLE, PBOOL);
+
+	fiw6p l_fiw6p = (fiw6p)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "IsWow64Process");
+
+	if(l_fiw6p)
+	{
+		BOOL l_bIsWow64;
+
+		if(l_fiw6p(GetCurrentProcess(), &l_bIsWow64))
+		{
+			return (l_bIsWow64 != FALSE);
+		}
+	}
+
+	return false;
 }
 
 OSVERSIONINFOEX CUtil::ms_osver = {sizeof(OSVERSIONINFOEX), 0};

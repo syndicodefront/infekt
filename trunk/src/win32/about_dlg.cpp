@@ -58,7 +58,26 @@ BOOL CAboutDialog::OnInitDialog()
 	const int l_left = 70;
 	int l_top = 15;
 
-	_CREATE_STATIC(l_hTitle, _T("iNFekt v") + m_mainWin->InfektVersionAsString(), l_top, 20);
+	std::_tstring l_verStr = _T("iNFekt v") + m_mainWin->InfektVersionAsString();
+#ifdef _WIN64
+	l_verStr += _T(" (64 bit)");
+#else
+	if(CUtil::IsWow64())
+		l_verStr += _T(" (32 bit emulation)");
+	else
+		l_verStr += _T(" (32 bit)");
+#endif
+	if(CUtil::IsWin2000())
+		l_verStr += _T(" on Windows 2000");
+	else if(CUtil::IsWinXP())
+		l_verStr += _T(" on Windows XP");
+	else if(CUtil::IsWinVista())
+		l_verStr += _T(" on Windows Vista");
+	else if(CUtil::IsWin7())
+		l_verStr += _T(" on Windows 7");
+	// ignore server OSes (they'll show their desktop equivalent version)
+
+	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
 
 	if(l_hTitle)

@@ -57,6 +57,9 @@ public:
 	static bool IsWinXP();
 	static bool IsWin5x();
 	static bool IsWin6x(bool a_orHigher = true);
+	static bool IsWinVista();
+	static bool IsWin7();
+	static bool IsWow64();
 
 	static std::_tstring GetExePath();
 	static std::_tstring GetExeDir();
