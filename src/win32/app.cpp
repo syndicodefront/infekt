@@ -19,10 +19,6 @@
 
 using namespace std;
 
-#ifndef PROCESS_DEP_ENABLE
-#define PROCESS_DEP_ENABLE 0x01
-#endif
-
 
 /************************************************************************/
 /* APP ENTRY POINT                                                      */
