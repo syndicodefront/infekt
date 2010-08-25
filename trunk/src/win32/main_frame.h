@@ -78,7 +78,7 @@ public:
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 
 	void SwitchView(EMainView a_view);
-	bool OpenFile(const std::_tstring& a_filePath);
+	bool OpenFile(const std::_tstring a_filePath);
 	void UpdateAlwaysOnTop();
 	void ShowMenuBar(bool a_show = true);
 	PMainSettings GetSettings() { return m_settings; }
