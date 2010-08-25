@@ -42,6 +42,8 @@ public:
 	// IUnknown
 	IFACEMETHODIMP QueryInterface(REFIID riid, void **ppv)
 	{
+		*ppv = NULL;
+
 		static const QITAB qit[] =
 		{
 			QITABENT(CNFOThumbProvider, IInitializeWithStream),
@@ -60,7 +62,7 @@ public:
 	IFACEMETHODIMP_(ULONG) Release()
 	{
 		ULONG cRef = InterlockedDecrement(&m_cRef);
-		if (!cRef)
+		if(!cRef)
 		{
 			delete this;
 		}
@@ -179,7 +181,10 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 			cairo_surface_destroy(l_surfaceOut);
 		}
 
-		//DeleteObject(l_hBitmap);
+		if(!SUCCEEDED(hr))
+		{
+			DeleteObject(l_hBitmap);
+		}
 	}
 
 	return hr;
