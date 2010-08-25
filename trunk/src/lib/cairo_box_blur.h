@@ -22,7 +22,7 @@
 class CCairoBoxBlur
 {
 public:
-	CCairoBoxBlur(int a_width, int a_height, int a_blurRadius);
+	CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a_allowHwAccel = true);
 	virtual ~CCairoBoxBlur();
 
 	/**
@@ -39,6 +39,7 @@ public:
 	 **/
 	void Paint(cairo_t* a_destination);
 protected:
+	bool m_allowHwAccel;
 	bool m_computed;
 	// Blur radius in pixels:
 	int m_blurRadius;

@@ -262,7 +262,7 @@ bool CNFORenderer::Render()
 					_ASSERT(GetWidth() < (unsigned int)std::numeric_limits<int>::max() && GetHeight() < (unsigned int)std::numeric_limits<int>::max() &&
 						GetGaussBlurRadius() < (uint64_t)std::numeric_limits<int>::max());
 
-					m_cachedBlur = new CCairoBoxBlur((int)GetWidth(), (int)GetHeight(), (int)GetGaussBlurRadius());
+					m_cachedBlur = new CCairoBoxBlur((int)GetWidth(), (int)GetHeight(), (int)GetGaussBlurRadius(), m_allowHwAccel);
 
 					RenderBlocks(false, true, m_cachedBlur->GetContext());
 				}
