@@ -65,6 +65,8 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	}
 #endif
 
+	CUtil::RemoveCwdFromDllSearchPath();
+
 	try
 	{
 		// Start Win32++:
