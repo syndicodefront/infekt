@@ -42,11 +42,6 @@ CMainFrame::CMainFrame() : CFrame(),
 	m_showingAbout(false), m_dropHelper(NULL)
 {
 	SetView(m_view);
-
-	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
-	LoadOpenMruList();
-
-	m_settings = PMainSettings(new CMainSettings(true));
 }
 
 
@@ -82,6 +77,13 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 
 void CMainFrame::OnCreate()
 {
+	// load settings:
+	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
+	LoadOpenMruList();
+
+	m_settings = PMainSettings(new CMainSettings(true));
+
+	// tame Win32++:
 	m_bUseThemes = FALSE;
 	m_bShowIndicatorStatus = FALSE;
 	m_bShowMenuStatus = FALSE;
@@ -872,119 +874,79 @@ void CMainFrame::DoNfoExport(UINT a_id)
 bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 	const CNFORenderSettings& a_settings, bool a_classic)
 {
-	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\") + a_key;
+	PSettingsSection l_sect;
 
-	HKEY l_hKey;
-	if(RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(a_key, l_sect))
 	{
 		return false;
 	}
 
-	uint32_t dwTextColor = a_settings.cTextColor.AsWord(),
-		dwBackColor = a_settings.cBackColor.AsWord(),
-		dwArtColor = a_settings.cArtColor.AsWord(),
-		dwLinkColor = a_settings.cHyperlinkColor.AsWord();
+	l_sect->WriteDword(L"ClrText", a_settings.cTextColor.AsWord());
+	l_sect->WriteDword(L"ClrBack", a_settings.cBackColor.AsWord());
+	l_sect->WriteDword(L"ClrArt", a_settings.cArtColor.AsWord());
+	l_sect->WriteDword(L"ClrLink", a_settings.cHyperlinkColor.AsWord());
 
-	RegSetValueEx(l_hKey, _T("ClrText"),	0, REG_DWORD, (LPBYTE)&dwTextColor,		sizeof(uint32_t));
-	RegSetValueEx(l_hKey, _T("ClrBack"),	0, REG_DWORD, (LPBYTE)&dwBackColor,		sizeof(uint32_t));
-	RegSetValueEx(l_hKey, _T("ClrArt"),		0, REG_DWORD, (LPBYTE)&dwArtColor,		sizeof(uint32_t));
-	RegSetValueEx(l_hKey, _T("ClrLink"),	0, REG_DWORD, (LPBYTE)&dwLinkColor,		sizeof(uint32_t));
-
-	int32_t dwHilightHyperlinks = (a_settings.bHilightHyperlinks ? 1 : 0),
-		dwUnderlineHyperlinks = (a_settings.bUnderlineHyperlinks ? 1 : 0),
-		dwFontAA = (a_settings.bFontAntiAlias ? 1 : 0);
-
-	RegSetValueEx(l_hKey, _T("HilightHyperlinks"),		0, REG_DWORD, (LPBYTE)&dwHilightHyperlinks,		sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("UnderlineHyperlinks"),	0, REG_DWORD, (LPBYTE)&dwUnderlineHyperlinks,	sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("FontAntiAlias"),			0, REG_DWORD, (LPBYTE)&dwFontAA,				sizeof(int32_t));
+	l_sect->WriteBool(L"HilightHyperlinks", a_settings.bHilightHyperlinks);
+	l_sect->WriteBool(L"UnderlineHyperlinks", a_settings.bUnderlineHyperlinks);
+	l_sect->WriteBool(L"FontAntiAlias", a_settings.bFontAntiAlias);
 
 	if(!a_classic)
 	{
-		size_t dwBlockHeight = a_settings.uBlockHeight,
-			dwBlockWidth = a_settings.uBlockWidth,
-			dwGaussShadow = (a_settings.bGaussShadow ? 1 : 0),
-			dwGaussBlurRadius = a_settings.uGaussBlurRadius,
-			dwGaussColor = a_settings.cGaussColor.AsWord();
+		l_sect->WriteDword(L"BlockHeight", static_cast<DWORD>(a_settings.uBlockHeight));
+		l_sect->WriteDword(L"BlockWidth", static_cast<DWORD>(a_settings.uBlockWidth));
 
-		RegSetValueEx(l_hKey, _T("BlockHeight"),		0, REG_DWORD, (LPBYTE)&dwBlockHeight,		sizeof(int32_t));
-		RegSetValueEx(l_hKey, _T("BlockWidth"),			0, REG_DWORD, (LPBYTE)&dwBlockWidth,		sizeof(int32_t));
+		l_sect->WriteBool(L"GaussShadow", a_settings.bGaussShadow);
+		l_sect->WriteDword(L"GaussBlurRadius", a_settings.uGaussBlurRadius);
 
-		RegSetValueEx(l_hKey, _T("GaussShadow"),		0, REG_DWORD, (LPBYTE)&dwGaussShadow,		sizeof(int32_t));
-		RegSetValueEx(l_hKey, _T("GaussBlurRadius"),	0, REG_DWORD, (LPBYTE)&dwGaussBlurRadius,	sizeof(int32_t));
-
-		RegSetValueEx(l_hKey, _T("ClrGauss"),			0, REG_DWORD, (LPBYTE)&dwGaussColor,		sizeof(int32_t));
+		l_sect->WriteDword(L"ClrGauss", a_settings.cGaussColor.AsWord());
 	}
 	else
 	{
-		size_t dwFontSize = a_settings.uFontSize;
-
-		RegSetValueEx(l_hKey, _T("FontSize"),			0, REG_DWORD, (LPBYTE)&dwFontSize,			sizeof(int32_t));
+		l_sect->WriteDword(L"FontSize", static_cast<DWORD>(a_settings.uFontSize));
 	}
 
-	RegSetValueEx(l_hKey, _T("FontName"), 0, REG_SZ, (LPBYTE)a_settings.sFontFace,
-		(DWORD)(wcslen(a_settings.sFontFace) + 1) * sizeof(TCHAR));
-
-	RegCloseKey(l_hKey);
-
-	return true;
+	return l_sect->WriteString(L"FontName", a_settings.sFontFace); /* somewhat representative success check */
 }
 
 
 bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target)
 {
-	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\") + a_key;
+	PSettingsSection l_sect;
 
-	HKEY l_hKey;
-	if(!a_target || RegOpenKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(a_key, l_sect))
 	{
 		return false;
 	}
 
 	CNFORenderSettings l_newSets;
 
-	uint32_t dwTextColor = CUtil::RegQueryDword(l_hKey, _T("ClrText")),
-		dwBackColor = CUtil::RegQueryDword(l_hKey, _T("ClrBack")),
-		dwArtColor = CUtil::RegQueryDword(l_hKey, _T("ClrArt")),
-		dwLinkColor = CUtil::RegQueryDword(l_hKey, _T("ClrLink"));
+	l_newSets.cTextColor = _s_color_t(l_sect->ReadDword(L"ClrText"));
+	l_newSets.cBackColor = _s_color_t(l_sect->ReadDword(L"ClrBack"));
+	l_newSets.cArtColor = _s_color_t(l_sect->ReadDword(L"ClrArt"));
+	l_newSets.cHyperlinkColor = _s_color_t(l_sect->ReadDword(L"ClrLink"));
 
-	l_newSets.cTextColor = _s_color_t(dwTextColor);
-	l_newSets.cBackColor = _s_color_t(dwBackColor);
-	l_newSets.cArtColor = _s_color_t(dwArtColor);
-	l_newSets.cHyperlinkColor = _s_color_t(dwLinkColor);
-
-	l_newSets.bHilightHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("HilightHyperlinks"), 1) != 0);
-	l_newSets.bUnderlineHyperlinks = (CUtil::RegQueryDword(l_hKey, _T("UnderlineHyperlinks"), 1) != 0);
-	l_newSets.bFontAntiAlias = (CUtil::RegQueryDword(l_hKey, _T("FontAntiAlias"), 1) != 0);
+	l_newSets.bHilightHyperlinks = l_sect->ReadBool(L"HilightHyperlinks", true);
+	l_newSets.bUnderlineHyperlinks = l_sect->ReadBool(L"UnderlineHyperlinks", true);
+	l_newSets.bFontAntiAlias = l_sect->ReadBool(L"FontAntiAlias", true);
 
 	if(!a_target->IsClassicMode())
 	{
-		uint32_t dwGaussColor = CUtil::RegQueryDword(l_hKey, _T("ClrGauss")),
-			dwGaussShadow = CUtil::RegQueryDword(l_hKey, _T("GaussShadow")),
-			dwBlockHeight = CUtil::RegQueryDword(l_hKey, _T("BlockHeight")),
-			dwBlockWidth = CUtil::RegQueryDword(l_hKey, _T("BlockWidth")),
-			dwGaussBlurRadius = CUtil::RegQueryDword(l_hKey, _T("GaussBlurRadius"));
-
-		l_newSets.cGaussColor = _s_color_t(dwGaussColor);
-		l_newSets.bGaussShadow = (dwGaussShadow != 0);
-		l_newSets.uBlockHeight = dwBlockHeight;
-		l_newSets.uBlockWidth = dwBlockWidth;
-		l_newSets.uGaussBlurRadius = dwGaussBlurRadius;
+		l_newSets.cGaussColor = _s_color_t(l_sect->ReadDword(L"ClrGauss"));
+		l_newSets.bGaussShadow = l_sect->ReadBool(L"GaussShadow", true);
+		l_newSets.uBlockHeight = l_sect->ReadDword(L"BlockHeight");
+		l_newSets.uBlockWidth = l_sect->ReadDword(L"BlockWidth");
+		l_newSets.uGaussBlurRadius = l_sect->ReadDword(L"GaussBlurRadius");
 	}
 	else
 	{
-		l_newSets.uFontSize = CUtil::RegQueryDword(l_hKey, _T("FontSize"));
+		l_newSets.uFontSize = l_sect->ReadDword(L"FontSize");
 	}
 
-	TCHAR l_fontFaceBuf[LF_FACESIZE + 1] = {0};
-	DWORD l_dwType, l_dwSize = (LF_FACESIZE + 1) * sizeof(TCHAR);
-	if(RegQueryValueEx(l_hKey, _T("FontName"), 0, &l_dwType, (LPBYTE)l_fontFaceBuf,
-		&l_dwSize) == ERROR_SUCCESS && l_dwType == REG_SZ)
+	std::wstring l_fontFace = l_sect->ReadString(L"FontName");
+	if(l_fontFace.size() < LF_FACESIZE)
 	{
-		_tcsncpy_s(l_newSets.sFontFace, LF_FACESIZE + 1, l_fontFaceBuf, LF_FACESIZE);
+		_tcsncpy_s(l_newSets.sFontFace, LF_FACESIZE + 1, l_fontFace.c_str(), l_fontFace.size());
 	}
-
-	RegCloseKey(l_hKey);
 
 	a_target->InjectSettings(l_newSets);
 
@@ -1098,48 +1060,33 @@ void CMainFrame::CheckForUpdates()
 
 void CMainFrame::LoadOpenMruList()
 {
-	m_mruPaths.clear();
+	PSettingsSection l_sect;
 
-	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\OpenMRU");
-
-	HKEY l_hKey;
-	if(RegOpenKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"OpenMRU", l_sect))
 	{
 		return;
 	}
 
+	m_mruPaths.clear();
+
 	for(size_t i = 0; i < ms_mruLength; i++)
 	{
 		const wstring l_valName = FORMAT(L"%d", i);
-		DWORD dwType = -1;
-		TCHAR dwBuf[1000] = {0};
-		DWORD dwBufSize = sizeof(TCHAR) * 999;
+		const std::wstring l_path = l_sect->ReadString(l_valName.c_str());
 
-		if(RegQueryValueEx(l_hKey, l_valName.c_str(), 0, &dwType, (LPBYTE)dwBuf, &dwBufSize) == ERROR_SUCCESS
-			&& dwType == REG_SZ)
-		{
-			if(::PathFileExists(dwBuf))
-			{
-				m_mruPaths.push_back(dwBuf);
-			}
-		}
-		else
-		{
+		if(l_path.empty() || !::PathFileExists(l_path.c_str()))
 			break;
-		}
-	}
 
-	RegCloseKey(l_hKey);
+		m_mruPaths.push_back(l_path);
+	}
 }
 
 
 void CMainFrame::SaveOpenMruList()
 {
-	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\OpenMRU");
+	PSettingsSection l_sect;
 
-	HKEY l_hKey;
-	if(RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"OpenMRU", l_sect))
 	{
 		return;
 	}
@@ -1151,18 +1098,14 @@ void CMainFrame::SaveOpenMruList()
 
 		if(l_it != m_mruPaths.end())
 		{
-			RegSetValueEx(l_hKey, l_valName.c_str(), 0, REG_SZ,
-				(LPBYTE)l_it->c_str(), (DWORD)(l_it->size() + 1) * sizeof(TCHAR));
-
+			l_sect->WriteString(l_valName.c_str(), *l_it);
 			l_it++;
 		}
 		else
 		{
-			RegDeleteValue(l_hKey, l_valName.c_str());
+			l_sect->DeletePair(l_valName.c_str());
 		}
 	}
-
-	RegCloseKey(l_hKey);
 }
 
 
@@ -1181,56 +1124,35 @@ CMainFrame::~CMainFrame()
 
 bool CMainSettings::SaveToRegistry()
 {
-	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\MainSettings");
+	PSettingsSection l_sect;
 
-	HKEY l_hKey;
-	if(RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"MainSettings", l_sect))
 	{
 		return false;
 	}
 
-	int32_t dwDefaultView = this->iDefaultView,
-		dwLastView = this->iLastView,
-		dwCopySelect = (this->bCopyOnSelect ? 1 : 0),
-		dwAlwaysOnTop = (this->bAlwaysOnTop ? 1 : 0),
-		dwAlwaysMenuBar = (this->bAlwaysShowMenubar ? 1 : 0),
-		dwCheckDefault = (this->bCheckDefaultOnStartup ? 1 : 0),
-		dwSingleInstance = (this->bSingleInstanceMode ? 1 : 0);
-
-	RegSetValueEx(l_hKey, _T("DefaultView"),		0, REG_DWORD, (LPBYTE)&dwDefaultView,		sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("LastView"),			0, REG_DWORD, (LPBYTE)&dwLastView,			sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("CopyOnSelect"),		0, REG_DWORD, (LPBYTE)&dwCopySelect,		sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("AlwaysOnTop"),		0, REG_DWORD, (LPBYTE)&dwAlwaysOnTop,		sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("AlwaysShowMenubar"),	0, REG_DWORD, (LPBYTE)&dwAlwaysMenuBar,		sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("CheckDefViewOnStart"),0, REG_DWORD, (LPBYTE)&dwCheckDefault,		sizeof(int32_t));
-	RegSetValueEx(l_hKey, _T("SingleInstanceMode"),	0, REG_DWORD, (LPBYTE)&dwSingleInstance,	sizeof(int32_t));
-
-	RegCloseKey(l_hKey);
-
-	return true;
+	l_sect->WriteDword(L"DefaultView", this->iDefaultView);
+	l_sect->WriteDword(L"LastView", this->iLastView);
+	l_sect->WriteBool(L"CopyOnSelect", this->bCopyOnSelect);
+	l_sect->WriteBool(L"AlwaysOnTop", this->bAlwaysOnTop);
+	l_sect->WriteBool(L"AlwaysShowMenubar", this->bAlwaysShowMenubar);
+	l_sect->WriteBool(L"CheckDefViewOnStart", this->bCheckDefaultOnStartup);
+	
+	return l_sect->WriteBool(L"SingleInstanceMode", this->bSingleInstanceMode);
 }
 
 
 bool CMainSettings::LoadFromRegistry()
 {
-	const _tstring l_keyPath = _T("Software\\cxxjoe\\iNFEKT\\MainSettings");
+	PSettingsSection l_sect;
 
-	HKEY l_hKey;
-	if(RegOpenKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
 	{
 		return false;
 	}
 
-	int32_t dwDefaultView = CUtil::RegQueryDword(l_hKey, _T("DefaultView")),
-		dwLastView = CUtil::RegQueryDword(l_hKey, _T("LastView")),
-		dwCopySelect = CUtil::RegQueryDword(l_hKey, _T("CopyOnSelect")),
-		dwAlwaysOnTop = CUtil::RegQueryDword(l_hKey, _T("AlwaysOnTop")),
-		dwAlwaysMenuBar = CUtil::RegQueryDword(l_hKey, _T("AlwaysShowMenubar")),
-		dwCheckDefault = CUtil::RegQueryDword(l_hKey, _T("CheckDefViewOnStart"), 1),
-		dwSingleInstance = CUtil::RegQueryDword(l_hKey, _T("SingleInstanceMode"));
-
-	RegCloseKey(l_hKey);
+	DWORD dwDefaultView = l_sect->ReadDword(L"DefaultView"),
+		dwLastView = l_sect->ReadDword(L"LastView");
 
 	if(dwDefaultView == -1 || (dwDefaultView >= MAIN_VIEW_RENDERED && dwDefaultView < _MAIN_VIEW_MAX))
 	{
@@ -1242,11 +1164,11 @@ bool CMainSettings::LoadFromRegistry()
 		this->iLastView = dwLastView;
 	}
 
-	this->bCopyOnSelect = (dwCopySelect != 0);
-	this->bAlwaysOnTop = (dwAlwaysOnTop != 0);
-	this->bAlwaysShowMenubar = (dwAlwaysMenuBar != 0);
-	this->bCheckDefaultOnStartup = (dwCheckDefault != 0);
-	this->bSingleInstanceMode = (dwSingleInstance != 0);
+	this->bCopyOnSelect = l_sect->ReadBool(L"CopyOnSelect", false);
+	this->bAlwaysOnTop = l_sect->ReadBool(L"AlwaysOnTop", false);
+	this->bAlwaysShowMenubar = l_sect->ReadBool(L"AlwaysShowMenubar", false);
+	this->bCheckDefaultOnStartup = l_sect->ReadBool(L"CheckDefViewOnStart", true);
+	this->bSingleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
 
 	return true;
 }
