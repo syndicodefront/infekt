@@ -81,6 +81,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 CNFOApp::CNFOApp()
 {
+	m_settings = PSettingsBackend(new CRegistrySettingsBackend(L"Software\\cxxjoe\\iNFEKT\\"));
 }
 
 
@@ -120,17 +121,14 @@ bool CNFOApp::ExtractStartupFilePath(const _tstring& a_commandLine)
 
 bool CNFOApp::SwitchToPrevInstance()
 {
-	HKEY l_hKey;
-	_tstring l_regPath = _T("Software\\cxxjoe\\iNFEKT\\MainSettings");
+	PSettingsSection l_sect;
+	bool l_singleInstanceMode = false;
 
-	if(RegOpenKeyEx(HKEY_CURRENT_USER, l_regPath.c_str(), 0, KEY_READ, &l_hKey) != ERROR_SUCCESS)
+	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
 	{
-		return false;
+		l_singleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
+		l_sect.reset();
 	}
-
-	bool l_singleInstanceMode = (CUtil::RegQueryDword(l_hKey, _T("SingleInstanceMode")) != 0);
-
-	RegCloseKey(l_hKey);
 
 	if(l_singleInstanceMode)
 	{

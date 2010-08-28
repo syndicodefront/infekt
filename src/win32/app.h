@@ -15,6 +15,7 @@
 #ifndef _APP_H
 #define _APP_H
 
+#include "settings_backend.h"
 #include "main_frame.h"
 
 #define WM_LOAD_NFO (WM_APP + 30)
@@ -30,6 +31,7 @@ public:
 
 	CMainFrame& GetMainFrame() { return m_frame; }
 	const std::_tstring& GetStartupFilePath() { return m_startupFilePath; }
+	PSettingsBackend GetSettingsBackend() { return m_settings; }
 
 	bool ExtractStartupFilePath(const std::_tstring& a_commandLine);
 	bool SwitchToPrevInstance();
@@ -40,6 +42,7 @@ public:
 protected:
 	CMainFrame m_frame;
 	std::_tstring m_startupFilePath;
+	PSettingsBackend m_settings;
 };
 
 extern HINSTANCE g_hInstance;
