@@ -844,7 +844,21 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if(!l_filePath.empty())
 		{
-			m_view.GetActiveCtrl()->GetNfoData()->SaveToFile(l_filePath, l_utf8);
+			if(m_view.GetActiveCtrl()->GetNfoData()->SaveToFile(l_filePath, l_utf8))
+			{
+				this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
+			}
+			else
+			{
+				std::wstring l_msg = m_view.GetActiveCtrl()->GetNfoData()->GetLastErrorDescription();
+
+				if(l_msg.empty())
+				{
+					l_msg = L"Writing to the file failed. Please select a different file or folder.";
+				}
+
+				this->MessageBox(l_msg.c_str(), _T("Fail"), MB_ICONEXCLAMATION);
+			}
 		}
 	}
 	else if(a_id == IDM_EXPORT_XHTML)
