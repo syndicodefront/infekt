@@ -310,6 +310,66 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 }
 
 
+static void _InternalLoad_WrapLongLines(deque<const wstring>& a_lines, size_t& a_newMaxLineLen)
+{
+	const int l_maxLen = 80;
+
+	// Please note that this routine is not behaving consistently
+	// when it comes to taking into account leading whitespace or not.
+	// The results are good however.
+
+	deque<const wstring> l_newLines;
+
+	for(deque<const wstring>::const_iterator it = a_lines.begin(); it != a_lines.end(); it++)
+	{
+		if(it->size() <= l_maxLen)
+		{
+			l_newLines.push_back(*it);
+			continue;
+		}
+
+		wstring::size_type l_spaces = it->find_first_not_of(L' ');
+		if(l_spaces == wstring::npos)
+			l_spaces = 0;
+
+		wstring l_line = *it;
+		bool l_firstRun = true;
+
+		while(l_line.size() > 0)
+		{
+			wstring::size_type l_cut = l_line.rfind(' ', l_maxLen);
+			if(l_cut == wstring::npos || l_cut < l_spaces || l_cut == 0 || l_line.size() < l_maxLen)
+				l_cut = l_maxLen;
+
+			wstring l_new;
+			if(!l_firstRun)
+			{
+				l_new.append(l_spaces, ' '); // whitespace level of line being split
+				l_new.append(2, ' '); // some indentation to denote what happened
+			}
+			l_new += l_line.substr(0, l_cut);
+			l_newLines.push_back(l_new);
+
+			l_line.erase(0, l_cut + 1);
+
+			l_firstRun = false;
+		}
+	}
+
+	if(l_newLines.size() != a_lines.size())
+	{
+		a_newMaxLineLen = 0;
+
+		for(deque<const wstring>::const_iterator it = l_newLines.begin(); it != l_newLines.end(); it++)
+		{
+			a_newMaxLineLen = std::max(it->size(), a_newMaxLineLen);
+		}
+
+		a_lines = l_newLines;
+	}
+}
+
+
 bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen)
 {
 	bool l_loaded = false;
@@ -351,6 +411,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		_InternalLoad_FixAnsiEscapeCodes(m_textContent);
 		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
 		_InternalLoad_FixLfLf(m_textContent, l_lines);
+		if(0) _InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
 
 		// copy lines to grid(s):
 		delete m_grid; m_grid = NULL;
@@ -944,6 +1005,7 @@ static string _TrimParagraph(const string& a_text)
 {
 	vector<string> l_lines;
 
+	// split text into lines:
 	string::size_type l_pos = a_text.find('\n'), l_prevPos = 0;
 	string::size_type l_minWhite = numeric_limits<string::size_type>::max();
 
@@ -962,10 +1024,12 @@ static string _TrimParagraph(const string& a_text)
 		l_lines.push_back(a_text.substr(l_prevPos));
 	}
 
+	// find out the minimum number of leading whitespace characters.
+	// all other lines will be reduced to this number.
 	for(vector<string>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
 	{
 		string::size_type p = 0;
-		while(p < (*it).size() && (*it)[p] == ' ') p++;
+		while(p < it->size() && (*it)[p] == ' ') p++;
 
 		if(p < l_minWhite)
 		{
@@ -973,6 +1037,7 @@ static string _TrimParagraph(const string& a_text)
 		}
 	}
 
+	// kill whitespace and put lines back together:
 	string l_result;
 	l_result.reserve(a_text.size());
 
