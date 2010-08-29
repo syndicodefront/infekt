@@ -19,8 +19,6 @@
 /* Generic Backend Interface Classes To Derive From                     */
 /************************************************************************/
 
-class CSettingsBackend; /* forward */
-
 class CSettingsSection
 {
 public:
