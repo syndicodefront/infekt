@@ -64,6 +64,8 @@
 #define IDC_BUTTON3                     1044
 #define IDC_THEME_IMPORT                1044
 #define IDC_PLUGIN_LIST                 1045
+#define IDC_CUDA_STATUS2                1045
+#define IDC_SETTINGS_BACKEND_STATUS     1045
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003

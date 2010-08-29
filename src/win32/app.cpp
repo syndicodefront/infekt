@@ -81,7 +81,16 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 CNFOApp::CNFOApp()
 {
-	m_settings = PSettingsBackend(new CRegistrySettingsBackend(L"Software\\cxxjoe\\iNFEKT\\"));
+	const std::wstring l_iniPath = CUtil::GetExeDir() + L"\\portable.ini";
+
+	if(!PathFileExists(l_iniPath.c_str()))
+	{
+		m_settings = PSettingsBackend(new CRegistrySettingsBackend(L"Software\\cxxjoe\\iNFEKT\\"));
+	}
+	else
+	{
+		m_settings = PSettingsBackend(new CINISettingsBackend(l_iniPath));
+	}
 }
 
 

@@ -85,13 +85,20 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 
 void CSettingsWindowDialog::OnOK()
 {
-	m_tabPageGeneral->SaveSettings();
+	bool b = true;
 
-	m_tabPageRendered->SaveSettings();
-	m_tabPageClassic->SaveSettings();
-	m_tabPageTextOnly->SaveSettings();
+	b = b && m_tabPageGeneral->SaveSettings();
 
-	m_tabPagePlugins->SaveSettings();
+	b = b && m_tabPageRendered->SaveSettings();
+	b = b && m_tabPageClassic->SaveSettings();
+	b = b && m_tabPageTextOnly->SaveSettings();
+
+	b = b && m_tabPagePlugins->SaveSettings();
+
+	if(!b)
+	{
+		MessageBox(L"An error occured while saving settings. Not all settings could be saved.", L"Error", MB_ICONEXCLAMATION);
+	}
 
 	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
 
@@ -306,6 +313,10 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		{
 			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: No."));
 		}
+
+		const std::wstring l_info = L"Active settings backend: " +
+			dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->GetName();
+		SetDlgItemText(IDC_SETTINGS_BACKEND_STATUS, l_info.c_str());
 	}
 	else if(m_pageId == TAB_PAGE_PLUGINS)
 	{
@@ -1099,6 +1110,8 @@ bool CSettingsTabDialog::SaveSettings()
 				}
 			}
 		}
+
+		return true;
 	}
 
 	return false;
