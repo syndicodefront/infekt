@@ -1081,8 +1081,11 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 
 	if(!m_classic)
 	{
-		if(ns.uBlockWidth < 200 && ns.uBlockHeight < 200)
+		if(ns.uBlockWidth > 0 && ns.uBlockWidth < 200 &&
+			ns.uBlockHeight > 0 && ns.uBlockHeight < 200)
+		{
 			SetBlockSize(ns.uBlockWidth, ns.uBlockHeight);
+		}
 
 		SetEnableGaussShadow(ns.bGaussShadow);
 		SetGaussColor(ns.cGaussColor);

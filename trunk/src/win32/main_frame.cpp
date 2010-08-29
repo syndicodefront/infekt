@@ -918,32 +918,33 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 		return false;
 	}
 
-	CNFORenderSettings l_newSets;
+	CNFORenderer l_dummy;
+	CNFORenderSettings l_newSets, l_defaults = l_dummy.GetSettings();
+	
+	l_newSets.cTextColor = _s_color_t(l_sect->ReadDword(L"ClrText", l_defaults.cTextColor.AsWord()));
+	l_newSets.cBackColor = _s_color_t(l_sect->ReadDword(L"ClrBack", l_defaults.cBackColor.AsWord()));
+	l_newSets.cArtColor = _s_color_t(l_sect->ReadDword(L"ClrArt", l_defaults.cArtColor.AsWord()));
+	l_newSets.cHyperlinkColor = _s_color_t(l_sect->ReadDword(L"ClrLink", l_defaults.cHyperlinkColor.AsWord()));
 
-	l_newSets.cTextColor = _s_color_t(l_sect->ReadDword(L"ClrText"));
-	l_newSets.cBackColor = _s_color_t(l_sect->ReadDword(L"ClrBack"));
-	l_newSets.cArtColor = _s_color_t(l_sect->ReadDword(L"ClrArt"));
-	l_newSets.cHyperlinkColor = _s_color_t(l_sect->ReadDword(L"ClrLink"));
-
-	l_newSets.bHilightHyperlinks = l_sect->ReadBool(L"HilightHyperlinks", true);
-	l_newSets.bUnderlineHyperlinks = l_sect->ReadBool(L"UnderlineHyperlinks", true);
-	l_newSets.bFontAntiAlias = l_sect->ReadBool(L"FontAntiAlias", true);
+	l_newSets.bHilightHyperlinks = l_sect->ReadBool(L"HilightHyperlinks", l_defaults.bHilightHyperlinks);
+	l_newSets.bUnderlineHyperlinks = l_sect->ReadBool(L"UnderlineHyperlinks", l_defaults.bUnderlineHyperlinks);
+	l_newSets.bFontAntiAlias = l_sect->ReadBool(L"FontAntiAlias", l_defaults.bFontAntiAlias);
 
 	if(!a_target->IsClassicMode())
 	{
-		l_newSets.cGaussColor = _s_color_t(l_sect->ReadDword(L"ClrGauss"));
-		l_newSets.bGaussShadow = l_sect->ReadBool(L"GaussShadow", true);
-		l_newSets.uBlockHeight = l_sect->ReadDword(L"BlockHeight");
-		l_newSets.uBlockWidth = l_sect->ReadDword(L"BlockWidth");
-		l_newSets.uGaussBlurRadius = l_sect->ReadDword(L"GaussBlurRadius");
+		l_newSets.cGaussColor = _s_color_t(l_sect->ReadDword(L"ClrGauss", l_defaults.cGaussColor.AsWord()));
+		l_newSets.bGaussShadow = l_sect->ReadBool(L"GaussShadow", l_defaults.bGaussShadow);
+		l_newSets.uBlockHeight = l_sect->ReadDword(L"BlockHeight", (DWORD)l_defaults.uBlockHeight);
+		l_newSets.uBlockWidth = l_sect->ReadDword(L"BlockWidth", (DWORD)l_defaults.uBlockWidth);
+		l_newSets.uGaussBlurRadius = l_sect->ReadDword(L"GaussBlurRadius", (DWORD)l_defaults.uGaussBlurRadius);
 	}
 	else
 	{
-		l_newSets.uFontSize = l_sect->ReadDword(L"FontSize");
+		l_newSets.uFontSize = l_sect->ReadDword(L"FontSize", (DWORD)l_defaults.uFontSize);
 	}
 
 	std::wstring l_fontFace = l_sect->ReadString(L"FontName");
-	if(l_fontFace.size() < LF_FACESIZE)
+	if(l_fontFace.size() > 0 && l_fontFace.size() < LF_FACESIZE)
 	{
 		_tcsncpy_s(l_newSets.sFontFace, LF_FACESIZE + 1, l_fontFace.c_str(), l_fontFace.size());
 	}

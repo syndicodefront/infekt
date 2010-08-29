@@ -22,20 +22,20 @@
 class CSettingsSection
 {
 public:
-	CSettingsSection(const std::_tstring& a_path);
+	CSettingsSection(const std::wstring& a_path);
 	virtual ~CSettingsSection();
 
-	virtual DWORD ReadDword(const TCHAR* a_szKey, DWORD a_default = 0) = 0;
-	virtual bool WriteDword(const TCHAR* a_szKey, DWORD a_newValue) = 0;
-	virtual std::_tstring ReadString(const TCHAR* a_szKey, std::_tstring a_default = _T("")) = 0;
-	virtual bool WriteString(const TCHAR* a_szKey, std::_tstring a_newValue) = 0;
+	virtual DWORD ReadDword(const wchar_t* a_szKey, DWORD a_default = 0) = 0;
+	virtual bool WriteDword(const wchar_t* a_szKey, DWORD a_newValue) = 0;
+	virtual std::wstring ReadString(const wchar_t* a_szKey, std::wstring a_default = L"") = 0;
+	virtual bool WriteString(const wchar_t* a_szKey, std::wstring a_newValue) = 0;
 
-	virtual bool DeletePair(const TCHAR* a_szKey) = 0;
+	virtual bool DeletePair(const wchar_t* a_szKey) = 0;
 
-	virtual bool ReadBool(const TCHAR* a_szKey, bool a_default);
-	virtual bool WriteBool(const TCHAR* a_szKey, bool a_newValue);
+	virtual bool ReadBool(const wchar_t* a_szKey, bool a_default);
+	virtual bool WriteBool(const wchar_t* a_szKey, bool a_newValue);
 protected:
-	std::_tstring m_name;
+	std::wstring m_name;
 };
 
 typedef boost::shared_ptr<CSettingsSection> PSettingsSection;
@@ -44,13 +44,15 @@ typedef boost::shared_ptr<CSettingsSection> PSettingsSection;
 class CSettingsBackend
 {
 public:
-	CSettingsBackend(const std::_tstring& a_appIdf);
+	CSettingsBackend(const std::wstring& a_appIdf);
 	virtual ~CSettingsBackend();
 
-	virtual bool OpenSectionForReading(const std::_tstring& a_name, PSettingsSection& ar_section) = 0;
-	virtual bool OpenSectionForWriting(const std::_tstring& a_name, PSettingsSection& ar_section) = 0;
+	virtual bool OpenSectionForReading(const std::wstring& a_name, PSettingsSection& ar_section) = 0;
+	virtual bool OpenSectionForWriting(const std::wstring& a_name, PSettingsSection& ar_section) = 0;
+
+	virtual std::wstring GetName() const = 0;
 protected:
-	std::_tstring m_appIdf;
+	std::wstring m_appIdf;
 };
 
 typedef boost::shared_ptr<CSettingsBackend> PSettingsBackend;
@@ -63,12 +65,13 @@ typedef boost::shared_ptr<CSettingsBackend> PSettingsBackend;
 class CRegistrySettingsBackend : public CSettingsBackend
 {
 public:
-	CRegistrySettingsBackend(const std::_tstring& a_appIdf);
+	CRegistrySettingsBackend(const std::wstring& a_appIdf);
 	virtual ~CRegistrySettingsBackend();
 
-	bool OpenSectionForReading(const std::_tstring& a_name, PSettingsSection& ar_section);
-	bool OpenSectionForWriting(const std::_tstring& a_name, PSettingsSection& ar_section);
+	bool OpenSectionForReading(const std::wstring& a_name, PSettingsSection& ar_section);
+	bool OpenSectionForWriting(const std::wstring& a_name, PSettingsSection& ar_section);
 
+	std::wstring GetName() const { return L"Registry"; }
 	HKEY GetHive() const { return m_hHive; }
 protected:
 	HKEY m_hHive;
@@ -78,17 +81,16 @@ protected:
 class CRegistrySettingsSection : public CSettingsSection
 {
 public:
-	CRegistrySettingsSection(CSettingsBackend* a_backend, const std::_tstring& a_path, HKEY a_hKey);
+	CRegistrySettingsSection(const std::wstring& a_path, HKEY a_hKey);
 	virtual ~CRegistrySettingsSection();
 
-	DWORD ReadDword(const TCHAR* a_szName, DWORD a_default = 0);
-	bool WriteDword(const TCHAR* a_szName, DWORD a_newValue);
-	std::_tstring ReadString(const TCHAR* a_szName, std::_tstring a_default = _T(""));
-	bool WriteString(const TCHAR* a_szName, std::_tstring a_newValue);
+	DWORD ReadDword(const wchar_t* a_szName, DWORD a_default = 0);
+	bool WriteDword(const wchar_t* a_szName, DWORD a_newValue);
+	std::wstring ReadString(const wchar_t* a_szName, std::wstring a_default = L"");
+	bool WriteString(const wchar_t* a_szName, std::wstring a_newValue);
 
-	bool DeletePair(const TCHAR* a_szKey);
+	bool DeletePair(const wchar_t* a_szKey);
 protected:
-	CRegistrySettingsBackend* m_backend;
 	HKEY m_hKey;
 };
 
@@ -96,6 +98,35 @@ protected:
 /************************************************************************/
 /* INI File-powered Backend                                             */
 /************************************************************************/
+
+class CINISettingsBackend : public CSettingsBackend
+{
+public:
+	CINISettingsBackend(const std::wstring& a_iniPath);
+	virtual ~CINISettingsBackend();
+
+	bool OpenSectionForReading(const std::wstring& a_name, PSettingsSection& ar_section);
+	bool OpenSectionForWriting(const std::wstring& a_name, PSettingsSection& ar_section);
+
+	std::wstring GetName() const { return L"INI File"; }
+};
+
+
+class CINISettingsSection : public CSettingsSection
+{
+public:
+	CINISettingsSection(const std::wstring& a_iniPath, const std::wstring& a_sectionName);
+	virtual ~CINISettingsSection();
+
+	DWORD ReadDword(const wchar_t* a_szName, DWORD a_default = 0);
+	bool WriteDword(const wchar_t* a_szName, DWORD a_newValue);
+	std::wstring ReadString(const wchar_t* a_szName, std::wstring a_default = L"");
+	bool WriteString(const wchar_t* a_szName, std::wstring a_newValue);
+
+	bool DeletePair(const wchar_t* a_szKey);
+protected:
+	std::wstring m_iniPath;
+};
 
 
 #endif
