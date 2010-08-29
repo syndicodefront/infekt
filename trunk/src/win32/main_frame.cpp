@@ -47,9 +47,25 @@ CMainFrame::CMainFrame() : CFrame(),
 
 void CMainFrame::PreCreate(CREATESTRUCT& cs)
 {
-	// allow width+height to be read from registry
-	// also allow class flags to be set.
+	// allow some class flags to be set...
 	CFrame::PreCreate(cs);
+
+	// read saved positions and dimensions:
+	PSettingsSection l_sect;
+
+	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
+	{
+		DWORD dwTop = l_sect->ReadDword(L"Top"),
+			dwLeft = l_sect->ReadDword(L"Left"),
+			dwWidth = l_sect->ReadDword(L"Width"),
+			dwHeight = l_sect->ReadDword(L"Height");
+
+		cs.cx = dwWidth;
+		cs.cy = dwHeight;
+
+		m_bShowStatusbar = l_sect->ReadBool(L"Statusbar", true);
+		m_bShowToolbar = l_sect->ReadBool(L"Toolbar", true);
+	}
 
 	if(cs.cx == 0 && cs.cy == 0)
 	{
@@ -59,6 +75,15 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 	}
 
 	// avoid stupid things:
+	RECT l_wa;
+	if(::SystemParametersInfo(SPI_GETWORKAREA, 0, &l_wa, 0))
+	{
+		if(cs.cx > l_wa.right - l_wa.left)
+			cs.cx = l_wa.right - l_wa.left;
+		if(cs.cy > l_wa.bottom - l_wa.top)
+			cs.cy = l_wa.bottom - l_wa.top;
+	}
+
 	if(cs.cx < ms_minWidth)
 		cs.cx = ms_minWidth;
 	if(cs.cy < ms_minHeight)
@@ -78,7 +103,6 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 void CMainFrame::OnCreate()
 {
 	// load settings:
-	LoadRegistrySettings(_T("cxxjoe\\iNFEKT"));
 	LoadOpenMruList();
 
 	m_settings = PMainSettings(new CMainSettings(true));
@@ -122,7 +146,16 @@ void CMainFrame::OnInitialUpdate()
 		::RegisterDragDrop(m_hWnd, m_dropHelper);
 	}
 
-	ShowWindow(m_maximize ? SW_MAXIMIZE : SW_SHOWNORMAL);
+	PSettingsSection l_sect;
+	bool l_maximize = false;
+
+	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
+	{
+		l_maximize = l_sect->ReadBool(L"Maximized", false);
+		l_sect.reset();
+	}
+
+	ShowWindow(l_maximize ? SW_MAXIMIZE : SW_SHOWNORMAL);
 
 	if(m_settings->bCheckDefaultOnStartup)
 	{
@@ -1107,6 +1140,40 @@ void CMainFrame::SaveOpenMruList()
 			l_sect->DeletePair(l_valName.c_str());
 		}
 	}
+}
+
+
+void CMainFrame::SavePositionSettings()
+{
+	PSettingsSection l_sect;
+
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"Frame Settings", l_sect))
+	{
+		return;
+	}
+
+	WINDOWPLACEMENT l_wpl = { sizeof(WINDOWPLACEMENT), 0 };
+	if(GetWindowPlacement(l_wpl))
+	{
+		CRect rc = l_wpl.rcNormalPosition;
+
+		l_sect->WriteDword(L"Top", MAX(rc.top, 0));
+		l_sect->WriteDword(L"Left", MAX(rc.left, 0));
+		l_sect->WriteDword(L"Width", MAX(rc.Width(), ms_minWidth));
+		l_sect->WriteDword(L"Height", MAX(rc.Height(), ms_minHeight));
+
+		l_sect->WriteBool(L"Maximized", l_wpl.showCmd == SW_MAXIMIZE);
+	}
+
+	l_sect->WriteBool(L"Toolbar", m_bShowToolbar != FALSE);
+	l_sect->WriteBool(L"Statusbar", m_bShowStatusbar != FALSE);
+}
+
+
+void CMainFrame::OnClose()
+{
+	SavePositionSettings();
+	CFrame::OnClose();
 }
 
 

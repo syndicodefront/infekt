@@ -94,6 +94,7 @@ protected:
 
 	void LoadOpenMruList();
 	void SaveOpenMruList();
+	void SavePositionSettings();
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);
@@ -106,6 +107,7 @@ protected:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual LRESULT WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	virtual inline void SetStatusText() {}
+	virtual void OnClose();
 	// Win32++ stuff end //
 
 	void AddToolbarButtons();
