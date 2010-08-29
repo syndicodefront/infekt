@@ -132,7 +132,7 @@ bool CNFOApp::SwitchToPrevInstance()
 
 	if(l_singleInstanceMode)
 	{
-		HWND l_prevMainWin = FindWindowEx(0, 0, INFEKT_MAIN_WINDOW_CLASS_NAME, NULL);
+		HWND l_prevMainWin = ::FindWindowEx(0, 0, INFEKT_MAIN_WINDOW_CLASS_NAME, NULL);
 
 		if(l_prevMainWin)
 		{
@@ -143,7 +143,7 @@ bool CNFOApp::SwitchToPrevInstance()
 
 			if(::SendMessage(l_prevMainWin, WM_COPYDATA, 0, (LPARAM)&l_cpds) == TRUE)
 			{
-				ShowWindow(l_prevMainWin, SW_SHOW);
+				::ShowWindow(l_prevMainWin, SW_SHOW);
 				return true;
 			}
 		}

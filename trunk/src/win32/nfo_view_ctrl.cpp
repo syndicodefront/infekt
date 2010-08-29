@@ -15,9 +15,10 @@
 #include "stdafx.h"
 #include "nfo_view_ctrl.h"
 
+#ifndef NFOVWR_NO_CONTEXT_MENU
 // makes this control unusable outside of this app, but we need the context menu IDs:
 #include "resource.h"
-// :TODO: fix that
+#endif
 
 #define NFOVWR_CTRL_CLASS_NAME _T("iNFEKT_NfoViewCtrl")
 
@@ -174,16 +175,19 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		m_height = HIWORD(lParam);
 		UpdateScrollbars(false);
 		return 0;
+#ifndef NFOVWR_NO_CONTEXT_MENU
 	case WM_MOUSEMOVE:
 		OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_SETCURSOR:
 		return CUtil::GenericOnSetCursor(m_cursor, lParam);
+#endif
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_LBUTTONDBLCLK:
 		OnMouseClickEvent(uMsg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
+#ifndef NFOVWR_NO_CONTEXT_MENU
 	case WM_CONTEXTMENU: { // :TODO: Shift+F10 not working
 		POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 		::ScreenToClient(m_hwnd, &pt);
@@ -206,6 +210,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 		}
 		return 0;
+#endif
 	case WM_THEMECHANGED:
 		if(CThemeAPI::GetInstance()->IsThemeActive())
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
@@ -401,6 +406,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 
 void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 {
+#ifndef NFOVWR_NO_CONTEXT_MENU
 	size_t l_row, l_col;
 
 	if(!HasNfoData())
@@ -524,6 +530,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 		::SetCursor(::LoadCursor(NULL, m_cursor = l_oldCursor));
 	}
+#endif
 }
 
 
@@ -719,9 +726,11 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 
 void CNFOViewControl::CopySelectedTextToClipboard() const
 {
+#ifdef _WIN32_UI
 	const std::wstring l_wstr = GetSelectedText();
 
 	CUtil::TextToClipboard(m_hwnd, l_wstr);
+#endif
 }
 
 
@@ -742,6 +751,16 @@ void CNFOViewControl::SetContextMenu(HMENU a_menuHandle, HWND a_target)
 {
 	m_contextMenuHandle = a_menuHandle;
 	m_contextMenuCommandTarget = a_target;
+}
+
+
+void CNFOViewControl::SetParent(HWND a_new)
+{
+	if(m_parent != a_new)
+	{
+		m_parent = a_new;
+		::SetParent(m_hwnd, m_parent);
+	}
 }
 
 

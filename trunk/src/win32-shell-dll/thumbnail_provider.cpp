@@ -14,6 +14,7 @@
 
 #include "stdafx.h"
 #include "nfo_renderer.h"
+#include "shell-util.h"
 
 /************************************************************************/
 /* Class Declaration                                                    */
@@ -96,39 +97,11 @@ IFACEMETHODIMP CNFOThumbProvider::Initialize(IStream *pStream, DWORD)
 
 IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha)
 {
-	// read NFO data from stream:
-	std::string l_contents;
-	size_t l_contentLength = 0;
-	char l_buf[200] = {0};
+	PNFOData l_nfoData;
 
-	//m_pStream->Seek(0, STREAM_SEEK_SET, NULL);
-
-	ULONG l_bytesRead;
-	do
+	if(!LoadNFOFromStream(m_pStream, l_nfoData))
 	{
-		HRESULT hr = m_pStream->Read(l_buf, 200, &l_bytesRead);
-
-		if(hr == S_OK || (hr == S_FALSE && l_bytesRead < ARRAYSIZE(l_buf)))
-		{
-			l_contents.append(l_buf, l_bytesRead);
-			l_contentLength += l_bytesRead;
-
-			if(l_contentLength > 1024 * 1024)
-			{
-				// don't try to mess with files > 1MB.
-				return S_FALSE;
-			}
-		}
-		else
-			break;
-	} while(l_bytesRead == ARRAYSIZE(l_buf));
-
-	// process NFO contents into CNFOData instance:
-	PNFOData l_nfoData(new CNFOData());
-
-	if(!l_nfoData->LoadFromMemory((const unsigned char*)l_contents.data(), l_contentLength))
-	{
-		return S_FALSE;
+		return E_FAIL;
 	}
 
 	// set up renderer:
@@ -137,7 +110,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 
 	if(!l_renderer.AssignNFO(l_nfoData))
 	{
-		return S_FALSE;
+		return E_FAIL;
 	}
 
 	// make some guesses based on the requested thumb nail size:
@@ -160,7 +133,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 	unsigned char* l_rawData;
 	HBITMAP l_hBitmap = CreateDIBSection(NULL, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, NULL, 0);
 
-	HRESULT hr = S_FALSE;
+	HRESULT hr = E_FAIL;
 
 	if(l_hBitmap)
 	{

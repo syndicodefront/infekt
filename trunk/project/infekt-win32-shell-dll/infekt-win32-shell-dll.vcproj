@@ -44,8 +44,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\src\win32-shell-dll;..\..\src\lib;..\..\src\win32-support;..\..\dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;INFEKTWIN32SHELLDLL_EXPORTS"
+				AdditionalIncludeDirectories=".;&quot;..\..\src\win32-shell-dll&quot;;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;Y:\Dev\_myinclude"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NFOVWR_NO_CONTEXT_MENU"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -121,8 +121,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\src\win32-shell-dll;..\..\src\lib;..\..\src\win32-support;..\..\dependencies\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;INFEKTWIN32SHELLDLL_EXPORTS"
+				AdditionalIncludeDirectories=".;&quot;..\..\src\win32-shell-dll&quot;;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;Y:\Dev\_myinclude"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NFOVWR_NO_CONTEXT_MENU"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -199,8 +199,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".;..\..\src\win32-shell-dll;..\..\src\lib;..\..\src\win32-support;..\..\dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;INFEKTWIN32SHELLDLL_EXPORTS"
+				AdditionalIncludeDirectories=".;&quot;..\..\src\win32-shell-dll&quot;;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;Y:\Dev\_myinclude"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NFOVWR_NO_CONTEXT_MENU"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -279,8 +279,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".;..\..\src\win32-shell-dll;..\..\src\lib;..\..\src\win32-support;..\..\dependencies\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;INFEKTWIN32SHELLDLL_EXPORTS"
+				AdditionalIncludeDirectories=".;&quot;..\..\src\win32-shell-dll&quot;;..\..\src\lib;..\..\src\win32;&quot;..\..\src\win32-support&quot;;..\..\dependencies\include;Y:\Dev\_myinclude"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NFOVWR_NO_CONTEXT_MENU"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -489,7 +489,79 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\win32\nfo_view_ctrl.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\src\win32-shell-dll\preview_handler.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-shell-dll\shell-util.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -557,6 +629,42 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-support\theme_api.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -638,6 +746,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\..\src\win32-shell-dll\shell-util.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\src\win32-shell-dll\stdafx.h"
 				>

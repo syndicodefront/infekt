@@ -57,6 +57,8 @@ public:
 	bool CreateControl(int a_left, int a_top, int a_width, int a_height);
 	void SetContextMenu(HMENU a_menuHandle, HWND a_target);
 	HWND GetHwnd() const { return m_hwnd; }
+	HWND GetParent() const { return m_parent; }
+	void SetParent(HWND a_new);
 
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;

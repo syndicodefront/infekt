@@ -18,6 +18,7 @@
 #include "targetver.h"
 
 #include <windows.h>
+#include <windowsx.h>
 #include <tchar.h>
 #include <objbase.h>
 #include <thumbcache.h>
@@ -32,12 +33,15 @@
 #include <map>
 #include <io.h>
 
+#include <boost/shared_ptr.hpp>
+
 #include <cairo-win32.h>
 #include <pcre.h>
 #include <inttypes.h>
 
 #define _tstring wstring
 #include "util.h"
+#include "theme_api.h"
 
 template <class T> void SafeRelease(T **ppT)
 {
