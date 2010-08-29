@@ -8,8 +8,11 @@
 == v0.6.1 unstable/testing release (???) ==
   * Native 64-bit version
   * Shell integration on Vista and 7: NFO file thumbnails and preview pane support
-  * Real portable mode support by using an INI file instead of the Registry
+  * Real portable mode support by using an INI file (portable.ini) instead of the Registry
   * Hyperlink-and-text-on-the-same-line bugfixes
+  * Hardened app against "recent" DLL loading forgeries
+  * Updated pixman and libpng
+  * Other fixes & improvements
 
 == v0.6 (4th July 2010) ==
   * Made text output in Rendered View a lot faster (also improves zoom speed)
