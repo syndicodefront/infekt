@@ -64,8 +64,9 @@
 #define IDC_BUTTON3                     1044
 #define IDC_THEME_IMPORT                1044
 #define IDC_PLUGIN_LIST                 1045
-#define IDC_CUDA_STATUS2                1045
 #define IDC_SETTINGS_BACKEND_STATUS     1045
+#define IDC_CHECK5                      1046
+#define IDC_REMEMBERMRU                 1046
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002
 #define ID_FILE_OPEN40003               40003
@@ -130,7 +131,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        123
 #define _APS_NEXT_COMMAND_VALUE         40088
-#define _APS_NEXT_CONTROL_VALUE         1046
+#define _APS_NEXT_CONTROL_VALUE         1047
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

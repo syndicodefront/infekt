@@ -27,6 +27,7 @@ public:
 		bCopyOnSelect = bAlwaysOnTop = bAlwaysShowMenubar = false;
 		bCheckDefaultOnStartup = false;
 		bSingleInstanceMode = false;
+		bKeepOpenMRU = true;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -38,6 +39,7 @@ public:
 	bool bAlwaysShowMenubar;
 	bool bCheckDefaultOnStartup;
 	bool bSingleInstanceMode;
+	bool bKeepOpenMRU;
 };
 
 typedef boost::shared_ptr<CMainSettings> PMainSettings;

@@ -295,6 +295,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, l_global->bAlwaysShowMenubar);
 		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, l_global->bCopyOnSelect);
 		SET_DLG_CHECKBOX(IDC_SINGLEINSTANCEMODE, l_global->bSingleInstanceMode);
+		SET_DLG_CHECKBOX(IDC_REMEMBERMRU, l_global->bKeepOpenMRU);
 
 		if(CUtil::IsWin6x())
 		{
@@ -1072,6 +1073,7 @@ bool CSettingsTabDialog::SaveSettings()
 
 		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
 		l_set->bSingleInstanceMode = (::IsDlgButtonChecked(GetHwnd(), IDC_SINGLEINSTANCEMODE) != FALSE);
+		l_set->bKeepOpenMRU = (::IsDlgButtonChecked(GetHwnd(), IDC_REMEMBERMRU) != FALSE);
 
 		return l_set->SaveToRegistry();
 	}
