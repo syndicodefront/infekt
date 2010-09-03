@@ -5,12 +5,14 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
-== v0.6.1 unstable/testing release (???) ==
+== v0.7 (?? September 2010) ==
   * Native 64-bit version
-  * Shell integration on Vista and 7: NFO file thumbnails and preview pane support
+  * Shell integration on Vista and 7: NFO file thumbnails and (basic) preview pane support
   * Real portable mode support by using an INI file (portable.ini) instead of the Registry
-  * Hyperlink-and-text-on-the-same-line bugfixes
-  * Hardened app against "recent" DLL loading forgeries
+  * Hyperlink-and-text-on-the-same-line bugfixes (e.g. issue 29)
+  * Fixed issue 35 (crash/hang)
+  * Implemented don't-remember-MRU option
+  * Hardened app against "recent" DLL loading forgeries ("binary planting")
   * Updated pixman and libpng
   * Other fixes & improvements
 
