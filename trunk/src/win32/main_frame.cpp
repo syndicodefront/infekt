@@ -348,8 +348,17 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		return TRUE;
 
 	case TBBID_CLEARMRU:
-		m_mruPaths.clear();
-		SaveOpenMruList();
+		if(!m_mruPaths.empty())
+		{
+			// "empty list" menu item
+			m_mruPaths.clear();
+			SaveOpenMruList();
+		}
+		else
+		{
+			// "browse..." menu item
+			OpenChooseFileName();
+		}
 		return TRUE;
 
 	case IDM_ZOOM_IN:
@@ -408,9 +417,15 @@ bool CMainFrame::DoOpenMruMenu(const LPNMTOOLBAR a_lpnm)
 			::AppendMenu(hPopupMenu, MF_STRING, TBBID_OPENMRUSTART + l_idx, l_entry);
 		}
 
-		::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
-		::AppendMenu(hPopupMenu, MF_STRING | (m_mruPaths.size() == 0 ? MF_DISABLED | MF_GRAYED : 0),
-			TBBID_CLEARMRU, _T("Empty Recently Viewed List"));
+		if(m_mruPaths.size() == 0)
+		{
+			::AppendMenu(hPopupMenu, MF_STRING, TBBID_CLEARMRU, _T("Browse..."));
+		}
+		else
+		{
+			::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+			::AppendMenu(hPopupMenu, MF_STRING, TBBID_CLEARMRU, _T("Empty Recently Viewed List"));
+		}
 
 		// Set up the popup menu.
 		// Set rcExclude equal to the button rectangle so that if the toolbar
@@ -509,7 +524,10 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 			m_mruPaths.erase(m_mruPaths.begin() + ms_mruLength, m_mruPaths.end());
 		}
 
-		SaveOpenMruList();
+		if(m_settings->bKeepOpenMRU)
+		{
+			SaveOpenMruList();
+		}
 
 		// yay.
 		return true;
@@ -1187,6 +1205,13 @@ void CMainFrame::SavePositionSettings()
 void CMainFrame::OnClose()
 {
 	SavePositionSettings();
+
+	if(!m_settings->bKeepOpenMRU)
+	{
+		m_mruPaths.clear();
+		SaveOpenMruList();
+	}
+
 	CFrame::OnClose();
 }
 
@@ -1219,6 +1244,7 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"AlwaysOnTop", this->bAlwaysOnTop);
 	l_sect->WriteBool(L"AlwaysShowMenubar", this->bAlwaysShowMenubar);
 	l_sect->WriteBool(L"CheckDefViewOnStart", this->bCheckDefaultOnStartup);
+	l_sect->WriteBool(L"KeepOpenMRU", this->bKeepOpenMRU);
 	
 	return l_sect->WriteBool(L"SingleInstanceMode", this->bSingleInstanceMode);
 }
@@ -1251,6 +1277,7 @@ bool CMainSettings::LoadFromRegistry()
 	this->bAlwaysShowMenubar = l_sect->ReadBool(L"AlwaysShowMenubar", false);
 	this->bCheckDefaultOnStartup = l_sect->ReadBool(L"CheckDefViewOnStart", true);
 	this->bSingleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
+	this->bKeepOpenMRU = l_sect->ReadBool(L"KeepOpenMRU", true);
 
 	return true;
 }

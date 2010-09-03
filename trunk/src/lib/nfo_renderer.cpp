@@ -551,9 +551,9 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 					{
 						l_broken = true;
 					}
-				}
 
-				l_foundText = true;
+					l_foundText = true;
+				}
 			}
 
 			if(!l_broken)
