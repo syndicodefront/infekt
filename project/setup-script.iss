@@ -29,9 +29,10 @@ ArchitecturesInstallIn64BitMode=x64
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "nfoassoc"; Description: "Make iNFekt the default viewer for .nfo files"; GroupDescription: "Shell Integration"; Flags: checkedonce
+Name: "nfoassoc"; Description: "Make iNFekt the default viewer for .nfo files"; GroupDescription: "Shell integration"
+Name: "shellpreview"; Description: "Install Explorer preview pane and thumbnail integration for .nfo files"; GroupDescription: "Shell integration"; MinVersion: 0,6.0
 
 [Files]
 Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
@@ -50,12 +51,18 @@ Source: "{#SourceFileDir32}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversi
 Source: "{#SourceFileDir64}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\cudart32_31_9.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#SourceFileDir64}\cudart64_31_9.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: Is64BitInstallMode
 ;Source: "C:\temp\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion; Flags: ignoreversion; Check: not Is64BitInstallMode
 ;Source: "C:\temp\vcredist_x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion; Flags: ignoreversion; Check: Is64BitInstallMode
 
 [InstallDelete]
 Type: files; Name: "{app}\cudart.dll"
-; cudart.dll has been used up to v0.6.0
+; cudart.dll was used up to v0.6.0
+
+[UnInstallDelete]
+Type: files; Name: "{app}\infekt-nfo-shell.dll"
+; in case someone copied this file into the program folder manually (when it has NOT been installed using the "shellpreview" task)
 
 [Icons]
 Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Check: not Is64BitInstallMode
@@ -72,6 +79,10 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"
 ;Filename: "{tmp}\vcredist_x64.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."; Check: Is64BitInstallMode
 Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: not Is64BitInstallMode
 Filename: "{app}\infekt-win64.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: Is64BitInstallMode
+
+[UninstallRun]
+Filename: "{sys}\regsvr32.exe"; Parameters: "/s /u ""{app}\infekt-nfo-shell.dll"""; Flags: skipifdoesntexist runhidden
+; in case someone manually registered the shell extension, make sure to clean up.
 
 [Registry]
 ; Set up ProgId for file associations:
@@ -100,3 +111,4 @@ Root: HKCU; Subkey: "Software\cxxjoe\iNFEKT"; Flags: dontcreatekey uninsdeleteke
 ; Association created by Windows:
 Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win32.exe"; Flags: dontcreatekey uninsdeletekey; Check: not Is64BitInstallMode
 Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win64.exe"; Flags: dontcreatekey uninsdeletekey; Check: Is64BitInstallMode
+
