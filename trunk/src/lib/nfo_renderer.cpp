@@ -506,45 +506,51 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		double l_fontSize = static_cast<double>(GetBlockWidth());
 		bool l_broken = false, l_foundText = false;
 
+		std::deque<char*> l_checkChars;
+
+		for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
+		{
+			for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
+			{
+				CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+
+				if(l_block->shape == RGS_NO_BLOCK)
+				{
+					l_checkChars.push_back(m_nfo->GetGridCharUtf8(row, col));
+				}
+			}
+		}
+
+		l_checkChars.push_back("\xE2\x96\x88");
+
 		// calculate font size that fits into blocks of the given size:
 		do
 		{
 			cairo_set_font_size(cr, l_fontSize + 1);
 
-			for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
+			for(std::deque<char*>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
 			{
-				for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
+				cairo_text_extents_t l_extents = {0};
+
+				// measure the inked area of this glyph (char):
+				cairo_scaled_font_t *l_csf = cairo_get_scaled_font(cr);
+				cairo_glyph_t *l_glyphs = NULL;
+				int l_numGlyphs = 0;
+
+				if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, *it, -1,
+					&l_glyphs, &l_numGlyphs, NULL, NULL, NULL) == CAIRO_STATUS_SUCCESS)
 				{
-					CRenderGridBlock *l_block = &(*m_gridData)[row][col];
-
-					if(l_block->shape != RGS_NO_BLOCK)
-					{
-						continue;
-					}
-
-
-					cairo_text_extents_t l_extents = {0};
-
-					// measure the inked area of this glyph (char):
-					cairo_scaled_font_t *l_csf = cairo_get_scaled_font(cr);
-					cairo_glyph_t *l_glyphs = NULL;
-					int l_numGlyphs = 0;
-
-					if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, m_nfo->GetGridCharUtf8(row, col), 1,
-						&l_glyphs, &l_numGlyphs, NULL, NULL, NULL) == CAIRO_STATUS_SUCCESS)
-					{
-						cairo_scaled_font_glyph_extents(l_csf, l_glyphs, l_numGlyphs, &l_extents);
-						cairo_glyph_free(l_glyphs);
-					}
+					cairo_scaled_font_glyph_extents(l_csf, l_glyphs, l_numGlyphs, &l_extents);
+					cairo_glyph_free(l_glyphs);
 
 					// find char that covers the largest area...
 					if(l_extents.width > GetBlockWidth() || l_extents.height > GetBlockHeight())
 					{
 						l_broken = true;
 					}
-
-					l_foundText = true;
 				}
+
+				l_foundText = true;
 			}
 
 			if(!l_broken)
