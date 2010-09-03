@@ -521,7 +521,10 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			}
 		}
 
-		l_checkChars.push_back("\xE2\x96\x88");
+		// add some generic "big" chars for NFOs that e.g.
+		// contain nothing but dots or middots:
+		l_checkChars.push_back("W");
+		l_checkChars.push_back("M");
 
 		// calculate font size that fits into blocks of the given size:
 		do
@@ -557,7 +560,6 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			{
 				l_fontSize++;
 			}
-
 		} while(!l_broken && l_foundText);
 
 		m_fontSize = l_fontSize + 1;
