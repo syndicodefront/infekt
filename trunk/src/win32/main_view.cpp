@@ -276,7 +276,18 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 void CViewContainer::SwitchView(EMainView a_view)
 {
-	if(m_curViewType == a_view || a_view >= _MAIN_VIEW_MAX)
+	bool l_force = false;
+
+	if(a_view == MAIN_VIEW_TEXTONLY && m_textOnlyControl && m_textOnlyControl->HasNfoData())
+	{
+		if(m_textOnlyControl->GetNfoData()->GetWrapLines() != m_textOnlyControl->GetWrapLines())
+		{
+			m_textOnlyControl->UnAssignNFO();
+			l_force = true;
+		}
+	}
+
+	if(a_view >= _MAIN_VIEW_MAX || (m_curViewType == a_view && !l_force))
 	{
 		return;
 	}
@@ -344,6 +355,7 @@ bool CViewContainer::CurAssignNfo()
 	{
 		const std::string l_stripped = CNFOData::GetStrippedTextUtf8(m_nfoData->GetTextWide());
 		PNFOData l_data(new CNFOData());
+		l_data->SetWrapLines(m_curViewCtrl->GetWrapLines());
 		l_data->SetCharsetToTry(NFOC_UTF8);
 		if(l_data->LoadFromMemory((const unsigned char*)l_stripped.c_str(), l_stripped.size()))
 		{

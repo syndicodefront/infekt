@@ -89,6 +89,8 @@ public:
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
 	ENfoCharset GetCharset() const { return m_sourceCharset; }
 	static const std::_tstring GetCharsetName(ENfoCharset a_charset);
+	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
+	bool GetWrapLines() const { return m_lineWrap; }
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;
@@ -99,6 +101,7 @@ protected:
 	std::multimap<size_t, CNFOHyperLink> m_hyperLinks;
 	std::_tstring m_filePath;
 	ENfoCharset m_sourceCharset;
+	bool m_lineWrap;
 
 	bool LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen);
 

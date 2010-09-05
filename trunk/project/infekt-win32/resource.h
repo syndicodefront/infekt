@@ -21,6 +21,7 @@
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_CHECK_DEFAULT_VIEWER        1006
+#define IDC_FONT_LINEWRAP               1006
 #define IDC_BUTTON1                     1007
 #define IDC_BUTTON_DEFAULT_VIEWER       1007
 #define IDC_CHECK2                      1008
@@ -65,7 +66,6 @@
 #define IDC_THEME_IMPORT                1044
 #define IDC_PLUGIN_LIST                 1045
 #define IDC_SETTINGS_BACKEND_STATUS     1045
-#define IDC_CHECK5                      1046
 #define IDC_REMEMBERMRU                 1046
 #define IDM_ABOUT                       40001
 #define ID_FILE_QUIT                    40002

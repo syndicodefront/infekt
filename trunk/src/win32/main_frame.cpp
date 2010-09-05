@@ -968,6 +968,7 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 	else
 	{
 		l_sect->WriteDword(L"FontSize", static_cast<DWORD>(a_settings.uFontSize));
+		l_sect->WriteBool(L"WrapLines", a_settings.bWrapLines);
 	}
 
 	return l_sect->WriteString(L"FontName", a_settings.sFontFace); /* somewhat representative success check */
@@ -994,6 +995,7 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 	l_newSets.bHilightHyperlinks = l_sect->ReadBool(L"HilightHyperlinks", l_defaults.bHilightHyperlinks);
 	l_newSets.bUnderlineHyperlinks = l_sect->ReadBool(L"UnderlineHyperlinks", l_defaults.bUnderlineHyperlinks);
 	l_newSets.bFontAntiAlias = l_sect->ReadBool(L"FontAntiAlias", l_defaults.bFontAntiAlias);
+	l_newSets.bWrapLines = l_sect->ReadBool(L"WrapLines", l_defaults.bWrapLines);
 
 	if(!a_target->IsClassicMode())
 	{
