@@ -5,7 +5,7 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
-== v0.7 (?? September 2010) ==
+== v0.7 (5th September 2010) ==
   * Native 64-bit version
   * Shell integration on Vista and 7: NFO file thumbnails and (basic) preview pane support
   * Real portable mode support by using an INI file (portable.ini) instead of the Registry
