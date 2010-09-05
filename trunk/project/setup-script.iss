@@ -5,7 +5,7 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.6.1
+AppVerName=iNFekt 0.7.0
 AppPublisher=cxxjoe & Contributors
 AppPublisherURL=http://infekt.googlecode.com/
 AppSupportURL=http://infekt.googlecode.com/
@@ -24,6 +24,7 @@ WizardImageStretch=yes
 ChangesAssociations=yes
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
+AppMutex=iNFektNfoViewerOneInstanceMutex
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
