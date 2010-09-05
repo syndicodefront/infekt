@@ -411,7 +411,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		_InternalLoad_FixAnsiEscapeCodes(m_textContent);
 		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
 		_InternalLoad_FixLfLf(m_textContent, l_lines);
-		if(0) _InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
+		if(m_lineWrap) _InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
 
 		// copy lines to grid(s):
 		delete m_grid; m_grid = NULL;

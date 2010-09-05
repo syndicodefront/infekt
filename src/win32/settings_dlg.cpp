@@ -106,6 +106,10 @@ void CSettingsWindowDialog::OnOK()
 	l_view->GetClassicCtrl()->InjectSettings(*m_tabPageClassic->GetViewSettings());
 	l_view->GetTextOnlyCtrl()->InjectSettings(*m_tabPageTextOnly->GetViewSettings());
 
+	// update or reset text-only view's word-wrap flag:
+	l_view->SwitchView(l_view->GetViewType());
+	// if that hasn't changed the call won't do anything.
+
 	CPluginManager::GetInstance()->TriggerSettingsChanged();
 
 	CDialog::OnOK();
@@ -241,6 +245,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		DLG_SHOW_CTRL_IF(IDC_LABEL_ART, m_pageId != TAB_PAGE_TEXTONLY);
 		DLG_SHOW_CTRL_IF(IDC_CLR_ART, m_pageId != TAB_PAGE_TEXTONLY);
+		DLG_SHOW_CTRL_IF(IDC_FONT_LINEWRAP, m_pageId == TAB_PAGE_TEXTONLY);
 
 		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_LABEL, m_pageId != TAB_PAGE_RENDERED);
 		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_COMBO, m_pageId != TAB_PAGE_RENDERED);
@@ -347,6 +352,7 @@ void CSettingsTabDialog::ViewSettingsToGui()
 		SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
 		SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
 		SET_DLG_CHECKBOX(IDC_FONT_ANTIALIAS, m_viewSettings->bFontAntiAlias);
+		SET_DLG_CHECKBOX(IDC_FONT_LINEWRAP, m_viewSettings->bWrapLines);
 
 		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
 		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETPOS, TRUE, m_viewSettings->uGaussBlurRadius);
@@ -521,6 +527,9 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			break;
 		case IDC_FONT_ANTIALIAS:
 			m_viewSettings->bFontAntiAlias = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_ANTIALIAS) != FALSE);
+			break;
+		case IDC_FONT_LINEWRAP:
+			m_viewSettings->bWrapLines = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_LINEWRAP) != FALSE);
 			break;
 		case IDC_FONTNAME_COMBO:
 			if(HIWORD(wParam) == CBN_SELCHANGE)
