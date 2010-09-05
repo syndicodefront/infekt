@@ -10,8 +10,11 @@
   * Shell integration on Vista and 7: NFO file thumbnails and (basic) preview pane support
   * Real portable mode support by using an INI file (portable.ini) instead of the Registry
   * Hyperlink-and-text-on-the-same-line bugfixes (e.g. issue 29)
+  * CUDA SDK is now at version 3.1. This means that you need a more recent NViDiA driver to take advantage of CUDA acceleration.
   * Fixed issue 35 (crash/hang)
   * Implemented don't-remember-MRU option
+  * Implemented line-wrap option for text-only view
+  * About dialog: Show 32/64 bit info and OS version
   * Hardened app against "recent" DLL loading forgeries ("binary planting")
   * Updated pixman and libpng
   * Other fixes & improvements
