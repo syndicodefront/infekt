@@ -22,7 +22,7 @@ curl http://www.cairographics.org/releases/pixman-0.19.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.8.10.tar.gz -o cairo.tgz
+curl http://www.cairographics.org/releases/cairo-1.10.0.tar.gz -o cairo.tgz
 :CZOK
 
 set ROOTDIR=%cd%\work
@@ -132,33 +132,35 @@ set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\boilerplate
 set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\src
 
 IF %CONFIG%==debug GOTO FINALLIBDEBUG
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\Zlib
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng14.* %ROOTDIR%\libpng
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\Zlib\zlib1.* %ROOTDIR%\zlib
 GOTO FINALLIBDONE
 :FINALLIBDEBUG
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug
-set LIB=%LIB%;%ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\Zlib
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.* %ROOTDIR%\libpng
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\Zlib\zlib1d.* %ROOTDIR%\zlib
 :FINALLIBDONE
-
-REM Patch Cairo
-cd %ROOTDIR%
-patch -p3 -u -l < ..\win32-cleartype-clipping.patch
 
 cd %ROOTDIR%\cairo
 
-sed s/libpng.lib/libpng14%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
+sed s/libpng\.lib/libpng14%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
-sed s/zdll.lib/zlib1%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
+sed s/zdll\.lib/zlib1%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
 IF %CONFIG%==release GOTO SKIPDEBUGLIBFIX
-sed "s/user32.lib/user32.lib \/NODEFAULTLIB:msvcrt.lib/" build\Makefile.win32.common > build\Makefile.fixed
+sed "s/user32\.lib/user32.lib \/NODEFAULTLIB:msvcrt.lib/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 :SKIPDEBUGLIBFIX
 
 sed "s/D_CRT_NONSTDC_NO_DEPRECATE/D_CRT_NONSTDC_NO_DEPRECATE -DZLIB_DLL/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
+
+sed "s/^if \([A-Z_]*\)$/ifeq ($(\1), 1)/" src\Makefile.sources > src\Makefile.fixed
+move /Y src\Makefile.fixed src\Makefile.sources
+
+sed "s/#define _cairo_lround lround/static inline long cairo_const _cairo_lround(double r) { return (long)floor(r + .5); }/" src\cairoint.h > src\cairoint.h.fixed
+move /Y src\cairoint.h.fixed src\cairoint.h
 
 REM we can toggle SVG support here but we MUST NOT remove these two lines
 REM else the make file will fail to regenerate cairo-features.h
