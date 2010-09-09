@@ -447,6 +447,7 @@ static inline void _SetUpDrawingTools(CNFORenderer* r, cairo_surface_t* a_surfac
 
 	cairo_font_options_set_antialias(cfo, (r->GetFontAntiAlias() ? CAIRO_ANTIALIAS_SUBPIXEL : CAIRO_ANTIALIAS_NONE));
 	cairo_font_options_set_hint_style(cfo, (r->IsClassicMode() ? CAIRO_HINT_STYLE_DEFAULT : CAIRO_HINT_STYLE_NONE));
+	cairo_font_options_set_hint_metrics(cfo, (r->IsClassicMode() ? CAIRO_HINT_METRICS_ON : CAIRO_HINT_METRICS_OFF));
 
 	const std::string l_font
 #ifdef _UNICODE
