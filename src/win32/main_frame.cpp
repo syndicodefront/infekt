@@ -185,12 +185,62 @@ void CMainFrame::SetupToolbar()
 	GetMenubar().SetMenu(::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_MENU)));
 
 	// always show grippers:
-	GetRebar().ShowGripper(GetRebar().IDToIndex(IDW_TOOLBAR), TRUE);
-	GetRebar().ShowGripper(GetRebar().IDToIndex(IDW_MENUBAR), TRUE);
+	RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), TRUE);
+	RB.ShowGripper(RB.IDToIndex(IDW_MENUBAR), TRUE);
 
 	ShowMenuBar(m_settings->bAlwaysShowMenubar);
 
 	AddToolbarButtons();
+
+	PSettingsSection l_sect;
+
+	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"RebarData", l_sect))
+	{
+		UINT l_bandIDs[2] = { IDW_MENUBAR, IDW_TOOLBAR };
+		const wchar_t* l_bandNames[2] = { L"mmenubar", L"toolbar1" };
+
+		for(int i = 0; i < 2; i++)
+		{
+			wchar_t l_key[100] = {0};
+			int l_index, l_width;
+			bool l_break;
+
+			swprintf_s(l_key, 99, L"%s_index", l_bandNames[i]);
+			l_index = l_sect->ReadDword(l_key, i);
+			swprintf_s(l_key, 99, L"%s_width", l_bandNames[i]);
+			l_width = l_sect->ReadDword(l_key);
+			swprintf_s(l_key, 99, L"%s_break", l_bandNames[i]);
+			l_break = l_sect->ReadBool(l_key, false);
+
+			if(l_index != i && l_index >= 0 && l_index < RB.GetBandCount())
+			{
+				RB.MoveBand(RB.IDToIndex(l_bandIDs[i]), l_index);
+			}
+
+			REBARBANDINFO l_info = { sizeof(REBARBANDINFO), 0 };
+			l_info.fMask = RBBIM_SIZE | RBBIM_STYLE | RBBIM_CHILDSIZE;
+
+			RB.GetBandInfo(l_index, l_info);
+
+			if(l_width > 0 && (UINT)l_width < (UINT)l_info.cxMinChild)
+			{
+				l_info.cx = (UINT)l_width;
+			}
+			// doesn't really set the width since if cxMinChild is > 0, Windows
+			// ignores the cx member or something... :FIXME:
+
+			if(l_break)
+			{
+				l_info.fStyle |= RBBS_BREAK; 
+			}
+			else
+			{
+				l_info.fStyle &= ~RBBS_BREAK;
+			}
+
+			RB.SetBandInfo(l_index, l_info);
+		}
+	}
 }
 
 
@@ -1204,9 +1254,46 @@ void CMainFrame::SavePositionSettings()
 }
 
 
+void CMainFrame::SaveReBarSettings()
+{
+	PSettingsSection l_sect;
+
+	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"RebarData", l_sect))
+	{
+		return;
+	}
+
+	CRebar& RB = GetRebar();
+
+	UINT l_bandIDs[2] = { IDW_MENUBAR, IDW_TOOLBAR };
+	const wchar_t* l_bandNames[2] = { L"mmenubar", L"toolbar1" };
+
+	for(int i = 0; i < 2; i++)
+	{
+		int l_index = RB.IDToIndex(l_bandIDs[i]);
+		wchar_t l_key[100] = {0};
+
+		swprintf_s(l_key, 99, L"%s_index", l_bandNames[i]);
+		l_sect->WriteDword(l_key, l_index);
+
+		REBARBANDINFO l_info = { sizeof(REBARBANDINFO), 0 };
+		l_info.fMask = RBBIM_SIZE | RBBIM_STYLE;
+
+		RB.GetBandInfo(l_index, l_info);
+
+		swprintf_s(l_key, 99, L"%s_width", l_bandNames[i]);
+		l_sect->WriteDword(l_key, l_info.cx);
+
+		swprintf_s(l_key, 99, L"%s_break", l_bandNames[i]);
+		l_sect->WriteBool(l_key, (l_info.fStyle & RBBS_BREAK) != 0);
+	}
+}
+
+
 void CMainFrame::OnClose()
 {
 	SavePositionSettings();
+	SaveReBarSettings();
 
 	if(!m_settings->bKeepOpenMRU)
 	{
