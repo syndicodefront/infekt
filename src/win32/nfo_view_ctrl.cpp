@@ -558,15 +558,13 @@ void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size
 
 void CNFOViewControl::GetScrollPositions(int& ar_x, int& ar_y)
 {
-	SCROLLINFO l_si = {0};
-
-	l_si.cbSize = sizeof(SCROLLINFO);
+	SCROLLINFO l_si = { sizeof(SCROLLINFO), 0 };
 	l_si.fMask = SIF_POS;
 
 	::GetScrollInfo(m_hwnd, SB_HORZ, &l_si);
 	ar_x = l_si.nPos;
 
-	::GetScrollInfo (m_hwnd, SB_VERT, &l_si);
+	::GetScrollInfo(m_hwnd, SB_VERT, &l_si);
 	ar_y = l_si.nPos;
 }
 

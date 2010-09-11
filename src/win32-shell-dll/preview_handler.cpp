@@ -110,7 +110,7 @@ public:
 
 HRESULT CNFOPreviewHandler::SetWindow(HWND hwnd, const RECT *prc)
 {
-	if(hwnd && prc)// && prc->right - prc->left > 0 && prc->bottom - prc->top > 0)
+	if(hwnd && prc && prc->right - prc->left > 0 && prc->bottom - prc->top > 0)
 	{
 		m_hwndParent = hwnd;
 		m_rcParent = *prc;
