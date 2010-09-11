@@ -212,7 +212,11 @@ void CMainFrame::SetupToolbar()
 			swprintf_s(l_key, 99, L"%s_break", l_bandNames[i]);
 			l_break = l_sect->ReadBool(l_key, false);
 
-			if(l_index != i && l_index >= 0 && l_index < RB.GetBandCount())
+			if(l_index < 0 || l_index >= RB.GetBandCount())
+			{
+				continue;
+			}
+			else if(l_index != i)
 			{
 				RB.MoveBand(RB.IDToIndex(l_bandIDs[i]), l_index);
 			}
