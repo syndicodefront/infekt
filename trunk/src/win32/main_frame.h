@@ -97,6 +97,7 @@ protected:
 	void LoadOpenMruList();
 	void SaveOpenMruList();
 	void SavePositionSettings();
+	void SaveReBarSettings();
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);
