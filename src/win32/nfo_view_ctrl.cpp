@@ -265,7 +265,8 @@ void CNFOViewControl::OnPaint()
 	HDC l_dc;
 	PAINTSTRUCT l_ps;
 	cairo_surface_t *l_surface, *l_realSurface = NULL;
-	bool l_buffer = (m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1);
+	bool l_textSelected = (m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1);
+	bool l_smart = !l_textSelected;
 
 	// get scroll offsets:
 	int l_x, l_y;
@@ -273,19 +274,25 @@ void CNFOViewControl::OnPaint()
 
 	// let's paint!
 	l_dc = ::BeginPaint(m_hwnd, &l_ps);
-	l_buffer = l_buffer || l_ps.fErase; // avoid flickering... meh :TODO: figure out better way to erase the background
-	l_surface = cairo_win32_surface_create(l_dc);
+	l_realSurface = cairo_win32_surface_create(l_dc);
 
-	if(l_buffer)
+	if(l_smart)
 	{
-		l_realSurface = l_surface;
-		l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, m_width, m_height);
+		// smart = buffer invalidated rect only
+		l_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24,
+			l_ps.rcPaint.right - l_ps.rcPaint.left,
+			l_ps.rcPaint.bottom - l_ps.rcPaint.top);
+	}
+	else
+	{
+		// not smart = redraw (copy) entire control contents
+		l_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, m_width, m_height);
 	}
 
 	// erase the background if necessary:
 	if(l_ps.fErase)
 	{
-		cairo_t* l_cr = cairo_create(l_surface);
+		cairo_t* l_cr = cairo_create(!HasNfoData() ? l_realSurface : l_surface);
 		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
 		cairo_paint(l_cr);
 		cairo_destroy(l_cr);
@@ -295,13 +302,28 @@ void CNFOViewControl::OnPaint()
 	if(m_centerNfo && m_width > (int)GetWidth())
 		l_destx = (m_width - (int)GetWidth()) / 2;
 
-	// draw draw draw fight the powa!
-	DrawToSurface(l_surface, l_destx, 0, l_x * (int)GetBlockWidth(), l_y * (int)GetBlockHeight(), m_width + m_padding, m_height + m_padding);
+	// draw draw fight the power!
+	if(l_smart)
+	{
+		DrawToSurface(l_surface, l_destx, 0,
+			l_x * (int)GetBlockWidth() + l_ps.rcPaint.left,
+			l_y * (int)GetBlockHeight() + l_ps.rcPaint.top,
+			cairo_image_surface_get_width(l_surface),
+			cairo_image_surface_get_height(l_surface));
+	}
+	else
+	{
+		DrawToSurface(l_surface, l_destx, 0,
+			l_x * (int)GetBlockWidth(),
+			l_y * (int)GetBlockHeight(),
+			m_width + m_padding,
+			m_height + m_padding);
+	}
 
 	// draw highlighted (selected) text:
-	if(m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1)
+	if(l_textSelected)
 	{
-		S_COLOR_T l_back = GetBackColor().Invert();
+		const S_COLOR_T l_back = GetBackColor().Invert();
 		double l_bw = (double)GetBlockWidth(), l_bh = (double)GetBlockHeight();
 
 		if(!m_classic)
@@ -318,15 +340,34 @@ void CNFOViewControl::OnPaint()
 		}
 	}
 
-	// clean up:
-	if(l_realSurface)
+	// copy from buffer to screen:
+	if(HasNfoData())
 	{
 		cairo_t *cr = cairo_create(l_realSurface);
-		cairo_set_source_surface(cr, l_surface, 0, 0);
-		cairo_paint(cr);
+		cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+
+		if(l_smart)
+		{
+			cairo_set_source_surface(cr, l_surface,
+				/*dest_x - source_x*/ l_ps.rcPaint.left - 0,
+				/*dest_y - source_y*/ l_ps.rcPaint.top - 0);
+
+			cairo_rectangle(cr, l_ps.rcPaint.left, l_ps.rcPaint.top,
+				cairo_image_surface_get_width(l_surface),
+				cairo_image_surface_get_height(l_surface));
+
+			cairo_fill(cr);
+		}
+		else
+		{
+			cairo_set_source_surface(cr, l_surface, 0, 0);
+			cairo_paint(cr);
+		}
+
 		cairo_destroy(cr);
-		cairo_surface_destroy(l_realSurface);
 	}
+
+	cairo_surface_destroy(l_realSurface);
 	cairo_surface_destroy(l_surface);
 	::EndPaint(m_hwnd, &l_ps);
 
