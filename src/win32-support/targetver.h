@@ -24,5 +24,8 @@
 #define _WIN32_WINNT	WINVER
 #define _WIN32_WINDOWS	WINVER
 
+/* http://support.microsoft.com/kb/166474 */
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
+
+#define STRICT /* http://msdn.microsoft.com/en-us/library/aa383681%28VS.85%29.aspx */
