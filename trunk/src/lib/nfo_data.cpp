@@ -25,6 +25,7 @@ CNFOData::CNFOData()
 	m_loaded = false;
 	m_utf8Grid = NULL;
 	m_sourceCharset = NFOC_AUTO;
+	m_lineWrap = false;
 }
 
 
