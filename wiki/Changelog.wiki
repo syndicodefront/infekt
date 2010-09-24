@@ -5,6 +5,12 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
+== v0.7.1 (24th September 2010) ==
+  * Fixed wrong line-wrap default in Rendered and Classic mode
+  * Updated cairo, pixman and libpng
+  * Minor speedups
+  * Fixed setup/installer version info
+
 == v0.7 (5th September 2010) ==
   * Native 64-bit version
   * Shell integration on Vista and 7: NFO file thumbnails and (basic) preview pane support
