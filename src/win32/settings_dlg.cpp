@@ -97,7 +97,7 @@ void CSettingsWindowDialog::OnOK()
 
 	if(!b)
 	{
-		MessageBox(L"An error occured while saving settings. Not all settings could be saved.", L"Error", MB_ICONEXCLAMATION);
+		MessageBox(L"An error occurred while saving settings. Some settings may not have been saved.", L"Error", MB_ICONEXCLAMATION);
 	}
 
 	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());

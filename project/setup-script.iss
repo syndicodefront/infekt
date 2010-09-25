@@ -12,7 +12,6 @@ AppPublisherURL=http://infekt.googlecode.com/
 DefaultDirName={pf}\iNFekt
 DefaultGroupName=iNFekt NFO Viewer
 AllowNoIcons=yes
-LicenseFile=C:\temp\free\LICENSE.txt
 OutputDir=C:\temp\free
 OutputBaseFilename=infekt-setup
 Compression=lzma
