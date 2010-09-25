@@ -302,15 +302,6 @@ void CNFOViewControl::OnPaint()
 	if(m_centerNfo && m_width > (int)GetWidth())
 		l_destx = (m_width - (int)GetWidth()) / 2;
 
-	if(l_ps.fErase && HasNfoData() && l_smart && l_destx > 0)
-	{
-		cairo_t* l_cr = cairo_create(l_realSurface);
-		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
-		cairo_rectangle(l_cr, 0, 0, l_destx, m_height);
-		cairo_fill(l_cr);
-		cairo_destroy(l_cr);
-	}
-
 	// draw draw fight the power!
 	if(l_smart)
 	{
@@ -374,6 +365,18 @@ void CNFOViewControl::OnPaint()
 		}
 
 		cairo_destroy(cr);
+	}
+
+	// Kill possible artifacts (non-background-color pixels)
+	// from the screen buffer. Required e.g. when loading a narrow
+	// NFO after a wide one or when zooming out.
+	if(l_ps.fErase && HasNfoData() && l_smart && l_destx > 0)
+	{
+		cairo_t* l_cr = cairo_create(l_realSurface);
+		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
+		cairo_rectangle(l_cr, 0, 0, l_destx, m_height);
+		cairo_fill(l_cr);
+		cairo_destroy(l_cr);
 	}
 
 	cairo_surface_destroy(l_realSurface);
