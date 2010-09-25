@@ -6,10 +6,9 @@
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
 AppVerName=iNFekt 0.7.2
+AppVersion=0.7.2
 AppPublisher=cxxjoe & Contributors
 AppPublisherURL=http://infekt.googlecode.com/
-AppSupportURL=http://infekt.googlecode.com/
-AppUpdatesURL=http://infekt.googlecode.com/
 DefaultDirName={pf}\iNFekt
 DefaultGroupName=iNFekt NFO Viewer
 AllowNoIcons=yes
@@ -25,6 +24,8 @@ ChangesAssociations=yes
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
 AppMutex=iNFektNfoViewerOneInstanceMutex
+UninstallDisplayIcon={app}\infekt-win64.exe
+UninstallDisplayName=iNFekt NFO Viewer
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
