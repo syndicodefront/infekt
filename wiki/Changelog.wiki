@@ -5,6 +5,9 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
+== v0.7.2 (25th September 2010) ==
+  * Fix for minor redrawing issue (background-colored boxes)
+
 == v0.7.1 (24th September 2010) ==
   * Fixed wrong line-wrap default in Rendered and Classic mode
   * Updated cairo, pixman and libpng
