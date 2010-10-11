@@ -229,6 +229,11 @@ void CNFOViewControl::SetZoom(unsigned int a_percent)
 
 	CNFORenderer::SetZoom(a_percent);
 
+	if(m_classic)
+	{
+		CalcClassicModeBlockSizes(true);
+	}
+
 	UpdateScrollbars(false);
 	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_FRAME);
 }
