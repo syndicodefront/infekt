@@ -383,7 +383,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
 		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen, true);
 		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
 		break;
 	case NFOC_UTF16:
@@ -394,7 +394,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
 		break;
 	case NFOC_UTF8:
-		l_loaded = TryLoad_UTF8(a_data, a_dataLen);
+		l_loaded = TryLoad_UTF8(a_data, a_dataLen, false);
 		break;
 	case NFOC_CP437:
 		l_loaded = TryLoad_CP437(a_data, a_dataLen);
@@ -532,12 +532,56 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 }
 
 
-bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen)
+/* based on http://en.wikipedia.org/wiki/Code_page_437 */
+#include "nfo_data_cp437.inc"
+
+
+bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix)
 {
 	if(g_utf8_validate((const char*)a_data, a_dataLen, NULL))
 	{
-		m_textContent = CUtil::ToWideStr(
-			string().append((const char*)a_data, a_dataLen), CP_UTF8);
+		const string l_utf((const char*)a_data, a_dataLen);
+
+		if(a_tryToFix && l_utf.find("\xC3\x9F") != string::npos &&
+			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos) &&
+			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos))
+		{
+			const wstring l_unicode = CUtil::ToWideStr(l_utf, CP_UTF8);
+#if 0 /* so, this doesn't work... although it should? */
+			map<wchar_t, char> l_reverse;
+			string l_cp437;
+
+			l_reverse[0x2302] = 0x7F;
+			for(unsigned int p = 0x80; p <= 0xFF; p++) l_reverse[map_cp437_to_unicode_high_bit[p - 0x80]] = p;
+			for(unsigned int p = 1; p <= 0x1F; p++) l_reverse[map_cp437_to_unicode_control_range[p]] = p;
+
+			for(wstring::size_type p = 0; p < l_unicode.size(); p++)
+			{
+				wchar_t l_chr = l_unicode[p];
+				map<wchar_t, char>::const_iterator it = l_reverse.find(l_chr);
+
+				if(it != l_reverse.end())
+					l_cp437 += it->second;
+				else
+					l_cp437 += (l_chr <= 255 ? (char)l_chr : '?');
+//				l_cp437 += (it != l_reverse.end() ? it->second : (l_chr <= 255 ? (char)l_chr : '?'));
+			}
+#else /* and this crude stuff works... oh well. gonna do it like this for now. */
+			const string l_cp437 = CUtil::FromWideStr(l_unicode, CP_ACP);
+#endif
+			if(TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
+			{
+				m_sourceCharset = NFOC_CP437_IN_UTF8;
+
+				return true;
+			}
+
+			return false;
+		}
+		else
+		{
+			m_textContent = CUtil::ToWideStr(l_utf, CP_UTF8);
+		}
 
 		m_sourceCharset = NFOC_UTF8;
 
@@ -547,8 +591,6 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen)
 	return false;
 }
 
-/* based on http://en.wikipedia.org/wiki/Code_page_437 */
-#include "nfo_data_cp437.inc"
 
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 {
@@ -787,6 +829,8 @@ const std::_tstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 		return _T("UTF-8");
 	case NFOC_CP437:
 		return _T("CP 437");
+	case NFOC_CP437_IN_UTF8:
+		return _T("CP 437 (in broken UTF-8)");
 	}
 
 	return _T("(huh?)");
