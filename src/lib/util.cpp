@@ -775,8 +775,9 @@ bool CUtil::IsWinVista()
 bool CUtil::IsWin7()
 {
 	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 1);
 #if 0
+	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 1);
+#else
 	bool b = (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 1);
 
 	if(!b && ms_osver.dwMajorVersion == 8 && ms_osver.dwMinorVersion == 3 && ms_osver.dwBuildNumber == 8600 && IsWow64())
