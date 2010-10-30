@@ -94,7 +94,14 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 		if(!a_initialPath.empty())
 		{
 			// force initially selected folder
-			//pfod->SetFolder(
+			IShellItem *ppsif = NULL;
+			hr = SHCreateItemFromParsingName(a_initialPath.c_str(), NULL, IID_PPV_ARGS(&ppsif));
+
+			if(SUCCEEDED(hr))
+			{
+				hr = pfod->SetFolder(ppsif);
+				ppsif->Release();
+			}
 		}
 
 		// show the dialog:
