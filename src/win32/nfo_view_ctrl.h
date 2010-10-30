@@ -65,7 +65,7 @@ public:
 	void SelectAll();
 	void Show(bool a_show = true);
 	bool ControlCreated() const { return (m_hwnd != 0); }
-	void SetCenterNfo(bool nb) { m_centerNfo = nb; }
+	void SetCenterNfo(bool nb);
 	void SetCopyOnSelect(bool nb) { m_copyOnSelect = nb; }
 
 	void SetZoom(unsigned int a_percent);

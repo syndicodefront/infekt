@@ -28,6 +28,11 @@ public:
 		bCheckDefaultOnStartup = false;
 		bSingleInstanceMode = false;
 		bKeepOpenMRU = true;
+		bCenterWindow = true;
+		bAutoWidth = false;
+		bCenterNFO = true;
+		bDeSelectOnCopy = false;
+		bDefaultExportToNFODir = false;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -40,6 +45,12 @@ public:
 	bool bCheckDefaultOnStartup;
 	bool bSingleInstanceMode;
 	bool bKeepOpenMRU;
+
+	bool bCenterWindow;
+	bool bAutoWidth;
+	bool bCenterNFO;
+	bool bDeSelectOnCopy;
+	bool bDefaultExportToNFODir;
 };
 
 typedef boost::shared_ptr<CMainSettings> PMainSettings;

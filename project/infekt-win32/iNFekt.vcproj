@@ -531,6 +531,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\win32\file_dialogs_win6x.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\lib\gutf8.c"
 				>
 			</File>

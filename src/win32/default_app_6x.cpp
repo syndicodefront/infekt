@@ -16,12 +16,11 @@
 #include "targetver.h"
 
 #include <string>
-#define _tstring wstring
 #include "default_app.h"
 #include <shobjidl.h>
 
 
-CWin6xDefaultApp::CWin6xDefaultApp(const std::_tstring& a, const std::_tstring& b) : CWinDefaultApp(a, b)
+CWin6xDefaultApp::CWin6xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
 {
 	m_noSuchProgName = false;
 }
@@ -32,8 +31,7 @@ bool CWin6xDefaultApp::IsDefault()
 	IApplicationAssociationRegistration* pAAR = NULL;
 	BOOL pfHasExt = FALSE;
 
-	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL,
-		CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
+	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
 
 	if(SUCCEEDED(hr))
 	{
@@ -57,8 +55,7 @@ bool CWin6xDefaultApp::MakeDefault()
 {
 	IApplicationAssociationRegistration* pAAR = NULL;
 
-	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL,
-			CLSCTX_INPROC, __uuidof(IApplicationAssociationRegistration), (void**)&pAAR);
+	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
 
 	if(SUCCEEDED(hr))
 	{

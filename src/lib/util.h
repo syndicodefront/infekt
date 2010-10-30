@@ -17,7 +17,16 @@
 
 #ifdef _WIN32_UI
 #include "theme_api.h"
+
+#if _WIN32_WINNT < 0x600
+/* just make it compile! */
+typedef struct _COMDLG_FILTERSPEC {
+	LPCWSTR pszName;
+	LPCWSTR pszSpec;
+} COMDLG_FILTERSPEC;
 #endif
+#endif
+
 
 class CUtil
 {
@@ -41,9 +50,9 @@ public:
 #ifdef _WIN32_UI
 	static int AddPngToImageList(HIMAGELIST a_imgList,
 		HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
-	static std::_tstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter);
-	static std::_tstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter,
-		const LPCTSTR a_defaultExt, const std::_tstring& a_currentFileName);
+	static std::_tstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec);
+	static std::_tstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
+		const LPCTSTR a_defaultExt, const std::_tstring& a_currentFileName, const std::_tstring& a_initialPath = _T(""));
 
 	static std::_tstring DownloadHttpTextFile(const std::_tstring& a_url);
 	static void PopUpLastWin32Error();

@@ -18,25 +18,33 @@
 #define IDB_PNG3                        120
 #define IDB_PNG_VIEW_TEXTONLY           120
 #define IDD_TAB_PLUGINS                 122
+#define IDD_DLG_ADVANCED_SETTINGS       123
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_CHECK_DEFAULT_VIEWER        1006
 #define IDC_FONT_LINEWRAP               1006
+#define IDC_CENTER_WINDOW               1006
 #define IDC_BUTTON1                     1007
 #define IDC_BUTTON_DEFAULT_VIEWER       1007
+#define IDC_DESELECT_ON_COPY            1007
 #define IDC_CHECK2                      1008
 #define IDC_CLR_BACK                    1008
 #define IDC_ALWAYSONTOP                 1008
+#define IDC_CENTER_NFO                  1008
 #define IDC_CHECK3                      1009
 #define IDC_COPY_ON_SELECT              1009
+#define IDC_AUTO_WIDTH                  1009
 #define IDC_CHECK4                      1010
 #define IDC_MENUBAR_ON_STARTUP          1010
+#define IDC_EXPORT_NFO_DIR              1010
 #define IDC_CLR_ART                     1011
 #define IDC_SINGLEINSTANCEMODE          1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013
 #define IDC_PREVIEW_BTN                 1013
 #define IDC_THEME_EXPORT                1013
+#define IDC_BUTTON_DEFAULT_VIEWER2      1014
+#define IDC_BUTTON_ADVANCED             1014
 #define IDC_CLR_GAUSS                   1015
 #define IDC_SYNC_FROM_RENDERED          1016
 #define IDC_SYNC_FROM_NORMAL            1017
@@ -129,9 +137,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        123
+#define _APS_NEXT_RESOURCE_VALUE        124
 #define _APS_NEXT_COMMAND_VALUE         40088
-#define _APS_NEXT_CONTROL_VALUE         1047
+#define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
