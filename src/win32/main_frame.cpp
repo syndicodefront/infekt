@@ -853,16 +853,18 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	_tcscpy_s(l_buf, l_baseFileName.size() + 1, l_baseFileName.c_str());
 	PathRemoveExtension(l_buf);
 	l_baseFileName = l_buf;
+	delete[] l_buf;
 
 	_tstring l_defaultPath;
 	if(m_settings->bDefaultExportToNFODir)
 	{
-		_tcscpy_s(l_buf, l_baseFileName.size() + 1, l_baseFileName.c_str());
+		const _tstring l_tmp = m_view.GetNfoData()->GetFilePath();
+		l_buf = new TCHAR[l_tmp.size() + 1];
+		_tcscpy_s(l_buf, l_tmp.size() + 1, l_tmp.c_str());
 		PathRemoveFileSpec(l_buf);
 		l_defaultPath = l_buf;
+		delete[] l_buf;
 	}
-
-	delete[] l_buf;
 
 	if(a_id == IDM_EXPORT_PNG || a_id == IDM_EXPORT_PNG_TRANSP)
 	{
@@ -1062,7 +1064,7 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 
 	CNFORenderer l_dummy;
 	CNFORenderSettings l_newSets, l_defaults = l_dummy.GetSettings();
-	
+
 	l_newSets.cTextColor = _s_color_t(l_sect->ReadDword(L"ClrText", l_defaults.cTextColor.AsWord()));
 	l_newSets.cBackColor = _s_color_t(l_sect->ReadDword(L"ClrBack", l_defaults.cBackColor.AsWord()));
 	l_newSets.cArtColor = _s_color_t(l_sect->ReadDword(L"ClrArt", l_defaults.cArtColor.AsWord()));
