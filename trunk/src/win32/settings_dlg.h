@@ -65,7 +65,7 @@ protected:
 	std::vector<PFontListEntry> m_fonts;
 	std::vector<PFontListEntry> m_allFonts;
 	static int CALLBACK FontNamesProc(const ENUMLOGFONTEX*, const NEWTEXTMETRICEX*, DWORD, LPARAM);
-protected:
+
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	virtual void OnCancel();
@@ -125,6 +125,21 @@ protected:
 	virtual LRESULT OnNotify(WPARAM wParam, LPARAM lParam);
 
 	static const int ms_fontComboPadding = 3;
+};
+
+
+class CAdvancedSettingsWindowDialog : public CDialog
+{
+public:
+	CAdvancedSettingsWindowDialog(HWND hWndParent = NULL);
+
+	void SetMainSettings(PMainSettings a_mainSettings) { m_settings = a_mainSettings; }
+protected:
+	PMainSettings m_settings;
+
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
+	virtual void OnCancel();
 };
 
 

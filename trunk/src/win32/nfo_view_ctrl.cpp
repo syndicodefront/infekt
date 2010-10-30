@@ -820,6 +820,20 @@ void CNFOViewControl::SetParent(HWND a_new)
 }
 
 
+void CNFOViewControl::SetCenterNfo(bool nb)
+{
+	if(nb == m_centerNfo)
+		return;
+
+	m_centerNfo = nb;
+
+	if(HasNfoData())
+	{
+		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+	}
+}
+
+
 void CNFOViewControl::InjectSettings(const CNFORenderSettings& ns)
 {
 	CNFORenderer::InjectSettings(ns);

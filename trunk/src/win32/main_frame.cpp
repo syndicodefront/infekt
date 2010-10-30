@@ -55,13 +55,10 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 
 	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
 	{
-		DWORD dwTop = l_sect->ReadDword(L"Top"),
-			dwLeft = l_sect->ReadDword(L"Left"),
-			dwWidth = l_sect->ReadDword(L"Width"),
-			dwHeight = l_sect->ReadDword(L"Height");
-
-		cs.cx = dwWidth;
-		cs.cy = dwHeight;
+		cs.x = l_sect->ReadDword(L"Left");
+		cs.y = l_sect->ReadDword(L"Top");
+		cs.cx = l_sect->ReadDword(L"Width");
+		cs.cy = l_sect->ReadDword(L"Height");
 
 		m_bShowStatusbar = l_sect->ReadBool(L"Statusbar", true);
 		m_bShowToolbar = l_sect->ReadBool(L"Toolbar", true);
@@ -78,19 +75,18 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 	RECT l_wa;
 	if(::SystemParametersInfo(SPI_GETWORKAREA, 0, &l_wa, 0))
 	{
+		// don't let the window grow larger than the size of the work area
 		if(cs.cx > l_wa.right - l_wa.left)
 			cs.cx = l_wa.right - l_wa.left;
 		if(cs.cy > l_wa.bottom - l_wa.top)
 			cs.cy = l_wa.bottom - l_wa.top;
 	}
 
+	// enforce minimum window size:
 	if(cs.cx < ms_minWidth)
 		cs.cx = ms_minWidth;
 	if(cs.cy < ms_minHeight)
 		cs.cy = ms_minHeight;
-
-	// we center the window in OnInitialUpdate() anyway:
-	cs.x = cs.y = CW_USEDEFAULT;
 
 	// hide the window to avoid flicker:
 	cs.style &= ~WS_VISIBLE;
@@ -121,7 +117,11 @@ void CMainFrame::OnCreate()
 
 void CMainFrame::OnInitialUpdate()
 {
-	CenterWindow();
+	if(m_settings->bCenterWindow)
+	{
+		CenterWindow();
+	}
+
 	UpdateCaption();
 
 	LoadRenderSettingsFromRegistry(_T("RenderedView"), m_view.GetRenderCtrl().get());
@@ -826,8 +826,12 @@ void CMainFrame::UpdateAlwaysOnTop()
 
 void CMainFrame::OpenChooseFileName()
 {
+	COMDLG_FILTERSPEC l_filter[] = { { L"NFO Files", L"*.nfo;*.diz;*.asc" },
+		{ L"Text Files", L"*.txt;*.nfo;*.diz;*.sfv" }, { L"All Files", L"*" } };
+
 	_tstring l_filePath = CUtil::OpenFileDialog(g_hInstance, GetHwnd(),
-		_T("NFO Files\0*.nfo;*.diz;*.asc\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0"));
+		_T("NFO Files\0*.nfo;*.diz;*.asc\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0"),
+		l_filter, 3);
 
 	if(!l_filePath.empty())
 	{
@@ -849,12 +853,23 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	_tcscpy_s(l_buf, l_baseFileName.size() + 1, l_baseFileName.c_str());
 	PathRemoveExtension(l_buf);
 	l_baseFileName = l_buf;
+
+	_tstring l_defaultPath;
+	if(m_settings->bDefaultExportToNFODir)
+	{
+		_tcscpy_s(l_buf, l_baseFileName.size() + 1, l_baseFileName.c_str());
+		PathRemoveFileSpec(l_buf);
+		l_defaultPath = l_buf;
+	}
+
 	delete[] l_buf;
 
 	if(a_id == IDM_EXPORT_PNG || a_id == IDM_EXPORT_PNG_TRANSP)
 	{
+		COMDLG_FILTERSPEC l_filter[] = { { L"PNG File", L"*.png" } };
+
 		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("PNG File\0*.png\0\0"), _T("png"), l_baseFileName + _T(".png"));
+			_T("PNG File\0*.png\0\0"), l_filter, 1, _T("png"), l_baseFileName + _T(".png"), l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
@@ -910,9 +925,12 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	else if(a_id == IDM_EXPORT_UTF8 || a_id == IDM_EXPORT_UTF16)
 	{
 		bool l_utf8 = (a_id == IDM_EXPORT_UTF8);
+
+		COMDLG_FILTERSPEC l_filter[] = { { L"NFO File", L"*.nfo" }, { L"Text File", L"*.txt" } };
+
 		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("NFO File\0*.nfo;\0Text File\0*.txt\0\0"), _T("nfo"),
-			l_baseFileName + (l_utf8 ? _T("-utf8.nfo") : _T("-utf16.nfo")));
+			_T("NFO File\0*.nfo;\0Text File\0*.txt\0\0"), l_filter, 2, _T("nfo"),
+			l_baseFileName + (l_utf8 ? _T("-utf8.nfo") : _T("-utf16.nfo")), l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
@@ -935,9 +953,11 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	}
 	else if(a_id == IDM_EXPORT_XHTML)
 	{
+		COMDLG_FILTERSPEC l_filter[] = { { L"(X)HTML File", L"*.html" } };
+
 		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("(X)HTML File\0*.html\0\0"), _T("html"),
-			l_baseFileName + _T(".html"));
+			_T("(X)HTML File\0*.html\0\0"), l_filter, 1, _T("html"),
+			l_baseFileName + _T(".html"), l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
@@ -966,9 +986,11 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	}
 	else if(a_id == IDM_EXPORT_PDF || a_id == IDM_EXPORT_PDF_DIN)
 	{
+		COMDLG_FILTERSPEC l_filter[] = { { L"PDF File", L"*.pdf" } };
+
 		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("PDF File\0*.pdf\0\0"), _T("pdf"),
-			l_baseFileName + _T(".pdf"));
+			_T("PDF File\0*.pdf\0\0"), l_filter, 1, _T("pdf"),
+			l_baseFileName + _T(".pdf"), l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
@@ -1338,7 +1360,14 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"AlwaysShowMenubar", this->bAlwaysShowMenubar);
 	l_sect->WriteBool(L"CheckDefViewOnStart", this->bCheckDefaultOnStartup);
 	l_sect->WriteBool(L"KeepOpenMRU", this->bKeepOpenMRU);
-	
+
+	l_sect->WriteBool(L"CenterWindow", this->bCenterWindow);
+	l_sect->WriteBool(L"AutoWidth", this->bAutoWidth);
+	l_sect->WriteBool(L"CenterNFO", this->bCenterNFO);
+	l_sect->WriteBool(L"DeSelectOnCopy", this->bDeSelectOnCopy);
+	l_sect->WriteBool(L"DefaultExportToNFODir", this->bDefaultExportToNFODir);
+
+	// "deputy" return value:
 	return l_sect->WriteBool(L"SingleInstanceMode", this->bSingleInstanceMode);
 }
 
@@ -1371,6 +1400,12 @@ bool CMainSettings::LoadFromRegistry()
 	this->bCheckDefaultOnStartup = l_sect->ReadBool(L"CheckDefViewOnStart", true);
 	this->bSingleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
 	this->bKeepOpenMRU = l_sect->ReadBool(L"KeepOpenMRU", true);
+
+	this->bCenterWindow = l_sect->ReadBool(L"CenterWindow", true);
+	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", false);
+	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", true);
+	this->bDeSelectOnCopy = l_sect->ReadBool(L"DeSelectOnCopy", false);
+	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
 
 	return true;
 }

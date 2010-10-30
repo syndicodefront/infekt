@@ -374,55 +374,81 @@ int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 /* Common Dialog Helper Functions                                       */
 /************************************************************************/
 
-_tstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter)
+// from file_dialogs_win6x.cpp:
+wstring Win6x_OpenFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec);
+wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
+	const LPCWSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath);
+
+
+_tstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
 {
-	OPENFILENAME ofn = {0};
-	TCHAR szBuf[1000] = {0};
-
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hInstance = a_instance;
-	ofn.hwndOwner = a_parent;
-	ofn.lpstrFilter = a_filter;
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFile = szBuf;
-	ofn.nMaxFile = 999;
-	ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST;
-
-	if(::GetOpenFileName(&ofn))
+	if(CUtil::IsWin6x())
 	{
-		return ofn.lpstrFile;
+		return Win6x_OpenFileDialog(a_parent, a_filterSpec, a_nFilterSpec);
 	}
+	else
+	{
+		OPENFILENAME ofn = {0};
+		TCHAR szBuf[1000] = {0};
 
-	return _T("");
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hInstance = a_instance;
+		ofn.hwndOwner = a_parent;
+		ofn.lpstrFilter = a_filter;
+		ofn.nFilterIndex = 1;
+		ofn.lpstrFile = szBuf;
+		ofn.nMaxFile = 999;
+		ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT;
+
+		if(::GetOpenFileName(&ofn))
+		{
+			return ofn.lpstrFile;
+		}
+
+		return _T("");
+	}
 }
 
 
-_tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const LPCTSTR a_defaultExt, const _tstring& a_currentFileName)
+_tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
+	const LPCTSTR a_defaultExt, const _tstring& a_currentFileName, const _tstring& a_initialPath)
 {
-	OPENFILENAME ofn = {0};
-	TCHAR szBuf[1000] = {0};
-
-	if(!a_currentFileName.empty())
+	if(CUtil::IsWin6x())
 	{
-		_tcscpy_s(szBuf, 1000, a_currentFileName.c_str());
+		return Win6x_SaveFileDialog(a_parent, a_filterSpec, a_nFilterSpec, a_defaultExt, a_currentFileName, a_initialPath);
 	}
-
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hInstance = a_instance;
-	ofn.hwndOwner = a_parent;
-	ofn.lpstrFilter = a_filter;
-	ofn.nFilterIndex = 1;
-	ofn.lpstrDefExt = a_defaultExt;
-	ofn.lpstrFile = szBuf;
-	ofn.nMaxFile = 999;
-	ofn.Flags = OFN_ENABLESIZING | OFN_OVERWRITEPROMPT;
-
-	if(::GetSaveFileName(&ofn))
+	else
 	{
-		return ofn.lpstrFile;
-	}
+		OPENFILENAME ofn = {0};
+		TCHAR szBuf[1000] = {0};
 
-	return _T("");
+		if(!a_currentFileName.empty())
+		{
+			_tcscpy_s(szBuf, 1000, a_currentFileName.c_str());
+		}
+
+		if(!a_initialPath.empty())
+		{
+			ofn.lpstrInitialDir = a_initialPath.c_str();
+		}
+
+		ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.hInstance = a_instance;
+		ofn.hwndOwner = a_parent;
+		ofn.lpstrFilter = a_filter;
+		ofn.nFilterIndex = 1;
+		ofn.lpstrDefExt = a_defaultExt;
+		ofn.lpstrFile = szBuf;
+		ofn.nMaxFile = 999;
+		ofn.Flags = OFN_ENABLESIZING | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT;
+
+		if(::GetSaveFileName(&ofn))
+		{
+			return ofn.lpstrFile;
+		}
+
+		return _T("");
+	}
 }
 
 

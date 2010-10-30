@@ -586,6 +586,11 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		case IDC_THEME_IMPORT:
 			m_dlgWin->DoThemeExImport(true);
 			break;
+		case IDC_BUTTON_ADVANCED: {
+			CAdvancedSettingsWindowDialog l_dlg(m_hWnd);
+			l_dlg.SetMainSettings(m_mainWin->GetSettings());
+			l_dlg.DoModal();
+			break; }
 		default:
 			return FALSE;
 		}
@@ -717,8 +722,10 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 {
 	if(a_import)
 	{
+		COMDLG_FILTERSPEC l_filter[] = { { L"Theme Info", L"*.ini" }, { L"All Files", L"*" } };
+
 		std::_tstring l_filePath = CUtil::OpenFileDialog(g_hInstance,
-			m_hWnd, _T("Theme Info (.ini)\0*.ini\0All Files\0*\0\0"));
+			m_hWnd, _T("Theme Info (.ini)\0*.ini\0All Files\0*\0\0"), l_filter, 2);
 
 		if(l_filePath.empty())
 		{
@@ -809,8 +816,10 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 		::GetUserName(l_userName, &l_dummy);
 		::CharLower(l_userName);
 
+		COMDLG_FILTERSPEC l_filter[] = { { L"Theme Info", L"*.ini" } };
+
 		std::_tstring l_filePath = CUtil::SaveFileDialog(g_hInstance,
-			m_hWnd, _T("Theme Info (.ini)\0*.ini\0\0"), _T("ini"),
+			m_hWnd, _T("Theme Info (.ini)\0*.ini\0\0"), l_filter, 1, _T("ini"),
 			std::_tstring(l_userName) + _T("-nfo-settings.ini"));
 
 		if(l_filePath.empty())
@@ -1303,3 +1312,46 @@ int CFontListEntry::GetNiceSize()
 		return l_size;
 	}
 }
+
+
+/************************************************************************/
+/* 	CAdvancedSettingsWindowDialog implementation                        */
+/************************************************************************/
+
+CAdvancedSettingsWindowDialog::CAdvancedSettingsWindowDialog(HWND hWndParent) :
+	CDialog(IDD_DLG_ADVANCED_SETTINGS, hWndParent)
+{
+}
+
+
+BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
+{
+	SET_DLG_CHECKBOX(IDC_CENTER_WINDOW, m_settings->bCenterWindow);
+	SET_DLG_CHECKBOX(IDC_AUTO_WIDTH, m_settings->bAutoWidth);
+	SET_DLG_CHECKBOX(IDC_CENTER_NFO, m_settings->bCenterNFO);
+	SET_DLG_CHECKBOX(IDC_DESELECT_ON_COPY, m_settings->bDeSelectOnCopy);
+	SET_DLG_CHECKBOX(IDC_EXPORT_NFO_DIR, m_settings->bDefaultExportToNFODir);
+
+	ShowWindow(SW_SHOW);
+
+	return TRUE;
+}
+
+
+void CAdvancedSettingsWindowDialog::OnOK()
+{
+	m_settings->bCenterWindow = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_WINDOW) != FALSE);
+	m_settings->bAutoWidth = (::IsDlgButtonChecked(GetHwnd(), IDC_AUTO_WIDTH) != FALSE);
+	m_settings->bCenterNFO = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_NFO) != FALSE);
+	m_settings->bDeSelectOnCopy = (::IsDlgButtonChecked(GetHwnd(), IDC_DESELECT_ON_COPY) != FALSE);
+	m_settings->bDefaultExportToNFODir = (::IsDlgButtonChecked(GetHwnd(), IDC_EXPORT_NFO_DIR) != FALSE);
+
+	CDialog::OnOK();
+}
+
+
+void CAdvancedSettingsWindowDialog::OnCancel()
+{
+	CDialog::OnCancel();
+}
+

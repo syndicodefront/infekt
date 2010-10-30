@@ -25,7 +25,7 @@ public:
 	 * @param a_appRegistryName e.g. "Company.App.MajorVer"
 	 * @param a_fileExtension e.g. ".htm"
 	 **/
-	CWinDefaultApp(const std::_tstring& a_appRegistryName, const std::_tstring& a_fileExtension) :
+	CWinDefaultApp(const std::wstring& a_appRegistryName, const std::wstring& a_fileExtension) :
 		  m_appRegistryName(a_appRegistryName), m_extension(a_fileExtension)
 	{ }
 	virtual ~CWinDefaultApp()
@@ -34,8 +34,8 @@ public:
 	virtual bool IsDefault() = 0;
 	virtual bool MakeDefault() = 0;
 protected:
-	std::_tstring m_appRegistryName;
-	std::_tstring m_extension;
+	std::wstring m_appRegistryName;
+	std::wstring m_extension;
 private:
 	CWinDefaultApp() {}
 };
@@ -46,7 +46,7 @@ private:
 class CWin6xDefaultApp : public CWinDefaultApp 
 {
 public:
-	CWin6xDefaultApp(const std::_tstring& a, const std::_tstring& b);
+	CWin6xDefaultApp(const std::wstring& a, const std::wstring& b);
 	bool IsDefault();
 	bool MakeDefault();
 	bool GotNoSuchProgramName() const { return m_noSuchProgName; }
@@ -60,7 +60,7 @@ protected:
 class CWin5xDefaultApp : public CWinDefaultApp 
 {
 public:
-	CWin5xDefaultApp(const std::_tstring& a, const std::_tstring& b) : CWinDefaultApp(a, b)
+	CWin5xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
 	{ }
 
 	bool IsDefault();
