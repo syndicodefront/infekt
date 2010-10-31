@@ -74,21 +74,21 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 	HRESULT hr;
 	std::wstring l_path;
 
-	IFileSaveDialog *pfod;
-	hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfod));
+	IFileSaveDialog *pfsd;
+	hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfsd));
 
 	if(SUCCEEDED(hr))
 	{
 		// set up some options:
-		pfod->SetFileTypes(a_nFilterSpec, a_filterSpec);
-		pfod->SetFileTypeIndex(1);
-		pfod->SetDefaultExtension(a_defaultExt);
+		pfsd->SetFileTypes(a_nFilterSpec, a_filterSpec);
+		pfsd->SetFileTypeIndex(1);
+		pfsd->SetDefaultExtension(a_defaultExt);
 
-		pfod->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_DONTADDTORECENT);
+		pfsd->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_DONTADDTORECENT);
 
 		if(!a_currentFileName.empty())
 		{
-			pfod->SetFileName(a_currentFileName.c_str());
+			pfsd->SetFileName(a_currentFileName.c_str());
 		}
 
 		if(!a_initialPath.empty())
@@ -99,20 +99,20 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 
 			if(SUCCEEDED(hr))
 			{
-				hr = pfod->SetFolder(ppsif);
+				hr = pfsd->SetFolder(ppsif);
 				ppsif->Release();
 			}
 		}
 
 		// show the dialog:
-		hr = pfod->Show(a_parent);
+		hr = pfsd->Show(a_parent);
 
 		if(SUCCEEDED(hr))
 		{
 			IShellItem *ppsi;
 
 			// this will fail if Cancel has been clicked:
-			hr = pfod->GetResult(&ppsi);
+			hr = pfsd->GetResult(&ppsi);
 
 			if(SUCCEEDED(hr))
 			{
@@ -130,7 +130,7 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 			}
 		}
 
-		pfod->Release();
+		pfsd->Release();
 	}
 
 	return l_path;
