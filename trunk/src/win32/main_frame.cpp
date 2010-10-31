@@ -166,7 +166,11 @@ void CMainFrame::OnInitialUpdate()
 	if(!l_path.empty())
 	{
 		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
-		OpenFile(l_path);
+
+		if(OpenFile(l_path) && !l_maximize && m_settings->bAutoWidth)
+		{
+			AdjustWindowToNFOWidth();
+		}
 	}
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
@@ -692,6 +696,49 @@ void CMainFrame::UpdateStatusbar()
 	{
 		l_sb.SendMessage(SB_SETTEXT, SB_SIMPLEID, (LPARAM)_T("Hit the Alt key to toggle the menu bar."));
 		l_sb.SetSimple(TRUE);
+	}
+}
+
+
+void CMainFrame::AdjustWindowToNFOWidth()
+{
+	size_t l_desiredWidth = m_view.GetActiveCtrl()->GetWidth();
+
+	l_desiredWidth += ::GetSystemMetrics(SM_CXSIZEFRAME) * 2;
+	l_desiredWidth += ::GetSystemMetrics(SM_CYVSCROLL);
+	l_desiredWidth += 20; // some extra padding
+
+	if(l_desiredWidth < ms_minWidth)
+		l_desiredWidth = ms_minWidth;
+
+	RECT l_rc;
+	if(::GetWindowRect(GetHwnd(), &l_rc))
+	{
+		int l_mid = l_rc.left + (l_rc.right - l_rc.left) / 2;
+		int l_oldLeft = l_rc.left;
+
+		// center around previous location:
+		l_rc.left = l_mid - l_desiredWidth / 2;
+
+		// make sure windows don't go off-screen to the left:
+		if(l_rc.left < 0 && l_oldLeft >= 0)
+			l_rc.left = 0;
+
+		// set width:
+		l_rc.right = l_rc.left + l_desiredWidth;
+
+		RECT l_wa;
+		if(::SystemParametersInfo(SPI_GETWORKAREA, 0, &l_wa, 0))
+		{
+			// don't let the window grow larger than the size of the work area
+			if(l_rc.right - l_rc.left > l_wa.right - l_wa.left)
+			{
+				l_rc.left = 0;
+				l_rc.right = l_wa.right - l_wa.left;
+			}
+		}
+
+		MoveWindow(l_rc);
 	}
 }
 
