@@ -80,6 +80,12 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 			cs.cx = l_wa.right - l_wa.left;
 		if(cs.cy > l_wa.bottom - l_wa.top)
 			cs.cy = l_wa.bottom - l_wa.top;
+
+		// try to always keep the window visible
+		if(cs.x >= l_wa.right - 20)
+			cs.x = l_wa.right - cs.cx;
+		if(cs.y >= l_wa.bottom - 100)
+			cs.y = l_wa.bottom - cs.cy;
 	}
 
 	// enforce minimum window size:
@@ -167,10 +173,7 @@ void CMainFrame::OnInitialUpdate()
 	{
 		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
-		if(OpenFile(l_path) && !l_maximize && m_settings->bAutoWidth)
-		{
-			AdjustWindowToNFOWidth();
-		}
+		OpenFile(l_path);
 	}
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
@@ -585,6 +588,16 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 		if(m_settings->bKeepOpenMRU)
 		{
 			SaveOpenMruList();
+		}
+
+		if(m_settings->bAutoWidth)
+		{
+			WINDOWPLACEMENT l_wpl = { sizeof(WINDOWPLACEMENT), 0 };
+
+			if(!GetWindowPlacement(l_wpl) || l_wpl.showCmd != SW_MAXIMIZE)
+			{
+				AdjustWindowToNFOWidth();
+			}
 		}
 
 		// yay.
