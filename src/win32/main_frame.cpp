@@ -21,6 +21,11 @@
 #include "nfo_renderer_export.h"
 #include "resource.h"
 
+#ifndef WM_THEMECHANGED
+#define WM_THEMECHANGED 0x31A
+#endif
+
+
 using namespace std;
 
 
@@ -32,6 +37,7 @@ enum _toolbar_button_ids {
 	TBBID_VIEW_TEXTONLY,
 	TBBID_ABOUT,
 	TBBID_CLEARMRU,
+	TBBID_SHOWMENU,
 	TBBID_OPENMRUSTART // must be the last item in this list.
 };
 
@@ -191,67 +197,13 @@ void CMainFrame::SetupToolbar()
 	// add main window menu into a rebar:
 	GetMenubar().SetMenu(::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_MENU)));
 
-	// always show grippers:
-	RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), TRUE);
-	RB.ShowGripper(RB.IDToIndex(IDW_MENUBAR), TRUE);
-
-	ShowMenuBar(m_settings->bAlwaysShowMenubar);
+	// always show grippers in classic themes:
+	RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !CThemeAPI::GetInstance()->IsThemeActive());
+	RB.ShowGripper(RB.IDToIndex(IDW_MENUBAR), FALSE);
 
 	AddToolbarButtons();
 
-	PSettingsSection l_sect;
-
-	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"RebarData", l_sect))
-	{
-		UINT l_bandIDs[2] = { IDW_MENUBAR, IDW_TOOLBAR };
-		const wchar_t* l_bandNames[2] = { L"mmenubar", L"toolbar1" };
-
-		for(int i = 0; i < 2; i++)
-		{
-			wchar_t l_key[100] = {0};
-			int l_index, l_width;
-			bool l_break;
-
-			swprintf_s(l_key, 99, L"%s_index", l_bandNames[i]);
-			l_index = l_sect->ReadDword(l_key, i);
-			swprintf_s(l_key, 99, L"%s_width", l_bandNames[i]);
-			l_width = l_sect->ReadDword(l_key);
-			swprintf_s(l_key, 99, L"%s_break", l_bandNames[i]);
-			l_break = l_sect->ReadBool(l_key, false);
-
-			if(l_index < 0 || l_index >= RB.GetBandCount())
-			{
-				continue;
-			}
-			else if(l_index != i)
-			{
-				RB.MoveBand(RB.IDToIndex(l_bandIDs[i]), l_index);
-			}
-
-			REBARBANDINFO l_info = { sizeof(REBARBANDINFO), 0 };
-			l_info.fMask = RBBIM_SIZE | RBBIM_STYLE | RBBIM_CHILDSIZE;
-
-			RB.GetBandInfo(l_index, l_info);
-
-			if(l_width > 0 && (UINT)l_width < (UINT)l_info.cxMinChild)
-			{
-				l_info.cx = (UINT)l_width;
-			}
-			// doesn't really set the width since if cxMinChild is > 0, Windows
-			// ignores the cx member or something... :FIXME:
-
-			if(l_break)
-			{
-				l_info.fStyle |= RBBS_BREAK; 
-			}
-			else
-			{
-				l_info.fStyle &= ~RBBS_BREAK;
-			}
-
-			RB.SetBandInfo(l_index, l_info);
-		}
-	}
+	ShowMenuBar(m_settings->bAlwaysShowMenubar);
 }
 
 
@@ -267,6 +219,7 @@ void CMainFrame::AddToolbarButtons()
 		ICO_VIEW_RENDERED,
 		ICO_VIEW_CLASSIC,
 		ICO_VIEW_TEXTONLY,
+		ICO_SHOWMENU,
 		_ICOMAX
 	};
 
@@ -281,6 +234,7 @@ void CMainFrame::AddToolbarButtons()
 	l_icoId[ICO_VIEW_RENDERED]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_RENDERED,	22, 22);
 	l_icoId[ICO_VIEW_CLASSIC]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_CLASSIC,		22, 22);
 	l_icoId[ICO_VIEW_TEXTONLY]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_TEXTONLY,	22, 22);
+	l_icoId[ICO_SHOWMENU]		= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_SHOWMENU,			22,	22);
 
 	const BYTE defState = TBSTATE_ENABLED;
 	const BYTE defStyle = BTNS_AUTOSIZE;
@@ -294,6 +248,7 @@ void CMainFrame::AddToolbarButtons()
 		_TBBTN(ICO_FILEOPEN, TBBID_OPEN, defState, defStyle | BTNS_DROPDOWN, "Open (Ctrl+O)"),
 		_TBSEP,
 		_TBBTN(ICO_SETTINGS, TBBID_SETTINGS, defState, defStyle, "Settings (F6)"),
+		_TBBTN(ICO_SHOWMENU, TBBID_SHOWMENU, defState, defStyle | BTNS_CHECK, "Show Menu (Alt)"),
 		_TBSEP,
 		_TBBTN(ICO_VIEW_RENDERED, TBBID_VIEW_RENDERED, defState | TBSTATE_CHECKED, defStyle | BTNS_CHECKGROUP, "Rendered (F2)"),
 		_TBBTN(ICO_VIEW_CLASSIC, TBBID_VIEW_CLASSIC, defState, defStyle | BTNS_CHECKGROUP, "Classic (F3)"),
@@ -317,7 +272,11 @@ void CMainFrame::AddToolbarButtons()
 
 void CMainFrame::ShowMenuBar(bool a_show)
 {
-	GetRebar().ShowBand(GetRebar().IDToIndex(IDW_MENUBAR), (a_show ? TRUE : FALSE));
+	BOOL b = (a_show ? TRUE : FALSE);
+
+	GetRebar().ShowBand(GetRebar().IDToIndex(IDW_MENUBAR), b);
+	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_SHOWMENU, b);
+
 	m_menuBarVisible = a_show;
 }
 
@@ -355,6 +314,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		l_dlg.SetMainWin(this);
 		l_dlg.DoModal();
 		return TRUE; }
+
+	case TBBID_SHOWMENU:
+		ShowMenuBar(!m_menuBarVisible);
+		m_settings->bAlwaysShowMenubar = m_menuBarVisible;
+		m_settings->SaveToRegistry();
+		return TRUE;
 
 	case TBBID_ABOUT:
 	case IDM_ABOUT:
@@ -832,9 +797,11 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					OpenFile(l_path);
 
 					WINDOWPLACEMENT wplm;
-					GetWindowPlacement(wplm);
-					wplm.showCmd = SW_RESTORE;
-					SetWindowPlacement(wplm);
+					if(GetWindowPlacement(wplm))
+					{
+						wplm.showCmd = SW_RESTORE;
+						SetWindowPlacement(wplm);
+					}
 
 					ShowWindow(SW_SHOW);
 					BringWindowToTop();
@@ -849,6 +816,10 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SIZE:
 		UpdateStatusbar();
 		break; // also invoke default
+	case WM_THEMECHANGED: {
+		CRebar& RB = GetRebar();
+		RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !CThemeAPI::GetInstance()->IsThemeActive());
+		break; }
 	case WM_DESTROY:
 		::RevokeDragDrop(m_hWnd);
 		if(m_dropHelper)
@@ -1342,46 +1313,9 @@ void CMainFrame::SavePositionSettings()
 }
 
 
-void CMainFrame::SaveReBarSettings()
-{
-	PSettingsSection l_sect;
-
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"RebarData", l_sect))
-	{
-		return;
-	}
-
-	CRebar& RB = GetRebar();
-
-	UINT l_bandIDs[2] = { IDW_MENUBAR, IDW_TOOLBAR };
-	const wchar_t* l_bandNames[2] = { L"mmenubar", L"toolbar1" };
-
-	for(int i = 0; i < 2; i++)
-	{
-		int l_index = RB.IDToIndex(l_bandIDs[i]);
-		wchar_t l_key[100] = {0};
-
-		swprintf_s(l_key, 99, L"%s_index", l_bandNames[i]);
-		l_sect->WriteDword(l_key, l_index);
-
-		REBARBANDINFO l_info = { sizeof(REBARBANDINFO), 0 };
-		l_info.fMask = RBBIM_SIZE | RBBIM_STYLE;
-
-		RB.GetBandInfo(l_index, l_info);
-
-		swprintf_s(l_key, 99, L"%s_width", l_bandNames[i]);
-		l_sect->WriteDword(l_key, l_info.cx);
-
-		swprintf_s(l_key, 99, L"%s_break", l_bandNames[i]);
-		l_sect->WriteBool(l_key, (l_info.fStyle & RBBS_BREAK) != 0);
-	}
-}
-
-
 void CMainFrame::OnClose()
 {
 	SavePositionSettings();
-	SaveReBarSettings();
 
 	if(!m_settings->bKeepOpenMRU)
 	{

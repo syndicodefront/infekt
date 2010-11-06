@@ -1199,10 +1199,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\icons\blockdevice.png"
-				>
-			</File>
-			<File
 				RelativePath=".\icons\editcopy.png"
 				>
 			</File>
@@ -1219,11 +1215,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\icons\mime_colorset.png"
+				RelativePath=".\icons\kllckety_doc.png"
 				>
 			</File>
 			<File
-				RelativePath=".\icons\png1.png"
+				RelativePath=".\icons\mime_colorset.png"
 				>
 			</File>
 			<File
@@ -1236,6 +1232,10 @@
 			</File>
 			<File
 				RelativePath=".\icons\template_source.png"
+				>
+			</File>
+			<File
+				RelativePath=".\icons\view_top_bottom.png"
 				>
 			</File>
 		</Filter>

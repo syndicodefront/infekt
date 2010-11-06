@@ -13,12 +13,14 @@
 #define IDR_MAIN_KEYBOARD_SHORTCUTS     113
 #define IDI_APPICON                     114
 #define IDD_ABOUT                       115
-#define IDB_PNG_VIEW_RENDERED           118
 #define IDB_PNG_VIEW_CLASSIC            119
 #define IDB_PNG3                        120
 #define IDB_PNG_VIEW_TEXTONLY           120
 #define IDD_TAB_PLUGINS                 122
 #define IDD_DLG_ADVANCED_SETTINGS       123
+#define IDB_PNG_VIEW_RENDERED           125
+#define IDB_PNG_MENU                    126
+#define IDB_PNG_SHOWMENU                126
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_CHECK_DEFAULT_VIEWER        1006
@@ -137,7 +139,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        124
+#define _APS_NEXT_RESOURCE_VALUE        127
 #define _APS_NEXT_COMMAND_VALUE         40088
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
