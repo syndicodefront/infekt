@@ -191,9 +191,10 @@ END
 IDB_PNG_FILEOPEN        PNG                     "icons\\folder_txt.png"
 IDB_PNG_INFO            PNG                     "icons\\info.png"
 IDB_PNG_SETTINGS        PNG                     "icons\\advancedsettings.png"
-IDB_PNG_VIEW_RENDERED   PNG                     "icons\\blockdevice.png"
 IDB_PNG_VIEW_CLASSIC    PNG                     "icons\\mime_colorset.png"
 IDB_PNG_VIEW_TEXTONLY   PNG                     "icons\\template_source.png"
+IDB_PNG_VIEW_RENDERED   PNG                     "icons\\kllckety_doc.png"
+IDB_PNG_SHOWMENU        PNG                     "icons\\view_top_bottom.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
