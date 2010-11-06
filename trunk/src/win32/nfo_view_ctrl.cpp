@@ -311,7 +311,7 @@ void CNFOViewControl::OnPaint()
 	if(l_smart)
 	{
 		DrawToSurface(l_surface, 0, 0,
-			l_x * (int)GetBlockWidth() + l_ps.rcPaint.left,
+			l_x * (int)GetBlockWidth() + l_ps.rcPaint.left - l_destx,
 			l_y * (int)GetBlockHeight() + l_ps.rcPaint.top,
 			cairo_image_surface_get_width(l_surface),
 			cairo_image_surface_get_height(l_surface));
@@ -354,10 +354,10 @@ void CNFOViewControl::OnPaint()
 		if(l_smart)
 		{
 			cairo_set_source_surface(cr, l_surface,
-				/*dest_x - source_x*/ l_ps.rcPaint.left + l_destx - 0,
+				/*dest_x - source_x*/ l_ps.rcPaint.left - 0,
 				/*dest_y - source_y*/ l_ps.rcPaint.top - 0);
 
-			cairo_rectangle(cr, l_ps.rcPaint.left + l_destx, l_ps.rcPaint.top,
+			cairo_rectangle(cr, l_ps.rcPaint.left, l_ps.rcPaint.top,
 				cairo_image_surface_get_width(l_surface),
 				cairo_image_surface_get_height(l_surface));
 
