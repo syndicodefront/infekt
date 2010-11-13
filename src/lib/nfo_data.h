@@ -77,7 +77,7 @@ public:
 	const std::string& GetTextUtf8() const { return m_utf8Content; }
 	const std::wstring& GetTextWide() const { return m_textContent; }
 
-	bool SaveToFile(std::_tstring a_filePath, bool a_utf8 = true);
+	bool SaveToFile(std::_tstring a_filePath, bool a_utf8 = true, bool a_compoundWhitespace = false);
 
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
@@ -111,6 +111,8 @@ protected:
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix);
 	bool TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen);
+
+	std::wstring GetWithBoxedWhitespace();
 };
 
 #ifdef HAVE_BOOST
