@@ -5,8 +5,8 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.7.5
-AppVersion=0.7.5
+AppVerName=iNFekt 0.7.6
+AppVersion=0.7.6
 AppPublisher=cxxjoe & Contributors
 AppPublisherURL=http://infekt.googlecode.com/
 DefaultDirName={pf}\iNFekt

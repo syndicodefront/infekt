@@ -95,13 +95,20 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 		{
 			// force initially selected folder
 			IShellItem *ppsif = NULL;
-			hr = SHCreateItemFromParsingName(a_initialPath.c_str(), NULL, IID_PPV_ARGS(&ppsif));
 
-			if(SUCCEEDED(hr))
+			typedef HRESULT (STDAPICALLTYPE *fshcifpn)(PCWSTR, IBindCtx*, REFIID, void**);
+			fshcifpn fnc = (fshcifpn)GetProcAddress(GetModuleHandleW(L"shell32.dll"), "SHCreateItemFromParsingName");
+
+			if(fnc)
 			{
-				hr = pfsd->SetFolder(ppsif);
-				ppsif->Release();
-			}
+				hr = fnc(a_initialPath.c_str(), NULL, IID_PPV_ARGS(&ppsif));
+
+				if(SUCCEEDED(hr))
+				{
+					hr = pfsd->SetFolder(ppsif);
+					ppsif->Release();
+				}
+			} // else: can't really happen, but if it does, ignore it, it's just the initial dir thing
 		}
 
 		// show the dialog:
