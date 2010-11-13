@@ -702,7 +702,7 @@ void CMainFrame::UpdateStatusbar()
 
 void CMainFrame::AdjustWindowToNFOWidth()
 {
-	size_t l_desiredWidth = m_view.GetActiveCtrl()->GetWidth();
+	int l_desiredWidth = static_cast<int>(m_view.GetActiveCtrl()->GetWidth());
 
 	l_desiredWidth += ::GetSystemMetrics(SM_CXSIZEFRAME) * 2;
 	l_desiredWidth += ::GetSystemMetrics(SM_CYVSCROLL);
