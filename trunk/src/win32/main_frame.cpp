@@ -61,13 +61,18 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 
 	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
 	{
-		cs.x = l_sect->ReadDword(L"Left");
-		cs.y = l_sect->ReadDword(L"Top");
-		cs.cx = l_sect->ReadDword(L"Width");
-		cs.cy = l_sect->ReadDword(L"Height");
+		if(!::GetKeyState(VK_SHIFT))
+		{
+			// holding down SHIFT during startup causes the
+			// saved position to be discarded
+			cs.x = l_sect->ReadDword(L"Left");
+			cs.y = l_sect->ReadDword(L"Top");
+			cs.cx = l_sect->ReadDword(L"Width");
+			cs.cy = l_sect->ReadDword(L"Height");
 
-		m_bShowStatusbar = l_sect->ReadBool(L"Statusbar", true);
-		m_bShowToolbar = l_sect->ReadBool(L"Toolbar", true);
+			m_bShowStatusbar = l_sect->ReadBool(L"Statusbar", true);
+			m_bShowToolbar = l_sect->ReadBool(L"Toolbar", true);
+		}
 	}
 
 	if(cs.cx == 0 && cs.cy == 0)
@@ -77,10 +82,16 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 		cs.cy = 680;
 	}
 
-	// avoid stupid things:
-	RECT l_wa;
-	if(::SystemParametersInfo(SPI_GETWORKAREA, 0, &l_wa, 0))
+	// get work area of the target (saved) monitor
+	// and perform checks based on that:
+	POINT l_pt = { cs.x, cs.y };
+	MONITORINFO l_moInfo = { sizeof(MONITORINFO), 0 };
+	HMONITOR l_hMonitor = ::MonitorFromPoint(l_pt, MONITOR_DEFAULTTOPRIMARY);
+
+	if(::GetMonitorInfo(l_hMonitor, &l_moInfo))
 	{
+		RECT l_wa = l_moInfo.rcWork;
+
 		// don't let the window grow larger than the size of the work area
 		if(cs.cx > l_wa.right - l_wa.left)
 			cs.cx = l_wa.right - l_wa.left;
@@ -92,6 +103,13 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 			cs.x = l_wa.right - cs.cx;
 		if(cs.y >= l_wa.bottom - 100)
 			cs.y = l_wa.bottom - cs.cy;
+
+		// this check is necessary in case the monitor setup
+		// has changed since the last time iNFEKT ran
+		if(cs.x < l_wa.left)
+			cs.x = l_wa.left;
+		if(cs.y < l_wa.top)
+			cs.y = l_wa.top;
 	}
 
 	// enforce minimum window size:
@@ -708,9 +726,16 @@ void CMainFrame::AdjustWindowToNFOWidth()
 		// set width:
 		l_rc.right = l_rc.left + l_desiredWidth;
 
-		RECT l_wa;
-		if(::SystemParametersInfo(SPI_GETWORKAREA, 0, &l_wa, 0))
+		// perform extra checks on the new window size:
+		POINT l_pt = { l_rc.left, l_rc.top };
+		MONITORINFO l_moInfo = { sizeof(MONITORINFO), 0 };
+		HMONITOR l_hMonitor = ::MonitorFromPoint(l_pt, MONITOR_DEFAULTTOPRIMARY);
+		// use MonitorFromPoint instead of MonitorFromWindow to make the left-top corner count.
+
+		if(::GetMonitorInfo(l_hMonitor, &l_moInfo))
 		{
+			RECT l_wa = l_moInfo.rcWork;
+
 			// don't let the window grow larger than the size of the work area
 			if(l_rc.right - l_rc.left > l_wa.right - l_wa.left)
 			{
@@ -1303,8 +1328,8 @@ void CMainFrame::SavePositionSettings()
 	{
 		CRect rc = l_wpl.rcNormalPosition;
 
-		l_sect->WriteDword(L"Top", MAX(rc.top, 0));
-		l_sect->WriteDword(L"Left", MAX(rc.left, 0));
+		l_sect->WriteDword(L"Top", rc.top);
+		l_sect->WriteDword(L"Left", rc.left);
 		l_sect->WriteDword(L"Width", MAX(rc.Width(), ms_minWidth));
 		l_sect->WriteDword(L"Height", MAX(rc.Height(), ms_minHeight));
 
