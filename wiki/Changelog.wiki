@@ -5,6 +5,18 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
+== v0.7.5 (13th November 2010) ==
+  * Added a bunch of new, advanced settings: _Auto-center window on startup_, _Auto-adjust window width to NFO_, _Use centered NFO view_
+  * Added a show/hide menu button to the main toolbar
+  * Fixed another minor redrawing bug that caused artifacts from overlapping windows to remain visible
+  * Fixed weird zoom results in Classic Mode
+  * Added "support" for another way of totally broken NFO encodings as seen in the wild
+  * Added ~ to allowed characters in hyperlink detection
+  * Added a --compound-whitespace option to infekt-cmd
+  * iNFEKT now looks a bit better with Aero enabled (Windows Vista + 7)
+  * Removed ability to change main menu position
+  * Improved support for multiple monitors
+
 == v0.7.2 (25th September 2010) ==
   * Fix for minor redrawing issue (background-colored boxes)
 
