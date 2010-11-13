@@ -16,6 +16,7 @@
   * iNFEKT now looks a bit better with Aero enabled (Windows Vista + 7)
   * Removed ability to change main menu position
   * Improved support for multiple monitors
+  * Fixed copy-on-select
 
 == v0.7.2 (25th September 2010) ==
   * Fix for minor redrawing issue (background-colored boxes)
