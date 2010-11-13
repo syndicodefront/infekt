@@ -55,6 +55,7 @@ static const struct ::option g_longOpts[] = {
 	{ _T("block-width"),	required_argument,	0,	'W' },
 	{ _T("block-height"),	required_argument,	0,	'H' },
 	{ _T("glow-radius"),	required_argument,	0,	'R' },
+	{ _T("compound-whitespace"), no_argument,	0,	'c' },
 
 	{0}
 };
@@ -83,7 +84,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -d, --pdf                   Makes a PDF document.\n");
 	printf("  -D, --pdf-din               Makes a PDF document (DIN size).\n");
 #endif
-	printf("  -O, --out-file <PATH>       Sets the output filename. Defaults to input file name plus .png/.nfo.\n");
+	printf("  -O, --out-file <PATH>       Output filename. Default: input name plus extension.\n");
 
 	printf("Render settings:\n");
 	printf("  -T, --text-color <COLOR>    COLOR for regular text. Defaults to black.\n");
@@ -97,6 +98,9 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -W, --block-width <PIXELS>  Block width. Defaults to 7.\n");
 	printf("  -H, --block-height <PIXELS> Block Height. Defaults to 12.\n");
 	printf("  -R, --glow-radius <PIXELS>  Glow effect radius. Defaults to 10.\n");
+
+	printf("Text conversion settings:\n");
+	printf("  -c, --compound-whitespace   Add whitespace so that all lines have the same length.\n");
 
 	// :TODO: option for input charset.
 }
@@ -131,7 +135,8 @@ int main(int argc, char* argv[])
 {
 	std::_tstring l_outFileName;
 	bool l_classic = false, l_makePng = true, l_textUtf8 = true,
-		l_htmlOut = false, l_makePdf = false, l_pdfDin = false;
+		l_htmlOut = false, l_makePdf = false, l_pdfDin = false,
+		l_compoundWhitespace = false;
 
 #ifdef _WIN32
 	CUtil::EnforceDEP();
@@ -159,7 +164,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdD"), g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDc"), g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -237,6 +242,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'D':
 			l_makePng = false; l_makePdf = true; l_pdfDin = true;
+			break;
+		case 'c':
+			l_compoundWhitespace = true;
 			break;
 		case '?':
 		default:
@@ -399,7 +407,7 @@ int main(int argc, char* argv[])
 		{
 			// text export
 
-			if(l_nfoData.SaveToFile(l_outFileName, l_textUtf8))
+			if(l_nfoData.SaveToFile(l_outFileName, l_textUtf8, l_compoundWhitespace))
 			{
 				_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
 			}

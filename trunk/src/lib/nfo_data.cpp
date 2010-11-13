@@ -734,7 +734,7 @@ const std::_tstring CNFOData::GetFileName() const
 }
 
 
-bool CNFOData::SaveToFile(std::_tstring a_filePath, bool a_utf8)
+bool CNFOData::SaveToFile(std::_tstring a_filePath, bool a_utf8, bool a_compoundWhitespace)
 {
 	FILE *l_file = NULL;
 
@@ -762,8 +762,17 @@ bool CNFOData::SaveToFile(std::_tstring a_filePath, bool a_utf8)
 		unsigned char l_sig[3] = { 0xEF, 0xBB, 0xBF };
 		l_written += fwrite(l_sig, 1, sizeof(l_sig), l_file);
 
-		// dump
-		l_written += fwrite(m_utf8Content.c_str(), m_utf8Content.size(), 1, l_file);
+		// dump contents
+		if(a_compoundWhitespace)
+		{
+			const std::string l_buf = CUtil::FromWideStr(GetWithBoxedWhitespace(), CP_UTF8);
+
+			l_written += fwrite(l_buf.c_str(), l_buf.size(), 1, l_file);
+		}
+		else
+		{
+			l_written += fwrite(m_utf8Content.c_str(), m_utf8Content.size(), 1, l_file);
+		}
 
 		l_success = (l_written == 4);
 	}
@@ -773,8 +782,17 @@ bool CNFOData::SaveToFile(std::_tstring a_filePath, bool a_utf8)
 		unsigned char l_bom[2] = { 0xFF, 0xFE };
 		l_written += fwrite(l_bom, 1, sizeof(l_bom), l_file);
 
-		// dump
-		l_written += fwrite(m_textContent.c_str(), m_textContent.size(), sizeof(wchar_t), l_file);
+		// dump contents
+		if(a_compoundWhitespace)
+		{
+			const std::wstring l_buf = GetWithBoxedWhitespace();
+
+			l_written += fwrite(l_buf.c_str(), l_buf.size(), sizeof(wchar_t), l_file);
+		}
+		else
+		{
+			l_written += fwrite(m_textContent.c_str(), m_textContent.size(), sizeof(wchar_t), l_file);
+		}
 
 		l_success = (l_written == 4);
 	}
@@ -834,6 +852,28 @@ const std::_tstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 	}
 
 	return _T("(huh?)");
+}
+
+
+/************************************************************************/
+/* Compound Whitespace Code                                             */
+/************************************************************************/
+
+wstring CNFOData::GetWithBoxedWhitespace()
+{
+	wstring l_result;
+
+	for(size_t rr = 0; rr < m_grid->GetRows(); rr++)
+	{
+		for(size_t cc = 0; cc < m_grid->GetCols(); cc++)
+		{
+			wchar_t l_tmp = (*m_grid)[rr][cc];
+			l_result += (l_tmp != 0 ? l_tmp : L' ');
+		}
+		l_result += L"\r\n";
+	}
+
+	return l_result;
 }
 
 
