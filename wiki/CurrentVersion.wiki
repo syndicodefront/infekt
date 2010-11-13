@@ -2,7 +2,7 @@
 The program downloads this file from http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki and uses it to check for the latest available version. It has the label "Deprecated" so that it doesn't show up on the web page too often.
 
 {{{
-latest[stable].1 = 0.7.2
+latest[stable].1 = 0.7.5
 download_latest[stable].1 = http://code.google.com/p/infekt/downloads/list
 }}}
 
