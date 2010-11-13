@@ -51,6 +51,11 @@ public:
 		m_textOnlyControl->SetCopyOnSelect(nb);
 	}
 
+	void SetCenterNfo(bool nb) {
+		m_renderControl->SetCenterNfo(nb);
+		m_classicControl->SetCenterNfo(nb);
+	}
+
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
