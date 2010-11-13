@@ -590,6 +590,9 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			CAdvancedSettingsWindowDialog l_dlg(m_hWnd);
 			l_dlg.SetMainSettings(m_mainWin->GetSettings());
 			l_dlg.DoModal();
+
+			CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+			l_view->SetCenterNfo(m_mainWin->GetSettings()->bCenterNFO);
 			break; }
 		default:
 			return FALSE;

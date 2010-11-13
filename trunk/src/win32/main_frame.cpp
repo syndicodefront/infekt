@@ -167,6 +167,9 @@ void CMainFrame::OnInitialUpdate()
 		l_sect.reset();
 	}
 
+	m_view.SetCopyOnSelect(m_settings->bCopyOnSelect);
+	m_view.SetCenterNfo(m_settings->bCenterNFO);
+
 	ShowWindow(l_maximize ? SW_MAXIMIZE : SW_SHOWNORMAL);
 
 	if(m_settings->bCheckDefaultOnStartup)
@@ -1251,10 +1254,10 @@ void CMainFrame::LoadOpenMruList()
 		const wstring l_valName = FORMAT(L"%d", i);
 		const std::wstring l_path = l_sect->ReadString(l_valName.c_str());
 
-		if(l_path.empty() || !::PathFileExists(l_path.c_str()))
-			break;
-
-		m_mruPaths.push_back(l_path);
+		if(!l_path.empty() && ::PathFileExists(l_path.c_str()))
+		{
+			m_mruPaths.push_back(l_path);
+		}
 	}
 }
 
