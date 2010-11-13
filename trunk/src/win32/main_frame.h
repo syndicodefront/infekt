@@ -31,7 +31,6 @@ public:
 		bCenterWindow = true;
 		bAutoWidth = false;
 		bCenterNFO = true;
-		bDeSelectOnCopy = false;
 		bDefaultExportToNFODir = false;
 		if(bFromRegistry) LoadFromRegistry();
 	}
@@ -49,7 +48,6 @@ public:
 	bool bCenterWindow;
 	bool bAutoWidth;
 	bool bCenterNFO;
-	bool bDeSelectOnCopy;
 	bool bDefaultExportToNFODir;
 };
 
