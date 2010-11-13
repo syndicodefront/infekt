@@ -1332,7 +1332,6 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_CENTER_WINDOW, m_settings->bCenterWindow);
 	SET_DLG_CHECKBOX(IDC_AUTO_WIDTH, m_settings->bAutoWidth);
 	SET_DLG_CHECKBOX(IDC_CENTER_NFO, m_settings->bCenterNFO);
-	SET_DLG_CHECKBOX(IDC_DESELECT_ON_COPY, m_settings->bDeSelectOnCopy);
 	SET_DLG_CHECKBOX(IDC_EXPORT_NFO_DIR, m_settings->bDefaultExportToNFODir);
 
 	ShowWindow(SW_SHOW);
@@ -1346,7 +1345,6 @@ void CAdvancedSettingsWindowDialog::OnOK()
 	m_settings->bCenterWindow = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_WINDOW) != FALSE);
 	m_settings->bAutoWidth = (::IsDlgButtonChecked(GetHwnd(), IDC_AUTO_WIDTH) != FALSE);
 	m_settings->bCenterNFO = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_NFO) != FALSE);
-	m_settings->bDeSelectOnCopy = (::IsDlgButtonChecked(GetHwnd(), IDC_DESELECT_ON_COPY) != FALSE);
 	m_settings->bDefaultExportToNFODir = (::IsDlgButtonChecked(GetHwnd(), IDC_EXPORT_NFO_DIR) != FALSE);
 
 	CDialog::OnOK();

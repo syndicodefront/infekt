@@ -1363,7 +1363,6 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"CenterWindow", this->bCenterWindow);
 	l_sect->WriteBool(L"AutoWidth", this->bAutoWidth);
 	l_sect->WriteBool(L"CenterNFO", this->bCenterNFO);
-	l_sect->WriteBool(L"DeSelectOnCopy", this->bDeSelectOnCopy);
 	l_sect->WriteBool(L"DefaultExportToNFODir", this->bDefaultExportToNFODir);
 
 	// "deputy" return value:
@@ -1403,7 +1402,6 @@ bool CMainSettings::LoadFromRegistry()
 	this->bCenterWindow = l_sect->ReadBool(L"CenterWindow", true);
 	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", false);
 	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", true);
-	this->bDeSelectOnCopy = l_sect->ReadBool(L"DeSelectOnCopy", false);
 	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
 
 	return true;

@@ -307,7 +307,7 @@ BEGIN
     CONTROL         "Auto-adjust window width to NFO width",IDC_AUTO_WIDTH,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,22,148,10
     GROUPBOX        "Miscellaneous",IDC_STATIC,7,59,303,49
-    CONTROL         "Deselect on copy",IDC_DESELECT_ON_COPY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,73,122,10
+    CONTROL         "Deselect on copy",IDC_DESELECT_ON_COPY,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,15,73,122,10
     CONTROL         "Default to NFO's directory during export",IDC_EXPORT_NFO_DIR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,89,159,10
 END
