@@ -83,6 +83,9 @@ CNFOApp::CNFOApp()
 {
 	const std::wstring l_iniPath = CUtil::GetExeDir() + L"\\portable.ini";
 
+	// an existing portable.ini file in the program dir switches
+	// on iNFekt's portable mode.
+
 	if(!PathFileExists(l_iniPath.c_str()))
 	{
 		m_settings = PSettingsBackend(new CRegistrySettingsBackend(L"Software\\cxxjoe\\iNFEKT\\"));
@@ -121,6 +124,7 @@ bool CNFOApp::SwitchToPrevInstance()
 	PSettingsSection l_sect;
 	bool l_singleInstanceMode = false;
 
+	// read setting (single instance yes/no):
 	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
 	{
 		l_singleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
@@ -129,10 +133,12 @@ bool CNFOApp::SwitchToPrevInstance()
 
 	if(l_singleInstanceMode)
 	{
+		// find previous instance main window:
 		HWND l_prevMainWin = ::FindWindowEx(0, 0, INFEKT_MAIN_WINDOW_CLASS_NAME, NULL);
 
 		if(l_prevMainWin)
 		{
+			// use WM_USER message to instruct previous instance to load the NFO:
 			COPYDATASTRUCT l_cpds = {0};
 			l_cpds.dwData = WM_LOAD_NFO;
 			l_cpds.cbData = (DWORD)(m_startupFilePath.size() + 1) * sizeof(wchar_t);
@@ -146,6 +152,7 @@ bool CNFOApp::SwitchToPrevInstance()
 		}
 	}
 
+	// we were unable to make the previous instance open the NFO.
 	return false;
 }
 
@@ -175,6 +182,10 @@ CNFOApp::~CNFOApp()
 #define DEFAULT_APP_PROG_ID L"iNFEKT.NFOFile.1"
 #define DEFAULT_APP_EXTENSION L".nfo"
 
+// return values:
+// 0 = not default NFO viewer
+// 1 = is default viewer
+// -1 = unable to determine because program hasn't been registered with Windows' program default facility
 int CNFOApp::IsDefaultNfoViewer()
 {
 	int l_result = 0;
@@ -227,6 +238,7 @@ bool CNFOApp::MakeDefaultNfoViewer()
 
 	if(l_defApp && l_defApp->MakeDefault())
 	{
+		// ensure consistent behaviour:
 		if(l_defApp->IsDefault())
 		{
 			l_result = true;
@@ -254,7 +266,7 @@ void CNFOApp::CheckDefaultNfoViewer(HWND a_hwnd, bool a_confirmation)
 			}
 			else
 			{
-				MessageBox(a_hwnd, _T("A problem occured while trying to make iNFekt default NFO viewer. Please do it manually."), _T("Problem"), MB_ICONEXCLAMATION);
+				MessageBox(a_hwnd, _T("A problem occured while trying to make iNFekt your default NFO viewer. Please do it manually."), _T("Problem"), MB_ICONEXCLAMATION);
 			}
 		}
 	}
