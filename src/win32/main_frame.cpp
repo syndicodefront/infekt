@@ -1168,7 +1168,7 @@ const std::_tstring CMainFrame::InfektVersionAsString()
 
 void CMainFrame::CheckForUpdates()
 {
-	const _tstring l_url(_T("http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki"));
+	const _tstring l_url(_T("https://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki"));
 	const _tstring l_projectUrl(_T("http://infekt.googlecode.com/"));
 
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));

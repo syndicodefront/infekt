@@ -54,8 +54,6 @@ Source: "{#SourceFileDir32}\cudart32_31_9.dll"; DestDir: "{app}"; Flags: ignorev
 Source: "{#SourceFileDir64}\cudart64_31_9.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: not Is64BitInstallMode
 Source: "{#SourceFileDir64}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: Is64BitInstallMode
-;Source: "C:\temp\vcredist_x86.exe"; DestDir: "{tmp}"; Flags: ignoreversion; Flags: ignoreversion; Check: not Is64BitInstallMode
-;Source: "C:\temp\vcredist_x64.exe"; DestDir: "{tmp}"; Flags: ignoreversion; Flags: ignoreversion; Check: Is64BitInstallMode
 
 [InstallDelete]
 Type: files; Name: "{app}\cudart.dll"
@@ -76,8 +74,6 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Tasks: quicklaunchicon; Check: Is64BitInstallMode
 
 [Run]
-;Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."; Check: not Is64BitInstallMode
-;Filename: "{tmp}\vcredist_x64.exe"; Parameters: "/q:a /c:""install /l /q"""; WorkingDir: {tmp}; Flags: skipifdoesntexist; StatusMsg: "Checking for and installing ""Microsoft Visual C++ 2008 SP1 Redistributable Package"" if needed. This can take several minutes..."; Check: Is64BitInstallMode
 Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: not Is64BitInstallMode
 Filename: "{app}\infekt-win64.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: Is64BitInstallMode
 
