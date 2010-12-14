@@ -577,6 +577,8 @@ bool CUtil::TextToClipboard(HWND a_hwnd, const wstring& a_text)
 
 std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 {
+	int64_t uMaxLength = 100 * 1024;
+
 	HINTERNET hInet;
 	std::string sText;
 	BOOL bSuccess = TRUE;
@@ -586,13 +588,17 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 	if(hInet)
 	{
 		HINTERNET hRequest;
-		DWORD dwTimeBuffer = 3000;
+		DWORD dwTimeOut = 5000;
 
-		InternetSetOption(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeBuffer, sizeof(dwTimeBuffer));
+		InternetSetOption(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeOut, sizeof(dwTimeOut));
 
-		hRequest = InternetOpenUrl(hInet, a_url.c_str(), NULL, 0,
-			INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_PRAGMA_NOCACHE |
-			INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_AUTH, 0);
+		DWORD dwFlags = INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_PRAGMA_NOCACHE |
+			INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_AUTH;
+
+		if(a_url.find(L"https://") == 0)
+			dwFlags |= INTERNET_FLAG_SECURE;
+
+		hRequest = InternetOpenUrl(hInet, a_url.c_str(), NULL, 0, dwFlags, 0);
 
 		InternetSetOption(hRequest, INTERNET_OPTION_IGNORE_OFFLINE, NULL, 0);
 
@@ -602,6 +608,7 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 
 			if(true)
 			{
+				// get total file size from Content-Length HTTP header:
 				TCHAR szSizeBuffer[32];
 				DWORD dwLengthSizeBuffer = 32;
 
@@ -611,7 +618,7 @@ std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
 				}
 			}
 
-			if(uFileSize && uFileSize < 100 * 1024)
+			if(uFileSize && uFileSize < uMaxLength)
 			{
 				char szBuffer[8192] = {0};
 				DWORD dwRead;
