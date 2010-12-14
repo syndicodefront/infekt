@@ -25,6 +25,9 @@
 static __int64 s_uBytesTotal = 0;
 static DWORD s_uTimeDlStarted = 0;
 
+static std::wstring s_installerUrl;
+static std::wstring s_installerPath;
+
 
 /************************************************************************/
 /* WINDOW MESSAGE METHODS                                               */
@@ -71,13 +74,17 @@ static void BeginUpdate(HWND hDlg)
 {
 	EnablePgbMarquee(hDlg);
 
-	if(!false)//!StartHttpDownload(hDlg, L"http://infekt.googlecode.com/files/iNFekt-v0.7.6-setup.exe", L"C:\\temp\\test.exe"))
+	std::wstring l_tempExePath = GetTempFilePath(L"-iNFekt-setup.exe");
+
+	if(!StartHttpDownload(hDlg, s_installerUrl, l_tempExePath))
 	{
 		SetDlgItemText(hDlg, IDC_STATUS, L"ERROR: Couldn't initialize download.");
 	}
 	else
 	{
 		SetDlgItemText(hDlg, IDC_STATUS, L"Downloading...");
+
+		s_installerPath = l_tempExePath;
 
 		::EnableWindow(GetDlgItem(hDlg, IDCANCEL), TRUE);
 	}
@@ -95,7 +102,7 @@ void ShowDownloadProgress(HWND hDlg)
 
 	if(s_uBytesTotal > 0)
 	{
-		unsigned int etaH = 0, etaM = 0, etaS = (unsigned int)(s_uBytesTotal / fBytesPerSec - secsIn);
+		unsigned int etaH = 0, etaM = 0, etaS = (unsigned int)(s_uBytesTotal / fBytesPerSec - secsIn) + 1;
 		if(etaS < 0) etaS = 0;
 		if(etaS >= 60)
 		{
@@ -131,6 +138,27 @@ static void ShowDownloadStarted(HWND hDlg, __int64 uBytesTotal)
 	DisablePgbMarquee(hDlg);
 
 	ShowDownloadProgress(hDlg);
+}
+
+
+static void OnInstallerComplete(HWND hDlg, bool a_success)
+{
+	// schedule temp files for deletion on reboot:
+	std::wstring l_exePath = GetExePath();
+	::MoveFileEx(l_exePath.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
+	::MoveFileEx(s_installerPath.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
+
+	DisablePgbMarquee(hDlg);
+	SendDlgItemMessage(hDlg, IDC_PGB, PBM_SETPOS, 1000, 0);
+
+	if(a_success)
+	{
+		SetDlgItemText(hDlg, IDC_STATUS, L"Update has been installed!");
+
+		::MessageBoxW(hDlg, L"Update complete!", L"Great Success", MB_ICONINFORMATION);
+	}
+
+	::DestroyWindow(hDlg);
 }
 
 
@@ -177,7 +205,13 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 	case WM_TASKKILL_COMPLETE:
 		SetDlgItemText(hDlg, IDC_STATUS, L"Installing update...");
-		return true;
+
+		StartInstaller(hDlg, s_installerPath);
+		return TRUE;
+
+	case WM_INSTALLER_COMPLETE:
+		OnInstallerComplete(hDlg, wParam == 0);
+		return TRUE;
 
 	case WM_TIMER:
 		if(wParam == IDT_TIMER_ID && HttpIsDownloading())
@@ -248,9 +282,28 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 		return 1;
 	}
 
-	InitCommonControls();
+	LPWSTR l_cmdLine = _wcsdup(wszCommandLine);
+	::PathUnquoteSpaces(l_cmdLine);
 
-	return MainMessageLoop();
+	if(::PathIsURL(l_cmdLine))
+	{
+		s_installerUrl = l_cmdLine;
+
+		free(l_cmdLine);
+
+		if(s_installerUrl.find(L"https://") == 0 || s_installerUrl.find(L"http://") == 0)
+		{
+			InitCommonControls();
+
+			return MainMessageLoop();
+		}
+	}
+	else
+	{
+		free(l_cmdLine);
+	}
+
+	return 1;
 }
 
 

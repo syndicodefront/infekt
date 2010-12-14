@@ -51,7 +51,43 @@ std::wstring GetSysDirPath()
 }
 
 
-bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd)
+std::wstring GetTempFilePath(const std::wstring& a_suffix)
+{
+	wchar_t l_buf[1000] = {0};
+
+	if(::GetTempPath(999, l_buf))
+	{
+		::PathAddBackslash(l_buf);
+
+		std::wstring l_tempDir = l_buf, l_path;
+
+		do 
+		{
+			swprintf_s(l_buf, 999, L"%x", GetTickCount());
+
+			l_path = l_tempDir + std::wstring(l_buf) + a_suffix;
+		} while(::PathFileExists(l_path.c_str()));
+
+		return l_path;
+	}
+
+	return L"";
+}
+
+
+std::wstring GetExePath()
+{
+	TCHAR l_buf[1000] = {0};
+	TCHAR l_buf2[1000] = {0};
+
+	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetLongPathName(l_buf, l_buf2, 999);
+
+	return l_buf2;
+}
+
+
+bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd, bool a_requireZeroExitCode)
 {
 	SHELLEXECUTEINFO l_sei = { sizeof(SHELLEXECUTEINFO), 0 };
 
@@ -65,7 +101,20 @@ bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_param
 	{
 		if(::WaitForSingleObject(l_sei.hProcess, 10000) == WAIT_OBJECT_0)
 		{
-			::CloseHandle(l_sei.hProcess);
+			if(a_requireZeroExitCode)
+			{
+				DWORD dwExitCode = 0;
+				::GetExitCodeProcess(l_sei.hProcess, &dwExitCode);
+
+				::CloseHandle(l_sei.hProcess);
+
+				// *pukes* quick and dirty code.
+				return (dwExitCode == 0);
+			}
+			else
+			{
+				::CloseHandle(l_sei.hProcess);
+			}
 		}
 		// else: accept possible resource leak, but keep program responding
 
