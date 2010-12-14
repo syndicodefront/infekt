@@ -98,30 +98,18 @@ bool CNFOApp::ExtractStartupFilePath(const _tstring& a_commandLine)
 {
 	if(!a_commandLine.empty())
 	{
-		_tstring l_path(a_commandLine);
-		bool l_ok = false;
+		TCHAR* szPath = _tcsdup(a_commandLine.c_str());
 
-		if(l_path[0] == L'"')
+		if(PathUnquoteSpaces(szPath) && PathFileExists(szPath))
 		{
-			l_path.erase(0, 1);
+			m_startupFilePath = szPath;
 
-			wstring::size_type l_pos = l_path.find(L'"');
-
-			if(l_pos != wstring::npos)
-			{
-				l_path.erase(l_pos);
-				l_ok = true;
-			}
-		}
-		else
-			l_ok = true;
-
-		if(l_ok && PathFileExists(l_path.c_str()))
-		{
-			m_startupFilePath = l_path;
+			free(szPath);
 
 			return true;
 		}
+
+		free(szPath);
 	}
 
 	return false;
