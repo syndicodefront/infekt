@@ -14,6 +14,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-plugin-imdb", "win32-
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-shell-dll", "infekt-win32-shell-dll\infekt-win32-shell-dll.vcproj", "{398F9B1D-82AC-4D6C-A88E-68401EBC831A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-updater", "win32-updater\infekt-win32-updater.vcproj", "{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -62,6 +64,12 @@ Global
 		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Release|Win32.Build.0 = Release|Win32
 		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Release|x64.ActiveCfg = Release|x64
 		{398F9B1D-82AC-4D6C-A88E-68401EBC831A}.Release|x64.Build.0 = Release|x64
+		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Debug|Win32.Build.0 = Debug|Win32
+		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Debug|x64.ActiveCfg = Debug|Win32
+		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|Win32.ActiveCfg = Release|Win32
+		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|Win32.Build.0 = Release|Win32
+		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
