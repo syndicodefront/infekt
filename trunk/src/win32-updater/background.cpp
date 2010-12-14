@@ -20,6 +20,7 @@
 /************************************************************************/
 
 static HWND s_hDlg = 0;
+static std::wstring s_installerPath;
 
 /************************************************************************/
 /* TASK KILL JOB                                                        */
@@ -55,6 +56,45 @@ bool StartTaskKill(HWND hDlg)
 	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 
 	if(_beginthread(TaskKillThread, 0, hStartEvent))
+	{
+		::WaitForSingleObject(hStartEvent, INFINITE);
+	}
+
+	CloseHandle(hStartEvent);
+
+	return true;
+}
+
+
+/************************************************************************/
+/* INSTALLER JOBS                                                       */
+/************************************************************************/
+
+static void __cdecl InstallerThread(void *pvStartupInfo)
+{
+	HANDLE hStartEvent = static_cast<HANDLE>(pvStartupInfo);
+
+	HWND l_hDlg = s_hDlg;
+	std::wstring l_installerPath = s_installerPath;
+
+	::SetEvent(hStartEvent);
+
+	bool b = ShellExecuteAndWait(l_installerPath.c_str(), L"/SILENT", SW_SHOWNORMAL, true);
+
+	Sleep(1000);
+
+	SendMessage(l_hDlg, WM_INSTALLER_COMPLETE, (b ? 0 : -1), 0);
+}
+
+
+bool StartInstaller(HWND hDlg, const std::wstring& a_installerPath)
+{
+	s_hDlg = hDlg;
+	s_installerPath = a_installerPath;
+
+	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+
+	if(_beginthread(InstallerThread, 0, hStartEvent))
 	{
 		::WaitForSingleObject(hStartEvent, INFINITE);
 	}

@@ -72,8 +72,8 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,221,47,50,14
     LTEXT           "Status:",IDC_STATIC,7,9,24,8
-    EDITTEXT        IDC_STATUS,35,9,236,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
     CONTROL         "",IDC_PGB,"msctls_progress32",0x0,7,27,264,14,WS_EX_CLIENTEDGE
+    LTEXT           "Static",IDC_STATUS,34,9,237,15
 END
 
 

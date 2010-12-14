@@ -139,8 +139,10 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 
 bool StartHttpDownload(HWND hDlg, const std::wstring& a_url, const std::wstring& a_localPath)
 {
-	if(s_bDownloading)
+	if(s_bDownloading || a_localPath.empty())
+	{
 		return false;
+	}
 
 	s_bDownloading = true;
 

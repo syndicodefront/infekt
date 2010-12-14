@@ -32,19 +32,23 @@
 #define WM_DOWNLOAD_STARTED (WM_USER + 10)
 #define WM_DOWNLOAD_COMPLETE (WM_USER + 11)
 #define WM_TASKKILL_COMPLETE (WM_USER + 13)
+#define WM_INSTALLER_COMPLETE (WM_USER + 14)
 
 #define IDT_TIMER_ID 1337
 
 // helper, utility and meat methods:
 bool IsOSSupported();
 std::wstring GetSysDirPath();
-bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd);
+std::wstring GetTempFilePath(const std::wstring& a_suffix);
+std::wstring GetExePath();
+bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd, bool a_requireZeroExitCode = false);
 
 bool StartHttpDownload(HWND hDlg, const std::wstring& a_url, const std::wstring& a_localPath);
 __int64 HttpGetBytesReceived();
 bool HttpIsDownloading();
 
 bool StartTaskKill(HWND hDlg);
+bool StartInstaller(HWND hDlg, const std::wstring& a_installerPath);
 
 // global vars:
 extern HINSTANCE g_hInstance;
