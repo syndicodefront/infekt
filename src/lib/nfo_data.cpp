@@ -1145,7 +1145,11 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 
 	for(size_t p = 0; p < a_text.size(); p++)
 	{
+#if defined(_WIN32) || defined(MACOSX)
 		if(iswascii(a_text[p]) || iswalnum(a_text[p]) || iswspace(a_text[p]))
+#else
+		if(iswalnum(a_text[p]) || iswspace(a_text[p]))
+#endif
 		{
 			if(a_text[p] == L'\n') CUtil::StrTrimRight(l_tmpw, L" ");
 			l_tmpw += a_text[p];

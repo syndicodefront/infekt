@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <stdint.h>
 
 #define gchar char
 #define guchar unsigned char
