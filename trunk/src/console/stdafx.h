@@ -25,7 +25,7 @@
 #include <conio.h>
 #define _tstring wstring
 #else
-#define _tstring string
+#include "infekt-posix.h"
 #endif
 
 /* standard / system headers */

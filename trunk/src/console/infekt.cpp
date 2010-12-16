@@ -19,14 +19,6 @@
 #include "util.h"
 #include "getopt.h"
 
-#ifndef _WIN32
-#define _T(STR) STR
-#define _tprintf printf
-#define _ftprintf fprintf
-#define _tfopen_s fopen
-#define _tstoi atoi
-#endif
-
 /************************************************************************/
 /* DEFINE COMMAND LINE ARGUMENTS/OPTIONS                                */
 /************************************************************************/
@@ -429,7 +421,11 @@ int main(int argc, char* argv[])
 			const std::string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
 
 			FILE* l_file;
+#ifdef _WIN32
 			if(_tfopen_s(&l_file, l_outFileName.c_str(), _T("wb")) == 0 && l_file)
+#else
+			if(l_file = fopen(l_outFileName.c_str(), _T("wb")))
+#endif
 			{
 				fwrite(l_utf8.c_str(), l_utf8.size(), 1, l_file);
 				fclose(l_file);
