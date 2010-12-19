@@ -137,8 +137,9 @@ bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 {
 	char *l_buf = NULL;
 	size_t l_len = 9;
+	wchar_t l_tmp[2] = { a_char, 0 };
 
-	if(iconv_string("UTF-8", "wchar_t", (char*)&a_char, (char*)&a_char, &l_buf, &l_len) >= 0)
+	if(iconv_string("UTF-8", "wchar_t", (char*)&l_tmp, (char*)(&l_tmp + 1), &l_buf, &l_len) >= 0)
 	{
 		strncpy(a_buf, l_buf, l_len);
 
