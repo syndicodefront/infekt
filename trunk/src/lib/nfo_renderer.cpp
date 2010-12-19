@@ -1246,7 +1246,18 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 		else if(l_key == L"car")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cArtColor);
 		else if(l_key == L"fof" && l_val.size() <= LF_FACESIZE)
+		{
+#ifdef _UNICODE
 			wcscpy_s(l_tmpSets.sFontFace, LF_FACESIZE + 1, l_val.c_str());
+#else
+			const std::string l_sff = CUtil::FromWideStr(l_val, CP_UTF8);
+
+			if(l_sff.size() <= LF_FACESIZE)
+			{
+				strcpy_s(l_tmpSets.sFontFace, LF_FACESIZE + 1, l_sff.c_str());
+			}
+#endif
+		}
 		else if(l_key == L"foa")
 			l_tmpSets.bFontAntiAlias = (wcstol(l_val.c_str(), NULL, 10) != 0);
 		else if(l_key == L"wll")
