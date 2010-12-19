@@ -18,12 +18,19 @@
 
 using namespace std;
 
+
 #ifdef _WIN32
+
 typedef deque<const wstring> TLineContainer;
-#else
+#define HAVE_FILELENGTH
+
+#else /* _WIN32 */
+
 /* GCC, what the fuck? */
 typedef deque<wstring> TLineContainer;
-#endif
+
+#endif /* else _WIN32 */
+
 
 CNFOData::CNFOData()
 {
@@ -55,6 +62,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		return false;
 	}
 
+#ifdef HAVE_FILELENGTH
 	l_fileBytes = _filelength(_fileno(l_file));
 
 	if(l_fileBytes < 0)
@@ -64,6 +72,20 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		fclose(l_file);
 		return false;
 	}
+#else
+	struct stat l_fst = {0};
+	if(stat(sFile.c_str(), &l_fst) == 0 && S_ISREG(l_fst.st_mode))
+	{
+		l_fileBytes = l_fst.st_size;
+	}
+	else
+	{
+		m_lastErrorDescr = L"stat() on NFO file failed.";
+
+		fclose(l_file);
+		return false;
+	}
+#endif
 
 	if(l_fileBytes > 1024 * 1024 * 1)
 	{
@@ -80,6 +102,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	// copy file contents into memory buffer:
 	unsigned char *l_ptr = l_buf;
 	size_t l_totalBytesRead = 0;
+	bool l_error = false;
 
 	while(!feof(l_file))
 	{
@@ -91,19 +114,26 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		{
 			l_totalBytesRead += l_bytesRead;
 
+			if(l_totalBytesRead > l_fileBytes)
+			{
+				l_error = true;
+				break;
+			}
+
 			memmove_s(l_ptr, l_buf + l_fileBytes - l_ptr, l_chunkBuf, l_bytesRead);
 
 			l_ptr += l_bytesRead;
 		}
 		else if(ferror(l_file))
 		{
+			l_error = true;
 			break;
 		}
 	}
 
 	bool l_loaded = false;
 
-	if(!ferror(l_file))
+	if(!l_error)
 	{
 		l_loaded = LoadFromMemoryInternal(l_buf, l_fileBytes);
 	}
