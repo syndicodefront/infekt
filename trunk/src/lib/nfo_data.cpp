@@ -28,6 +28,7 @@ typedef deque<const wstring> TLineContainer;
 
 /* GCC, what the fuck? */
 typedef deque<wstring> TLineContainer;
+#include <sys/stat.h>
 
 #endif /* else _WIN32 */
 
@@ -74,7 +75,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	}
 #else
 	struct stat l_fst = {0};
-	if(stat(sFile.c_str(), &l_fst) == 0 && S_ISREG(l_fst.st_mode))
+	if(stat(a_filePath.c_str(), &l_fst) == 0 && S_ISREG(l_fst.st_mode))
 	{
 		l_fileBytes = l_fst.st_size;
 	}

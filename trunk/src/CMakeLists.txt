@@ -19,7 +19,7 @@ else (NOT PCRE_LIBRARY)
 	message (STATUS "  found PCRE library")
 endif (NOT PCRE_LIBRARY)
 
-#set (LIBS ${LIBS} ${PCRE_LIBRARY})
+set (LIBS ${LIBS} pcre)
 
 #CHECK_INCLUDE_FILE (pcre.h PCRE_HEADER)
 #message (STATUS "test ${PCRE_LIBRARY} ${PCRE_HEADER} ${LIBS}")

@@ -13,7 +13,7 @@
  **/
 
 #include "stdafx.h" // remove if you don't have one
-#include <cairo-win32.h>
+/* #include <cairo.h> */
 #include <math.h>
 #include "cairo_box_blur.h"
 #include "util.h"
