@@ -50,7 +50,11 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 		l_html << L"    margin: 0; padding: 0;" << endl;
 		l_html << L"    text-align: left; text-transform: none; font-style: normal;" << endl;
 		l_html << L"    text-decoration: none; font-weight: normal;" << endl;
+#ifdef _UNICODE
 		l_html << L"    font-family: '" << XMLEscape(m_settings.sFontFace) << L"', monospace;" << endl;
+#else
+		l_html << L"    font-family: '" << XMLEscape(CUtil::ToWideStr(m_settings.sFontFace, CP_UTF8)) << L"', monospace;" << endl;
+#endif
 		l_html << L"    font-size: " << (m_settings.uFontSize ? m_settings.uFontSize : 12) << L"px;" << endl;
 		l_html << L"    line-height: " << (m_settings.uFontSize ? m_settings.uFontSize : 12) << L"px;" << endl;
 		l_html << L"  }" << endl;

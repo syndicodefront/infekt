@@ -87,7 +87,7 @@ public:
 #ifdef _WIN32
 		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("Lucida Console"));
 #else
-		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("Monospace"));
+		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("monospace"));
 #endif
 	}
 

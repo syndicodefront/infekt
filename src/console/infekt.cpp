@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
 		const std::string l_utfOutFileName = CUtil::FromWideStr(l_outFileName, CP_UTF8);
 		if(cairo_surface_write_to_png(l_surface, l_utfOutFileName.c_str()) != CAIRO_STATUS_SUCCESS)
 	#else
-		if(!cairo_surface_write_to_png(l_surface, l_outFileName.c_str()) != CAIRO_STATUS_SUCCESS)
+		if(cairo_surface_write_to_png(l_surface, l_outFileName.c_str()) != CAIRO_STATUS_SUCCESS)
 	#endif
 		{
 			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
