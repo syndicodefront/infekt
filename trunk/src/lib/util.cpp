@@ -25,6 +25,8 @@ using namespace std;
 /* Character Set Conversion Functions                                   */
 /************************************************************************/
 
+#ifdef _WIN32
+
 string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePage)
 {
 	int l_size = ::WideCharToMultiByte(a_targetCodePage, 0, a_wideStr.c_str(),
@@ -71,10 +73,83 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 }
 
 
+// ATTENTION CALLERS: a_buf must have 6 chars space.
 bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 {
 	return (::WideCharToMultiByte(CP_UTF8, 0, &a_char, 1, a_buf, 7, NULL, NULL) > 0);
 }
+
+#else /* _WIN32 */
+
+string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePage)
+{
+	const char* l_targetCodePage;
+
+	switch(a_originCodePage)
+	{
+	case CP_UTF8: l_targetCodePage = "UTF-8"; break;
+	case CP_ACP: l_targetCodePage = "ISO-8859-1"; break;
+	default:
+		return "";
+	}
+
+	char *l_sResult = NULL;
+	if(iconv_string(l_targetCodePage, "wchar_t", static_cast<char*>(a_wideStr.c_str()),
+		static_cast<char*>(a_wideStr.c_str() + a_wideStr.size() + 1), &l_sResult, NULL) >= 0)
+	{
+		CString l_result = l_sResult;
+		free(l_sResult);
+		return l_result;
+	}
+
+	return "";
+}
+
+
+wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
+{
+	const char* l_originCodePage;
+
+	switch(a_originCodePage)
+	{
+	case CP_UTF8: l_originCodePage = "UTF-8"; break;
+	case CP_ACP: l_originCodePage = "ISO-8859-1"; break;
+	default:
+		return L"";
+	}
+
+	wchar_t *l_wResult = NULL;
+	if(iconv_string("wchar_t", l_originCodePage,
+		a_str.c_str(), a_str.c_str() + a_str.size() + 1,
+		static_cast<char**>(&l_wResult), NULL) >= 0)
+	{
+		wstring l_result = l_wResult;
+		free(l_wResult);
+		return l_result;
+	}
+
+	return L"";
+}
+
+
+// ATTENTION CALLERS: a_buf must have 6 chars space.
+bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
+{
+	char l_buf[10] = {0};
+	size_t l_len = 9;
+
+	if(iconv_string("UTF-8", "wchar_t", &a_char, &a_char, &l_buf, &l_len) >= 0 && l_len > 0)
+	{
+		strncpy(a_buf, l_buf, l_len);
+
+		return true;
+	}
+
+	return false;
+}
+
+
+#endif  /* else _WIN32 */
 
 
 /************************************************************************/

@@ -18,6 +18,8 @@
 #include <string.h>
 #include <wctype.h>
 
+#include "iconv_string.h"
+
 #define _tstring string
 #define _T(STR) STR
 #define _tprintf printf
