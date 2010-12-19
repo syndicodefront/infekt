@@ -18,6 +18,12 @@
 
 using namespace std;
 
+#ifdef _WIN32
+typedef deque<const wstring> TLineContainer;
+#else
+/* GCC, what the fuck? */
+typedef deque<wstring> TLineContainer;
+#endif
 
 CNFOData::CNFOData()
 {
@@ -152,7 +158,7 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 }
 
 
-static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLineLen, deque<const wstring>& a_lines)
+static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
 {
 	size_t l_prevPos = 0, l_pos = a_text.find(L'\n');
 
@@ -187,7 +193,7 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 }
 
 
-static void _InternalLoad_FixLfLf(wstring& a_text, deque<const wstring>& a_lines)
+static void _InternalLoad_FixLfLf(wstring& a_text, TLineContainer& a_lines)
 {
 	// fix NFOs like Crime.is.King.German.SUB5.5.DVDRiP.DivX-GWL
 	// they use \n\n instead of \r\n
@@ -195,7 +201,7 @@ static void _InternalLoad_FixLfLf(wstring& a_text, deque<const wstring>& a_lines
 	int l_evenEmpty = 0, l_oddEmpty = 0;
 
 	size_t i = 0;
-	for(deque<const wstring>::const_iterator it = a_lines.begin();
+	for(TLineContainer::const_iterator it = a_lines.begin();
 		it != a_lines.end(); it++, i++)
 	{
 		if(it->empty())
@@ -217,9 +223,9 @@ static void _InternalLoad_FixLfLf(wstring& a_text, deque<const wstring>& a_lines
 	if(l_kill >= 0)
 	{
 		wstring l_newContent; l_newContent.reserve(a_text.size());
-		deque<const wstring> l_newLines;
+		TLineContainer l_newLines;
 		i = 0;
-		for(deque<const wstring>::const_iterator it = a_lines.begin();
+		for(TLineContainer::const_iterator it = a_lines.begin();
 			it != a_lines.end(); it++, i++)
 		{
 			if(!it->empty() || i % 2 != l_kill)
@@ -311,7 +317,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 }
 
 
-static void _InternalLoad_WrapLongLines(deque<const wstring>& a_lines, size_t& a_newMaxLineLen)
+static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
 	const int l_maxLen = 80;
 
@@ -319,9 +325,9 @@ static void _InternalLoad_WrapLongLines(deque<const wstring>& a_lines, size_t& a
 	// when it comes to taking into account leading whitespace or not.
 	// The results are good however.
 
-	deque<const wstring> l_newLines;
+	TLineContainer l_newLines;
 
-	for(deque<const wstring>::const_iterator it = a_lines.begin(); it != a_lines.end(); it++)
+	for(TLineContainer::const_iterator it = a_lines.begin(); it != a_lines.end(); it++)
 	{
 		if(it->size() <= l_maxLen)
 		{
@@ -361,7 +367,7 @@ static void _InternalLoad_WrapLongLines(deque<const wstring>& a_lines, size_t& a
 	{
 		a_newMaxLineLen = 0;
 
-		for(deque<const wstring>::const_iterator it = l_newLines.begin(); it != l_newLines.end(); it++)
+		for(TLineContainer::const_iterator it = l_newLines.begin(); it != l_newLines.end(); it++)
 		{
 			a_newMaxLineLen = std::max(it->size(), a_newMaxLineLen);
 		}
@@ -404,7 +410,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	if(l_loaded)
 	{
 		size_t l_maxLineLen;
-		deque<const wstring> l_lines;
+		TLineContainer l_lines;
 
 		m_filePath = _T("");
 
@@ -451,7 +457,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 		// go through line by line:
 		size_t i = 0;
-		for(deque<const wstring>::const_iterator it = l_lines.begin();
+		for(TLineContainer::const_iterator it = l_lines.begin();
 			it != l_lines.end(); it++, i++)
 		{
 			size_t l_lineLen = it->length();
