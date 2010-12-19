@@ -135,7 +135,7 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 // ATTENTION CALLERS: a_buf must have 6 chars space.
 bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 {
-	char *l_buf;
+	char *l_buf = NULL;
 	size_t l_len = 9;
 
 	if(iconv_string("UTF-8", "wchar_t", (char*)&a_char, (char*)&a_char, &l_buf, &l_len) >= 0)

@@ -20,6 +20,7 @@
 
 #include "iconv_string.h"
 
+#define TCHAR char
 #define _tstring string
 #define _T(STR) STR
 #define _tprintf printf
@@ -28,12 +29,19 @@
 
 #define _fileno fileno
 #define _filelength filelength
+/* :TODO: make sure we don't rely on the _s functionality without or own
+	checks in too many places. */
 #define fread_s(b, s, e, c, f) fread(b, e, c, f)
 #define memmove_s(d, e, s, c) memmove(d, s, c)
+#define strcpy_s(d, e, s) strcpy(d, s)
+
+#define _tcscpy_s(d, e, s) strcpy(d, s)
+#define _tcsncpy_s(d, e, s, n) strncpy(d, s, n)
+#define _tcscmp strcmp
+#define _stricmp strcasecmp
 
 #define wcscpy_s(d, e, s) wcscpy(d, s)
 #define wcsncpy_s(d, e, s, n) wcsncpy(d, s, n)
-#define _stricmp strcasecmp
 
 #ifdef _DEBUG
 #define _ASSERT(EXPR) assert(EXPR)
