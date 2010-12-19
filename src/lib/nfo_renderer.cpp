@@ -449,7 +449,12 @@ static inline void _SetUpDrawingTools(CNFORenderer* r, cairo_surface_t* a_surfac
 	cairo_font_options_set_hint_style(cfo, (r->IsClassicMode() ? CAIRO_HINT_STYLE_DEFAULT : CAIRO_HINT_STYLE_NONE));
 	cairo_font_options_set_hint_metrics(cfo, (r->IsClassicMode() ? CAIRO_HINT_METRICS_ON : CAIRO_HINT_METRICS_OFF));
 
-	const std::string l_font = CUtil::FromWideStr(r->GetFontFace(), CP_UTF8);
+	const std::string l_font
+#ifdef _UNICODE
+		= CUtil::FromWideStr(r->GetFontFace(), CP_UTF8);
+#else
+		= r->GetFontFace();
+#endif
 	cairo_select_font_face(cr, l_font.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, cfo);
 

@@ -84,14 +84,18 @@ public:
 		bWrapLines = false;
 		bHilightHyperlinks = bUnderlineHyperlinks = true;
 		memset(sFontFace, 0, LF_FACESIZE + 1);
-		wcscpy_s(sFontFace, LF_FACESIZE + 1, L"Lucida Console");
+#ifdef _WIN32
+		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("Lucida Console"));
+#else
+		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("Monospace"));
+#endif
 	}
 
 	// main settings:
 	size_t uBlockHeight, uBlockWidth;
 	size_t uFontSize;
 	S_COLOR_T cBackColor, cTextColor, cArtColor;
-	wchar_t sFontFace[LF_FACESIZE + 1];
+	TCHAR sFontFace[LF_FACESIZE + 1];
 	bool bFontAntiAlias;
 	bool bWrapLines;
 
@@ -212,10 +216,10 @@ public:
 	void SetWrapLines(bool nb) { m_rendered = m_rendered && (m_settings.bWrapLines == nb); m_settings.bWrapLines = nb; }
 	bool GetWrapLines() const { return m_settings.bWrapLines; }
 
-	void SetFontFace(const std::wstring& ns) { m_rendered = m_rendered && (wcscmp(m_settings.sFontFace, ns.c_str()) == 0);
-		wcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
+	void SetFontFace(const std::_tstring& ns) { m_rendered = m_rendered && (_tcscmp(m_settings.sFontFace, ns.c_str()) == 0);
+		_tcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
 	}
-	std::wstring GetFontFace() const { return m_settings.sFontFace; }
+	std::_tstring GetFontFace() const { return m_settings.sFontFace; }
 
 	void SetAllowHwAccel(bool nb) { m_allowHwAccel = nb; }
 	bool GetAllowHwAccel() const { return m_allowHwAccel; }
