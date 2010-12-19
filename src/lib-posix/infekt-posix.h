@@ -33,6 +33,7 @@
 
 #define wcscpy_s(d, e, s) wcscpy(d, s)
 #define wcsncpy_s(d, e, s, n) wcsncpy(d, s, n)
+#define _stricmp strcasecmp
 
 #ifdef _DEBUG
 #define _ASSERT(EXPR) assert(EXPR)

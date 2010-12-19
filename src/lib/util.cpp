@@ -85,7 +85,7 @@ string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePag
 {
 	const char* l_targetCodePage;
 
-	switch(a_originCodePage)
+	switch(a_targetCodePage)
 	{
 	case CP_UTF8: l_targetCodePage = "UTF-8"; break;
 	case CP_ACP: l_targetCodePage = "ISO-8859-1"; break;
@@ -94,10 +94,10 @@ string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePag
 	}
 
 	char *l_sResult = NULL;
-	if(iconv_string(l_targetCodePage, "wchar_t", static_cast<char*>(a_wideStr.c_str()),
-		static_cast<char*>(a_wideStr.c_str() + a_wideStr.size() + 1), &l_sResult, NULL) >= 0)
+	if(iconv_string(l_targetCodePage, "wchar_t", (char*)a_wideStr.c_str(),
+		(char*)(a_wideStr.c_str() + a_wideStr.size() + 1), &l_sResult, NULL) >= 0)
 	{
-		CString l_result = l_sResult;
+		string l_result = l_sResult;
 		free(l_sResult);
 		return l_result;
 	}
@@ -121,7 +121,7 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 	wchar_t *l_wResult = NULL;
 	if(iconv_string("wchar_t", l_originCodePage,
 		a_str.c_str(), a_str.c_str() + a_str.size() + 1,
-		static_cast<char**>(&l_wResult), NULL) >= 0)
+		(char**)&l_wResult, NULL) >= 0)
 	{
 		wstring l_result = l_wResult;
 		free(l_wResult);
@@ -135,14 +135,16 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 // ATTENTION CALLERS: a_buf must have 6 chars space.
 bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 {
-	char l_buf[10] = {0};
+	char *l_buf;
 	size_t l_len = 9;
 
-	if(iconv_string("UTF-8", "wchar_t", &a_char, &a_char, &l_buf, &l_len) >= 0 && l_len > 0)
+	if(iconv_string("UTF-8", "wchar_t", (char*)&a_char, (char*)&a_char, &l_buf, &l_len) >= 0)
 	{
 		strncpy(a_buf, l_buf, l_len);
 
-		return true;
+		free(l_buf);	
+
+		return (l_len > 0);
 	}
 
 	return false;
@@ -158,7 +160,7 @@ bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 
 template<typename STRTYPE> static void inline _StrTrimLeft(STRTYPE& a_str, const STRTYPE a_chars)
 {
-	STRTYPE::size_type l_pos = a_str.find_first_not_of(a_chars);
+	typename STRTYPE::size_type l_pos = a_str.find_first_not_of(a_chars);
 
 	if(l_pos != STRTYPE::npos)
 		a_str.erase(0, l_pos);
@@ -168,7 +170,7 @@ template<typename STRTYPE> static void inline _StrTrimLeft(STRTYPE& a_str, const
 
 template<typename STRTYPE> static void inline _StrTrimRight(STRTYPE& a_str, const STRTYPE a_chars)
 {
-	STRTYPE::size_type l_pos = a_str.find_last_not_of(a_chars);
+	typename STRTYPE::size_type l_pos = a_str.find_last_not_of(a_chars);
 
 	if(l_pos != STRTYPE::npos)
 	{

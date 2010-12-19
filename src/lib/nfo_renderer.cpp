@@ -449,12 +449,7 @@ static inline void _SetUpDrawingTools(CNFORenderer* r, cairo_surface_t* a_surfac
 	cairo_font_options_set_hint_style(cfo, (r->IsClassicMode() ? CAIRO_HINT_STYLE_DEFAULT : CAIRO_HINT_STYLE_NONE));
 	cairo_font_options_set_hint_metrics(cfo, (r->IsClassicMode() ? CAIRO_HINT_METRICS_ON : CAIRO_HINT_METRICS_OFF));
 
-	const std::string l_font
-#ifdef _UNICODE
-		= CUtil::FromWideStr(r->GetFontFace(), CP_UTF8);
-#else
-		= r->GetFontFace();
-#endif
+	const std::string l_font = CUtil::FromWideStr(r->GetFontFace(), CP_UTF8);
 	cairo_select_font_face(cr, l_font.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, cfo);
 
@@ -507,7 +502,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		double l_fontSize = static_cast<double>(GetBlockWidth());
 		bool l_broken = false, l_foundText = false;
 
-		std::deque<char*> l_checkChars;
+		std::deque<const char*> l_checkChars;
 
 		for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
 		{
@@ -532,7 +527,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		{
 			cairo_set_font_size(cr, l_fontSize + 1);
 
-			for(std::deque<char*>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
+			for(std::deque<const char*>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
 			{
 				cairo_text_extents_t l_extents = {0};
 

@@ -19,9 +19,10 @@
 
 #include <wctype.h>
 
-LONG __cdecl _wtol(LPCWSTR str)
+
+long _wtol(const wchar_t* str)
 {
-    ULONG RunningTotal = 0;
+    unsigned long RunningTotal = 0;
     char bMinus = 0;
 
     while (iswspace(*str)) {
@@ -35,15 +36,15 @@ LONG __cdecl _wtol(LPCWSTR str)
         str++;
     } /* if */
 
-    while (*str >= '' && *str <= '9') {
-        RunningTotal = RunningTotal * 10 + *str - '';
+    while (*str >= '0' && *str <= '9') {
+        RunningTotal = RunningTotal * 10 + *str - '0';
         str++;
     } /* while */
 
     return bMinus ? -RunningTotal : RunningTotal;
 }
 
-int __cdecl _wtoi(LPCWSTR str)
+int _wtoi(const wchar_t* str)
 {
     return _wtol(str);
 }
