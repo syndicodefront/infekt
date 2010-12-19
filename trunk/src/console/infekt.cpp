@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 			return 0;
 		case 'v':
 			printf("VERSION: iNFekt v%d.%d.%d\n", INFEKT_VERSION_MAJOR, INFEKT_VERSION_MINOR, INFEKT_VERSION_REVISION);
-			printf("using Cairo v%d.%d.%d, PCRE v%d.%02d", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO, PCRE_MAJOR, PCRE_MINOR);
+			printf("using Cairo v%d.%d.%d, PCRE v%d.%02d\n", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO, PCRE_MAJOR, PCRE_MINOR);
 			return 0;
 		case 'O':
 			l_outFileName = ::optarg;
@@ -191,7 +191,7 @@ int main(int argc, char* argv[])
 			l_int = _tstoi(::optarg);
 			if(l_int < 3 || l_int > 100)
 			{
-				fprintf(stderr, "ERROR: Invalid or unsupported block-width.");
+				fprintf(stderr, "ERROR: Invalid or unsupported block-width.\n");
 				return 1;
 			}
 			l_pngSettings.uBlockWidth = l_int;
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
 			l_int = _tstoi(::optarg);
 			if(l_int < 3 || l_int > 170)
 			{
-				fprintf(stderr, "ERROR: Invalid or unsupported block-height.");
+				fprintf(stderr, "ERROR: Invalid or unsupported block-height.\n");
 				return 1;
 			}
 			l_pngSettings.uBlockHeight = l_int;
@@ -209,7 +209,7 @@ int main(int argc, char* argv[])
 			l_int = _tstoi(::optarg);
 			if(l_int < 1 || l_int > 1000)
 			{
-				fprintf(stderr, "ERROR: Invalid or unsupported glow-radius.");
+				fprintf(stderr, "ERROR: Invalid or unsupported glow-radius.\n");
 				return 1;
 			}
 			l_pngSettings.uGaussBlurRadius = l_int;
@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
 			break;
 		case '?':
 		default:
-			fprintf(stderr, "Try --help.");
+			fprintf(stderr, "Try --help.\n");
 			return 1;
 		}
 	}
@@ -255,7 +255,7 @@ int main(int argc, char* argv[])
 
 	if(l_nfoFileName.empty())
 	{
-		fprintf(stderr, "Missing argument: Please specify <input-file.nfo> or try --help");
+		fprintf(stderr, "Missing argument: Please specify <input-file.nfo> or try --help\n");
 
 #ifdef _WIN32
 		/* for stupid people trying to double click infekt-cmd.exe */
@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
 
 	if(!l_nfoData.LoadFromFile(l_nfoFileName))
 	{
-		fwprintf(stderr, L"ERROR: Unable to load NFO file: %s", l_nfoData.GetLastErrorDescription().c_str());
+		fwprintf(stderr, L"ERROR: Unable to load NFO file: %s\n", l_nfoData.GetLastErrorDescription().c_str());
 		return 1;
 	}
 
@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
 
 		if(!l_imgWidth || !l_imgHeight)
 		{
-			fprintf(stderr, "ERROR: Unable to render an empty file.");
+			fprintf(stderr, "ERROR: Unable to render an empty file.\n");
 			return 1;
 		}
 
@@ -346,13 +346,13 @@ int main(int argc, char* argv[])
 
 		if(!l_surface)
 		{
-			fprintf(stderr, "ERROR: Unable to create an image surface (%u x %u)", l_imgWidth, l_imgHeight);
+			fprintf(stderr, "ERROR: Unable to create an image surface (%u x %u)\n", l_imgWidth, l_imgHeight);
 			return 1;
 		}
 
 		if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0, (int)l_imgWidth, (int)l_imgHeight))
 		{
-			fprintf(stderr, "ERROR: Rendering failed.");
+			fprintf(stderr, "ERROR: Rendering failed.\n");
 			cairo_surface_destroy(l_surface);
 			return 1;
 		}
@@ -364,13 +364,13 @@ int main(int argc, char* argv[])
 		if(!cairo_surface_write_to_png(l_surface, l_outFileName.c_str()) != CAIRO_STATUS_SUCCESS)
 	#endif
 		{
-			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
 			cairo_surface_destroy(l_surface);
 			return 1;
 		}
 		else
 		{
-			_tprintf(_T("Rendered `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+			_tprintf(_T("Rendered `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
 		}
 
 		cairo_surface_destroy(l_surface);
@@ -385,11 +385,11 @@ int main(int argc, char* argv[])
 
 		if(l_exporter.SavePDF(l_outFileName))
 		{
-			_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+			_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
 		}
 		else
 		{
-			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
 		}
 #endif
 	}
@@ -401,11 +401,11 @@ int main(int argc, char* argv[])
 
 			if(l_nfoData.SaveToFile(l_outFileName, l_textUtf8, l_compoundWhitespace))
 			{
-				_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+				_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
 			}
 			else
 			{
-				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
 			}
 		}
 		else
@@ -430,11 +430,11 @@ int main(int argc, char* argv[])
 				fwrite(l_utf8.c_str(), l_utf8.size(), 1, l_file);
 				fclose(l_file);
 
-				_tprintf(_T("Saved `%s` to `%s`!"), l_nfoFileName.c_str(), l_outFileName.c_str());
+				_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
 			}
 			else
 			{
-				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`."), l_outFileName.c_str());
+				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
 			}
 		}
 	}
