@@ -14,11 +14,11 @@ curl http://zlib.net/zlib-1.2.5.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.4.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.5.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.19.4.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.21.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
@@ -158,9 +158,6 @@ move /Y build\Makefile.fixed build\Makefile.win32.common
 
 sed "s/^if \([A-Z_]*\)$/ifeq ($(\1), 1)/" src\Makefile.sources > src\Makefile.fixed
 move /Y src\Makefile.fixed src\Makefile.sources
-
-sed "s/#define _cairo_lround lround/static inline long cairo_const _cairo_lround(double r) { return (long)floor(r + .5); }/" src\cairoint.h > src\cairoint.h.fixed
-move /Y src\cairoint.h.fixed src\cairoint.h
 
 REM we can toggle SVG support here but we MUST NOT remove these two lines
 REM else the make file will fail to regenerate cairo-features.h
