@@ -26,4 +26,5 @@ set (LIBS ${LIBS} pcre)
 #include_directories (PCRE_HEADER)
 
 add_subdirectory (console)
+add_subdirectory (gtk)
 
