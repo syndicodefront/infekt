@@ -30,6 +30,9 @@ protected:
 	Glib::RefPtr<Gtk::Builder> m_refGlade;
 
 	CGtkNfoViewCtrl* m_pView;
+
+	void on_file_quit();
+	void on_help_about();
 };
 
 #endif /* _MAIN_WINDOW_H */
