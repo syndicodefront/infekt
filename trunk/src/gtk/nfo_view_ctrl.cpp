@@ -21,7 +21,7 @@ CGtkNfoViewCtrl::CGtkNfoViewCtrl(BaseObjectType* cobject, const Glib::RefPtr<Gtk
 	m_refGlade(refGlade)
 {
 #ifndef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
-	signal_expose_event().connect(sigc::mem_func(*this, &CGtkNfoViewCtrl::on_expose_event), false);
+	signal_expose_event().connect(sigc::mem_fun(*this, &CGtkNfoViewCtrl::on_expose_event), false);
 #endif
 }
 
