@@ -21,8 +21,12 @@ int main (int argc, char* argv[])
 {
 	Gtk::Main kit(argc, argv);
 
+	/* this could throw some exceptions, but we don't care for now. */
+
+	// get a Gtk::Builder instance...
 	Glib::RefPtr<Gtk::Builder> refBuilder = Gtk::Builder::create();
 
+	// ...from our XML file:
 	refBuilder->add_from_file("infektwindowdata.glade");
 
 	CMainWindow* pMainWindow = NULL;

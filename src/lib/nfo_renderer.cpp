@@ -923,7 +923,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 			if(l_curType != _BT_UNDEF && !l_utfBuf.empty())
 			{
 				// draw buffer:
-				size_t l_len = (col == m_gridData->GetCols() ? g_utf8_strlen(l_utfBuf.c_str(), -1) :
+				size_t l_len = (col == m_gridData->GetCols() ? utf8_strlen(l_utfBuf.c_str(), -1) :
 					(col - l_bufStart));
 
 				// draw char background for highlights/selection etc:

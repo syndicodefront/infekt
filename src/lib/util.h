@@ -127,9 +127,9 @@ private:
 /* gutf8.c exports */
 extern "C"
 {
-	int g_utf8_validate(const char *str, size_t max_len, const char **end);
-	char *g_utf8_find_next_char(const char *p, const char *end = NULL);
-	size_t g_utf8_strlen(const char *p, size_t max_bytes);
+	int utf8_validate(const char *str, size_t max_len, const char **end);
+	char *utf8_find_next_char(const char *p, const char *end = NULL);
+	size_t utf8_strlen(const char *p, size_t max_bytes);
 }
 
 

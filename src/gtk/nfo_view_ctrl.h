@@ -18,16 +18,33 @@
 #include <gtkmm/builder.h>
 #include <gtkmm/layout.h>
 
+#include "nfo_data.h"
+#include "nfo_renderer.h"
+
 class CGtkNfoViewCtrl : public Gtk::Layout
 {
 public:
 	CGtkNfoViewCtrl(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refGlade);
 	virtual ~CGtkNfoViewCtrl();
 
+	bool OpenFile(const std::string& a_filePath);
+
 protected:
+	/* GTK stuff */
 	virtual bool on_expose_event(GdkEventExpose* event);
 
 	Glib::RefPtr<Gtk::Builder> m_refGlade;
+
+	/* NFO data and renderer stuff */
+	CNFOData* m_pNfo;
+	CNFOData* m_pNfoTextOnly;
+
+	CNFORenderer m_renderer;
+	CNFORenderer m_classicRenderer;
+	CNFORenderer m_textOnlyRenderer;
+
+	/* settings/flags */
+	bool m_centerNfo;
 };
 
 #endif /* _NFO_VIEW_CTRL_H */

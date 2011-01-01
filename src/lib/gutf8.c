@@ -233,7 +233,7 @@ fast_validate_len (const char *str,
  * 
  * Return value: %TRUE if the text was valid UTF-8
  **/
-gboolean
+static gboolean
 g_utf8_validate (const char   *str,
 		 gssize        max_len,    
 		 const gchar **end)
@@ -270,7 +270,7 @@ g_utf8_validate (const char   *str,
 * 
 * Return value: a pointer to the found character or %NULL
 **/
-gchar *
+static gchar *
 g_utf8_find_next_char (const gchar *p,
 					   const gchar *end)
 {
@@ -298,7 +298,7 @@ g_utf8_find_next_char (const gchar *p,
  *
  * Return value: the length of the string in characters
  **/
-gssize
+static gssize
 g_utf8_strlen (const gchar *p,
                size_t       max)
 {
@@ -335,5 +335,23 @@ g_utf8_strlen (const gchar *p,
     }
 
   return len;
+}
+
+
+/* crude export stubs */
+
+int utf8_validate(const char *str, size_t max_len, const char **end)
+{
+	return g_utf8_validate(str, max_len, end);
+}
+
+char *utf8_find_next_char(const char *p, const char *end)
+{
+	return g_utf8_find_next_char(p, end);
+}
+
+size_t utf8_strlen(const char *p, size_t max_bytes)
+{
+	return g_utf8_strlen(p, max_bytes);
 }
 
