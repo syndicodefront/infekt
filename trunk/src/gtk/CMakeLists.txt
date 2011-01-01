@@ -8,10 +8,9 @@ cmake_policy (SET CMP0011 NEW)
 find_package(GTK2 2.16 REQUIRED gtk)
 
 if(NOT GTK2_FOUND)
-	message (FATAL_ERROR "Unable to locate GTK2.16 and gtkmm.")
+	message (FATAL_ERROR "Unable to locate GTK2.16.")
 endif()
 
-#pkg_check_modules (GTK2 REQUIRED gtk+-2.0)
 pkg_check_modules (GTKMM REQUIRED gtkmm-2.4)
 
 set (LIBS ${LIBS} ${GTK2_LIBRARIES} ${GTKMM_LIBRARIES})

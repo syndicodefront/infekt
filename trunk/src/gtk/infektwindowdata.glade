@@ -5,6 +5,8 @@
   <object class="GtkWindow" id="wndMain">
     <property name="title" translatable="yes">iNFekt</property>
     <property name="window_position">center</property>
+    <property name="default_width">500</property>
+    <property name="default_height">600</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -30,23 +32,74 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem3">
-                        <property name="label">gtk-save</property>
-                        <property name="visible">True</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem4">
-                        <property name="label">gtk-save-as</property>
-                        <property name="visible">True</property>
-                        <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkSeparatorMenuItem" id="separatormenuitem1">
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="_mnuExport">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Export</property>
+                        <property name="use_underline">True</property>
+                        <child type="submenu">
+                          <object class="GtkMenu" id="menu2">
+                            <property name="visible">True</property>
+                            <property name="ubuntu_local">True</property>
+                            <child>
+                              <object class="GtkMenuItem" id="mnuExportPNG">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">As PNG...</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="mnuExportPNGTransp">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">As PNG (transparent)...</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="mnuExportUTF8">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">As UTF-8 Text File...</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="mnuExportUTF16">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">As UTF-16 Text File...</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="mnuExportXHTML">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">As XHTML...</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="mnuExportPDF">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">As PDF...</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkMenuItem" id="mnuExportPDFDIN">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">As PDF (DIN size)...</property>
+                                <property name="use_underline">True</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
                         <property name="visible">True</property>
                       </object>
                     </child>
@@ -68,36 +121,43 @@
                 <property name="label" translatable="yes">_View</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
-                  <object class="GtkMenu" id="menu2">
+                  <object class="GtkMenu" id="menu5">
                     <property name="visible">True</property>
                     <property name="ubuntu_local">True</property>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem6">
-                        <property name="label">gtk-cut</property>
+                      <object class="GtkRadioMenuItem" id="mnuViewRendered">
                         <property name="visible">True</property>
+                        <property name="label" translatable="yes">Rendered</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="draw_as_radio">True</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem7">
-                        <property name="label">gtk-copy</property>
+                      <object class="GtkRadioMenuItem" id="mnuViewClassic">
                         <property name="visible">True</property>
+                        <property name="label" translatable="yes">Classic</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">mnuViewRendered</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem8">
-                        <property name="label">gtk-paste</property>
+                      <object class="GtkRadioMenuItem" id="mnuViewTextOnly">
                         <property name="visible">True</property>
+                        <property name="label" translatable="yes">Text Only</property>
                         <property name="use_underline">True</property>
-                        <property name="use_stock">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">mnuViewRendered</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkImageMenuItem" id="imagemenuitem9">
-                        <property name="label">gtk-delete</property>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem4">
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="mnuViewReload">
+                        <property name="label">gtk-refresh</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
@@ -112,6 +172,20 @@
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Tools</property>
                 <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu4">
+                    <property name="visible">True</property>
+                    <property name="ubuntu_local">True</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="mnuSettings">
+                        <property name="label">gtk-preferences</property>
+                        <property name="visible">True</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
             <child>
@@ -187,6 +261,7 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
             <child>
@@ -252,6 +327,7 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="homogeneous">True</property>
               </packing>
             </child>
           </object>
@@ -297,4 +373,41 @@
     <property name="visible">True</property>
     <property name="stock">gtk-connect</property>
   </object>
+  <object class="GtkAboutDialog" id="wndAbout">
+    <property name="border_width">5</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">center</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="type_hint">normal</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="skip_pager_hint">True</property>
+    <property name="program_name">iNFekt</property>
+    <property name="version">0.1.0</property>
+    <property name="copyright" translatable="yes">© cxxjoe &amp; Contributors</property>
+    <property name="comments" translatable="yes">Madness? This! Is A GTK+ Port!</property>
+    <property name="website">http://infekt.googlecode.com/</property>
+    <property name="website_label" translatable="yes">infekt.googlecode.com</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
+        <property name="spacing">2</property>
+        <child>
+          <placeholder/>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkAction" id="action1"/>
 </interface>

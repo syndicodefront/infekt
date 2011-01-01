@@ -575,7 +575,7 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 
 bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix)
 {
-	if(g_utf8_validate((const char*)a_data, a_dataLen, NULL))
+	if(utf8_validate((const char*)a_data, a_dataLen, NULL))
 	{
 		const string l_utf((const char*)a_data, a_dataLen);
 
@@ -1060,8 +1060,8 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 		// strip trailing dots and colons. gross code.
 		while(sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == '.' || sWorkUrl[sWorkUrl.size() - 1] == ':')) sWorkUrl.erase(sWorkUrl.size() - 1);
 
-		urLinkPos = g_utf8_strlen(sLine.c_str(), uBytePos);
-		urLinkLen = g_utf8_strlen(sWorkUrl.c_str(), -1); // IN CHARACTERS, NOT BYTES!
+		urLinkPos = utf8_strlen(sLine.c_str(), uBytePos);
+		urLinkLen = utf8_strlen(sWorkUrl.c_str(), -1); // IN CHARACTERS, NOT BYTES!
 
 		uirOffset = uBytePos + uByteLen;
 

@@ -17,6 +17,7 @@
 
 #include <gtkmm/builder.h>
 #include <gtkmm/window.h>
+#include <gtkmm/aboutdialog.h>
 
 #include "nfo_view_ctrl.h"
 
@@ -29,10 +30,15 @@ public:
 protected:
 	Glib::RefPtr<Gtk::Builder> m_refGlade;
 
-	CGtkNfoViewCtrl* m_pView;
+	CGtkNfoViewCtrl* m_pViewCtrl;
+	Gtk::AboutDialog* m_pAboutDlg;
 
+	bool OpenFile(const std::string a_filePath);
+
+	void on_file_open();
 	void on_file_quit();
 	void on_help_about();
+	void on_help_about_response(int);
 };
 
 #endif /* _MAIN_WINDOW_H */
