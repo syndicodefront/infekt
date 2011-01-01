@@ -918,12 +918,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	_tstring l_defaultPath;
 	if(m_settings->bDefaultExportToNFODir)
 	{
-		const _tstring l_tmp = m_view.GetNfoData()->GetFilePath();
-		l_buf = new TCHAR[l_tmp.size() + 1];
-		_tcscpy_s(l_buf, l_tmp.size() + 1, l_tmp.c_str());
-		PathRemoveFileSpec(l_buf);
-		l_defaultPath = l_buf;
-		delete[] l_buf;
+		l_defaultPath = CUtil::PathRemoveFileSpec(m_view.GetNfoData()->GetFilePath());
 	}
 
 	if(a_id == IDM_EXPORT_PNG || a_id == IDM_EXPORT_PNG_TRANSP)
