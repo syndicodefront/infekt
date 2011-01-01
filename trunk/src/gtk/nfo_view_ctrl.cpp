@@ -97,9 +97,7 @@ bool CGtkNfoViewCtrl::on_expose_event(GdkEventExpose* event)
 			if(m_centerNfo && l_nfoWidth < l_visibleWidth)
 				l_destx = (l_visibleWidth - l_nfoWidth) / 2;
 
-			// XXX this doesn't actually use the clip established above!
-			l_pRenderer->DrawToSurface(l_cr->get_target()->cobj(), l_destx, 0,
-				0, 0, l_nfoWidth, l_nfoHeight);
+			l_pRenderer->DrawToClippedHandle(l_cr->cobj(), l_destx, 0);
 		}
 	}
 
