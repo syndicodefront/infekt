@@ -168,6 +168,7 @@ public:
 	const PNFOData& GetNfoData() const { return m_nfo; }
 	virtual bool DrawToSurface(cairo_surface_t *a_surface, int dest_x, int dest_y,
 		int source_x, int source_y, int width, int height);
+	virtual bool DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y);
 	// you should not call this directly without a good reason, prefer DrawToSurface:
 	bool Render();
 
