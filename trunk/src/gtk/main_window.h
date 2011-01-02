@@ -27,17 +27,25 @@ public:
 	CMainWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builder>& refGlade);
 	virtual ~CMainWindow();
 
+	void SwitchView(ENfoViewMode a_newMode);
 protected:
 	Glib::RefPtr<Gtk::Builder> m_refGlade;
 
 	CGtkNfoViewCtrl* m_pViewCtrl;
 	Gtk::AboutDialog* m_pAboutDlg;
 
+	/* worker methods */
 	bool OpenFile(const std::string a_filePath);
+	void SwitchViewInternal(bool a_fromUI, bool a_fromMenu, ENfoViewMode a_newMode);
 
+	/* menu and toolbar event handlers */
 	void on_file_open();
 	void on_file_quit();
+	void on_view_menu_change(int);
+	void on_view_toolbar_change(int);
 	void on_help_about();
+
+	/* menu handler helpers */
 	void on_help_about_response(int);
 };
 

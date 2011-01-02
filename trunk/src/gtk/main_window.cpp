@@ -14,8 +14,12 @@
 
 #include "stdafx.h"
 #include "main_window.h"
+
 #include <gtkmm/menuitem.h>
+#include <gtkmm/radiomenuitem.h>
 #include <gtkmm/toolbutton.h>
+#include <gtkmm/radiotoolbutton.h>
+
 #include <gtkmm/stock.h>
 #include <gtkmm/filechooserdialog.h>
 
@@ -28,7 +32,6 @@
 	Gtk::MenuItem *l_mnu = NULL; \
 	m_refGlade->get_widget(WIDGET, l_mnu); \
 	if(l_mnu) l_mnu->signal_activate().connect(sigc::mem_fun(*this, &CMainWindow::METHOD)); \
-	else fprintf(stderr, "Menu " WIDGET " not found!\n"); \
 	} while(0);
 
 /**
@@ -39,7 +42,17 @@
 	Gtk::ToolButton *l_btn = NULL; \
 	m_refGlade->get_widget(WIDGET, l_btn); \
 	if(l_btn) l_btn->signal_clicked().connect(sigc::mem_fun(*this, &CMainWindow::METHOD)); \
-	else fprintf(stderr, "Toolbar button " WIDGET " not found!\n"); \
+	} while(0);
+
+/**
+ * Helper macro that connects the toggled event of GTK Radio items, e.g.
+ * RadioMenuItem and RadioToolButton (= WTYPE), identified by name (= WIDGET)
+ * to the given METHOD of CMainWindow, using ARG as argument.
+ **/
+#define CONNECT_RADIO_ITEM(WTYPE, WIDGET, METHOD, ARG) do { \
+	Gtk::WTYPE *l_wgt = NULL; \
+	m_refGlade->get_widget(WIDGET, l_wgt); \
+	if(l_wgt) l_wgt->signal_toggled().connect(sigc::bind(sigc::mem_fun(*this, &CMainWindow::METHOD), ARG)); \
 	} while(0);
 
 
@@ -61,9 +74,15 @@ CMainWindow::CMainWindow(BaseObjectType* cobject, const Glib::RefPtr<Gtk::Builde
 
 	CONNECT_MENU("mnuFileOpen", on_file_open);
 	CONNECT_MENU("mnuFileQuit", on_file_quit);
+	CONNECT_RADIO_ITEM(RadioMenuItem, "mnuViewRendered", on_view_menu_change, NFO_VIEW_RENDERED);
+	CONNECT_RADIO_ITEM(RadioMenuItem, "mnuViewClassic", on_view_menu_change, NFO_VIEW_CLASSIC);
+	CONNECT_RADIO_ITEM(RadioMenuItem, "mnuViewTextOnly", on_view_menu_change, NFO_VIEW_TEXTONLY);
 	CONNECT_MENU("mnuHelpAbout", on_help_about);
 
 	CONNECT_TOOLBAR_BUTTON("tbtnOpen", on_file_open);
+	CONNECT_RADIO_ITEM(RadioToolButton, "tbtnViewRendered", on_view_toolbar_change, NFO_VIEW_RENDERED);
+	CONNECT_RADIO_ITEM(RadioToolButton, "tbtnViewClassic", on_view_toolbar_change, NFO_VIEW_CLASSIC);
+	CONNECT_RADIO_ITEM(RadioToolButton, "tbtnViewTextOnly", on_view_toolbar_change, NFO_VIEW_TEXTONLY);
 	CONNECT_TOOLBAR_BUTTON("tbtnAbout", on_help_about);
 }
 
@@ -112,6 +131,22 @@ void CMainWindow::on_file_open()
 }
 
 /**
+ * (Radio) menu handler: View -> Rendered/Classic/Text Only
+ **/
+void CMainWindow::on_view_menu_change(int a_newMode)
+{
+	SwitchViewInternal(true, true, (ENfoViewMode)a_newMode);
+}
+
+/**
+ * Toolbar radio button handler: Rendered/Classic/Text Only
+ **/
+void CMainWindow::on_view_toolbar_change(int a_newMode)
+{
+	SwitchViewInternal(true, false, (ENfoViewMode)a_newMode);
+}
+
+/**
  * helper function that acts when some button in the about dialog has been clicked.
  **/
 void CMainWindow::on_help_about_response(int)
@@ -155,15 +190,100 @@ void CMainWindow::on_file_quit()
 }
 
 
+/**
+ * Loads the given file into the viewer.
+ **/
 bool CMainWindow::OpenFile(const std::string a_filePath)
 {
-	if(m_pViewCtrl->OpenFile(a_filePath))
+	if(!m_pViewCtrl->OpenFile(a_filePath))
 	{
-
-		return true;
+		// XXX Error feedback
+		return false;
 	}
 
-	return false;
+	if(true /* auto width */)
+	{
+		unsigned int l_nfoWidth, l_nfoHeight;
+		int l_winWidth, l_winHeight;
+
+		m_pViewCtrl->get_size(l_nfoWidth, l_nfoHeight);
+		this->get_size(l_winWidth, l_winHeight);
+
+		l_nfoWidth += 90; // (poorly) account for window borders and such
+
+		int l_maxWidth = 1000; // XXX use actual screen size
+		// or find out whether X or GTK+ or something else takes care of that.
+
+		if(l_nfoWidth > l_maxWidth)
+		{
+			l_nfoWidth = l_maxWidth;
+		}
+
+		this->resize(l_nfoWidth, l_winHeight);
+	}
+
+	return true;
+}
+
+
+/**
+ * Changes the active view mode.
+ **/
+void CMainWindow::SwitchView(ENfoViewMode a_newMode)
+{
+	SwitchViewInternal(false, false, a_newMode);
+}
+
+
+/**
+ * Internal handler for view mode changes... deals with weirdness resulting
+ * from having the same functionality in a menu and as toolbar buttons.
+ **/
+void CMainWindow::SwitchViewInternal(bool a_fromUI, bool a_fromMenu, ENfoViewMode a_newMode)
+{
+	if(a_newMode == m_pViewCtrl->GetView())
+	{
+		return;
+	}
+
+	Gtk::RadioToolButton* l_pToolBtn = NULL;
+	Gtk::RadioMenuItem* l_pMenuItem = NULL;
+
+	switch(a_newMode)
+	{
+	case NFO_VIEW_RENDERED:
+		m_refGlade->get_widget("tbtnViewRendered", l_pToolBtn);
+		m_refGlade->get_widget("mnuViewRendered", l_pMenuItem);
+		break;
+	case NFO_VIEW_CLASSIC:
+		m_refGlade->get_widget("tbtnViewClassic", l_pToolBtn);
+		m_refGlade->get_widget("mnuViewClassic", l_pMenuItem);
+		break;
+	case NFO_VIEW_TEXTONLY:
+		m_refGlade->get_widget("tbtnViewTextOnly", l_pToolBtn);
+		m_refGlade->get_widget("mnuViewTextOnly", l_pMenuItem);
+		break;
+	}
+
+	// calling set_active invokes our toggled events again, so we need
+	// some extra checks or stack overflow WILL happen! :D
+
+	if(!a_fromUI)
+	{
+		l_pMenuItem->set_active(true); // menu invokes toolbar too
+	}
+	else if(a_fromMenu && l_pMenuItem->get_active())
+	{
+		l_pToolBtn->set_active(true);
+
+		// only trigger actual view change here.
+		// the other two execution paths will call this too.
+		m_pViewCtrl->SwitchView(a_newMode);
+	}
+	else if(!a_fromMenu && l_pToolBtn->get_active())
+	{
+		l_pMenuItem->set_active(true);		
+	}
 }
 
 
