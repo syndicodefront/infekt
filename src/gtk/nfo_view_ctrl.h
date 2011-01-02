@@ -21,6 +21,17 @@
 #include "nfo_data.h"
 #include "nfo_renderer.h"
 
+
+typedef enum _nfo_view_mode_t
+{
+	NFO_VIEW_RENDERED = 1,
+	NFO_VIEW_CLASSIC,
+	NFO_VIEW_TEXTONLY,
+
+	_NFO_VIEW_MAX
+} ENfoViewMode;
+
+
 class CGtkNfoViewCtrl : public Gtk::Layout
 {
 public:
@@ -28,12 +39,18 @@ public:
 	virtual ~CGtkNfoViewCtrl();
 
 	bool OpenFile(const std::string& a_filePath);
+	void SwitchView(ENfoViewMode a_newMode);
+	ENfoViewMode GetView() const { return m_mode; }
 
 protected:
 	/* GTK stuff */
 	virtual bool on_expose_event(GdkEventExpose* event);
 
 	Glib::RefPtr<Gtk::Builder> m_refGlade;
+
+	/* helper methods */
+	CNFORenderer* GetRenderer();
+	bool GetCenterNfo() const { return m_centerNfo && m_mode != NFO_VIEW_TEXTONLY; }
 
 	/* NFO data and renderer stuff */
 	CNFOData* m_pNfo;
@@ -44,6 +61,7 @@ protected:
 	CNFORenderer m_textOnlyRenderer;
 
 	/* settings/flags */
+	ENfoViewMode m_mode;
 	bool m_centerNfo;
 };
 
