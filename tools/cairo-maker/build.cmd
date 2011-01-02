@@ -22,7 +22,7 @@ curl http://www.cairographics.org/releases/pixman-0.21.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.10.0.tar.gz -o cairo.tgz
+curl http://www.cairographics.org/releases/cairo-1.10.2.tar.gz -o cairo.tgz
 :CZOK
 
 set ROOTDIR=%cd%\work
@@ -60,6 +60,11 @@ move zlib-* zlib
 move libpng-* libpng
 move pixman-* pixman
 move cairo-* cairo
+
+cd cairo
+patch -p1 -i "%ROOTDIR%/../lround.patch"
+patch -p1 -i "%ROOTDIR%/../win32.patch"
+cd ..
 
 IF %CONFIG%==debug GOTO SWITCHDEBUG
 set DBD=
