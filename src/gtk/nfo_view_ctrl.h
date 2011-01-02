@@ -51,6 +51,7 @@ protected:
 	/* helper methods */
 	CNFORenderer* GetRenderer();
 	bool GetCenterNfo() const { return m_centerNfo && m_mode != NFO_VIEW_TEXTONLY; }
+	void ForceRedraw();
 
 	/* NFO data and renderer stuff */
 	CNFOData* m_pNfo;
