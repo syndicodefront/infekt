@@ -96,14 +96,7 @@ void CGtkNfoViewCtrl::SwitchView(ENfoViewMode a_newMode)
 
 	this->set_size(l_pRenderer->GetWidth(), l_pRenderer->GetHeight()); // from Gtk::Layout
 
-	Glib::RefPtr<Gdk::Window> refWindow = this->get_bin_window();
-	if(refWindow)
-	{
-		int l_visibleWidth, l_visibleHeight;
-		refWindow->get_size(l_visibleWidth, l_visibleHeight); // inherited from Gdk::Drawable
-Gdk::Rectangle r(0, 0, l_visibleWidth, l_visibleHeight);
-refWindow->invalidate_rect(r, false);
-	}
+	ForceRedraw();
 }
 
 
@@ -148,6 +141,26 @@ bool CGtkNfoViewCtrl::on_expose_event(GdkEventExpose* event)
 	}
 
 	return true;	
+}
+
+
+/**
+ * Invalidates the entire visible area, forcing a redraw through the expose event.
+ **/
+void CGtkNfoViewCtrl::ForceRedraw()
+{
+	Glib::RefPtr<Gdk::Window> refWindow = this->get_bin_window();
+
+	if(refWindow)
+	{
+		int l_visibleWidth, l_visibleHeight;
+
+		refWindow->get_size(l_visibleWidth, l_visibleHeight); // inherited from Gdk::Drawable
+
+		Gdk::Rectangle r(0, 0, l_visibleWidth, l_visibleHeight);
+		
+		refWindow->invalidate_rect(r, false);
+	}
 }
 
 
