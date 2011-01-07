@@ -61,10 +61,16 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 
 	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
 	{
+#if 0
 		if(!::GetAsyncKeyState(VK_SHIFT))
 		{
 			// holding down SHIFT during startup causes the
 			// saved position to be discarded
+#else
+		if(true)
+		{
+			// GetAsyncKeyState and GetKeyState randomly return true... wtf.
+#endif
 
 			cs.x = l_sect->ReadDword(L"Left");
 			cs.y = l_sect->ReadDword(L"Top");
