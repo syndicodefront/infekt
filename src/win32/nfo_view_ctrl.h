@@ -41,7 +41,7 @@ protected:
 	void UpdateScrollbars(bool a_resetPos);
 	void HandleScrollEvent(int a_dir, int a_event, int a_change);
 	void GetScrollPositions(int& ar_x, int& ar_y);
-	void CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size_t& ar_col);
+	void CalcFromMouseCoords(int a_x, int a_y, ssize_t& ar_row, ssize_t& ar_col);
 
 	void OnPaint();
 	void OnMouseMove(int a_x, int a_y);

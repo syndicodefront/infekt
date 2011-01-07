@@ -66,10 +66,11 @@
 /* local headers */
 #include "infekt.h"
 
-#ifndef _WIN32
-#define _tstring string
-#else
 #define _tstring wstring
+#ifdef _WIN64
+typedef signed __int64 ssize_t;
+#else
+typedef signed int ssize_t;
 #endif
 
 // disable "switch statement contains 'default' but no 'case' labels"

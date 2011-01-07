@@ -417,7 +417,11 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 {
-	size_t l_row, l_col;
+	ssize_t l_row, l_col;
+
+	// area where moving the mouse while selecting text scrolls:
+	int l_scrollPadding = m_padding;
+	const int l_scrollSpeedDiv = 2; // slow down selection scrolling a bit
 
 	if(!HasNfoData())
 	{
@@ -446,16 +450,38 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 		if(l_row != m_selStartRow || l_col != m_selStartCol)
 		{
 			m_movedDownMouse = true;
+			::SetCapture(m_hwnd);
 		}
 	}
 
 	if(m_leftMouseDown && m_movedDownMouse)
 	{
-		// user selects text, selection "endpoint" has changed
-		if(m_selEndRow != l_row || m_selEndCol != l_col)
+		if(a_y >= m_height - l_scrollPadding)
 		{
-			m_selEndRow = l_row;
-			m_selEndCol = l_col;
+			HandleScrollEvent(SB_VERT, INT_MIN, (a_y - m_height + l_scrollPadding) / GetBlockHeight() / l_scrollSpeedDiv);
+		}
+		else if(a_y <= l_scrollPadding)
+		{
+			HandleScrollEvent(SB_VERT, INT_MIN, -(int)((l_scrollPadding - a_y) / GetBlockHeight() / l_scrollSpeedDiv));
+		}
+
+		if(a_x >= m_width - l_scrollPadding)
+		{
+			HandleScrollEvent(SB_HORZ, INT_MIN, (a_x - m_width + l_scrollPadding) / GetBlockWidth() / l_scrollSpeedDiv);
+		}
+		else if(a_x <= l_scrollPadding)
+		{
+			HandleScrollEvent(SB_HORZ, INT_MIN, -(int)((l_scrollPadding - a_x) / GetBlockWidth() / l_scrollSpeedDiv));
+		}
+
+		size_t l_virtualRow = (l_row < 0 ? 0 : l_row),
+			l_virtualCol = (l_col < 0 ? 0 : l_col);
+
+		// user selects text, selection "endpoint" has changed
+		if(m_selEndRow != l_virtualRow || m_selEndCol != l_virtualCol)
+		{
+			m_selEndRow = l_virtualRow;
+			m_selEndCol = l_virtualCol;
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 	}
@@ -465,7 +491,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 {
 #ifndef NFOVWR_NO_CONTEXT_MENU
-	size_t l_row, l_col;
+	ssize_t l_row, l_col;
 
 	if(!HasNfoData())
 	{
@@ -497,8 +523,8 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 			if(m_movedDownMouse)
 			{
-				m_selEndRow = l_row;
-				m_selEndCol = l_col;
+				m_selEndRow = (l_row < 0 ? 0 : l_row);
+				m_selEndCol = (l_col < 0 ? 0 : l_col);
 
 				if(m_copyOnSelect)
 				{
@@ -508,6 +534,8 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 				{
 					l_reset = false;
 				}
+
+				::ReleaseCapture();
 			}
 
 			if(l_reset)
@@ -592,7 +620,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 }
 
 
-void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size_t& ar_col)
+void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, ssize_t& ar_row, ssize_t& ar_col)
 {
 	if(m_nfo)
 	{
@@ -604,8 +632,8 @@ void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, size_t& ar_row, size
 			l_centerx = (m_width - (int)GetWidth()) / 2;
 
 		// calc real positions:
-		ar_row = l_y + ((a_y - m_padding) / GetBlockHeight());
-		ar_col = l_x + ((a_x - m_padding - l_centerx) / GetBlockWidth());
+		ar_row = l_y + ((a_y - m_padding) / (ssize_t)GetBlockHeight());
+		ar_col = l_x + ((a_x - m_padding - l_centerx) / (ssize_t)GetBlockWidth());
 	}
 	else
 	{
