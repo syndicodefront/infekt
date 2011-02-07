@@ -684,7 +684,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			// check for hyperlinks...
 			const std::vector<const CNFOHyperLink*> l_links = m_nfo->GetLinksForLine(row);
 
-			if(l_links.size() == 0)
+			if(l_links.size() == 0 || !GetHilightHyperLinks())
 			{
 				// ... no hyperlinks, draw the entire line in one go:
 				cairo_show_glyphs(cr, l_glyphs, l_numGlyphs);
