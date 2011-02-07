@@ -147,6 +147,7 @@ bool CNFOApp::SwitchToPrevInstance()
 			if(::SendMessage(l_prevMainWin, WM_COPYDATA, 0, (LPARAM)&l_cpds) == TRUE)
 			{
 				::ShowWindow(l_prevMainWin, SW_SHOW);
+				::SetForegroundWindow(l_prevMainWin);
 				return true;
 			}
 		}
