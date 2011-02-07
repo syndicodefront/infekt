@@ -418,13 +418,13 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 	case NFOC_AUTO:
 		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, true);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
 		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen, true);
 		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
 		break;
 	case NFOC_UTF16:
-		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen);
+		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, false);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
 		break;
 	case NFOC_UTF8_SIG:
@@ -579,33 +579,19 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool 
 	{
 		const string l_utf((const char*)a_data, a_dataLen);
 
-		if(a_tryToFix && l_utf.find("\xC3\x9F") != string::npos &&
-			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos) &&
-			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos))
+		// the following is a typical collection of characters that indicate
+		// a CP437 representation that has been (very badly) UTF-8 encoded
+		// using an "ISO-8559-1 to UTF-8" or similar routine.
+		if(a_tryToFix && l_utf.find("\xC3\x9F") != string::npos
+			/* one "Eszett" */ &&
+			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos)
+			/* two consecutive 'LATIN CAPITAL LETTER U WITH DIAERESIS' or 'LATIN CAPITAL LETTER U WITH CIRCUMFLEX' */ &&
+			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos)
+			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */)
 		{
 			const wstring l_unicode = CUtil::ToWideStr(l_utf, CP_UTF8);
-#if 0 /* so, this doesn't work... although it should? */
-			map<wchar_t, char> l_reverse;
-			string l_cp437;
-
-			l_reverse[0x2302] = 0x7F;
-			for(unsigned int p = 0x80; p <= 0xFF; p++) l_reverse[map_cp437_to_unicode_high_bit[p - 0x80]] = p;
-			for(unsigned int p = 1; p <= 0x1F; p++) l_reverse[map_cp437_to_unicode_control_range[p]] = p;
-
-			for(wstring::size_type p = 0; p < l_unicode.size(); p++)
-			{
-				wchar_t l_chr = l_unicode[p];
-				map<wchar_t, char>::const_iterator it = l_reverse.find(l_chr);
-
-				if(it != l_reverse.end())
-					l_cp437 += it->second;
-				else
-					l_cp437 += (l_chr <= 255 ? (char)l_chr : '?');
-//				l_cp437 += (it != l_reverse.end() ? it->second : (l_chr <= 255 ? (char)l_chr : '?'));
-			}
-#else /* and this crude stuff works... oh well. gonna do it like this for now. */
 			const string l_cp437 = CUtil::FromWideStr(l_unicode, CP_ACP);
-#endif
+
 			if(TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
 			{
 				m_sourceCharset = NFOC_CP437_IN_UTF8;
@@ -681,7 +667,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 }
 
 
-bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen)
+bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix)
 {
 	if(a_dataLen < 2 || a_data[0] != 0xFF || a_data[1] != 0xFE)
 	{
@@ -698,6 +684,23 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen)
 	if(m_textContent.find(L'\0') != wstring::npos)
 	{
 		m_lastErrorDescr = L"Binary files can not be loaded.";
+		return false;
+	}
+
+	// see comments in TryLoad_UTF8...
+	if(a_tryToFix && m_textContent.find(L'\u00DF') != wstring::npos &&
+		(m_textContent.find(L"\u00DC\u00DC") != wstring::npos || m_textContent.find(L"\u00DB\u00DB") != wstring::npos) &&
+		(m_textContent.find(L"\u00B1") != wstring::npos || m_textContent.find(L"\u00B2") != wstring::npos))
+	{
+		const string l_cp437 = CUtil::FromWideStr(m_textContent, CP_ACP);
+
+		if(TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
+		{
+			m_sourceCharset = NFOC_CP437_IN_UTF16;
+
+			return true;
+		}
+
 		return false;
 	}
 
@@ -886,6 +889,8 @@ const std::_tstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 		return _T("CP 437");
 	case NFOC_CP437_IN_UTF8:
 		return _T("CP 437 (in broken UTF-8)");
+	case NFOC_CP437_IN_UTF16:
+		return _T("CP 437 (in broken UTF-16)");
 	}
 
 	return _T("(huh?)");
