@@ -50,6 +50,7 @@ typedef enum _nfo_charsets
 	NFOC_UTF8,
 	NFOC_CP437,
 	NFOC_CP437_IN_UTF8,
+	NFOC_CP437_IN_UTF16,
 
 	_NFOC_MAX
 } ENfoCharset;
@@ -106,7 +107,7 @@ protected:
 
 	bool LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen);
 
-	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen);
+	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix);
 	bool TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix);
