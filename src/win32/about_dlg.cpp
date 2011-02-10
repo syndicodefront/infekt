@@ -89,7 +89,7 @@ BOOL CAboutDialog::OnInitDialog()
 		::SendMessage(l_hTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
 	}
 
-	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010"), l_top, 20);
+	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2011"), l_top, 20);
 	l_top += 20;
 
 	if(CUtil::IsWin2000())
