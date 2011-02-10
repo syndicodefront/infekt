@@ -227,7 +227,8 @@ bool CNFORenderer::DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y)
 	cairo_save(a_cr);
 
 	cairo_set_source_surface(a_cr, m_imgSurface, dest_x - 0, dest_y - 0);
-	cairo_rectangle(a_cr, dest_x, dest_y, GetWidth(), GetHeight());
+	cairo_rectangle(a_cr, dest_x, dest_y,
+		static_cast<double>(GetWidth()), static_cast<double>(GetHeight()));
 	cairo_fill(a_cr);
 
 	cairo_restore(a_cr);

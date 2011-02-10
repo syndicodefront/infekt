@@ -378,7 +378,7 @@ BEGIN
             VALUE "FileDescription", "iNFekt NFO Viewer"
             VALUE "FileVersion", "0, 7, 6, 0"
             VALUE "InternalName", "iNFekt"
-            VALUE "LegalCopyright", "Copyright © 2010 cxxjoe & Contributors"
+            VALUE "LegalCopyright", "Copyright © 2010-2011 cxxjoe & Contributors"
             VALUE "OriginalFilename", "infekt-winXX.exe"
             VALUE "ProductName", "iNFekt"
             VALUE "ProductVersion", "0, 7, 6, 0"
