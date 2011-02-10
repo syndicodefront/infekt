@@ -5,6 +5,15 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
+== v0.7.8 (2011) ==
+  * New: Making mouse movements while selecting text scroll the viewer window
+  * Fixed issue 51 (Window going off-screen to the right)
+  * Fixed issue 49 (Window not being brought to the front in single-instance mode)
+  * Fixed "Highlight hyper links" setting not being respected in Rendered View
+  * Enhanced support for more broken Unicode NFO files
+  * Updated cairo (1.10.2) and PCRE (8.12)
+  * Misc code changes in preparation of Linux/GTK+ and Mac OS versions
+
 == v0.7.6 (13th November 2010) ==
   * Added a bunch of new, advanced settings: _Auto-center window on startup_, _Auto-adjust window width to NFO_, _Use centered NFO view_
   * Added a show/hide menu button to the main toolbar
