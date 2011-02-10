@@ -749,6 +749,13 @@ void CMainFrame::AdjustWindowToNFOWidth()
 				l_rc.left = 0;
 				l_rc.right = l_wa.right - l_wa.left;
 			}
+			// and don't allow parts of the window to go off-screen to the right:
+			else if(l_rc.right > l_wa.right)
+			{
+				int l_excess = (l_rc.right - l_wa.right); 
+				l_rc.left -= l_excess;
+				l_rc.right -= l_excess;
+			}
 		}
 
 		MoveWindow(l_rc);
