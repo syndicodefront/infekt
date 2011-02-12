@@ -772,8 +772,15 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	case WM_MOUSEWHEEL:
 	case WM_MOUSEHWHEEL:
 	case WM_KEYDOWN:
-		if(!m_view.ForwardFocusTypeMouseKeyboardEvent(pMsg))
+		if(pMsg->wParam == VK_ESCAPE)
 		{
+			if(m_settings->bCloseOnEsc)
+			{
+				SendMessage(WM_CLOSE);
+			}
+		}
+		else if(!m_view.ForwardFocusTypeMouseKeyboardEvent(pMsg))
+		{		
 			return TRUE;
 		}
 		break;
@@ -1398,6 +1405,7 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"AutoWidth", this->bAutoWidth);
 	l_sect->WriteBool(L"CenterNFO", this->bCenterNFO);
 	l_sect->WriteBool(L"DefaultExportToNFODir", this->bDefaultExportToNFODir);
+	l_sect->WriteBool(L"CloseOnEsc", this->bCloseOnEsc);
 
 	// "deputy" return value:
 	return l_sect->WriteBool(L"SingleInstanceMode", this->bSingleInstanceMode);
@@ -1437,6 +1445,7 @@ bool CMainSettings::LoadFromRegistry()
 	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", false);
 	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", true);
 	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
+	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", false);
 
 	return true;
 }

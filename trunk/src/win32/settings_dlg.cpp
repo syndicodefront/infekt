@@ -1333,6 +1333,7 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_AUTO_WIDTH, m_settings->bAutoWidth);
 	SET_DLG_CHECKBOX(IDC_CENTER_NFO, m_settings->bCenterNFO);
 	SET_DLG_CHECKBOX(IDC_EXPORT_NFO_DIR, m_settings->bDefaultExportToNFODir);
+	SET_DLG_CHECKBOX(IDC_CLOSE_ON_ESC, m_settings->bCloseOnEsc);
 
 	ShowWindow(SW_SHOW);
 
@@ -1346,6 +1347,7 @@ void CAdvancedSettingsWindowDialog::OnOK()
 	m_settings->bAutoWidth = (::IsDlgButtonChecked(GetHwnd(), IDC_AUTO_WIDTH) != FALSE);
 	m_settings->bCenterNFO = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_NFO) != FALSE);
 	m_settings->bDefaultExportToNFODir = (::IsDlgButtonChecked(GetHwnd(), IDC_EXPORT_NFO_DIR) != FALSE);
+	m_settings->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
 
 	CDialog::OnOK();
 }

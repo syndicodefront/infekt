@@ -310,6 +310,7 @@ BEGIN
     CONTROL         "Deselect on copy",IDC_DESELECT_ON_COPY,"Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,15,73,122,10
     CONTROL         "Default to NFO's directory during export",IDC_EXPORT_NFO_DIR,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,89,159,10
+    CONTROL         "Escape key quits program",IDC_CLOSE_ON_ESC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,38,121,10
 END
 
 
