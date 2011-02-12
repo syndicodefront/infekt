@@ -32,6 +32,7 @@ public:
 		bAutoWidth = false;
 		bCenterNFO = true;
 		bDefaultExportToNFODir = false;
+		bCloseOnEsc = false;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -49,6 +50,7 @@ public:
 	bool bAutoWidth;
 	bool bCenterNFO;
 	bool bDefaultExportToNFODir;
+	bool bCloseOnEsc;
 };
 
 typedef boost::shared_ptr<CMainSettings> PMainSettings;

@@ -41,6 +41,8 @@
 #define IDC_EXPORT_NFO_DIR              1010
 #define IDC_CLR_ART                     1011
 #define IDC_SINGLEINSTANCEMODE          1011
+#define IDC_CENTER_NFO2                 1011
+#define IDC_CLOSE_ON_ESC                1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_BUTTON2                     1013
 #define IDC_PREVIEW_BTN                 1013
