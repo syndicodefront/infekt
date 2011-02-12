@@ -351,7 +351,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case TBBID_ABOUT:
 	case IDM_ABOUT:
-		SendMessage(WM_HELP);
+		OnHelp();
 		return TRUE;
 
 	case IDMC_COPY:
