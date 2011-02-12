@@ -769,17 +769,18 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 
 	switch(pMsg->message)
 	{
-	case WM_MOUSEWHEEL:
-	case WM_MOUSEHWHEEL:
 	case WM_KEYDOWN:
 		if(pMsg->wParam == VK_ESCAPE)
 		{
 			if(m_settings->bCloseOnEsc)
 			{
-				SendMessage(WM_CLOSE);
+				PostMessage(WM_CLOSE);
 			}
 		}
-		else if(!m_view.ForwardFocusTypeMouseKeyboardEvent(pMsg))
+		// fall through
+	case WM_MOUSEWHEEL:
+	case WM_MOUSEHWHEEL:
+		if(!m_view.ForwardFocusTypeMouseKeyboardEvent(pMsg))
 		{		
 			return TRUE;
 		}
