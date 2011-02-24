@@ -136,13 +136,15 @@
 #define IDM_EXPORT_PDF_DIN              40082
 #define ID_VIEW_RELOAD                  40083
 #define IDM_VIEW_RELOAD                 40084
+#define ID_Menu40088                    40088
+#define IDM_OPTIWIDTH                   40089
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        127
-#define _APS_NEXT_COMMAND_VALUE         40088
+#define _APS_NEXT_COMMAND_VALUE         40090
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

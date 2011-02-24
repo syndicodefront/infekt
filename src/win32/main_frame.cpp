@@ -401,6 +401,11 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		m_view.ReloadFile();
 		return TRUE;
 
+	case IDM_OPTIWIDTH:
+		ShowWindow(SW_SHOWNORMAL);
+		AdjustWindowToNFOWidth();
+		return TRUE;
+
 	case TBBID_CLEARMRU:
 		if(!m_mruPaths.empty())
 		{
