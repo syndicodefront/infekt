@@ -39,6 +39,11 @@
 #include <pcre.h>
 #include <inttypes.h>
 
+#ifdef _WIN64
+typedef signed __int64 ssize_t;
+#else
+typedef signed int ssize_t;
+#endif
 #define _tstring wstring
 #include "util.h"
 #include "theme_api.h"

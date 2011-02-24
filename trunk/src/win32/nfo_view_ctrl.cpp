@@ -456,22 +456,24 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 
 	if(m_leftMouseDown && m_movedDownMouse)
 	{
+		int l_bw = static_cast<int>(GetBlockWidth()), l_bh = static_cast<int>(GetBlockHeight());
+
 		if(a_y >= m_height - l_scrollPadding)
 		{
-			HandleScrollEvent(SB_VERT, INT_MIN, (a_y - m_height + l_scrollPadding) / GetBlockHeight() / l_scrollSpeedDiv);
+			HandleScrollEvent(SB_VERT, INT_MIN, (a_y - m_height + l_scrollPadding) / l_bh / l_scrollSpeedDiv);
 		}
 		else if(a_y <= l_scrollPadding)
 		{
-			HandleScrollEvent(SB_VERT, INT_MIN, -(int)((l_scrollPadding - a_y) / GetBlockHeight() / l_scrollSpeedDiv));
+			HandleScrollEvent(SB_VERT, INT_MIN, -(int)((l_scrollPadding - a_y) / l_bh / l_scrollSpeedDiv));
 		}
 
 		if(a_x >= m_width - l_scrollPadding)
 		{
-			HandleScrollEvent(SB_HORZ, INT_MIN, (a_x - m_width + l_scrollPadding) / GetBlockWidth() / l_scrollSpeedDiv);
+			HandleScrollEvent(SB_HORZ, INT_MIN, (a_x - m_width + l_scrollPadding) / l_bw / l_scrollSpeedDiv);
 		}
 		else if(a_x <= l_scrollPadding)
 		{
-			HandleScrollEvent(SB_HORZ, INT_MIN, -(int)((l_scrollPadding - a_x) / GetBlockWidth() / l_scrollSpeedDiv));
+			HandleScrollEvent(SB_HORZ, INT_MIN, -(int)((l_scrollPadding - a_x) / l_bw / l_scrollSpeedDiv));
 		}
 
 		size_t l_virtualRow = (l_row < 0 ? 0 : l_row),
