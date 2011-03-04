@@ -13,6 +13,7 @@
  **/
 
 #include "updater.h"
+#include <Wincrypt.h>
 
 
 /************************************************************************/
@@ -122,4 +123,63 @@ bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_param
 	}
 
 	return false;
+}
+
+
+std::wstring SHA1_File(const std::wstring& a_filePath)
+{
+	HCRYPTPROV hProv;
+	std::wstring l_result;
+
+	if(::CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET))
+	{
+		HCRYPTHASH hHash;
+
+		if(::CryptCreateHash(hProv, CALG_SHA1, NULL, 0, &hHash))
+		{
+			FILE *fInput = NULL;
+
+			if(_wfopen_s(&fInput, a_filePath.c_str(), L"rb") == 0)
+			{
+				char pbBuf[4096] = {0};
+
+				while(!feof(fInput))
+				{
+					size_t dwRead = fread_s(pbBuf, 1024, sizeof(char), 1024, fInput);
+
+					::CryptHashData(hHash, (BYTE*)pbBuf, dwRead, 0);
+				}
+
+				fclose(fInput);
+
+				DWORD dwHashLen = 0;
+				DWORD dwHashLenSize = sizeof(DWORD);
+
+				if(::CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE*)&dwHashLen, &dwHashLenSize, 0))
+				{
+					BYTE *pbHashBuf = new BYTE[dwHashLen];
+					memset(pbHashBuf, 0, dwHashLen);
+
+					if(::CryptGetHashParam(hHash, HP_HASHVAL, pbHashBuf, &dwHashLen, 0))
+					{
+						wchar_t wbHex[3] = {0};
+
+						for(DWORD i = 0; i < dwHashLen; i++)
+						{
+							swprintf_s(wbHex, 3, L"%02x", pbHashBuf[i]);
+							l_result += wbHex;
+						}
+					}
+
+					delete[] pbHashBuf;
+				}
+			}
+
+			::CryptDestroyHash(hHash);
+		}
+
+		::CryptReleaseContext(hProv, 0);
+	}
+
+	return l_result;
 }

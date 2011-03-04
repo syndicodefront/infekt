@@ -26,6 +26,7 @@ static __int64 s_uBytesTotal = 0;
 static DWORD s_uTimeDlStarted = 0;
 
 static std::wstring s_installerUrl;
+static std::wstring s_installerHash;
 static std::wstring s_installerPath;
 
 
@@ -141,6 +142,14 @@ static void ShowDownloadStarted(HWND hDlg, __int64 uBytesTotal)
 }
 
 
+static bool ValidateDownloadedFile()
+{
+	std::wstring l_fileHash = SHA1_File(s_installerPath);
+
+	return (_wcsicmp(l_fileHash.c_str(), s_installerHash.c_str()) == 0);
+}
+
+
 static void OnInstallerComplete(HWND hDlg, bool a_success)
 {
 	// schedule temp files for deletion on reboot:
@@ -188,19 +197,26 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return TRUE;
 
 	case WM_DOWNLOAD_FAILED:
-		EnablePgbMarquee(false);
 		SendDlgItemMessage(hDlg, IDC_PGB, PBM_SETPOS, 0, 0);
 		SetDlgItemText(hDlg, IDC_STATUS, L"Download failed! Please update manually or try again later.");
 		return TRUE;
 
 	case WM_DOWNLOAD_COMPLETE:
-		EnablePgbMarquee(hDlg);
+		if(ValidateDownloadedFile())
+		{
+			EnablePgbMarquee(hDlg);
 
-		SetDlgItemText(hDlg, IDC_STATUS, L"Preparing to install update...");
+			SetDlgItemText(hDlg, IDC_STATUS, L"Preparing to install update...");
 
-		::EnableWindow(GetDlgItem(hDlg, IDCANCEL), FALSE);
+			::EnableWindow(GetDlgItem(hDlg, IDCANCEL), FALSE);
 
-		StartTaskKill(hDlg);
+			StartTaskKill(hDlg);
+		}
+		else
+		{
+			SendDlgItemMessage(hDlg, IDC_PGB, PBM_SETPOS, 0, 0);
+			SetDlgItemText(hDlg, IDC_STATUS, L"Validating the downloaded file failed! Please update manually.");
+		}
 		return TRUE;
 
 	case WM_TASKKILL_COMPLETE:
@@ -282,14 +298,28 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 		return 1;
 	}
 
-	LPWSTR l_cmdLine = _wcsdup(wszCommandLine);
-	::PathUnquoteSpaces(l_cmdLine);
+	// command line format has to be "<SETUPURL> <SETUPHASH>".
 
-	if(::PathIsURL(l_cmdLine))
+	std::wstring l_cmdLine(wszCommandLine);
+	std::wstring::size_type l_splitPos = l_cmdLine.find(' ');
+
+	if(l_splitPos == std::wstring::npos)
 	{
-		s_installerUrl = l_cmdLine;
+		return 1;
+	}
 
-		free(l_cmdLine);
+	std::wstring l_url = l_cmdLine.substr(0, l_splitPos),
+		l_hash = l_cmdLine.substr(l_splitPos + 1);
+	
+	LPWSTR l_quotedUrl = _wcsdup(l_url.c_str());
+	::PathUnquoteSpaces(l_quotedUrl);
+	l_url = l_quotedUrl;
+	free(l_quotedUrl);
+
+	if(::PathIsURL(l_url.c_str()))
+	{
+		s_installerUrl = l_url;
+		s_installerHash = l_hash;
 
 		if(s_installerUrl.find(L"https://") == 0 || s_installerUrl.find(L"http://") == 0)
 		{
@@ -297,10 +327,6 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 			return MainMessageLoop();
 		}
-	}
-	else
-	{
-		free(l_cmdLine);
 	}
 
 	return 1;

@@ -1195,7 +1195,7 @@ void CMainFrame::CheckForUpdates()
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
 	_tstring l_contents = CUtil::DownloadHttpTextFile(l_url);
-	wstring l_serverVersion, l_newDownloadUrl;
+	wstring l_serverVersion, l_newDownloadUrl, l_autoUpdateUrl, l_autoUpdateHash;
 
 	_tstring::size_type l_pos = l_contents.find(_T("{{{")), l_endPos, l_prevPos;
 
@@ -1233,6 +1233,8 @@ void CMainFrame::CheckForUpdates()
 
 			l_serverVersion = l_pairs[_T("latest[stable].1")];
 			l_newDownloadUrl = l_pairs[_T("download_latest[stable].1")];
+			l_autoUpdateUrl = l_pairs[_T("autoupdate_download[stable].1/078")];
+			l_autoUpdateHash = l_pairs[_T("autoupdate_hash[stable].1/078")];
 		}
 	}
 
@@ -1240,7 +1242,10 @@ void CMainFrame::CheckForUpdates()
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
-	if(l_serverVersion.empty())
+	bool l_validData = !l_serverVersion.empty() && ::PathIsURL(l_newDownloadUrl.c_str()) &&
+		(l_newDownloadUrl.find(_T("http://")) == 0 || l_newDownloadUrl.find(_T("https://")) == 0);
+
+	if(!l_validData)
 	{
 		const _tstring l_msg = _T("We failed to contact infekt.googlecode.com to get the latest version's info. ")
 			_T("Please make sure you are connected to the internet and try again later.\n\nDo you want to visit ") +
@@ -1263,18 +1268,41 @@ void CMainFrame::CheckForUpdates()
 	}
 	else if(l_result < 0)
 	{
-		if(l_newDownloadUrl.empty()) l_newDownloadUrl = l_projectUrl;
+		_tstring l_auExePath = CUtil::GetExeDir() + _T("\\infekt-win32-updater.exe");
+		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) && !CUtil::IsWin2000() &&
+			!l_autoUpdateHash.empty() && !l_autoUpdateUrl.empty();
 
-		const _tstring l_msg = _T("Attention! There is a new version (iNFekt v") + l_serverVersion + _T(") available!") +
-			_T("\n\nDo you want to go to the download page now?");
+		_tstring l_msg = _T("Attention! A new version is available (iNFekt v") + l_serverVersion + _T(")!\n\n");
 
-		if(this->MessageBox(l_msg.c_str(), _T("New Version Found"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
+		if(!l_auPossible)
 		{
-			if(::PathIsURL(l_newDownloadUrl.c_str()) &&
-				(l_newDownloadUrl.find(_T("http://")) == 0 || l_newDownloadUrl.find(_T("https://")) == 0))
-			{
-				::ShellExecute(0, _T("open"), l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
-			}
+			// auto update has been disabled from this version or is not available for other reasons,
+			// use classic manual approach.
+
+			l_msg += _T("Auto-update is not possible. Do you want to go to the download page now?");
+		}
+		else
+		{
+			l_msg += _T("Do you want to close iNFekt and install the new version now?");
+		}
+
+		if(this->MessageBox(l_msg.c_str(), _T("New Version Found"), MB_ICONEXCLAMATION | MB_YESNO) != IDYES)
+		{
+			// update cancelled
+			return;
+		}
+
+		if(!l_auPossible)
+		{
+			// URL has been validated above.
+			::ShellExecute(0, _T("open"), l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
+		}
+		else
+		{
+			// try to perform auto-update.
+			const std::_tstring l_args = _T("\"") + l_autoUpdateUrl + _T("\" ") + l_autoUpdateHash;
+
+			::ShellExecute(0, _T("open"), l_auExePath.c_str(), l_args.c_str(), NULL, SW_SHOWNORMAL);
 		}
 	}
 	else if(l_result > 0)
