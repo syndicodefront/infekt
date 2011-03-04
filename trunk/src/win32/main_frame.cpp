@@ -1300,9 +1300,26 @@ void CMainFrame::CheckForUpdates()
 		else
 		{
 			// try to perform auto-update.
-			const std::_tstring l_args = _T("\"") + l_autoUpdateUrl + _T("\" ") + l_autoUpdateHash;
+			wchar_t l_tmpPathBuf[1000] = {0};
 
-			::ShellExecute(0, _T("open"), l_auExePath.c_str(), l_args.c_str(), NULL, SW_SHOWNORMAL);
+			if(::GetTempPath(999, l_tmpPathBuf))
+			{
+				::PathAddBackslash(l_tmpPathBuf);
+
+				std::wstring l_tempExePath(l_tmpPathBuf);
+				l_tempExePath += L"infekt-" + InfektVersionAsString() + L"-updater.exe";
+
+				if(::CopyFile(l_auExePath.c_str(), l_tempExePath.c_str(), FALSE))
+				{
+					const std::_tstring l_args = L"\"" + l_autoUpdateUrl + L"\" " + l_autoUpdateHash;
+
+					::ShellExecute(0, L"open", l_tempExePath.c_str(), l_args.c_str(), NULL, SW_SHOWNORMAL);
+				}
+				else
+				{
+					this->MessageBox(L"Error copying to temp folder. Please make sure auto-update is not already running.", L"Error", MB_ICONSTOP);
+				}
+			}
 		}
 	}
 	else if(l_result > 0)
