@@ -5,6 +5,9 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
+== v0.7.9 (04 March 2011) ==
+  * Enabled auto update to actually work when the next version comes out... d'oh.
+
 == v0.7.8 (04 March 2011) ==
   * New: Making mouse movements while selecting text scroll the viewer window
   * Fixed issue 51 (Window going off-screen to the right)
