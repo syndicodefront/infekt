@@ -43,6 +43,8 @@ std::wstring GetTempFilePath(const std::wstring& a_suffix);
 std::wstring GetExePath();
 bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd, bool a_requireZeroExitCode = false);
 
+std::wstring SHA1_File(const std::wstring& a_filePath);
+
 bool StartHttpDownload(HWND hDlg, const std::wstring& a_url, const std::wstring& a_localPath);
 __int64 HttpGetBytesReceived();
 bool HttpIsDownloading();
