@@ -145,7 +145,8 @@ std::wstring SHA1_File(const std::wstring& a_filePath)
 
 				while(!feof(fInput))
 				{
-					size_t dwRead = fread_s(pbBuf, 1024, sizeof(char), 1024, fInput);
+					DWORD dwRead = static_cast<DWORD>(
+						fread_s(pbBuf, 4096, sizeof(char), 4096, fInput));
 
 					::CryptHashData(hHash, (BYTE*)pbBuf, dwRead, 0);
 				}

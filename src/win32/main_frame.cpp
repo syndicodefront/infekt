@@ -1247,7 +1247,7 @@ void CMainFrame::CheckForUpdates()
 
 	if(!l_validData)
 	{
-		const _tstring l_msg = _T("We failed to contact infekt.googlecode.com to get the latest version's info. ")
+		const _tstring l_msg = _T("Failed to contact infekt.googlecode.com to get the latest version's info. ")
 			_T("Please make sure you are connected to the internet and try again later.\n\nDo you want to visit ") +
 			l_projectUrl + _T(" now instead?");
 
