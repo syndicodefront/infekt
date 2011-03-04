@@ -154,9 +154,7 @@ static void OnInstallerComplete(HWND hDlg, bool a_success)
 {
 	// schedule temp files for deletion on reboot:
 	std::wstring l_exePath = GetExePath();
-	// delete this exe, remember it should have been copied to temp dir
 	::MoveFileEx(l_exePath.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
-	// delete downloaded installer
 	::MoveFileEx(s_installerPath.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
 
 	DisablePgbMarquee(hDlg);

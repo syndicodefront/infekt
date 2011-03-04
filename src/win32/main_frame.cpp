@@ -1247,7 +1247,7 @@ void CMainFrame::CheckForUpdates()
 
 	if(!l_validData)
 	{
-		const _tstring l_msg = _T("Failed to contact infekt.googlecode.com to get the latest version's info. ")
+		const _tstring l_msg = _T("We failed to contact infekt.googlecode.com to get the latest version's info. ")
 			_T("Please make sure you are connected to the internet and try again later.\n\nDo you want to visit ") +
 			l_projectUrl + _T(" now instead?");
 
@@ -1300,26 +1300,9 @@ void CMainFrame::CheckForUpdates()
 		else
 		{
 			// try to perform auto-update.
-			wchar_t l_tmpPathBuf[1000] = {0};
+			const std::_tstring l_args = _T("\"") + l_autoUpdateUrl + _T("\" ") + l_autoUpdateHash;
 
-			if(::GetTempPath(999, l_tmpPathBuf))
-			{
-				::PathAddBackslash(l_tmpPathBuf);
-
-				std::wstring l_tempExePath(l_tmpPathBuf);
-				l_tempExePath += L"infekt-" + InfektVersionAsString() + L"-updater.exe";
-
-				if(::CopyFile(l_auExePath.c_str(), l_tempExePath.c_str(), FALSE))
-				{
-					const std::_tstring l_args = L"\"" + l_autoUpdateUrl + L"\" " + l_autoUpdateHash;
-
-					::ShellExecute(0, L"open", l_tempExePath.c_str(), l_args.c_str(), NULL, SW_SHOWNORMAL);
-				}
-				else
-				{
-					this->MessageBox(L"Error copying to temp folder. Please make sure auto-update is not already running.", L"Error", MB_ICONSTOP);
-				}
-			}
+			::ShellExecute(0, _T("open"), l_auExePath.c_str(), l_args.c_str(), NULL, SW_SHOWNORMAL);
 		}
 	}
 	else if(l_result > 0)
