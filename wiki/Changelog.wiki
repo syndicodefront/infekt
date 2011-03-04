@@ -5,12 +5,13 @@
   * Added plugin selection list to the preferences
   * Fleshed out plugin interface
 
-== v0.7.8 (2011) ==
+== v0.7.8 (04 March 2011) ==
   * New: Making mouse movements while selecting text scroll the viewer window
   * Fixed issue 51 (Window going off-screen to the right)
   * Fixed issue 49 (Window not being brought to the front in single-instance mode)
   * Fixed "Highlight hyper links" setting not being respected in Rendered View
   * Enhanced support for more broken Unicode NFO files
+  * Implemented auto-update functionality so when the next release is due, you'll (hopefully) be able to update iNFekt with very few clicks.
   * Updated cairo (1.10.2) and PCRE (8.12)
   * Misc code changes in preparation of Linux/GTK+ and Mac OS versions
 
