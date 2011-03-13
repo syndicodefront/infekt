@@ -1,5 +1,3 @@
-cmake_minimum_required (VERSION 2.6)
-project (INFEKT)
 
 include (FindPkgConfig)
 include (CheckIncludeFile)
@@ -21,10 +19,5 @@ endif (NOT PCRE_LIBRARY)
 
 set (LIBS ${LIBS} pcre)
 
-#CHECK_INCLUDE_FILE (pcre.h PCRE_HEADER)
-#message (STATUS "test ${PCRE_LIBRARY} ${PCRE_HEADER} ${LIBS}")
-#include_directories (PCRE_HEADER)
-
 add_subdirectory (console)
 add_subdirectory (gtk)
-

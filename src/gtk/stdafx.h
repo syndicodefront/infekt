@@ -12,6 +12,7 @@
  * GNU General Public License for more details.
  **/
 
+#include "infekt-build-conf.h"
 #include "infekt-posix.h"
 
 #include <stdio.h>

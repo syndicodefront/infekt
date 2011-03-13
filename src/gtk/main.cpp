@@ -27,7 +27,7 @@ int main (int argc, char* argv[])
 	Glib::RefPtr<Gtk::Builder> refBuilder = Gtk::Builder::create();
 
 	// ...from our XML file:
-	refBuilder->add_from_file("infektwindowdata.glade");
+	refBuilder->add_from_file(_PREFIX_ "/share/infekt/infektwindowdata.glade");
 
 	CMainWindow* pMainWindow = NULL;
 	refBuilder->get_widget_derived("wndMain", pMainWindow);
