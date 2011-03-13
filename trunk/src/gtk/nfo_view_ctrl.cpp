@@ -72,12 +72,16 @@ void CGtkNfoViewCtrl::SwitchView(ENfoViewMode a_newMode)
 
 	if(!l_pRenderer->HasNfoData() && m_pNfo)
 	{
+		// when switching to a view for the first time, load the NFO into the correct renderer.
+
 		if(m_mode != NFO_VIEW_TEXTONLY)
 		{
 			l_pRenderer->AssignNFO(m_pNfo);
 		}
 		else
 		{
+			// generate text-only data
+
 			const std::string l_stripped = CNFOData::GetStrippedTextUtf8(m_pNfo->GetTextWide());
 			m_pNfoTextOnly = new CNFOData();
 			m_pNfoTextOnly->SetCharsetToTry(NFOC_UTF8);
