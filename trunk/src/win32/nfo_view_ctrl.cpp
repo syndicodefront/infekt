@@ -580,6 +580,11 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 				m_selEndCol = ++lc;
 			}
 
+			if(m_copyOnSelect)
+			{
+				CopySelectedTextToClipboard();
+			}
+
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 	}
