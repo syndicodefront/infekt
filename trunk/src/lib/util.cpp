@@ -35,12 +35,11 @@ string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePag
 	if(l_size)
 	{
 		char *l_buf = new char[l_size];
-		*l_buf = 0;
 
 		if(l_buf)
 		{
+			*l_buf = 0;
 			::WideCharToMultiByte(a_targetCodePage, 0, a_wideStr.c_str(), -1, l_buf, l_size, NULL, NULL);
-
 			string l_result(l_buf);
 			delete[] l_buf;
 			return l_result;
@@ -58,10 +57,10 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 	if(l_size)
 	{
 		wchar_t *l_buf = new wchar_t[l_size];
-		*l_buf = 0;
 
 		if(l_buf)
 		{
+			*l_buf = 0;
 			::MultiByteToWideChar(a_originCodePage, 0, a_str.c_str(), -1, l_buf, l_size);
 			wstring l_result(l_buf);
 			delete[] l_buf;
