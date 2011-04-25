@@ -14,9 +14,6 @@
 
 #include "stdafx.h"
 #include "util.h"
-#ifdef _WIN32
-#include <wininet.h>
-#endif
 
 using namespace std;
 
@@ -572,6 +569,7 @@ uint32_t CUtil::RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_defaul
 	return a_default;
 }
 
+
 int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 {
 	// Credit: Notepad2 by Florian Balmer (BSD License)
@@ -636,100 +634,6 @@ bool CUtil::TextToClipboard(HWND a_hwnd, const wstring& a_text)
 	}
 
 	return l_ok;
-}
-
-
-/************************************************************************/
-/* Internet/Network Helper Functions                                    */
-/************************************************************************/
-
-std::_tstring CUtil::DownloadHttpTextFile(const std::_tstring& a_url)
-{
-	int64_t uMaxLength = 100 * 1024;
-
-	HINTERNET hInet;
-	std::string sText;
-	BOOL bSuccess = TRUE;
-
-	hInet = InternetOpen(_T("DownloadHttpTextFile/1.0"), INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
-
-	if(hInet)
-	{
-		HINTERNET hRequest;
-		DWORD dwTimeOut = 5000;
-
-		InternetSetOption(hInet, INTERNET_OPTION_CONNECT_TIMEOUT, &dwTimeOut, sizeof(dwTimeOut));
-
-		DWORD dwFlags = INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_PRAGMA_NOCACHE |
-			INTERNET_FLAG_NO_COOKIES | INTERNET_FLAG_NO_AUTH;
-
-		if(a_url.find(L"https://") == 0)
-			dwFlags |= INTERNET_FLAG_SECURE;
-
-		hRequest = InternetOpenUrl(hInet, a_url.c_str(), NULL, 0, dwFlags, 0);
-
-		InternetSetOption(hRequest, INTERNET_OPTION_IGNORE_OFFLINE, NULL, 0);
-
-		if(hRequest)
-		{
-			int64_t uFileSize = 0;
-
-			if(true)
-			{
-				// get total file size from Content-Length HTTP header:
-				TCHAR szSizeBuffer[32];
-				DWORD dwLengthSizeBuffer = 32;
-
-				if(HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH, szSizeBuffer, &dwLengthSizeBuffer, NULL) == TRUE)
-				{
-					uFileSize = _tcstoi64(szSizeBuffer, NULL, 10);
-				}
-			}
-
-			if(uFileSize && uFileSize < uMaxLength)
-			{
-				char szBuffer[8192] = {0};
-				DWORD dwRead;
-
-				while(InternetReadFile(hRequest, szBuffer, 8191, &dwRead))
-				{
-					if(!dwRead || dwRead > 8191)
-					{
-						break;
-					}
-
-					if(lstrlenA(szBuffer) == dwRead)
-					{
-						sText += szBuffer;
-					}
-					else
-					{
-						// we got some binary stuff, but we don't want any.
-						bSuccess = FALSE;
-						break;
-					}
-				}
-			}
-
-			InternetCloseHandle(hRequest);
-		}
-
-		InternetCloseHandle(hInet);
-	}
-
-	if(bSuccess)
-	{
-#ifdef _UNICODE
-		// the contents better be UTF-8...
-		return CUtil::ToWideStr(sText, CP_UTF8);
-#else
-		return sText;
-#endif
-	}
-	else
-	{
-		return _T("");
-	}
 }
 
 #endif /* _WIN32_UI */

@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib cairo.lib Msimg32.lib pcred.lib shlwapi.lib Wininet.lib"
+				AdditionalDependencies="comctl32.lib cairo.lib Msimg32.lib pcred.lib shlwapi.lib uxtheme.lib winhttp.lib"
 				OutputFile="$(OutDir)\infekt-win32.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib cairo.lib Msimg32.lib pcred.lib shlwapi.lib Wininet.lib"
+				AdditionalDependencies="comctl32.lib cairo.lib Msimg32.lib pcred.lib shlwapi.lib uxtheme.lib winhttp.lib"
 				OutputFile="$(OutDir)\infekt-win64.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x64_debug"
@@ -225,7 +225,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib cairo.lib pcre.lib shlwapi.lib Wininet.lib"
+				AdditionalDependencies="comctl32.lib cairo.lib pcre.lib shlwapi.lib uxtheme.lib winhttp.lib"
 				OutputFile="$(OutDir)\infekt-win32.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
@@ -307,7 +307,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib cairo.lib pcre.lib shlwapi.lib Wininet.lib"
+				AdditionalDependencies="comctl32.lib cairo.lib pcre.lib shlwapi.lib uxtheme.lib winhttp.lib"
 				OutputFile="$(OutDir)\infekt-win64.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x64_release"
@@ -1114,6 +1114,42 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath="..\..\src\win32-support\win_http_client.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1186,6 +1222,10 @@
 			</File>
 			<File
 				RelativePath="..\..\src\lib\util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-support\win_http_client.h"
 				>
 			</File>
 		</Filter>
