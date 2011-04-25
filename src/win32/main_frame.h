@@ -16,6 +16,7 @@
 #define _MAIN_FRAME_H
 
 #include "main_view.h"
+#include "win_http_client.h"
 
 
 class CMainSettings
@@ -132,6 +133,7 @@ protected:
 	void AdjustWindowToNFOWidth();
 
 	void CheckForUpdates();
+	void CheckForUpdates_Callback(PWinHttpRequest a_req);
 
 	static const int ms_minWidth = 300, ms_minHeight = 150;
 	static const size_t ms_mruLength = 10;

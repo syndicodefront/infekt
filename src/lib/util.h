@@ -54,7 +54,6 @@ public:
 	static std::_tstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
 		const LPCTSTR a_defaultExt, const std::_tstring& a_currentFileName, const std::_tstring& a_initialPath = _T(""));
 
-	static std::_tstring DownloadHttpTextFile(const std::_tstring& a_url);
 	static void PopUpLastWin32Error();
 
 	static int StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz);

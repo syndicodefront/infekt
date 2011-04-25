@@ -1189,38 +1189,46 @@ const std::_tstring CMainFrame::InfektVersionAsString()
 
 void CMainFrame::CheckForUpdates()
 {
-	const _tstring l_url(_T("https://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki"));
-	const _tstring l_projectUrl(_T("http://infekt.googlecode.com/"));
+	PWinHttpClient l_client(new CWinHttpClient(GetApp()->GetInstanceHandle()));
+
+	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(L"https://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki",
+		boost::bind(&CMainFrame::CheckForUpdates_Callback, this, _1));
 
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
-	_tstring l_contents = CUtil::DownloadHttpTextFile(l_url);
+	l_client->StartRequest(l_req);
+}
+
+
+void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
+{
+	wstring l_contents = CUtil::ToWideStr(a_req->GetBufferContents(), CP_UTF8);
 	wstring l_serverVersion, l_newDownloadUrl, l_autoUpdateUrl, l_autoUpdateHash;
 
-	_tstring::size_type l_pos = l_contents.find(_T("{{{")), l_endPos, l_prevPos;
+	wstring::size_type l_pos = l_contents.find(L"{{{"), l_endPos, l_prevPos;
 
-	if(l_pos != _tstring::npos)
+	if(l_pos != wstring::npos)
 	{
 		l_pos += 3;
-		l_endPos = l_contents.find(_T("}}}"), l_pos);
+		l_endPos = l_contents.find(L"}}}", l_pos);
 
-		if(l_endPos != _tstring::npos)
+		if(l_endPos != wstring::npos)
 		{
-			map<const _tstring, _tstring> l_pairs;
+			map<const wstring, wstring> l_pairs;
 			l_contents = l_contents.substr(l_pos, l_endPos - l_pos);
 
 			l_prevPos = 0;
-			l_pos = l_contents.find(_T('\n'));
+			l_pos = l_contents.find(L'\n');
 
-			while(l_pos != _tstring::npos)
+			while(l_pos != wstring::npos)
 			{
-				_tstring l_line = l_contents.substr(l_prevPos, l_pos - l_prevPos);
-				_tstring::size_type l_equalPos = l_line.find(_T('='));
+				wstring l_line = l_contents.substr(l_prevPos, l_pos - l_prevPos);
+				wstring::size_type l_equalPos = l_line.find(L'=');
 
-				if(l_equalPos != _tstring::npos)
+				if(l_equalPos != wstring::npos)
 				{
-					_tstring l_left = l_line.substr(0, l_equalPos);
-					_tstring l_right = l_line.substr(l_equalPos + 1);
+					wstring l_left = l_line.substr(0, l_equalPos);
+					wstring l_right = l_line.substr(l_equalPos + 1);
 					CUtil::StrTrim(l_left);
 					CUtil::StrTrim(l_right);
 
@@ -1228,13 +1236,13 @@ void CMainFrame::CheckForUpdates()
 				}
 
 				l_prevPos = l_pos + 1;
-				l_pos = l_contents.find(_T('\n'), l_prevPos);
+				l_pos = l_contents.find(L'\n', l_prevPos);
 			}
 
-			l_serverVersion = l_pairs[_T("latest[stable].1")];
-			l_newDownloadUrl = l_pairs[_T("download_latest[stable].1")];
-			l_autoUpdateUrl = l_pairs[_T("autoupdate_download[stable].1/078")];
-			l_autoUpdateHash = l_pairs[_T("autoupdate_hash[stable].1/078")];
+			l_serverVersion = l_pairs[L"latest[stable].1"];
+			l_newDownloadUrl = l_pairs[L"download_latest[stable].1"];
+			l_autoUpdateUrl = l_pairs[L"autoupdate_download[stable].1/078"];
+			l_autoUpdateHash = l_pairs[L"autoupdate_hash[stable].1/078"];
 		}
 	}
 
@@ -1243,17 +1251,16 @@ void CMainFrame::CheckForUpdates()
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
 	bool l_validData = !l_serverVersion.empty() && ::PathIsURL(l_newDownloadUrl.c_str()) &&
-		(l_newDownloadUrl.find(_T("http://")) == 0 || l_newDownloadUrl.find(_T("https://")) == 0);
+		(l_newDownloadUrl.find(L"http://") == 0 || l_newDownloadUrl.find(L"https://") == 0);
 
 	if(!l_validData)
 	{
-		const _tstring l_msg = _T("Failed to contact infekt.googlecode.com to get the latest version's info. ")
-			_T("Please make sure you are connected to the internet and try again later.\n\nDo you want to visit ") +
-			l_projectUrl + _T(" now instead?");
+		const wstring l_msg = L"Failed to contact infekt.googlecode.com to get the latest version's info. "
+			L"Please make sure you are connected to the internet and try again later.\n\nDo you want to visit http://infekt.googlecode.com/ now instead?";
 
-		if(this->MessageBox(l_msg.c_str(), _T("Connection Problem"), MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
+		if(this->MessageBox(l_msg.c_str(), L"Connection Problem", MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
 		{
-			::ShellExecute(0, _T("open"), l_projectUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(0, L"open", L"http://infekt.googlecode.com/", NULL, NULL, SW_SHOWNORMAL);
 		}
 
 		return;
@@ -1263,30 +1270,30 @@ void CMainFrame::CheckForUpdates()
 
 	if(l_result == 0)
 	{
-		const _tstring l_msg = _T("You are using the latest stable version (") + InfektVersionAsString() + _T(")!");
-		this->MessageBox(l_msg.c_str(), _T("Nice."), MB_ICONINFORMATION);
+		const wstring l_msg = L"You are using the latest stable version (" + InfektVersionAsString() + L")!";
+		this->MessageBox(l_msg.c_str(), L"Nice.", MB_ICONINFORMATION);
 	}
 	else if(l_result < 0)
 	{
-		_tstring l_auExePath = CUtil::GetExeDir() + _T("\\infekt-win32-updater.exe");
+		wstring l_auExePath = CUtil::GetExeDir() + L"\\infekt-win32-updater.exe";
 		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) &&
 			!l_autoUpdateHash.empty() && !l_autoUpdateUrl.empty();
 
-		_tstring l_msg = _T("Attention! A new version is available (iNFekt v") + l_serverVersion + _T(")!\n\n");
+		wstring l_msg = L"Attention! A new version is available (iNFekt v" + l_serverVersion + L")!\n\n";
 
 		if(!l_auPossible)
 		{
 			// auto update has been disabled from this version or is not available for other reasons,
 			// use classic manual approach.
 
-			l_msg += _T("Auto-update is not possible. Do you want to go to the download page now?");
+			l_msg += L"Auto-update is not possible. Do you want to go to the download page now?";
 		}
 		else
 		{
-			l_msg += _T("Do you want to close iNFekt and install the new version now?");
+			l_msg += L"Do you want to close iNFekt and install the new version now?";
 		}
 
-		if(this->MessageBox(l_msg.c_str(), _T("New Version Found"), MB_ICONEXCLAMATION | MB_YESNO) != IDYES)
+		if(this->MessageBox(l_msg.c_str(), L"New Version Found", MB_ICONEXCLAMATION | MB_YESNO) != IDYES)
 		{
 			// update cancelled
 			return;
@@ -1295,7 +1302,7 @@ void CMainFrame::CheckForUpdates()
 		if(!l_auPossible)
 		{
 			// URL has been validated above.
-			::ShellExecute(0, _T("open"), l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(0, L"open", l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
 		}
 		else
 		{
@@ -1311,7 +1318,7 @@ void CMainFrame::CheckForUpdates()
 
 				if(::CopyFile(l_auExePath.c_str(), l_tempExePath.c_str(), FALSE))
 				{
-					const std::_tstring l_args = L"\"" + l_autoUpdateUrl + L"\" " + l_autoUpdateHash;
+					const std::wstring l_args = L"\"" + l_autoUpdateUrl + L"\" " + l_autoUpdateHash;
 
 					::ShellExecute(0, L"open", l_tempExePath.c_str(), l_args.c_str(), NULL, SW_SHOWNORMAL);
 				}
@@ -1324,8 +1331,8 @@ void CMainFrame::CheckForUpdates()
 	}
 	else if(l_result > 0)
 	{
-		this->MessageBox(_T("Looks like you compiled from source. Your version is newer than the latest stable one!"),
-			_T("Nice."), MB_ICONINFORMATION);
+		this->MessageBox(L"Looks like you compiled from source. Your version is newer than the latest stable one!",
+			L"Nice.", MB_ICONINFORMATION);
 	}
 }
 
