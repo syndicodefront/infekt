@@ -63,7 +63,7 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 	m_width = a_width;
 	m_height = a_height;
 
-	m_hwnd = ::CreateWindowEx(CThemeAPI::GetInstance()->IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
+	m_hwnd = ::CreateWindowEx(::IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
 		INFOBAR_CTRL_CLASS_NAME, NULL,
 		WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
@@ -126,7 +126,7 @@ LRESULT CInfektInfoBar::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SETCURSOR:
 		return CUtil::GenericOnSetCursor(m_cursor, lParam);
 	case WM_THEMECHANGED:
-		if(CThemeAPI::GetInstance()->IsThemeActive())
+		if(::IsThemeActive())
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
 		else
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);

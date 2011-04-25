@@ -75,7 +75,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	m_width = a_width;
 	m_height = a_height;
 
-	m_hwnd = ::CreateWindowEx(CThemeAPI::GetInstance()->IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
+	m_hwnd = ::CreateWindowEx(::IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
 		NFOVWR_CTRL_CLASS_NAME, NULL,
 		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
@@ -212,7 +212,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 #endif
 	case WM_THEMECHANGED:
-		if(CThemeAPI::GetInstance()->IsThemeActive())
+		if(::IsThemeActive())
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
 		else
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);

@@ -72,7 +72,7 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 	m_tabControl.AddTabPage(m_tabPageRendered, _T("Rendered View"));
 	m_tabControl.AddTabPage(m_tabPageClassic, _T("Classic View"));
 	m_tabControl.AddTabPage(m_tabPageTextOnly, _T("Text-Only View"));
-	//m_tabControl.AddTabPage(m_tabPagePlugins, _T("Plugins"));
+	m_tabControl.AddTabPage(m_tabPagePlugins, _T("Plugins"));
 
 	m_tabControl.SetItemSize(100, 20);
 	m_tabControl.SelectPage(0);
@@ -294,7 +294,6 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		const PMainSettings l_global = m_mainWin->GetSettings();
 
 		ComboBox_SetCurSel(l_hCb, (l_global->iDefaultView == -1 ? 0 : l_global->iDefaultView));
-		FixCommCtrls5ComboBug(l_hCb);
 
 		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, l_global->bAlwaysOnTop);
 		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, l_global->bAlwaysShowMenubar);
@@ -377,10 +376,7 @@ void CSettingsTabDialog::ViewSettingsToGui()
 		else
 		{
 			UpdateFontSizesCombo(m_viewSettings->uFontSize);
-			FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTSIZE_COMBO));
 		}
-
-		FixCommCtrls5ComboBug(GetDlgItem(IDC_FONTNAME_COMBO));
 	}
 }
 
@@ -1139,25 +1135,6 @@ bool CSettingsTabDialog::SaveSettings()
 
 	return false;
 }
-
-
-void CSettingsTabDialog::FixCommCtrls5ComboBug(HWND a_combo)
-{
-	if(CUtil::IsWin2000())
-	{
-		// work around Common Controls 5 problem...
-		RECT rc;
-		::GetWindowRect(a_combo, &rc);
-		POINT ptLT = { rc.left, rc.top }, ptRB = { rc.right, rc.bottom };
-		::ScreenToClient(m_hWnd, &ptLT);
-		::ScreenToClient(m_hWnd, &ptRB);
-		::MoveWindow(a_combo, ptLT.x, ptLT.y, ptRB.x - ptLT.x,
-			(ptRB.y - ptLT.y) * 5, TRUE);
-		// The window height includes the drop-down list, so it needs to be raised or
-		// no drop down list will show up. Pretty stupid.
-	}
-}
-
 
 static int CALLBACK _PluginSortCallback(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {

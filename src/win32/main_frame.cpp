@@ -226,7 +226,7 @@ void CMainFrame::SetupToolbar()
 	GetMenubar().SetMenu(::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_MENU)));
 
 	// always show grippers in classic themes:
-	RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !CThemeAPI::GetInstance()->IsThemeActive());
+	RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !::IsThemeActive());
 	RB.ShowGripper(RB.IDToIndex(IDW_MENUBAR), FALSE);
 
 	AddToolbarButtons();
@@ -873,7 +873,7 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break; // also invoke default
 	case WM_THEMECHANGED: {
 		CRebar& RB = GetRebar();
-		RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !CThemeAPI::GetInstance()->IsThemeActive());
+		RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !::IsThemeActive());
 		break; }
 	case WM_DESTROY:
 		::RevokeDragDrop(m_hWnd);
@@ -1269,7 +1269,7 @@ void CMainFrame::CheckForUpdates()
 	else if(l_result < 0)
 	{
 		_tstring l_auExePath = CUtil::GetExeDir() + _T("\\infekt-win32-updater.exe");
-		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) && !CUtil::IsWin2000() &&
+		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) &&
 			!l_autoUpdateHash.empty() && !l_autoUpdateUrl.empty();
 
 		_tstring l_msg = _T("Attention! A new version is available (iNFekt v") + l_serverVersion + _T(")!\n\n");

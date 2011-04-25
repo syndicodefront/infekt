@@ -62,12 +62,11 @@ public:
 #endif /* _WIN32_UI */
 
 #ifdef _WIN32
-	static bool IsWin2000();
 	static bool IsWinXP();
-	static bool IsWin5x();
 	static bool IsWin6x(bool a_orHigher = true);
 	static bool IsWinVista();
 	static bool IsWin7();
+	static bool IsWin8();
 	static bool IsWow64();
 
 	static std::_tstring GetExePath();
@@ -171,7 +170,7 @@ public:
 		if(this->SendMessage(CCM_GETVERSION, 0, 0) >= 6)
 		{
 			// adjust XP style background...
-			CThemeAPI::GetInstance()->EnableThemeDialogTexture(GetTabPageInfo(l_newIdx).pWnd->GetHwnd(), ETDT_ENABLETAB);
+			::EnableThemeDialogTexture(GetTabPageInfo(l_newIdx).pWnd->GetHwnd(), ETDT_ENABLETAB);
 		}
 
 		return l_newIdx;

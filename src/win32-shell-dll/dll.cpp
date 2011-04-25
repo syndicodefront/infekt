@@ -271,7 +271,7 @@ STDAPI DllRegisterServer()
 {
 	HRESULT hr;
 
-	if(!CUtil::IsWin5x() && !CUtil::IsWin6x())
+	if(!CUtil::IsWinXP() && !CUtil::IsWin6x())
 	{
 		return S_FALSE;
 	}

@@ -417,15 +417,6 @@ int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 		{
 			cairo_t *cr = cairo_create(l_surfaceOut);
 
-			// Windows 2000 doesn't like transparent backgrounds,
-			// so we make it solid.
-			if(CUtil::IsWin2000())
-			{
-				COLORREF l_clr = GetSysColor(COLOR_BTNFACE);
-				cairo_set_source_rgb(cr, GetRValue(l_clr) / 255.0, GetGValue(l_clr) / 255.0, GetBValue(l_clr) / 255.0);
-				cairo_paint(cr);
-			}
-
 			// copy PNG to bitmap surface:
 			cairo_set_source_surface(cr, l_surfacePng, 0, 0);
 			cairo_rectangle(cr, 0, 0, a_width, a_height);
@@ -852,22 +843,10 @@ bool CUtil::EnforceDEP()
 /* Windows OS Version Helper Functions                                  */
 /************************************************************************/
 
-bool CUtil::IsWin2000()
-{
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 0);
-}
-
 bool CUtil::IsWinXP()
 {
 	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
 	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1);
-}
-
-bool CUtil::IsWin5x()
-{
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 5);
 }
 
 bool CUtil::IsWin6x(bool a_orHigher)
@@ -898,6 +877,12 @@ bool CUtil::IsWin7()
 
 	return b;
 #endif
+}
+
+bool CUtil::IsWin8()
+{
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
+	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 2);
 }
 
 bool CUtil::IsWow64()

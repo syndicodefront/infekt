@@ -15,14 +15,9 @@
 #define WINVER			0x0600
 #define _WIN32_IE		0x0700
 #else
-#ifdef _TARGETVER_WINXP
+// Windows XP / Server 2003!
 #define WINVER			0x0501
 #define _WIN32_IE		0x0600
-#else
-// Windows 2000
-#define WINVER			0x0500
-#define _WIN32_IE		0x0600
-#endif
 #endif
 #endif
 

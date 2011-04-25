@@ -21,15 +21,9 @@ public:
 	static const CThemeAPI* GetInstance();
 	virtual ~CThemeAPI();
 
-	bool IsThemeActive() const;
-	HRESULT EnableThemeDialogTexture(HWND, DWORD) const;
-	HANDLE OpenThemeData(HWND, LPCWSTR) const;
-	HRESULT DrawThemeBackground(HANDLE, HDC, int, int, const RECT*, const RECT*) const;
-	HRESULT CloseThemeData(HANDLE) const;
 	bool DwmIsCompositionEnabled();
 
 protected:
-	HMODULE m_hUxTheme;
 	HMODULE m_hDwmApi;
 private:
 	CThemeAPI();
