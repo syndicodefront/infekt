@@ -19,7 +19,6 @@
 #include <winhttp.h>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 
@@ -56,6 +55,8 @@ public:
 	void SetBypassCache(bool b) { m_bypassCache = b; }
 	bool GetBypassCache() const { return m_bypassCache; }
 
+	// if nobody calls this, the data will be saved to a string buffer
+	// that can be retrieved via GetBufferContents().
 	void SetDownloadFilePath(const std::wstring& a_path) { m_downloadFilePath = a_path; }
 	std::wstring GetDownloadFilePath() const { return m_downloadFilePath; }
 
