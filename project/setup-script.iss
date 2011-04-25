@@ -22,6 +22,7 @@ WizardImageStretch=yes
 ChangesAssociations=yes
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
+MinVersion=0,5.1sp1
 AppMutex=iNFektNfoViewerOneInstanceMutex
 UninstallDisplayIcon={app}\infekt-win64.exe
 UninstallDisplayName=iNFekt NFO Viewer
