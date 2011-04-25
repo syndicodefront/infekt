@@ -112,9 +112,6 @@ protected:
 	void ReadBlockSize();
 	void DoPreview();
 
-	// methods for all tabs:
-	void FixCommCtrls5ComboBug(HWND a_combo);
-
 	// methods for the plugins tab:
 	void PopulatePluginList();
 
