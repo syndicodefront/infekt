@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib cairo.lib pcred.lib"
+				AdditionalDependencies="shlwapi.lib cairo.lib pcred.lib uxtheme.lib"
 				OutputFile="$(OutDir)\infekt-nfo-shell.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
@@ -141,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib cairo.lib pcred.lib"
+				AdditionalDependencies="shlwapi.lib cairo.lib pcred.lib uxtheme.lib"
 				OutputFile="$(OutDir)\infekt-nfo-shell.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x64_debug"
@@ -218,7 +218,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib cairo.lib pcre.lib"
+				AdditionalDependencies="shlwapi.lib cairo.lib pcre.lib uxtheme.lib"
 				OutputFile="$(OutDir)\infekt-nfo-shell.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
@@ -298,7 +298,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib cairo.lib pcre.lib"
+				AdditionalDependencies="shlwapi.lib cairo.lib pcre.lib uxtheme.lib"
 				OutputFile="$(OutDir)\infekt-nfo-shell.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="..\..\dependencies\lib_x64_release"

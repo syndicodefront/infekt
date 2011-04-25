@@ -67,14 +67,14 @@ BOOL CAboutDialog::OnInitDialog()
 	else
 		l_verStr += _T(" (32 bit)");
 #endif
-	if(CUtil::IsWin2000())
-		l_verStr += _T(" on Windows 2000");
-	else if(CUtil::IsWinXP())
+	if(CUtil::IsWinXP())
 		l_verStr += _T(" on Windows XP");
 	else if(CUtil::IsWinVista())
 		l_verStr += _T(" on Windows Vista");
 	else if(CUtil::IsWin7())
 		l_verStr += _T(" on Windows 7");
+	else if(CUtil::IsWin8())
+		l_verStr += _T(" on Windows 8");
 	// ignore server OSes (they'll show their desktop equivalent version)
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
@@ -92,18 +92,11 @@ BOOL CAboutDialog::OnInitDialog()
 	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2011"), l_top, 20);
 	l_top += 20;
 
-	if(CUtil::IsWin2000())
-	{
-		_CREATE_STATIC(l_hHomepage, _T("Project Homepage: http://infekt.googlecode.com/"), l_top, 20);
-	}
-	else
-	{
-		_CREATE_SYSLINK(l_hHomepage, _T("Project Homepage: <A HREF=\"http://infekt.googlecode.com/\">infekt.googlecode.com</A>"), l_top, 20);
-		m_linkCtrl = l_hHomepage;
-	}
+	_CREATE_SYSLINK(l_hHomepage, _T("Project Homepage: <A HREF=\"http://infekt.googlecode.com/\">infekt.googlecode.com</A>"), l_top, 20);
+	m_linkCtrl = l_hHomepage;
 	l_top += 20;
 
-	_CREATE_STATIC(l_hHomepage, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%02d"),
+	_CREATE_STATIC(l_hLibVersions, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%02d"),
 		CAIRO_VERSION_MAJOR % CAIRO_VERSION_MINOR % CAIRO_VERSION_MICRO %
 		PCRE_MAJOR % PCRE_MINOR), l_top, 20);
 	l_top += 20;

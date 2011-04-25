@@ -191,7 +191,7 @@ int CNFOApp::IsDefaultNfoViewer()
 {
 	int l_result = 0;
 
-	if(CUtil::IsWin5x())
+	if(CUtil::IsWinXP())
 	{
 		CWin5xDefaultApp l_defApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 
@@ -226,7 +226,7 @@ bool CNFOApp::MakeDefaultNfoViewer()
 {
 	CWinDefaultApp* l_defApp = NULL;
 
-	if(CUtil::IsWin5x())
+	if(CUtil::IsWinXP())
 	{
 		l_defApp = new (std::nothrow) CWin5xDefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 	}

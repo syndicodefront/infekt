@@ -19,6 +19,7 @@
 
 #include <windows.h>
 #include <windowsx.h>
+#include <Uxtheme.h>
 #include <tchar.h>
 #include <objbase.h>
 #include <thumbcache.h>
