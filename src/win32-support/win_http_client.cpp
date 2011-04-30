@@ -147,7 +147,7 @@ CWinHttpRequest::CWinHttpRequest(int a_reqId, boost::shared_ptr<CWinHttpClient>&
 	m_hSession = ::WinHttpOpen(l_userAgent.c_str(),
 		WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
 		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS,
-		WINHTTP_FLAG_ASYNC);
+		0);
 
 	_ASSERT(m_hSession != NULL);
 
