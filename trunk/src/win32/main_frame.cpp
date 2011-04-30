@@ -1194,8 +1194,7 @@ void CMainFrame::CheckForUpdates()
 	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(L"https://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki",
 		boost::bind(&CMainFrame::CheckForUpdates_Callback, this, _1));
 
-	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
-
+	l_req->SetBypassCache(true);
 	l_client->StartRequest(l_req);
 }
 
@@ -1247,8 +1246,6 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 	}
 
 	l_contents.clear();
-
-	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
 	bool l_validData = !l_serverVersion.empty() && ::PathIsURL(l_newDownloadUrl.c_str()) &&
 		(l_newDownloadUrl.find(L"http://") == 0 || l_newDownloadUrl.find(L"https://") == 0);

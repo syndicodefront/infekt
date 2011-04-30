@@ -27,6 +27,7 @@ CViewContainer::CViewContainer()
 	m_resized = true;
 	m_curViewType = _MAIN_VIEW_MAX;
 	m_showInfoBar = true;
+	m_cursor = IDC_ARROW;
 
 	m_infoBarHeight = 200;
 	m_infoBarResizing = false;
