@@ -238,7 +238,57 @@ RunRequest_Cleanup:
 
 void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, int64_t a_contentLength)
 {
-	//m_downloadSucceeded = true;
+	FILE *fFile = NULL;
+
+	if(_wfopen_s(&fFile, m_downloadFilePath.c_str(), L"wb") != 0)
+	{
+		return;
+	}
+
+	DWORD l_available, l_read;
+	bool l_gotEof = false;
+
+	do
+	{
+		l_available = 0;
+
+		if(!::WinHttpQueryDataAvailable(hRequest, &l_available))
+			break;
+
+		if(!l_available)
+		{
+			l_gotEof = true;
+			break;
+		}
+
+		boost::shared_ptr<char> l_chunk(new char[l_available + 1]);
+		ZeroMemory(l_chunk.get(), l_available + 1);
+
+		if(!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
+			break;
+
+		if(l_read == 0)
+		{
+			l_gotEof = true;
+			break;
+		}
+
+		if(fwrite(l_chunk.get(), l_read, 1, fFile) != 1)
+		{
+			break;
+		}
+	} while(l_available > 0);
+
+	fclose(fFile);
+
+	if(l_gotEof)
+	{
+		m_downloadSucceeded = true;
+	}
+	else
+	{
+		::DeleteFile(m_downloadFilePath.c_str());
+	}
 }
 
 
@@ -271,14 +321,10 @@ void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, int64_t a_contentLeng
 			break;
 		}
 
-		char *l_chunk = new char[l_available + 1];
+		boost::shared_ptr<char> l_chunk(new char[l_available + 1]);
+		ZeroMemory(l_chunk.get(), l_available + 1);
 
-		if(!l_chunk)
-			break;
-
-		ZeroMemory(l_chunk, l_available + 1);
-
-		if(!::WinHttpReadData(hRequest, l_chunk, l_available, &l_read))
+		if(!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
 			break;
 
 		if(l_read == 0)
@@ -287,9 +333,9 @@ void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, int64_t a_contentLeng
 			break;
 		}
 
-		if(lstrlenA(l_chunk) == l_read)
+		if(lstrlenA(l_chunk.get()) == l_read)
 		{
-			l_buf += l_chunk;
+			l_buf += l_chunk.get();
 		}
 		else
 		{
@@ -297,7 +343,7 @@ void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, int64_t a_contentLeng
 			break;
 		}
 
-	} while (l_available > 0);
+	} while(l_available > 0);
 
 	if(l_gotEof)
 	{
