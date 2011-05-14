@@ -45,6 +45,8 @@ public:
 	virtual ~CWinHttpRequest();
 
 	int GetReqId() const { return m_reqId; }
+	void Cancel() { m_cancel = true; }
+	bool Cancelled() const { return m_cancel; }
 
 	void SetUrl(const std::wstring& a_url) { m_url = a_url; }
 	std::wstring GetUrl() const { return m_url; }
@@ -77,6 +79,7 @@ private:
 
 	HINTERNET m_hSession;
 	bool m_doingStuff;
+	bool m_cancel;
 
 	std::wstring m_url;
 	WinHttpRequestCallback m_callback;
@@ -85,6 +88,7 @@ private:
 
 	bool m_downloadSucceeded;
 
+	// buffer for non-file mode:
 	std::string m_buffer;
 	size_t m_maxBuffer;
 
@@ -106,12 +110,18 @@ public:
 	CWinHttpClient(HINSTANCE a_hInstance);
 	virtual ~CWinHttpClient();
 
+	// use this to change the default user agent string:
 	void SetUserAgent(const std::wstring& a_newAgent) { m_userAgent = a_newAgent; }
 	std::wstring GetUserAgent() const { return m_userAgent; }
 
 	PWinHttpRequest CreateRequest();
+	// creates a request that will download a text file to an in-memory buffer.
+	// will cancel/fail if the file contains \0 bytes (i.e. if it is a binary file),
+	// or if it exceeds 1 MB.
 	PWinHttpRequest CreateRequestForTextFile(const std::wstring& a_url, WinHttpRequestCallback a_callback);
 
+	// fires off the request then returns immediately.
+	// the callback will be invoked asynchronously.
 	bool StartRequest(PWinHttpRequest& a_req);
 
 protected:
@@ -119,7 +129,6 @@ protected:
 	std::map<int, PWinHttpRequest> m_requests;
 
 	std::wstring m_userAgent;
-	WinHttpRequestCallback m_callback;
 
 	// use a window in the thread that created this instance. we need
 	// the window to receive synchronized(!) callbacks from our worker

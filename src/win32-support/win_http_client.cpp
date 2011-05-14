@@ -132,13 +132,37 @@ CWinHttpClient::~CWinHttpClient()
 
 
 /************************************************************************/
+/* Helper: auto-freeing RAII buffer                                     */
+/************************************************************************/
+
+template<typename T> class CAutoFreeBuffer
+{
+public:
+	CAutoFreeBuffer(size_t a_bufSize)
+	{
+		m_buf = new T[a_bufSize];
+		memset(m_buf, 0, a_bufSize);
+	}
+
+	virtual ~CAutoFreeBuffer()
+	{
+		delete[] m_buf;
+	}
+
+	T* get() { return m_buf; }
+private:
+	T* m_buf;
+};
+
+
+/************************************************************************/
 /* CWinHttpRequest implementation                                       */
 /************************************************************************/
 
 CWinHttpRequest::CWinHttpRequest(int a_reqId, boost::shared_ptr<CWinHttpClient>& a_owner)
 	: m_reqId(a_reqId), m_owner(a_owner), m_doingStuff(0),
 	m_bypassCache(false), m_maxBuffer(1024 * 1024),
-	m_downloadSucceeded(false)
+	m_downloadSucceeded(false), m_cancel(false)
 {
 	_ASSERT(::WinHttpCheckPlatform());
 
@@ -169,6 +193,7 @@ void CWinHttpRequest::_RunRequest()
 	HINTERNET hConnect = NULL, hRequest = NULL;
 
 	m_doingStuff = true;
+	m_cancel = false;
 
 	m_downloadSucceeded = false;
 
@@ -191,7 +216,7 @@ void CWinHttpRequest::_RunRequest()
 
 	// set up request handle:
 	hRequest = ::WinHttpOpenRequest(hConnect, L"GET", l_urlPath.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
-		(m_bypassCache ? WINHTTP_FLAG_REFRESH : 0) | (!wcscmp(l_urlScheme.c_str(), L"https") ? WINHTTP_FLAG_SECURE : 0));
+		(m_bypassCache ? WINHTTP_FLAG_REFRESH : 0) | (!_wcsicmp(l_urlScheme.c_str(), L"https") ? WINHTTP_FLAG_SECURE : 0));
 	if(!hRequest)
 		goto RunRequest_Cleanup;
 
@@ -202,7 +227,6 @@ void CWinHttpRequest::_RunRequest()
 		int64_t l_fileSize = 0;
 
 		// get file size from content-length header:
-		if(true)
 		{
 			wchar_t szSizeBuffer[32];
 			DWORD dwLengthSizeBuffer = 32;
@@ -261,8 +285,7 @@ void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, int64_t a_contentLength
 			break;
 		}
 
-		boost::shared_ptr<char> l_chunk(new char[l_available + 1]);
-		ZeroMemory(l_chunk.get(), l_available + 1);
+		CAutoFreeBuffer<char> l_chunk(l_available + 1);
 
 		if(!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
 			break;
@@ -277,11 +300,11 @@ void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, int64_t a_contentLength
 		{
 			break;
 		}
-	} while(l_available > 0);
+	} while(l_available > 0 && !m_cancel);
 
 	fclose(fFile);
 
-	if(l_gotEof)
+	if(l_gotEof && !m_cancel)
 	{
 		m_downloadSucceeded = true;
 	}
@@ -321,8 +344,7 @@ void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, int64_t a_contentLeng
 			break;
 		}
 
-		boost::shared_ptr<char> l_chunk(new char[l_available + 1]);
-		ZeroMemory(l_chunk.get(), l_available + 1);
+		CAutoFreeBuffer<char> l_chunk(l_available + 1);
 
 		if(!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
 			break;
@@ -343,7 +365,7 @@ void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, int64_t a_contentLeng
 			break;
 		}
 
-	} while(l_available > 0);
+	} while(l_available > 0 && !m_cancel);
 
 	if(l_gotEof)
 	{
