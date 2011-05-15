@@ -61,9 +61,11 @@ copy %PDIR%\pcre.h.generic %BDIR%\pcre.h
 
 cd %PDIR%
 sed "s/@pcre_have_type_traits@/0/" pcre_stringpiece.h.in > .temp
-sed "s/@pcre_have_bits_type_traits@/1/" .temp > %BDIR%\pcre_stringpiece.h
+sed "s/@pcre_have_bits_type_traits@/0/" .temp > %BDIR%\pcre_stringpiece.h
 
-cat %BDIR%\config-win32.inc %PDIR%\config.h.generic > %BDIR%\config.h
+sed "s/@pcre_have_u\?long_long@/1/" pcrecpparg.h.in > pcrecpparg.h
+
+cat %BDIR%\config-win32-head.inc %PDIR%\config.h.generic %BDIR%\config-win32-tail.inc > %BDIR%\config.h
 
 REM Build dftables
 cd %BDIR%
