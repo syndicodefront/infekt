@@ -30,8 +30,9 @@ public:
 	virtual BOOL InitInstance();
 
 	CMainFrame& GetMainFrame() { return m_frame; }
-	const std::_tstring& GetStartupFilePath() { return m_startupFilePath; }
+	const std::_tstring& GetStartupFilePath() const { return m_startupFilePath; }
 	PSettingsBackend GetSettingsBackend() { return m_settings; }
+	bool InPortableMode() const { return m_portableMode; }
 
 	bool ExtractStartupFilePath(const std::_tstring& a_commandLine);
 	bool SwitchToPrevInstance();
@@ -43,6 +44,7 @@ protected:
 	CMainFrame m_frame;
 	std::_tstring m_startupFilePath;
 	PSettingsBackend m_settings;
+	bool m_portableMode;
 };
 
 extern HINSTANCE g_hInstance;

@@ -89,10 +89,14 @@ CNFOApp::CNFOApp()
 	if(!PathFileExists(l_iniPath.c_str()))
 	{
 		m_settings = PSettingsBackend(new CRegistrySettingsBackend(L"Software\\cxxjoe\\iNFEKT\\"));
+
+		m_portableMode = false;
 	}
 	else
 	{
 		m_settings = PSettingsBackend(new CINISettingsBackend(l_iniPath));
+
+		m_portableMode = true;
 	}
 }
 
