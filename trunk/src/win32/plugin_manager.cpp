@@ -63,8 +63,8 @@ bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
 	}
 
 	long l_pluginVerInfo = l_fPluginVersion();
-	WORD l_pluginMinVer = HIWORD(l_pluginVerInfo);
 	WORD l_pluginHeaderVer = LOWORD(l_pluginVerInfo);
+	WORD l_pluginMinVer = HIWORD(l_pluginVerInfo);
 
 	if(l_pluginMinVer > INFEKT_PLUGIN_H_VERSION)
 	{
@@ -316,6 +316,17 @@ long CLoadedPlugin::TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_even
 	}
 
 	return _IPE_NOT_IMPLEMENTED_INTERNAL;
+}
+
+
+PWinHttpClient CLoadedPlugin::GetHttpClient()
+{
+	if(!m_httpClient)
+	{
+		m_httpClient = PWinHttpClient(new CWinHttpClient(GetApp()->GetInstanceHandle()));
+	}
+
+	return m_httpClient;
 }
 
 

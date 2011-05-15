@@ -49,6 +49,8 @@ typedef enum {
 	IPCI_INFOBAR_ANNOUNCE,
 	IPCI_INFOBAR_CREATE,
 
+	IPCI_HTTP_REQUEST,
+
 	_IPCI_MAX
 } infektPluginCallId;
 
@@ -81,6 +83,9 @@ typedef enum {
 	// (if they also sent IPCI_INFOBAR_ANNOUNCE):
 	IPV_INFOBAR_REQUEST,
 
+	// sent in response to IPCI_HTTP_REQUEST:
+	IPV_HTTP_RESULT,
+
 	_IPV_MAX
 } infektPluginEventId;
 
@@ -101,7 +106,9 @@ typedef enum {
 	IPE_TOO_LARGE,
 	IPE_ALREADY,
 	IPE_NOT_FOUND,
+	IPE_INVALIDPARAM,
 	IPE_NULLCALLBACK,
+	IPE_INTERNAL_PROBLEM,
 	IPE_STOP,
 
 	_IPE_MAX
@@ -152,6 +159,26 @@ struct infekt_nfo_link_t {
 	size_t row;
 	size_t colStart;
 	size_t colEnd;
+};
+
+
+struct infekt_http_request_t {
+	size_t _uSize;
+
+	const wchar_t* url;
+	bool bypassCache;
+	const wchar_t* downloadToFileName;
+	infektPluginMethod callback;
+};
+
+
+struct infekt_http_result_t {
+	size_t _uSize;
+
+	int requestId;
+	bool success;
+	const char* textBuffer;
+	const wchar_t* downloadFileName;
 };
 
 

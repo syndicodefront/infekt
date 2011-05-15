@@ -17,6 +17,7 @@
 
 #include "infekt-plugin.h"
 #include "app.h"
+#include "win_http_client.h"
 
 
 enum EPluginReg
@@ -47,6 +48,8 @@ public:
 	long RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback);
 
 	long TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam);
+
+	PWinHttpClient GetHttpClient();
 protected:
 	HMODULE m_hModule;
 	std::_tstring m_dllPath;
@@ -64,6 +67,8 @@ protected:
 
 	typedef std::map<EPluginReg, reg_event_data> TMRegData;
 	TMRegData m_activeRegs;
+
+	PWinHttpClient m_httpClient;
 };
 
 typedef boost::shared_ptr<CLoadedPlugin> PLoadedPlugin;
@@ -110,6 +115,7 @@ protected:
 	long DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8);
 	long DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser);
 	long DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData);
+	long DoHttpRequest(const std::string& a_guid, const infekt_http_request_t* a_pReq, void* a_pUser);
 
 	// core -> plugin stuff:
 	void TriggerRegEvents(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam);
