@@ -162,7 +162,8 @@ private:
 CWinHttpRequest::CWinHttpRequest(int a_reqId, boost::shared_ptr<CWinHttpClient>& a_owner)
 	: m_reqId(a_reqId), m_owner(a_owner), m_doingStuff(0),
 	m_bypassCache(false), m_maxBuffer(1024 * 1024),
-	m_downloadSucceeded(false), m_cancel(false)
+	m_downloadSucceeded(false), m_cancel(false),
+	m_httpStatusCode(0)
 {
 	_ASSERT(::WinHttpCheckPlatform());
 
@@ -228,13 +229,25 @@ void CWinHttpRequest::_RunRequest()
 
 		// get file size from content-length header:
 		{
-			wchar_t szSizeBuffer[32];
+			wchar_t szSizeBuffer[33] = {0};
 			DWORD dwLengthSizeBuffer = 32;
 
 			if(::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH, WINHTTP_HEADER_NAME_BY_INDEX,
 				szSizeBuffer, &dwLengthSizeBuffer, WINHTTP_NO_HEADER_INDEX))
 			{
 				l_fileSize = _wcstoi64(szSizeBuffer, NULL, 10);
+			}
+		}
+
+		// get response status code...
+		{
+			DWORD dwStatusCode = 0;
+			DWORD dwStatusCodeBufSize = sizeof(DWORD);
+
+			if(::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, 0,
+				&dwStatusCode, &dwStatusCodeBufSize, WINHTTP_NO_HEADER_INDEX))
+			{
+				m_httpStatusCode = static_cast<int>(dwStatusCode);
 			}
 		}
 
