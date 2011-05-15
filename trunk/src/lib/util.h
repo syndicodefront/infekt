@@ -48,8 +48,7 @@ public:
 		const std::string& a_replacement, int a_flags = 0);
 
 #ifdef _WIN32_UI
-	static int AddPngToImageList(HIMAGELIST a_imgList,
-		HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
+	static int AddPngToImageList(HIMAGELIST a_imgList, HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
 	static std::_tstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec);
 	static std::_tstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
 		const LPCTSTR a_defaultExt, const std::_tstring& a_currentFileName, const std::_tstring& a_initialPath = _T(""));
@@ -71,10 +70,10 @@ public:
 	static std::_tstring GetExePath();
 	static std::_tstring GetExeDir();
 	static std::_tstring PathRemoveFileSpec(const std::_tstring& a_path);
+	static std::_tstring PathRemoveExtension(const std::_tstring& a_path);
 	static HMODULE SilentLoadLibrary(const std::_tstring& a_path);
 	static bool TextToClipboard(HWND a_hwnd, const std::wstring& a_text);
 
-	static uint32_t RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default = 0);
 	static bool RemoveCwdFromDllSearchPath();
 	static bool HardenHeap();
 	static bool EnforceDEP();
