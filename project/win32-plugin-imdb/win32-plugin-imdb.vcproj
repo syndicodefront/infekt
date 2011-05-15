@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\src\win32-support;..\..\src\plugin"
+				AdditionalIncludeDirectories=".;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,86 +64,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="pcred.lib shlwapi.lib"
 				OutputFile="$(OutDir)\plugins\imdb.dll"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_debug"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)\..\build-out\$(ConfigurationName)"
-			IntermediateDirectory="$(SolutionDir)\..\build-out\temp\$(ProjectName)-$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".;..\..\src\win32-support;..\..\src\plugin"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				OutputFile="$(OutDir)\plugins\imdb.dll"
-				LinkIncremental="1"
-				GenerateDebugInformation="false"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -194,7 +120,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".;..\..\src\win32-support;..\..\src\plugin"
+				AdditionalIncludeDirectories=".;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -214,11 +140,91 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="pcred.lib shlwapi.lib"
 				OutputFile="$(OutDir)\plugins\imdb.dll"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\..\dependencies\lib_x64_debug"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)\..\build-out\$(ConfigurationName)"
+			IntermediateDirectory="$(SolutionDir)\..\build-out\temp\$(ProjectName)-$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories=".;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="pcre.lib shlwapi.lib"
+				OutputFile="$(OutDir)\plugins\imdb.dll"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\dependencies\lib_x86_release"
+				GenerateDebugInformation="false"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -270,7 +276,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".;..\..\src\win32-support;..\..\src\plugin"
+				AdditionalIncludeDirectories=".;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -289,8 +295,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="pcre.lib shlwapi.lib"
 				OutputFile="$(OutDir)\plugins\imdb.dll"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="..\..\dependencies\lib_x64_release"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -329,11 +337,27 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\src\lib\basic_xml.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-plugin-imdb\content_scraper.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\win32-plugin-imdb\imdb.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\win32-plugin-imdb\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-plugin-imdb\stdafx.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\lib\util.cpp"
 				>
 			</File>
 		</Filter>
@@ -343,7 +367,19 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\..\src\lib\basic_xml.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-plugin-imdb\content_scraper.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\win32-plugin-imdb\imdb-plugin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\win32-plugin-imdb\stdafx.h"
 				>
 			</File>
 		</Filter>

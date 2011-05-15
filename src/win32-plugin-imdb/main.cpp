@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  **/
 
-#include "imdb-plugin.h"
+#include "stdafx.h"
 
 static CImdbPlugin* s_pPlugin = NULL;
 
