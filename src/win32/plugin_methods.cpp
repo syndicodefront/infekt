@@ -44,6 +44,9 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long l
 		return DoRegister(szGuid, false, REG_SETTINGS_EVENTS, pParam, pUser);
 	case IPCI_UNREGISTER_SETTINGS_EVENTS:
 		return DoRegister(szGuid, true, REG_SETTINGS_EVENTS, pParam, pUser);
+
+	case IPCI_HTTP_REQUEST:
+		return DoHttpRequest(szGuid, static_cast<infekt_http_request_t*>(pParam), pUser);
 	}
 
 	return IPE_NOT_IMPLEMENTED;
@@ -61,7 +64,7 @@ long CPluginManager::DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8)
 
 	size_t l_bufSize = (a_utf8 ?
 		l_nfoData->GetTextUtf8().size() + 1 :
-	l_nfoData->GetTextWide().size() + 1);
+		l_nfoData->GetTextWide().size() + 1);
 
 	if(l_bufSize > (size_t)std::numeric_limits<long>::max())
 	{
@@ -79,7 +82,7 @@ long CPluginManager::DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8)
 	{
 		// copy shit to buffer
 
-		if(a_bufLen < (long)l_bufSize)
+		if(a_bufLen < static_cast<long>(l_bufSize))
 		{
 			return IPE_BUF_TOO_SMALL;
 		}
@@ -167,3 +170,64 @@ long CPluginManager::DoRegister(const std::string& a_guid, bool a_unregister, EP
 	}
 }
 
+
+static void _DoHttpRequest_Callback(PWinHttpRequest a_req, infektPluginMethod a_callback, void* a_pUser)
+{
+	_ASSERTE(a_callback);
+
+
+	infektDeclareStruct(infekt_http_result_t, l_res);
+	l_res.requestId = a_req->GetReqId();
+
+	if(a_req->DidDownloadSucceed())
+	{
+		if(!a_req->GetDownloadFilePath().empty())
+		{
+			l_res.downloadFileName = a_req->GetDownloadFilePath().c_str();
+		}
+		else
+		{
+			l_res.textBuffer = a_req->GetBufferContents().c_str();
+		}
+
+		l_res.success = true;
+	}
+
+	a_callback("", 0, IPV_HTTP_RESULT, a_req->GetStatusCode(), &l_res, a_pUser);
+}
+
+long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_request_t* a_pReq, void* a_pUser)
+{
+	TMGuidPlugins::iterator l_find = m_loadedPlugins.find(a_guid);
+	if(l_find == m_loadedPlugins.end()) return IPE_NO_FILE;
+	PLoadedPlugin l_plugin = l_find->second;
+
+	if(!a_pReq || !a_pReq->url)
+	{
+		return IPE_INVALIDPARAM;
+	}
+	else if(!a_pReq->callback)
+	{
+		return IPE_NULLCALLBACK;
+	}
+
+	PWinHttpRequest l_req = l_plugin->GetHttpClient()->CreateRequest();
+
+	if(a_pReq->downloadToFileName)
+	{
+		l_req->SetDownloadFilePath(a_pReq->downloadToFileName);
+	}
+
+	l_req->SetBypassCache(a_pReq->bypassCache);
+
+	l_req->SetCallback(boost::bind(&_DoHttpRequest_Callback, _1, a_pReq->callback, a_pUser));
+
+	if(l_plugin->GetHttpClient()->StartRequest(l_req))
+	{
+		return l_req->GetReqId();
+	}
+	else
+	{
+		return IPE_INTERNAL_PROBLEM;
+	}
+}
