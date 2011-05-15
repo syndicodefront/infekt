@@ -934,12 +934,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 		return;
 	}
 
-	_tstring l_baseFileName = m_view.GetNfoData()->GetFileName();
-	TCHAR* l_buf = new TCHAR[l_baseFileName.size() + 1];
-	_tcscpy_s(l_buf, l_baseFileName.size() + 1, l_baseFileName.c_str());
-	PathRemoveExtension(l_buf);
-	l_baseFileName = l_buf;
-	delete[] l_buf;
+	_tstring l_baseFileName = CUtil::PathRemoveExtension(m_view.GetNfoData()->GetFileName());
 
 	_tstring l_defaultPath;
 	if(m_settings->bDefaultExportToNFODir)
@@ -1051,7 +1046,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
 			l_html += l_exporter.GetHTML();
 
-			string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
+			const string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
 
 			FILE* l_file;
 			if(_tfopen_s(&l_file, l_filePath.c_str(), _T("wb")) == 0 && l_file)

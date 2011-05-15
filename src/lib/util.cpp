@@ -554,19 +554,19 @@ std::_tstring CUtil::PathRemoveFileSpec(const std::_tstring& a_path)
 }
 
 
-uint32_t CUtil::RegQueryDword(HKEY a_key, const LPTSTR a_name, uint32_t a_default)
+std::_tstring CUtil::PathRemoveExtension(const std::_tstring& a_path)
 {
-	DWORD l_dwType;
-	uint32_t l_dwBuf = 0;
-	DWORD l_dwBufSz = sizeof(uint32_t);
+	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
+	memset(l_buf, 0, a_path.size() + 1);
 
-	if(RegQueryValueEx(a_key, a_name, NULL, &l_dwType,
-		(LPBYTE)&l_dwBuf, &l_dwBufSz) == ERROR_SUCCESS && l_dwType == REG_DWORD)
-	{
-		return l_dwBuf;
-	}
+	_tcscpy_s(l_buf, a_path.size() + 1, a_path.c_str());
 
-	return a_default;
+	::PathRemoveExtension(l_buf);
+
+	std::_tstring l_result(l_buf);
+	delete[] l_buf;
+
+	return l_result;
 }
 
 
