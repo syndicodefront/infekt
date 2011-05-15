@@ -187,6 +187,48 @@ void CUtil::StrTrim(wstring& a_str, const wstring a_chars) { StrTrimLeft(a_str, 
 
 
 /************************************************************************/
+/* Str Replace                                                          */
+/************************************************************************/
+
+template<typename T> static T _StrReplace(const T& a_find, const T& a_replace, const T& a_input)
+{
+	T::size_type l_pos = a_input.find(a_find), l_prevPos = 0;
+	T l_new;
+
+	while(l_pos != T::npos)
+	{
+		l_new.append(a_input.substr(l_prevPos, l_pos - l_prevPos));
+
+		l_new.append(a_replace);
+
+		l_prevPos = l_pos + a_find.size();
+		l_pos = a_input.find(a_find, l_prevPos);
+	}
+
+	if(l_prevPos == 0)
+	{
+		return a_input;
+	}
+	else
+	{
+		l_new.append(a_input.substr(l_prevPos));
+
+		return l_new;
+	}
+}
+
+std::string CUtil::StrReplace(const std::string& a_find, const std::string& a_replace, const std::string& a_input)
+{
+	return _StrReplace<std::string>(a_find, a_replace, a_input);
+}
+
+std::wstring CUtil::StrReplace(const std::wstring& a_find, const std::wstring& a_replace, const std::wstring& a_input)
+{
+	return _StrReplace<std::wstring>(a_find, a_replace, a_input);
+}
+
+
+/************************************************************************/
 /* Reg Ex Utils                                                         */
 /************************************************************************/
 
@@ -293,15 +335,15 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 /* Misc                                                                 */
 /************************************************************************/
 
-static inline void _ParseVersionNumber(const _tstring& vs, vector<int>* ret)
+static inline void _ParseVersionNumber(const wstring& vs, vector<int>* ret)
 {
-	_tstring l_buf;
+	wstring l_buf;
 
-	for(_tstring::size_type p = 0; p < vs.size(); p++)
+	for(wstring::size_type p = 0; p < vs.size(); p++)
 	{
-		if(vs[p] == _T('.'))
+		if(vs[p] == L'.')
 		{
-			ret->push_back(_tstoi(l_buf.c_str()));
+			ret->push_back(_wtoi(l_buf.c_str()));
 			l_buf.clear();
 		}
 		else
@@ -312,7 +354,7 @@ static inline void _ParseVersionNumber(const _tstring& vs, vector<int>* ret)
 
 	if(!l_buf.empty())
 	{
-		ret->push_back(_tstoi(l_buf.c_str()));
+		ret->push_back(_wtoi(l_buf.c_str()));
 	}
 	else if(ret->empty())
 	{
@@ -322,7 +364,7 @@ static inline void _ParseVersionNumber(const _tstring& vs, vector<int>* ret)
 	while(ret->size() > 1 && (*ret)[ret->size() - 1] == 0) ret->erase(ret->begin() + (ret->size() - 1));
 }
 
-int CUtil::VersionCompare(const _tstring& a_vA, const _tstring& a_vB)
+int CUtil::VersionCompare(const wstring& a_vA, const wstring& a_vB)
 {
 	vector<int> l_vA, l_vB;
 	_ParseVersionNumber(a_vA, &l_vA);
@@ -370,7 +412,7 @@ static cairo_status_t _read_from_resource(void *a_closure, unsigned char *a_data
 int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 	HINSTANCE a_instance, int a_resourceId, int a_width, int a_height)
 {
-	HRSRC l_res = ::FindResource(a_instance, MAKEINTRESOURCE(a_resourceId), _T("PNG"));
+	HRSRC l_res = ::FindResource(a_instance, MAKEINTRESOURCE(a_resourceId), L"PNG");
 	if(!l_res) return -1;
 
 	HGLOBAL l_hr = ::LoadResource(a_instance, l_res);
@@ -445,7 +487,7 @@ wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpe
 	const LPCWSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath);
 
 
-_tstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
+wstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
 {
 	if(CUtil::IsWin6x())
 	{
@@ -470,13 +512,13 @@ _tstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTST
 			return ofn.lpstrFile;
 		}
 
-		return _T("");
+		return L"";
 	}
 }
 
 
-_tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
-	const LPCTSTR a_defaultExt, const _tstring& a_currentFileName, const _tstring& a_initialPath)
+wstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
+	const LPCTSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath)
 {
 	if(CUtil::IsWin6x())
 	{
@@ -512,7 +554,7 @@ _tstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTST
 			return ofn.lpstrFile;
 		}
 
-		return _T("");
+		return L"";
 	}
 }
 
@@ -531,13 +573,13 @@ void CUtil::PopUpLastWin32Error()
 
 	if(lpMsgBuf && dwSize)
 	{
-		::MessageBox(0, lpMsgBuf, _T("Error"), MB_ICONSTOP);
+		::MessageBox(0, lpMsgBuf, L"Error", MB_ICONSTOP);
 		::LocalFree(lpMsgBuf);
 	}
 }
 
 
-std::_tstring CUtil::PathRemoveFileSpec(const std::_tstring& a_path)
+std::wstring CUtil::PathRemoveFileSpec(const std::wstring& a_path)
 {
 	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
 	memset(l_buf, 0, a_path.size() + 1);
@@ -547,14 +589,14 @@ std::_tstring CUtil::PathRemoveFileSpec(const std::_tstring& a_path)
 	::PathRemoveFileSpec(l_buf);
 	::PathRemoveBackslash(l_buf);
 
-	std::_tstring l_result(l_buf);
+	std::wstring l_result(l_buf);
 	delete[] l_buf;
 
 	return l_result;
 }
 
 
-std::_tstring CUtil::PathRemoveExtension(const std::_tstring& a_path)
+std::wstring CUtil::PathRemoveExtension(const std::wstring& a_path)
 {
 	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
 	memset(l_buf, 0, a_path.size() + 1);
@@ -563,7 +605,7 @@ std::_tstring CUtil::PathRemoveExtension(const std::_tstring& a_path)
 
 	::PathRemoveExtension(l_buf);
 
-	std::_tstring l_result(l_buf);
+	std::wstring l_result(l_buf);
 	delete[] l_buf;
 
 	return l_result;
@@ -642,7 +684,7 @@ bool CUtil::TextToClipboard(HWND a_hwnd, const wstring& a_text)
 #ifdef _WIN32
 
 
-HMODULE CUtil::SilentLoadLibrary(const std::_tstring& a_path)
+HMODULE CUtil::SilentLoadLibrary(const std::wstring& a_path)
 {
 	_ASSERT(!PathIsRelative(a_path.c_str()));
 
@@ -668,7 +710,7 @@ bool CUtil::RemoveCwdFromDllSearchPath()
 		fsdd l_fsdd = (fsdd)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetDllDirectory");
 		if(l_fsdd)
 		{
-			return (l_fsdd(_T("")) != FALSE);
+			return (l_fsdd(L"") != FALSE);
 		}
 	}
 
@@ -676,7 +718,7 @@ bool CUtil::RemoveCwdFromDllSearchPath()
 }
 
 
-std::_tstring CUtil::GetExePath()
+std::wstring CUtil::GetExePath()
 {
 	TCHAR l_buf[1000] = {0};
 	TCHAR l_buf2[1000] = {0};
@@ -688,7 +730,7 @@ std::_tstring CUtil::GetExePath()
 }
 
 
-std::_tstring CUtil::GetExeDir()
+std::wstring CUtil::GetExeDir()
 {
 	TCHAR l_buf[1000] = {0};
 	TCHAR l_buf2[1000] = {0};
@@ -808,7 +850,7 @@ OSVERSIONINFOEX CUtil::ms_osver = {sizeof(OSVERSIONINFOEX), 0};
 CCudaUtil::CCudaUtil()
 {
 	m_hCudaBlur = CUtil::SilentLoadLibrary(
-		CUtil::GetExeDir() + _T("\\cuda-blur.dll"));
+		CUtil::GetExeDir() + L"\\cuda-blur.dll");
 }
 
 const CCudaUtil* CCudaUtil::GetInstance()

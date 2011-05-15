@@ -12,7 +12,8 @@
  * GNU General Public License for more details.
  **/
 
-#include "imdb-plugin.h"
+#include "stdafx.h"
+#include "content_scraper.h"
 
 static INFEKT_PLUGIN_METHOD(ImdbMainEventCallback);
 
@@ -98,6 +99,10 @@ void CImdbPlugin::OnNfoLoaded(const infekt_nfo_info_t*)
 {
 	// find the imdb link:
 	PluginSend(IPCI_ENUM_LOADED_NFO_LINKS, 0, (void*)EnumNfoLinksCallback, this);
+
+	/*CContentScraper x;
+	x.LoadScraperFile(L"Y:\\dev\\iNFEKT\\imdb.scrape.xml");
+	x.DoScrape("");*/
 }
 
 
