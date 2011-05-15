@@ -175,7 +175,6 @@ static void _DoHttpRequest_Callback(PWinHttpRequest a_req, infektPluginMethod a_
 {
 	_ASSERTE(a_callback);
 
-
 	infektDeclareStruct(infekt_http_result_t, l_res);
 	l_res.requestId = a_req->GetReqId();
 
@@ -212,6 +211,8 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 	}
 
 	PWinHttpRequest l_req = l_plugin->GetHttpClient()->CreateRequest();
+
+	l_req->SetUrl(a_pReq->url);
 
 	if(a_pReq->downloadToFileName)
 	{
