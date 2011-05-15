@@ -14,6 +14,7 @@
 
 #include "stdafx.h"
 #include "win_http_client.h"
+#include "util.h"
 
 #define WM_WINHTTP_REQUEST_CALLBACK (WM_USER + 100)
 #define WINHTTP_MESSAGE_ONLY_WINDOW_CLASSNAME L"CWinHttp_MessageOnlyWindow"
@@ -35,7 +36,19 @@ CWinHttpClient::CWinHttpClient(HINSTANCE a_hInstance)
 	m_hwndMessageOnlyWin = ::CreateWindowEx(0, WINHTTP_MESSAGE_ONLY_WINDOW_CLASSNAME,
 		NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, 0, NULL);
 
-	m_userAgent = L"Mozilla/5.0 (Windows; U; en-US) WinHTTP/5.1";
+	OSVERSIONINFO l_osVer = { sizeof(OSVERSIONINFO), 0 };
+	if(::GetVersionEx(&l_osVer))
+	{
+		std::wstringstream l_uas;
+
+		l_uas << boost::wformat(L"Mozilla/%d.0 (compatible; MSIE %d.0; Windows NT %d.%d;%s Trident/%d.0)")
+			% (l_osVer.dwMajorVersion > 5 ? 5 : 4) % (l_osVer.dwMajorVersion > 5 ? 9 : 8)
+			% l_osVer.dwMajorVersion % l_osVer.dwMinorVersion
+			% (CUtil::IsWow64() ? L" WOW64;" : L"")
+			% (l_osVer.dwMajorVersion > 5 ? 5 : 4);
+
+		m_userAgent = l_uas.str();
+	}
 }
 
 
