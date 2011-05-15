@@ -618,6 +618,11 @@ void CMainFrame::UpdateCaption()
 	if(!l_caption.empty()) l_caption += _T(" - ");
 	l_caption += _T("iNFekt v") + InfektVersionAsString();
 
+	if(dynamic_cast<CNFOApp*>(GetApp())->InPortableMode())
+	{
+		l_caption += L" (portable)";
+	}
+
 	SetWindowText(l_caption.c_str());
 }
 
