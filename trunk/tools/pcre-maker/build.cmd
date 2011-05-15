@@ -63,7 +63,7 @@ cd %PDIR%
 sed "s/@pcre_have_type_traits@/0/" pcre_stringpiece.h.in > .temp
 sed "s/@pcre_have_bits_type_traits@/0/" .temp > %BDIR%\pcre_stringpiece.h
 
-sed "s/@pcre_have_u\?long_long@/1/" pcrecpparg.h.in > pcrecpparg.h
+sed "s/@pcre_have_u\?long_long@/1/" pcrecpparg.h.in > %BDIR%\pcrecpparg.h
 
 cat %BDIR%\config-win32-head.inc %PDIR%\config.h.generic %BDIR%\config-win32-tail.inc > %BDIR%\config.h
 
@@ -87,11 +87,21 @@ vcbuild pcre.vcproj "Debug|%PLATFORM%"
 cd %PARENT%
 
 REM Copy results
-IF EXIST out-%CONFIG%-%PLATFORM% GOTO BLAH
+IF EXIST out-%CONFIG%-%PLATFORM% GOTO ODEXS
 mkdir out-%CONFIG%-%PLATFORM%
-:BLAH
+:ODEXS
+
+IF EXIST include GOTO INCDEXS
+mkdir include
+:INCDEXS
 
 del /Q out-%CONFIG%-%PLATFORM%\*
+del /Q include\*
+
+xcopy %BDIR%\pcre.h include
+xcopy %PDIR%\pcrecpp.h include
+xcopy %BDIR%\pcrecpparg.h include
+xcopy %BDIR%\pcre_stringpiece.h include
 
 IF %X64%==n GOTO FINALCOPYX86
 xcopy "%BDIR%\x64\%CONFIG%\pcre%DBD%.dll" out-%CONFIG%-%PLATFORM%
