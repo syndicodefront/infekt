@@ -60,13 +60,14 @@ public:
 	// if nobody calls this, the data will be saved to a string buffer
 	// that can be retrieved via GetBufferContents().
 	void SetDownloadFilePath(const std::wstring& a_path) { m_downloadFilePath = a_path; }
-	std::wstring GetDownloadFilePath() const { return m_downloadFilePath; }
+	const std::wstring& GetDownloadFilePath() const { return m_downloadFilePath; }
 
 	void SetMaxBufferSize(size_t a_bytes) { m_maxBuffer = a_bytes; }
 	size_t GetMaxBufferSize() const { return m_maxBuffer; }
 
 	bool DidDownloadSucceed() const { return m_downloadSucceeded; }
-	std::string GetBufferContents() const { return m_buffer; }
+	const std::string& GetBufferContents() const { return m_buffer; }
+	int GetStatusCode() const { return m_httpStatusCode; }
 
 protected:
 	// to be used from within CWinHttpClient only:
@@ -87,6 +88,7 @@ private:
 	std::wstring m_downloadFilePath;
 
 	bool m_downloadSucceeded;
+	int m_httpStatusCode;
 
 	// buffer for non-file mode:
 	std::string m_buffer;
