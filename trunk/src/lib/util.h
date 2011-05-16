@@ -66,7 +66,7 @@ public:
 	static bool IsWinXP();
 	static bool IsWin6x(bool a_orHigher = true);
 	static bool IsWinVista();
-	static bool IsWin7();
+	static bool IsWin7(bool a_orHigher = false);
 	static bool IsWin8();
 	static bool IsWow64();
 

@@ -688,9 +688,30 @@ HMODULE CUtil::SilentLoadLibrary(const std::wstring& a_path)
 {
 	_ASSERT(!PathIsRelative(a_path.c_str()));
 
-	UINT l_oldErrorMode = ::SetErrorMode(SEM_NOOPENFILEERRORBOX);
-	HMODULE l_hResult = ::LoadLibrary(a_path.c_str());
-	::SetErrorMode(l_oldErrorMode);
+	HMODULE l_hResult;
+	DWORD dwErrorMode = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS;
+
+	if(CUtil::IsWin7(true))
+	{
+		// BOOL SetThreadErrorMode(DWORD dwNewMode, LPDWORD lpOldMode);
+		typedef BOOL (WINAPI *fstem)(DWORD, LPDWORD);
+		
+		fstem fnc = (fstem)::GetProcAddress(::GetModuleHandle(L"Kernel32.dll"), "SetThreadErrorMode");
+
+		if(fnc)
+		{
+			DWORD l_oldErrorMode = 0;
+			fnc(dwErrorMode, &l_oldErrorMode);
+			l_hResult = ::LoadLibrary(a_path.c_str());
+			fnc(l_oldErrorMode, NULL);
+		}
+	}
+	else
+	{
+		UINT l_oldErrorMode = ::SetErrorMode(dwErrorMode);
+		l_hResult = ::LoadLibrary(a_path.c_str());
+		::SetErrorMode(l_oldErrorMode);
+	}
 
 	return l_hResult;
 }
@@ -807,11 +828,12 @@ bool CUtil::IsWinVista()
 	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 0);
 }
 
-bool CUtil::IsWin7()
+bool CUtil::IsWin7(bool a_orHigher)
 {
 	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
 
-	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 1);
+	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 1) ||
+		(a_orHigher && (ms_osver.dwMajorVersion > 6 || (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion > 1)));
 }
 
 bool CUtil::IsWin8()
