@@ -84,114 +84,163 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 
 	// :TODO: evaluate <vars><var>...
 
+	// define reserved symbol for entire input:
 	l_symbols["_INPUT_"] = a_content;
 
+	// go through root tag and find <extract> children:
 	for(std::vector<PXMLTag>::const_iterator ite = m_scrapeDefs->BeginChildren(); ite != m_scrapeDefs->EndChildren(); ite++)
 	{
-		if((*ite)->GetName() == "extract")
+		if((*ite)->GetName() != "extract")
 		{
-			const std::string l_regexStr = (*ite)->GetChildText("regex");
-			const std::string l_extractFrom = (*ite)->GetAttribute("from");
+			continue;
+		}
 
-			if(l_regexStr.empty())
-			{
-				continue;
-			}
+		const std::string l_regexStr = (*ite)->GetChildText("regex");
+		const std::string l_extractFrom = (*ite)->GetAttribute("from");
 
-			const std::string l_regexFlagsStr = (*ite)->GetChildByName("regex")->GetAttribute("flags");
+		if(l_regexStr.empty())
+		{
+			continue;
+		}
 
-			pcrecpp::RE_Options l_reOptions = pcrecpp::UTF8();
-			l_reOptions.set_caseless(l_regexFlagsStr.find('i') != std::string::npos);
-			l_reOptions.set_multiline(l_regexFlagsStr.find('m') != std::string::npos);
-			l_reOptions.set_dotall(l_regexFlagsStr.find('s') != std::string::npos);
+		// convert regex flags from char string to pcrecpp flags:
+		const std::string l_regexFlagsStr = (*ite)->GetChildByName("regex")->GetAttribute("flags");
 
-			pcrecpp::RE l_regex("(" + l_regexStr + ")", l_reOptions);
+		pcrecpp::RE_Options l_reOptions = pcrecpp::UTF8();
+		l_reOptions.set_caseless(l_regexFlagsStr.find('i') != std::string::npos);
+		l_reOptions.set_multiline(l_regexFlagsStr.find('m') != std::string::npos);
+		l_reOptions.set_dotall(l_regexFlagsStr.find('s') != std::string::npos);
 
-			if(!l_regex.error().empty())
-			{
+		// put together regex object, use extra parenthesis to simulate capture group 0
+		// (because it's not exposed by pcrecpp's API)
+		pcrecpp::RE l_regex("(" + l_regexStr + ")", l_reOptions);
+
+		if(!l_regex.error().empty())
+		{
 #ifdef _DEBUG
-				OutputDebugStringA("Error in RE ~");
-				OutputDebugStringA(l_regexStr.c_str());
-				OutputDebugStringA("~: ");
-				OutputDebugStringA(l_regex.error().c_str());
-				OutputDebugStringA("\n");
+			OutputDebugStringA("Error in RE ~");
+			OutputDebugStringA(l_regexStr.c_str());
+			OutputDebugStringA("~: ");
+			OutputDebugStringA(l_regex.error().c_str());
+			OutputDebugStringA("\n");
 #endif
+			continue;
+		}
+
+		// can't operate on undefined symbols:
+		if(l_symbols.find(l_extractFrom) == l_symbols.end())
+		{
+			_ASSERT(false);
+			continue;
+		}
+
+		// reserve space for result capture groups
+		std::vector<std::string> l_groups(9, "");
+		pcrecpp::StringPiece l_reInput(l_symbols[l_extractFrom]);
+
+		// execute RE, extract from input, leave <extract> if there's no match:
+		if(!_FindAndConsumeDynamicGroups(&l_regex, &l_reInput, l_groups))
+		{
+			continue;
+		}
+
+		// go through <target> children
+		for(std::vector<PXMLTag>::const_iterator itt = (*ite)->BeginChildren(); itt != (*ite)->EndChildren(); itt++)
+		{
+			if((*itt)->GetName() != "target")
+			{
 				continue;
 			}
 
-			if(l_symbols.find(l_extractFrom) == l_symbols.end())
+			// target properties...
+			std::string l_sGrp = (*itt)->GetAttribute("capgroup"),
+				l_toSymbol = (*itt)->GetAttribute("to"),
+				l_appendToSymbol = (*itt)->GetAttribute("append_to");
+
+			if(l_sGrp.empty() || (l_toSymbol.empty() && l_appendToSymbol.empty()))
 			{
 				_ASSERT(false);
 				continue;
 			}
 
-			std::vector<std::string> l_groups(9, "");
-			pcrecpp::StringPiece l_reInput(l_symbols[l_extractFrom]);
+			// get+validate source group index:
+			int l_grp = atoi(l_sGrp.c_str());
 
-			if(!_FindAndConsumeDynamicGroups(&l_regex, &l_reInput, l_groups))
+			if(l_grp < 0 || l_grp > l_regex.NumberOfCapturingGroups())
 			{
+				_ASSERT(false);
 				continue;
 			}
 
-			for(std::vector<PXMLTag>::const_iterator itt = (*ite)->BeginChildren(); itt != (*ite)->EndChildren(); itt++)
+			// extract filters:
+			std::vector<std::string> l_filterNames;
+			if((*itt)->GetAttribute("filter") != "")
 			{
-				if((*itt)->GetName() != "target")
-				{
-					continue;
-				}
-
-				std::string l_sGrp = (*itt)->GetAttribute("capgroup"),
-					l_toSymbol = (*itt)->GetAttribute("to"),
-					l_appendToSymbol = (*itt)->GetAttribute("append_to");
-
-				if(l_sGrp.empty() || (l_toSymbol.empty() && l_appendToSymbol.empty()))
-				{
-					_ASSERT(false);
-					continue;
-				}
-
-				int l_grp = atoi(l_sGrp.c_str());
-
-				if(l_grp < 0 || l_grp > l_regex.NumberOfCapturingGroups())
-				{
-					_ASSERT(false);
-					continue;
-				}
-
-				bool bAgain = (!l_appendToSymbol.empty());
-				do
-				{
-					std::string l_temp = l_groups[l_grp];
-
-					const std::string l_action = (*itt)->GetAttribute("action");
-
-					if(l_action == "dequote")
-					{
-					}
-					else if(l_action == "input_replace")
-					{
-						std::string l_replaceWith = (*itt)->GetAttribute("replace_with");
-
-						l_temp = CUtil::StrReplace(l_temp, l_replaceWith, l_symbols[l_extractFrom]);
-					}
-					else if(l_action != "")
-					{
-						_ASSERT(false);
-					}
-
-					// :TODO: implement filters
-
-					if(!bAgain)
-					{
-						l_symbols[l_toSymbol] = l_temp;
-					}
-					else
-					{
-						// :TODO: implement lists
-						l_symbols[l_appendToSymbol] += l_temp;
-					}
-				} while (bAgain && _FindAndConsumeDynamicGroups(&l_regex, &l_reInput, l_groups));
+				l_filterNames.push_back((*itt)->GetAttribute("filter"));
 			}
+
+			for(std::vector<PXMLTag>::const_iterator itf = (*itt)->BeginChildren(); itf != (*itt)->EndChildren(); itf++)
+			{
+				l_filterNames.push_back((*itf)->GetAttribute("name"));
+			}
+
+			// extract data from group + apply filters.
+			// loop if necessary (append_to attribute).
+			bool bLoopOccurrences = (!l_appendToSymbol.empty());
+			const std::string l_action = (*itt)->GetAttribute("action");
+
+			do
+			{
+				std::string l_temp = l_groups[l_grp];
+
+				// apply transformations ("action"):
+				if(l_action == "input_replace")
+				{
+					std::string l_replaceWith = (*itt)->GetAttribute("replace_with");
+
+					l_temp = CUtil::StrReplace(l_temp, l_replaceWith, l_symbols[l_extractFrom]);
+				}
+				else if(l_action != "")
+				{
+					_ASSERT(false);
+				}
+
+				// apply filters:
+				for(std::vector<std::string>::const_iterator itfn = l_filterNames.begin(); itfn != l_filterNames.end(); itfn++)
+				{
+					if(*itfn == "dequote")
+					{
+						l_temp = CXMLParser::XmlDecode(l_temp);
+					}
+					else if(*itfn == "trim")
+					{
+						CUtil::StrTrim(l_temp);
+					}
+					else if(*itfn == "int")
+					{
+						std::stringstream ss;
+						ss << _strtoi64(l_temp.c_str(), NULL, 10);
+						l_temp = ss.str();
+					}
+					else if(*itfn == "float")
+					{
+						std::stringstream ss;
+						ss << strtod(l_temp.c_str(), NULL);
+						l_temp = ss.str();
+					}
+				}
+
+				// store result:
+				if(!bLoopOccurrences)
+				{
+					l_symbols[l_toSymbol] = l_temp;
+				}
+				else
+				{
+					// :TODO: implement lists
+					l_symbols[l_appendToSymbol] += l_temp;
+				}
+			} while (bLoopOccurrences && _FindAndConsumeDynamicGroups(&l_regex, &l_reInput, l_groups));
 		}
 	}
 
