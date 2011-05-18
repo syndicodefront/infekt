@@ -97,6 +97,7 @@ public:
 	static std::string XmlEncode(const std::string& sString);
 	static std::string XmlDecode(const std::string& sString);
 	static std::string XmlNamedEntityDecode(const std::string& sString);
+	static std::string StripTags(const std::string& sString);
 };
 
 #endif /* !_BASIC_XML_H */

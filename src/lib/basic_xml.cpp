@@ -110,6 +110,39 @@ std::string CXMLParser::XmlNamedEntityDecode(const std::string& sString)
 	return l_str;
 }
 
+std::string CXMLParser::StripTags(const std::string& sString)
+{
+	std::string::size_type l_pos, l_prevPos = 0;
+	std::string l_new;
+
+	l_pos = sString.find('<');
+
+	while(l_pos != std::string::npos)
+	{
+		std::string::size_type l_endPos = sString.find('>', l_pos + 1);
+
+		if(l_endPos == std::string::npos)
+		{
+			break;
+		}
+
+		l_new += sString.substr(l_prevPos, l_pos - l_prevPos);
+
+		l_prevPos = l_endPos + 1;
+		l_pos = sString.find('<', l_prevPos);
+	}
+
+	if(l_prevPos > 0)
+	{
+		l_new += sString.substr(l_prevPos);
+		return l_new;
+	}
+	else
+	{
+		return sString;
+	}
+}
+
 
 /************************************************************************/
 /* CXMLParser IMPLEMENTATION                                            */

@@ -130,8 +130,18 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 		// can't operate on undefined symbols:
 		if(l_symbols.find(l_extractFrom) == l_symbols.end())
 		{
-			_ASSERT(false);
 			continue;
+		}
+
+		// check only_if_empty:
+		if(!(*ite)->GetAttribute("only_if_empty").empty())
+		{
+			const std::string l_checkEmptySymbol = (*ite)->GetAttribute("only_if_empty");
+
+			if(!(l_symbols.find(l_checkEmptySymbol) == l_symbols.end() || l_symbols[l_checkEmptySymbol].empty()))
+			{
+				continue;
+			}
 		}
 
 		// reserve space for result capture groups
@@ -210,11 +220,17 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 				{
 					if(*itfn == "dequote")
 					{
+						l_temp = CXMLParser::StripTags(l_temp);
 						l_temp = CXMLParser::XmlDecode(l_temp);
 					}
 					else if(*itfn == "trim")
 					{
 						CUtil::StrTrim(l_temp);
+					}
+					else if(*itfn == "depunctuate")
+					{
+						l_temp = CUtil::StrReplace(",", "", l_temp);
+						l_temp = CUtil::StrReplace(".", "", l_temp);
 					}
 					else if(*itfn == "int")
 					{
