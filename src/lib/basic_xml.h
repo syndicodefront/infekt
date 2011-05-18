@@ -93,6 +93,10 @@ protected:
 public:
 	static PXMLTag ParseString(const std::string& sXmlString);
 	static PXMLTag ParseFile(const std::wstring& a_filePath);
+
+	static std::string XmlEncode(const std::string& sString);
+	static std::string XmlDecode(const std::string& sString);
+	static std::string XmlNamedEntityDecode(const std::string& sString);
 };
 
 #endif /* !_BASIC_XML_H */

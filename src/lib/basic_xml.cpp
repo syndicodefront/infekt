@@ -21,7 +21,7 @@
 /* UTILITY METHODS                                                      */
 /************************************************************************/
 
-static std::string XmlEncode(const std::string& sString)
+std::string CXMLParser::XmlEncode(const std::string& sString)
 {
 	std::string l_str = CUtil::StrReplace("&", "&amp;", sString);
 	l_str = CUtil::StrReplace("<", "&lt;", l_str);
@@ -33,7 +33,7 @@ static std::string XmlEncode(const std::string& sString)
 #define FAST_ISDIGIT(C) (C >= '0' && C <= '9')
 #define FAST_ISDIGITX(C) (FAST_ISDIGIT(C) || (C >= 'a' && C <= 'f') || (C >= 'A' && C <= 'F'))
 
-static std::string XmlDecode(const std::string& sString)
+std::string CXMLParser::XmlDecode(const std::string& sString)
 {
 	std::wstring swStr;
 	swStr.reserve(sString.size());
@@ -101,7 +101,7 @@ static std::string XmlDecode(const std::string& sString)
 	return CUtil::FromWideStr(swStr, CP_UTF8);
 }
 
-static std::string XmlNamedEntityDecode(const std::string& sString)
+std::string CXMLParser::XmlNamedEntityDecode(const std::string& sString)
 {
 	std::string l_str = CUtil::StrReplace("&quot;", "\"", sString);
 	l_str = CUtil::StrReplace("&gt;", ">", l_str);
