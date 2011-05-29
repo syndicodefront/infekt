@@ -94,8 +94,8 @@ private:
 	std::string m_buffer;
 	size_t m_maxBuffer;
 
-	void DownloadToFile(HINTERNET hRequest, int64_t a_contentLength);
-	void DownloadToBuffer(HINTERNET hRequest, int64_t a_contentLength);
+	void DownloadToFile(HINTERNET hRequest, size_t a_contentLength);
+	void DownloadToBuffer(HINTERNET hRequest, size_t a_contentLength);
 };
 
 
