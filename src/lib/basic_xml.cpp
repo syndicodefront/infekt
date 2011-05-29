@@ -38,14 +38,14 @@ std::string CXMLParser::XmlDecode(const std::string& sString)
 	std::wstring swStr;
 	swStr.reserve(sString.size());
 
-	std::string::size_type p = sString.find('&'), pPrev = 0;
+	std::string::size_type p = sString.find('&'), pPrev = 0, pStartRemain = 0;
 
 	do
 	{
 		if(p == std::string::npos)
 		{
 			// handle rest of the str...
-			swStr += CUtil::ToWideStr(sString.substr(pPrev), CP_UTF8);
+			swStr += CUtil::ToWideStr(sString.substr(pStartRemain), CP_UTF8);
 			break;
 		}
 		else
@@ -94,7 +94,9 @@ std::string CXMLParser::XmlDecode(const std::string& sString)
 			pPrev = pEnd + 1;
 		}
 
-		p = sString.find('&', pEnd);
+		p = sString.find('&', pEnd + 1);
+
+		pStartRemain = pEnd + 1;
 
 	} while(true);
 
