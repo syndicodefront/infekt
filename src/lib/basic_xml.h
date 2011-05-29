@@ -75,6 +75,11 @@ public:
 		return (xTag ? xTag->m_text : "");
 	}
 
+	const std::string GetText() const
+	{
+		return m_text;
+	}
+
 	const std::vector<PXMLTag>::const_iterator BeginChildren() const
 	{
 		return m_children.begin();
