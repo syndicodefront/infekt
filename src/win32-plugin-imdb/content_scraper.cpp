@@ -255,7 +255,7 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 					if(*itfn == "dequote")
 					{
 						l_temp = CXMLParser::StripTags(l_temp);
-						l_temp = CXMLParser::XmlDecode(l_temp);
+						l_temp = CXMLParser::XmlDecode(l_temp, true);
 					}
 					else if(*itfn == "trim")
 					{
