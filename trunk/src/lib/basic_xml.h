@@ -100,8 +100,7 @@ public:
 	static PXMLTag ParseFile(const std::wstring& a_filePath);
 
 	static std::string XmlEncode(const std::string& sString);
-	static std::string XmlDecode(const std::string& sString);
-	static std::string XmlNamedEntityDecode(const std::string& sString);
+	static std::string XmlDecode(const std::string& sString, bool a_decodeHtmlEntities = false);
 	static std::string StripTags(const std::string& sString);
 };
 

@@ -33,7 +33,9 @@ std::string CXMLParser::XmlEncode(const std::string& sString)
 #define FAST_ISDIGIT(C) (C >= '0' && C <= '9')
 #define FAST_ISDIGITX(C) (FAST_ISDIGIT(C) || (C >= 'a' && C <= 'f') || (C >= 'A' && C <= 'F'))
 
-std::string CXMLParser::XmlDecode(const std::string& sString)
+#include "html_entities.inc"
+
+std::string CXMLParser::XmlDecode(const std::string& sString, bool a_decodeHtmlEntities)
 {
 	std::wstring swStr;
 	swStr.reserve(sString.size());
@@ -85,6 +87,17 @@ std::string CXMLParser::XmlDecode(const std::string& sString)
 			else if(!_stricmp(sEntity.c_str(), "gt")) { swStr += '>'; bIgnore = false; }
 			else if(!_stricmp(sEntity.c_str(), "lt")) { swStr += '<'; bIgnore = false; }
 			else if(!_stricmp(sEntity.c_str(), "quot")) { swStr += '"'; bIgnore = false; }
+			else if(!_stricmp(sEntity.c_str(), "apos")) { swStr += '\''; bIgnore = false; }
+			else if(a_decodeHtmlEntities)
+			{
+				const wchar_t* l_tmp = html_entities::translate(sEntity.c_str());
+
+				if(l_tmp)
+				{
+					swStr += l_tmp;
+					bIgnore = false;
+				}
+			}
 		}
 		else
 			pEnd = p + 1;
@@ -103,14 +116,6 @@ std::string CXMLParser::XmlDecode(const std::string& sString)
 	return CUtil::FromWideStr(swStr, CP_UTF8);
 }
 
-std::string CXMLParser::XmlNamedEntityDecode(const std::string& sString)
-{
-	std::string l_str = CUtil::StrReplace("&quot;", "\"", sString);
-	l_str = CUtil::StrReplace("&gt;", ">", l_str);
-	l_str = CUtil::StrReplace("&lt;", "<", l_str);
-	l_str = CUtil::StrReplace("&amp;", "&", l_str);
-	return l_str;
-}
 
 std::string CXMLParser::StripTags(const std::string& sString)
 {
