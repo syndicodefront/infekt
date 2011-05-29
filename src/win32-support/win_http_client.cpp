@@ -238,7 +238,7 @@ void CWinHttpRequest::_RunRequest()
 	if(::WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, NULL)
 		&& ::WinHttpReceiveResponse(hRequest, NULL))
 	{
-		int64_t l_fileSize = 0;
+		size_t l_fileSize = 0;
 
 		// get file size from content-length header:
 		{
@@ -248,7 +248,12 @@ void CWinHttpRequest::_RunRequest()
 			if(::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH, WINHTTP_HEADER_NAME_BY_INDEX,
 				szSizeBuffer, &dwLengthSizeBuffer, WINHTTP_NO_HEADER_INDEX))
 			{
-				l_fileSize = _wcstoi64(szSizeBuffer, NULL, 10);
+				int64_t l_tmp = _wcstoi64(szSizeBuffer, NULL, 10);
+
+				if(l_fileSize > 0 && static_cast<uint64_t>(l_fileSize) <= std::numeric_limits<size_t>::max())
+				{
+					l_fileSize = static_cast<size_t>(l_tmp);
+				}
 			}
 		}
 
@@ -286,7 +291,7 @@ RunRequest_Cleanup:
 }
 
 
-void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, int64_t a_contentLength)
+void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, size_t a_contentLength)
 {
 	FILE *fFile = NULL;
 
@@ -341,7 +346,7 @@ void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, int64_t a_contentLength
 }
 
 
-void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, int64_t a_contentLength)
+void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, size_t a_contentLength)
 {
 	if(a_contentLength > m_maxBuffer)
 	{
