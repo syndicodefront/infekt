@@ -26,8 +26,14 @@ public:
 	bool LoadScraperFile(const std::wstring& a_filePath);
 	bool DoScrape(const std::string& a_content);
 
+	int GetInt(const std::string& a_name);
+	std::string GetString(const std::string& a_name);
+	bool GetList(const std::string& a_name, std::vector<const std::string>& ar_result);
+
 protected:
 	PXMLTag m_scrapeDefs;
+	std::map<const std::string, std::string> m_extractedStrings;
+	std::map<const std::string, std::vector<const std::string> > m_extractedLists;
 };
 
 #endif /* !_CONTENT_SCRAPER_H */
