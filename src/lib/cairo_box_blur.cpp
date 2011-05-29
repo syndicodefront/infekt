@@ -17,6 +17,7 @@
 #include <math.h>
 #include "cairo_box_blur.h"
 #include "util.h"
+#include <omp.h>
 
 // largely based on
 // http://mxr.mozilla.org/mozilla1.9.2/source/gfx/thebes/src/gfxBlur.cpp
@@ -68,6 +69,7 @@ BoxBlurHorizontal(unsigned char* aInput,
 {
 	PRInt32 boxSize = aLeftLobe + aRightLobe + 1;
 
+	#pragma omp parallel for
 	for (PRInt32 y = 0; y < aRows; y++) {
 		PRInt32 alphaSum = 0;
 		for (PRInt32 i = 0; i < boxSize; i++) {
@@ -103,6 +105,7 @@ BoxBlurVertical(unsigned char* aInput,
 {
 	PRInt32 boxSize = aTopLobe + aBottomLobe + 1;
 
+	#pragma omp parallel for
 	for (PRInt32 x = 0; x < aStride; x++) {
 		PRInt32 alphaSum = 0;
 		for (PRInt32 i = 0; i < boxSize; i++) {

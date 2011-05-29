@@ -61,6 +61,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 
 	// other stuff:
 	m_trueGaussian = false;
+	m_allowHwAccel = true;
 }
 
 
