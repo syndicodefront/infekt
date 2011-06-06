@@ -484,10 +484,11 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 		// vars for hyperlink detection:
 		string l_prevLinkUrl; // UTF-8
-		int l_maxLinkIndex = 0, l_maxLinkId = 1;
+		int l_maxLinkId = 1;
+		std::multimap<size_t, CNFOHyperLink>::iterator l_prevLinkIt = m_hyperLinks.end();
 
 		// go through line by line:
-		size_t i = 0;
+		size_t i = 0; // line (row) index
 		for(TLineContainer::const_iterator it = l_lines.begin();
 			it != l_lines.end(); it++, i++)
 		{
@@ -527,15 +528,23 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 					{
 						l_maxLinkId++;
 						l_prevLinkUrl = l_url;
+						l_prevLinkIt = l_newItem;
 					}
 					else
 					{
 						(*l_newItem).second.SetHref(wsUrl);
+
+						if(l_prevLinkIt != m_hyperLinks.end())
+						{
+							_ASSERT((*l_prevLinkIt).second.GetLinkID() == l_linkID);
+							// update href of link's first line:
+							(*l_prevLinkIt).second.SetHref(wsUrl);
+						}
+
 						l_prevLinkUrl = "";
 					}
 
 					l_prevUrlCopy = "";
-					l_maxLinkIndex++;
 				}
 
 				if(l_linkPos == (size_t)-1)
