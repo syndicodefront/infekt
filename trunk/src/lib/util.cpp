@@ -813,7 +813,8 @@ bool CUtil::EnforceDEP()
 bool CUtil::IsWinXP()
 {
 	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1);
+	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1) ||
+		(ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 2); // Server 2003!
 }
 
 bool CUtil::IsWin6x(bool a_orHigher)
