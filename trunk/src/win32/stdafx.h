@@ -61,6 +61,7 @@
 #include <tchar.h>
 #include <commdlg.h>
 #include <windowsx.h>
+#include <shlobj.h>
 
 /* cairo and other lib headers */
 #include <cairo-win32.h>
