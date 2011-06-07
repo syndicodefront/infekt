@@ -1304,13 +1304,11 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 		else
 		{
 			// try to perform auto-update.
-			wchar_t l_tmpPathBuf[1000] = {0};
+			std::wstring l_tmpPath = CUtil::GetTempDir();
 
-			if(::GetTempPath(999, l_tmpPathBuf))
+			if(!l_tmpPath.empty())
 			{
-				::PathAddBackslash(l_tmpPathBuf);
-
-				std::wstring l_tempExePath(l_tmpPathBuf);
+				std::wstring l_tempExePath(l_tmpPath);
 				l_tempExePath += L"infekt-" + InfektVersionAsString() + L"-updater.exe";
 
 				if(::CopyFile(l_auExePath.c_str(), l_tempExePath.c_str(), FALSE))

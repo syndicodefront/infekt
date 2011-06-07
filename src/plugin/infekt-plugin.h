@@ -162,11 +162,15 @@ struct infekt_nfo_link_t {
 };
 
 
+#define INFEKT_HTTP_REQ_BYPASS_CACHE 1l
+#define INFEKT_HTTP_REQ_CACHE_PERM 2l
+#define INFEKT_HTTP_REQ_CACHE_TEMP 4l
+
 struct infekt_http_request_t {
 	size_t _uSize;
 
 	const wchar_t* url;
-	bool bypassCache;
+	unsigned long flags;
 	const wchar_t* downloadToFileName;
 	infektPluginMethod callback;
 };

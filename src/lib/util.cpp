@@ -612,6 +612,49 @@ std::wstring CUtil::PathRemoveExtension(const std::wstring& a_path)
 }
 
 
+std::wstring CUtil::GetTempDir()
+{
+	wchar_t l_tmpPathBuf[1000] = {0};
+
+	if(::GetTempPath(999, l_tmpPathBuf))
+	{
+		::PathAddBackslash(l_tmpPathBuf);
+
+		return l_tmpPathBuf;
+	}
+
+	return L"";
+}
+
+
+std::wstring CUtil::GetAppDataDir(bool a_local, const std::wstring& a_appName)
+{
+	wchar_t l_tmpPathBuf[1000] = {0};
+
+	if(::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, NULL,
+		SHGFP_TYPE_CURRENT, l_tmpPathBuf) == S_OK)
+	{
+		::PathAddBackslash(l_tmpPathBuf);
+
+		::PathAppend(l_tmpPathBuf, a_appName.c_str());
+
+		if(!::PathIsDirectory(l_tmpPathBuf))
+		{
+			::CreateDirectory(l_tmpPathBuf, NULL);
+		}
+
+		if(::PathIsDirectory(l_tmpPathBuf))
+		{
+			::PathAddBackslash(l_tmpPathBuf);
+
+			return l_tmpPathBuf;
+		}
+	}
+
+	return L"";
+}
+
+
 int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 {
 	// Credit: Notepad2 by Florian Balmer (BSD License)

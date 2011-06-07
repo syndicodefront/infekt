@@ -74,6 +74,8 @@ public:
 	static std::wstring GetExeDir();
 	static std::wstring PathRemoveFileSpec(const std::wstring& a_path);
 	static std::wstring PathRemoveExtension(const std::wstring& a_path);
+	static std::wstring GetTempDir();
+	static std::wstring GetAppDataDir(bool a_local, const std::wstring& a_appName);
 	static HMODULE SilentLoadLibrary(const std::wstring& a_path);
 	static bool TextToClipboard(HWND a_hwnd, const std::wstring& a_text);
 
