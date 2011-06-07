@@ -3,9 +3,16 @@
 
 == v0.9 (???) ==
   * Added plugin selection list to the preferences
-  * Fleshed out plugin interface
+  * Made working Imdb plugin
+  * Parallelized CPU-based blur computation using OpenMP (performance improvement for non-Nvidia GPU users)
+  * Added "(portable)" to Window caption when running in portable mode
+  * Fixed issue 57 (wrong URL in first part of multiline hyper links)
+  * Improved Windows Server 2003 compatibility
+  * Dropped Windows 2000 support
+  * Misc fixes and improvements
 
 == v0.7.9 (04 March 2011) ==
+  * Last version that runs on Windows 2000
   * Enabled auto update to actually work when the next version comes out... d'oh.
 
 == v0.7.8 (04 March 2011) ==
