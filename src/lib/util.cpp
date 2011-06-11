@@ -640,7 +640,7 @@ std::wstring CUtil::GetAppDataDir(bool a_local, const std::wstring& a_appName)
 
 		if(!::PathIsDirectory(l_tmpPathBuf))
 		{
-			::CreateDirectory(l_tmpPathBuf, NULL);
+			::SHCreateDirectoryEx(NULL, l_tmpPathBuf, NULL);
 		}
 
 		if(::PathIsDirectory(l_tmpPathBuf))
@@ -830,16 +830,13 @@ bool CUtil::HardenHeap()
 bool CUtil::EnforceDEP()
 {
 #ifndef _WIN64
-	if(CUtil::IsWinXP() || CUtil::IsWin6x())
+	// Explicitly activate DEP, especially important for XP SP3.
+	// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
+	typedef BOOL (WINAPI *fspdp)(DWORD);
+	fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
+	if(l_fSpDp)
 	{
-		// Explicitly activate DEP, especially important for XP SP3.
-		// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
-		typedef BOOL (WINAPI *fspdp)(DWORD);
-		fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
-		if(l_fSpDp)
-		{
-			return (l_fSpDp(PROCESS_DEP_ENABLE) != FALSE);
-		}
+		return (l_fSpDp(PROCESS_DEP_ENABLE) != FALSE);
 	}
 
 	return false;
