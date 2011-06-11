@@ -192,7 +192,7 @@ void CUtil::StrTrim(wstring& a_str, const wstring a_chars) { StrTrimLeft(a_str, 
 
 template<typename T> static T _StrReplace(const T& a_find, const T& a_replace, const T& a_input)
 {
-	T::size_type l_pos = a_input.find(a_find), l_prevPos = 0;
+	typename T::size_type l_pos = a_input.find(a_find), l_prevPos = 0;
 	T l_new;
 
 	while(l_pos != T::npos)
