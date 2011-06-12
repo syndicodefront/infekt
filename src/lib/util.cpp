@@ -738,7 +738,7 @@ HMODULE CUtil::SilentLoadLibrary(const std::wstring& a_path)
 	{
 		// BOOL SetThreadErrorMode(DWORD dwNewMode, LPDWORD lpOldMode);
 		typedef BOOL (WINAPI *fstem)(DWORD, LPDWORD);
-		
+
 		fstem fnc = (fstem)::GetProcAddress(::GetModuleHandle(L"Kernel32.dll"), "SetThreadErrorMode");
 
 		if(fnc)

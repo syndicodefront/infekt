@@ -126,6 +126,8 @@ public:
 	// the callback will be invoked asynchronously.
 	bool StartRequest(PWinHttpRequest& a_req);
 
+	static std::wstring ExtractFileNameFromUrl(const std::wstring& a_url);
+
 protected:
 	int m_nextReqId;
 	std::map<int, PWinHttpRequest> m_requests;

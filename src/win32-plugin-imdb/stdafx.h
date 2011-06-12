@@ -12,3 +12,4 @@
 #include <boost/shared_ptr.hpp>
 
 #include <pcre.h>
+#include <pcrecpp.h>

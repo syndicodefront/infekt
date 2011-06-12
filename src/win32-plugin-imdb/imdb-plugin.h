@@ -31,8 +31,14 @@ public:
 
 	long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam, void *pUser = NULL);
 
-	void OnFoundImdbLink(const std::wstring& a_href);
+protected:
+	static INFEKT_PLUGIN_METHOD(ImdbMainEventCallback);
+	static INFEKT_PLUGIN_METHOD(EnumNfoLinksCallback);
+	static INFEKT_PLUGIN_METHOD(HttpCallback);
+
 	void OnNfoLoaded(const infekt_nfo_info_t*);
+	void OnFoundImdbLink(const std::string& a_imdbId);
+	void OnHttpResult(const infekt_http_result_t* a_result);
 
 private:
 	infektPluginMethod m_fPluginToCore;

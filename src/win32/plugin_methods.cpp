@@ -210,6 +210,32 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 		return IPE_NULLCALLBACK;
 	}
 
+	// check for our "local" "hard" cache, if requested:
+	if((a_pReq->flags & INFEKT_HTTP_REQ_CACHE_PERM) != 0 ||
+		(a_pReq->flags & INFEKT_HTTP_REQ_CACHE_TEMP) != 0)
+	{
+		std::wstring l_cachePath = ((a_pReq->flags & INFEKT_HTTP_REQ_CACHE_PERM) != 0 ?
+			CUtil::GetAppDataDir(true, L"iNFEKT") : CUtil::GetTempDir());
+
+		std::wstring l_cacheFileName = CWinHttpClient::ExtractFileNameFromUrl(a_pReq->url);
+
+		l_cachePath = l_cachePath + l_cacheFileName;
+
+		if(::PathFileExists(l_cachePath.c_str()))
+		{
+			// short cut.
+			infektDeclareStruct(infekt_http_result_t, l_res);
+			l_res.success = true;
+
+			l_res.downloadFileName = l_cachePath.c_str();
+
+			a_pReq->callback("", 0, IPV_HTTP_RESULT, 304, &l_res, a_pUser);
+
+			return 0; // means extracted from local cache
+		}
+	}
+
+	// create a request instance now:
 	PWinHttpRequest l_req = l_plugin->GetHttpClient()->CreateRequest();
 
 	l_req->SetUrl(a_pReq->url);
@@ -219,7 +245,7 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 		l_req->SetDownloadFilePath(a_pReq->downloadToFileName);
 	}
 
-	l_req->SetBypassCache(a_pReq->bypassCache);
+	l_req->SetBypassCache((a_pReq->flags & INFEKT_HTTP_REQ_BYPASS_CACHE) != 0);
 
 	l_req->SetCallback(boost::bind(&_DoHttpRequest_Callback, _1, a_pReq->callback, a_pUser));
 
