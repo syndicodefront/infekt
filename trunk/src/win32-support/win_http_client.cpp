@@ -135,6 +135,57 @@ LRESULT CALLBACK CWinHttpClient::MessageWindowProc(HWND hWindow, UINT uMsg, WPAR
 }
 
 
+std::wstring CWinHttpClient::ExtractFileNameFromUrl(const std::wstring& a_url)
+{
+	std::wstring l_tmpUrl(a_url);
+	CUtil::StrTrimRight(l_tmpUrl, L"/?");
+
+	std::wstring l_fileName;
+
+	// find file name part:
+	std::wstring::size_type l_slashPos = l_tmpUrl.rfind(L'/');
+
+	if(l_slashPos != std::wstring::npos)
+	{
+		std::wstring l_fileName = l_tmpUrl.substr(l_slashPos + 1);
+
+		// find query part, remove if there is one:
+		std::wstring::size_type l_queryPos = l_fileName.find(L'?');
+
+		if(l_queryPos != std::wstring::npos)
+		{
+			l_fileName.erase(l_queryPos);
+		}
+	}
+
+	if(l_fileName.empty())
+	{
+		// fall back to entire URL if a filename can't be extracted...
+		l_fileName = a_url;
+	}
+
+	// remove everything besides [a-zA-Z0-9._-] from the file name:
+	std::wstring l_fileClean;
+	l_fileClean.reserve(l_fileName.size());
+
+	for(std::wstring::size_type p = 0; p < l_fileName.size(); p++)
+	{
+		if(iswalnum(l_fileName[p]) ||
+			l_fileName[p] == L'-' || l_fileName[p] == L'.' || l_fileName[p] == L'_')
+		{
+			if(l_fileClean.size() > 48)
+			{
+				l_fileClean.erase(0, 1);
+			}
+
+			l_fileClean += l_fileName[p];
+		}
+	}
+
+	return l_fileClean;
+}
+
+
 CWinHttpClient::~CWinHttpClient()
 {
 	if(m_instanceReggedClass)
