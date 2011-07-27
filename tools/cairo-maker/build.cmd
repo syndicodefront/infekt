@@ -14,11 +14,11 @@ curl http://zlib.net/zlib-1.2.5.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.4.5.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.4.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.21.2.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.22.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
@@ -60,11 +60,6 @@ move zlib-* zlib
 move libpng-* libpng
 move pixman-* pixman
 move cairo-* cairo
-
-cd cairo
-patch -p1 -i "%ROOTDIR%/../lround.patch"
-patch -p1 -i "%ROOTDIR%/../win32.patch"
-cd ..
 
 IF %CONFIG%==debug GOTO SWITCHDEBUG
 set DBD=
@@ -137,17 +132,17 @@ set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\boilerplate
 set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\src
 
 IF %CONFIG%==debug GOTO FINALLIBDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng14.* %ROOTDIR%\libpng
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng15.* %ROOTDIR%\libpng
 copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\Zlib\zlib1.* %ROOTDIR%\zlib
 GOTO FINALLIBDONE
 :FINALLIBDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.* %ROOTDIR%\libpng
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.* %ROOTDIR%\libpng
 copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\Zlib\zlib1d.* %ROOTDIR%\zlib
 :FINALLIBDONE
 
 cd %ROOTDIR%\cairo
 
-sed s/libpng\.lib/libpng14%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
+sed s/libpng\.lib/libpng15%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
 sed s/zdll\.lib/zlib1%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
@@ -200,17 +195,17 @@ copy %ROOTDIR%\cairo\src\cairo-pdf.h include
 REM copy %ROOTDIR%\cairo\src\cairo-svg.h include
 
 IF %CONFIG%==debug GOTO FINALCOPYDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng14.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng14.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng15.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng15.lib out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\ZLib\zlib1.dll out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\ZLib\zlib1.lib out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\cairo\src\release\cairo.dll out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\cairo\src\release\cairo.lib out-%CONFIG%-%PLATFORM%
 GOTO FINALCOPYDONE
 :FINALCOPYDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.lib out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng14d.pdb out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.pdb out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.dll out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.lib out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.pdb out-%CONFIG%-%PLATFORM%
