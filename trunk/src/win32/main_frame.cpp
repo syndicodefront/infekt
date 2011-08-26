@@ -319,7 +319,16 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 		if(l_item < m_mruPaths.size())
 		{
-			OpenFile(m_mruPaths[l_item]);
+			const std::wstring l_path = m_mruPaths[l_item];
+
+			if(!::PathFileExists(l_path.c_str()))
+			{
+				this->MessageBox(L"The file does no longer exist at its previous location.", L"Sorry", MB_ICONEXCLAMATION);
+			}
+			else
+			{
+				OpenFile(l_path);
+			}
 		}
 
 		return TRUE;
@@ -1348,8 +1357,11 @@ void CMainFrame::LoadOpenMruList()
 		const wstring l_valName = FORMAT(L"%d", i);
 		const std::wstring l_path = l_sect->ReadString(l_valName.c_str());
 
-		if(!l_path.empty() && ::PathFileExists(l_path.c_str()))
+		if(!l_path.empty())
 		{
+			// 2011-08: Don't check whether the file exists here
+			// in order to avoid unnecessarily spinning up drives.
+			// Check when clicking the menu entry instead (bug #58).
 			m_mruPaths.push_back(l_path);
 		}
 	}
