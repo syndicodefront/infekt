@@ -49,12 +49,12 @@
 #include <vector>
 #include <deque>
 #include <set>
+#include <memory>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <shellapi.h>
 #include <uxtheme.h>
 #include <boost/format.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/function.hpp>
@@ -62,6 +62,8 @@
 #include <commdlg.h>
 #include <windowsx.h>
 #include <shlobj.h>
+
+using std::tr1::shared_ptr;
 
 /* cairo and other lib headers */
 #include <cairo-win32.h>

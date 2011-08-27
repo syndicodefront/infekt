@@ -7,7 +7,7 @@ REM * curl in PATH
 
 rem set CONFIG=release
 set CONFIG=debug
-set X64=y
+set X64=n
 
 IF EXIST pcre.tgz GOTO PCREOK
 curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.12.tar.gz -o pcre.tgz
@@ -17,11 +17,11 @@ set ROOTDIR=%cd%\work
 set PATH=%PATH%;C:\msys\1.0\bin
 
 IF %X64%==y GOTO SWITCHX64
-call "%VS90COMNTOOLS%/vsvars32.bat"
+call "%VS100COMNTOOLS%vsvars32.bat"
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
-call "%VS90COMNTOOLS%\..\..\VC\bin\amd64\vcvarsamd64.bat"
+call "%VS100COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
 set PLATFORM=x64
 :SWITCHNOX64
 
@@ -70,18 +70,20 @@ cat %BDIR%\config-win32-head.inc %PDIR%\config.h.generic %BDIR%\config-win32-tai
 REM Build dftables
 cd %BDIR%
 
+vcupgrade dftables.vcproj
 IF %CONFIG%==debug GOTO DFTABLESDEBUG
-vcbuild dftables.vcproj "Release|%PLATFORM%"
+msbuild dftables.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Release
 GOTO DFTABLESDONE
 :DFTABLESDEBUG
-vcbuild dftables.vcproj "Debug|%PLATFORM%"
+msbuild dftables.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Debug
 :DFTABLESDONE
 
+vcupgrade pcre.vcproj
 IF %CONFIG%==debug GOTO PCREDEBUG
-vcbuild pcre.vcproj "Release|%PLATFORM%"
+msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Release
 GOTO PCREDONE
 :PCREDEBUG
-vcbuild pcre.vcproj "Debug|%PLATFORM%"
+msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Debug
 :PCREDONE
 
 cd %PARENT%
@@ -105,11 +107,11 @@ xcopy %BDIR%\pcre_stringpiece.h include
 
 IF %X64%==n GOTO FINALCOPYX86
 xcopy "%BDIR%\x64\%CONFIG%\pcre%DBD%.dll" out-%CONFIG%-%PLATFORM%
-xcopy "%BDIR%\x64\%CONFIG%\pcre%DBD%.lib" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\x64\%CONFIG%\pcre.lib" out-%CONFIG%-%PLATFORM%
 GOTO FINALCOPYDONE
 :FINALCOPYX86
 xcopy "%BDIR%\%CONFIG%\pcre%DBD%.dll" out-%CONFIG%-%PLATFORM%
-xcopy "%BDIR%\%CONFIG%\pcre%DBD%.lib" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\%CONFIG%\pcre.lib" out-%CONFIG%-%PLATFORM%
 :FINALCOPYDONE
 
 goto END

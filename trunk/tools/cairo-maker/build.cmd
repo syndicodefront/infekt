@@ -29,11 +29,11 @@ set ROOTDIR=%cd%\work
 set PATH=%PATH%;C:\msys\1.0\bin
 
 IF %X64%==y GOTO SWITCHX64
-call "%VS90COMNTOOLS%/vsvars32.bat"
+call "%VS100COMNTOOLS%\vsvars32.bat"
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
-call "%VS90COMNTOOLS%\..\..\VC\bin\amd64\vcvarsamd64.bat"
+call "%VS100COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
 set PLATFORM=x64
 :SWITCHNOX64
 
@@ -68,47 +68,52 @@ goto SWITCHDONE
 set DBD=d
 :SWITCHDONE
 
-REM Fix ZLIB project file
-cd %ROOTDIR%\libpng\projects\visualc71
+REM Build ZLIB and LIBPNG
+cd %ROOTDIR%\libpng\projects\vstudio
 
-sed "s/gzio.c\"^>/gzread.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzwrite.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzclose.c\" \/><File RelativePath=\"..\\..\\..\\zlib\\gzlib.c\">/" zlib.vcproj > zlib.vcproj.fixed
-move /Y zlib.vcproj.fixed zlib.vcproj
+sed "s/zlib-1....</zlib</" zlib.props > zlib.props.fixed
+move /Y zlib.props.fixed zlib.props
 
-REM Build ZLIB
-vcbuild /upgrade zlib.vcproj
+sed "s/StaticLibrary/DynamicLibrary/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
 IF %X64%==n GOTO ZLIBNOX64
-sed "s/Win32/x64/" zlib.vcproj > zlib.vcproj.fixed
-move /Y zlib.vcproj.fixed zlib.vcproj
+sed "s/Win32/x64/" vstudio.sln > vstudio.sln.fixed
+sed "s/Win32/x64/" vstudio.sln.fixed > vstudio.sln.fixed2
+move /Y vstudio.sln.fixed2 vstudio.sln
+
+sed "s/Win32/x64/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
+sed "s/Win32/x64/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
+sed "s/<TargetMachine>MachineX86</<TargetMachine>MachineX64</" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
+sed "s/<TargetMachine>MachineX86</<TargetMachine>MachineX64</" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
+
+sed "s/Win32/x64/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
+move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
 :ZLIBNOX64
 
-IF %CONFIG%==debug GOTO ZLIBDEBUG
-vcbuild zlib.vcproj "DLL Release"
-GOTO ZLIBDONE
-:ZLIBDEBUG
-vcbuild zlib.vcproj "DLL Debug"
-:ZLIBDONE
+rem zlib does not always export the gz* calls for some reason
+sed "s/^\s*gz.*$/;\0/m" %ROOTDIR%\zlib\win32\zlib.def > zlib\zlib.def
 
-REM Build LIBPNG
-cd %ROOTDIR%\libpng\projects\visualc71
-vcbuild /upgrade libpng.vcproj
-sed "s/  png_set_premultiply_alpha/; png_set_premultiply_alpha/" %ROOTDIR%\libpng\scripts\pngwin.def > %ROOTDIR%\libpng\scripts\pngwin.def.tmp
-move /Y %ROOTDIR%\libpng\scripts\pngwin.def.tmp %ROOTDIR%\libpng\scripts\pngwin.def
+sed "s/<SubSystem>/<ModuleDefinitionFile>zlib.def<\/ModuleDefinitionFile><SubSystem>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
-sed "s/DataExecutionPrevention=\"0\"/AdditionalDependencies=\"zlib1%DBD%.lib\" AdditionalLibraryDirectories=\"$(OutDir)\\\\Zlib\"/" libpng.vcproj > libpng.vcproj.tmp
-move /Y libpng.vcproj.tmp libpng.vcproj
+IF %CONFIG%==debug GOTO LIBPNGPDBOK
+sed "s/<GenerateDebugInformation>true</<GenerateDebugInformation>false</" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
+sed "s/<GenerateDebugInformation>true</<GenerateDebugInformation>false</" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
+:LIBPNGPDBOK
 
-IF %X64%==n GOTO LIBPNGNOX64
-sed "s/Win32/x64/" libpng.vcproj > libpng.vcproj.fixed
-move /Y libpng.vcproj.fixed libpng.vcproj
-:LIBPNGNOX64
+msbuild vstudio.sln /p:Platform=%PLATFORM% /p:Configuration="%CONFIG%"
 
-IF %CONFIG%==debug GOTO LIBPNGDEBUG
-vcbuild libpng.vcproj "DLL Release"
-GOTO LIBPNGDONE
-:LIBPNGDEBUG
-vcbuild libpng.vcproj "DLL Debug"
-:LIBPNGDONE
+move %ROOTDIR%\libpng\projects\vstudio\x64\%CONFIG% %ROOTDIR%\libpng\projects\vstudio\%CONFIG%
+
+xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng* %ROOTDIR%\libpng
+xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib* %ROOTDIR%\libpng
 
 REM Build Pixman
 IF %X64%==n GOTO PIXMANNOX64
@@ -131,21 +136,12 @@ set INCLUDE=%INCLUDE%;%ROOTDIR%\pixman\pixman
 set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\boilerplate
 set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\src
 
-IF %CONFIG%==debug GOTO FINALLIBDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng15.* %ROOTDIR%\libpng
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\Zlib\zlib1.* %ROOTDIR%\zlib
-GOTO FINALLIBDONE
-:FINALLIBDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.* %ROOTDIR%\libpng
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\Zlib\zlib1d.* %ROOTDIR%\zlib
-:FINALLIBDONE
-
 cd %ROOTDIR%\cairo
 
-sed s/libpng\.lib/libpng15%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
+sed s/libpng\.lib/libpng15.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
-sed s/zdll\.lib/zlib1%DBD%.lib/ build\Makefile.win32.common > build\Makefile.fixed
+sed s/zlib\/zdll\.lib/libpng\/zlib.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
 IF %CONFIG%==release GOTO SKIPDEBUGLIBFIX
@@ -155,9 +151,6 @@ move /Y build\Makefile.fixed build\Makefile.win32.common
 
 sed "s/D_CRT_NONSTDC_NO_DEPRECATE/D_CRT_NONSTDC_NO_DEPRECATE -DZLIB_DLL/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
-
-sed "s/^if \([A-Z_]*\)$/ifeq ($(\1), 1)/" src\Makefile.sources > src\Makefile.fixed
-move /Y src\Makefile.fixed src\Makefile.sources
 
 REM we can toggle SVG support here but we MUST NOT remove these two lines
 REM else the make file will fail to regenerate cairo-features.h
@@ -192,25 +185,20 @@ copy %ROOTDIR%\cairo\src\cairo-deprecated.h include
 copy %ROOTDIR%\cairo\src\cairo-win32.h include
 copy %ROOTDIR%\cairo\src\cairo-ps.h include
 copy %ROOTDIR%\cairo\src\cairo-pdf.h include
-REM copy %ROOTDIR%\cairo\src\cairo-svg.h include
 
-IF %CONFIG%==debug GOTO FINALCOPYDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng15.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\libpng15.lib out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\ZLib\zlib1.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Release\ZLib\zlib1.lib out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\cairo\src\release\cairo.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\cairo\src\release\cairo.lib out-%CONFIG%-%PLATFORM%
-GOTO FINALCOPYDONE
-:FINALCOPYDEBUG
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.lib out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\libpng15d.pdb out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.lib out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\visualc71\%PLATFORM%_DLL_Debug\ZLib\zlib1d.pdb out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\cairo\src\debug\cairo.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\cairo\src\debug\cairo.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.lib out-%CONFIG%-%PLATFORM%
+
+copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.dll out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.lib out-%CONFIG%-%PLATFORM%
+
+IF %CONFIG%==release GOTO FINALCOPYDONE
+rem copy PDB files
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.pdb out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.pdb out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\cairo\src\debug\cairo.pdb out-%CONFIG%-%PLATFORM%
 :FINALCOPYDONE
 
 goto END

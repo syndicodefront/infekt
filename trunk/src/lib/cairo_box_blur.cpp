@@ -190,7 +190,7 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 			int l_tmpSize = l_rows * cairo_image_surface_get_width(m_imgSurface);
 			if(l_tmpSize < 3000000)
 			{
-				// CUDA hangs and maybe brings down the system with numbers too large.
+				// CUDA hangs and sometimes takes down the system with too many numbers.
 
 				if(CCudaUtil::GetInstance()->IsCudaUsable())
 				{

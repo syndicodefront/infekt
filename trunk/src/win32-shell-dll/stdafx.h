@@ -34,7 +34,8 @@
 #include <map>
 #include <io.h>
 
-#include <boost/shared_ptr.hpp>
+#include <memory>
+using std::tr1::shared_ptr;
 
 #include <cairo-win32.h>
 #include <pcre.h>
