@@ -9,7 +9,8 @@
 #include <map>
 #include <limits>
 #include <stack>
-#include <boost/shared_ptr.hpp>
+#include <memory>
+using std::tr1::shared_ptr;
 
 #include <pcre.h>
 #include <pcrecpp.h>

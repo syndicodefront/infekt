@@ -31,7 +31,7 @@ public:
 
 class CXMLParser;
 class CXMLTag;
-typedef boost::shared_ptr<CXMLTag> PXMLTag;
+typedef std::tr1::shared_ptr<CXMLTag> PXMLTag;
 
 class CXMLTag
 {
