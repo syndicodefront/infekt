@@ -11,6 +11,7 @@
   * Added "(portable)" to Window caption when running in portable mode
   * Fixed issue 57 (wrong URL in first part of multiline hyper links)
   * Fixed issue 58 (delay/spinning up disks on program start-up)
+  * Resolved issue 54: Added a menu entry to hide/show the status bar
   * Improved Windows Server 2003 compatibility
   * Dropped Windows 2000 support
   * Using Microsoft Visual C++ 2010 compiler and runtime from now on
