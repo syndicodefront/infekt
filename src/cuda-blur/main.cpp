@@ -14,6 +14,8 @@
 
 #include "targetver.h"
 #include <windows.h>
+#include "cuda.h"
+#include "cuda_runtime.h"
 #include "cutil_inline.h"
 #include "cuda_blur_dll_int.h"
 
