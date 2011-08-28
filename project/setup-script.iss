@@ -2,6 +2,8 @@
 #define SourceFileDir64 "Y:\temp\free\Release-x64"
 #define NfoProgId "iNFEKT.NFOFile.1"
 
+#include "it_download.iss"
+
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
@@ -81,6 +83,8 @@ Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"
 Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Tasks: quicklaunchicon; Check: Is64BitInstallMode
 
 [Run]
+Filename: "{tmp}\vcredist_x86.exe"; Parameters: "/q /norestart"; StatusMsg: "Installing Microsoft Visual C++ 2010 (x86) runtime..."; Flags: skipifdoesntexist; Check: InstallCppRuntime and not Is64BitInstallMode
+Filename: "{tmp}\vcredist_x64.exe"; Parameters: "/q /norestart"; StatusMsg: "Installing Microsoft Visual C++ 2010 (x64) runtime..."; Flags: skipifdoesntexist; Check: InstallCppRuntime and Is64BitInstallMode
 Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: not Is64BitInstallMode
 Filename: "{app}\infekt-win64.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: Is64BitInstallMode
 
@@ -115,4 +119,51 @@ Root: HKCU; Subkey: "Software\cxxjoe\iNFEKT"; Flags: dontcreatekey uninsdeleteke
 ; Association created by Windows:
 Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win32.exe"; Flags: dontcreatekey uninsdeletekey; Check: not Is64BitInstallMode
 Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win64.exe"; Flags: dontcreatekey uninsdeletekey; Check: Is64BitInstallMode
+
+[Code]
+function MsiQueryProductState(ProductCode: String): Integer; external 'MsiQueryProductStateW@msi.dll stdcall';
+
+var
+	cppRuntimeInstalled: Boolean;
+
+const
+	INSTALLSTATE_DEFAULT = 5;
+	
+	MSVC_X64_URL = 'http://download.microsoft.com/download/A/8/0/A80747C3-41BD-45DF-B505-E9710D2744E0/vcredist_x64.exe';
+	MSVC_X86_URL = 'http://download.microsoft.com/download/C/6/D/C6D0FD4E-9E53-4897-9B91-836EBA2AACD3/vcredist_x86.exe';
+
+
+function InstallCppRuntime(): Boolean;
+begin
+  Result := not cppRuntimeInstalled;
+end;
+
+
+procedure InitializeWizard();
+begin
+	ITD_Init();
+
+	if Is64BitInstallMode() then
+	begin
+		ITD_AddFile(MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
+		ITD_AddMirror(MSVC_X64_URL, 'http://infekt.googlecode.com/files/vcredist_x64.exe');
+
+		cppRuntimeInstalled := (MsiQueryProductState('{1D8E6291-B0D5-35EC-8441-6616F567A0F7}') = INSTALLSTATE_DEFAULT) // with SP1
+		  or (MsiQueryProductState('{DA5E371C-6333-3D8A-93A4-6FD5B20BCC6E}') = INSTALLSTATE_DEFAULT); // without SP1
+	end
+	else
+	begin
+		ITD_AddFile(MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
+		ITD_AddMirror(MSVC_X86_URL, 'http://infekt.googlecode.com/files/vcredist_x86.exe');
+
+		cppRuntimeInstalled := (MsiQueryProductState('{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}') = INSTALLSTATE_DEFAULT) // with SP1
+		  or (MsiQueryProductState('{196BB40D-1578-3D01-B289-BEFC77A11A1E}') = INSTALLSTATE_DEFAULT); // without SP1
+	end;
+
+	if InstallCppRuntime() then
+	begin
+		ITD_DownloadAfter(wpReady);
+	end;
+end;
+
 
