@@ -4,11 +4,16 @@
 == v0.9 (???) ==
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
+
+== v0.8.0 ==
+  * New _Super Compact Version_ (no CUDA H/W acceleration, no plugins, one EXE file without dependencies + configuration INI only)
   * Parallelized CPU-based blur computation using OpenMP (performance improvement for non-Nvidia GPU users)
   * Added "(portable)" to Window caption when running in portable mode
   * Fixed issue 57 (wrong URL in first part of multiline hyper links)
+  * Fixed issue 58 (delay/spinning up disks on program start-up)
   * Improved Windows Server 2003 compatibility
   * Dropped Windows 2000 support
+  * Using Microsoft Visual C++ 2010 compiler and runtime from now on
   * Misc fixes and improvements
 
 == v0.7.9 (04 March 2011) ==
