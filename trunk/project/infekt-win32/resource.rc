@@ -16,10 +16,8 @@
 // German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
-#ifdef _WIN32
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -51,13 +49,11 @@ END
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -65,7 +61,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_DLG_SETTINGS, DIALOG
     BEGIN
@@ -120,7 +116,7 @@ END
 // Menu
 //
 
-IDR_MAIN_MENU MENU 
+IDR_MAIN_MENU MENU
 BEGIN
     POPUP "&File"
     BEGIN
@@ -157,6 +153,7 @@ BEGIN
         END
         MENUITEM SEPARATOR
         MENUITEM "Always on Top\tCtrl+T",       IDM_ALWAYSONTOP
+        MENUITEM "Show Status bar",             IDM_SHOWSTATUSBAR
     END
     POPUP "&Tools"
     BEGIN
@@ -170,7 +167,7 @@ BEGIN
     END
 END
 
-IDR_CONTEXT_MENU MENU 
+IDR_CONTEXT_MENU MENU
 BEGIN
     POPUP "."
     BEGIN
@@ -320,7 +317,7 @@ END
 // Accelerator
 //
 
-IDR_MAIN_KEYBOARD_SHORTCUTS ACCELERATORS 
+IDR_MAIN_KEYBOARD_SHORTCUTS ACCELERATORS
 BEGIN
     "T",            IDM_ALWAYSONTOP,        VIRTKEY, CONTROL, NOINVERT
     "P",            IDM_EXPORT_PNG,         VIRTKEY, CONTROL, NOINVERT
@@ -392,7 +389,7 @@ BEGIN
     END
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

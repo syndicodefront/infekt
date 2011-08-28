@@ -154,6 +154,8 @@ void CMainFrame::OnCreate()
 
 void CMainFrame::OnInitialUpdate()
 {
+	ShowStatusbar(m_bShowStatusbar);
+
 	if(m_settings->bCenterWindow)
 	{
 		CenterWindow();
@@ -410,6 +412,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		m_view.ReloadFile();
 		return TRUE;
 
+	case IDM_SHOWSTATUSBAR:
+		ShowStatusbar(m_bShowStatusbar = !m_bShowStatusbar);
+		return TRUE;
+
 	case IDM_OPTIWIDTH:
 		ShowWindow(SW_SHOWNORMAL);
 		AdjustWindowToNFOWidth();
@@ -446,6 +452,20 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 
 	return FALSE;
+}
+
+
+void CMainFrame::ShowStatusbar(BOOL bShow)
+{
+	::CheckMenuItem(::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS), IDM_SHOWSTATUSBAR,
+		(m_bShowStatusbar ? MF_CHECKED : MF_UNCHECKED) | MF_BYCOMMAND);
+
+	GetStatusbar().ShowWindow(m_bShowStatusbar ? SW_SHOW : SW_HIDE);
+
+	RecalcLayout();
+	Invalidate();
+
+	UpdateStatusbar();
 }
 
 
@@ -1281,8 +1301,8 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 	}
 	else if(l_result < 0)
 	{
-		wstring l_auExePath = CUtil::GetExeDir() + L"\\infekt-win32-updater.exe";
 #ifndef COMPACT_RELEASE
+		wstring l_auExePath = CUtil::GetExeDir() + L"\\infekt-win32-updater.exe";
 		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) &&
 			!l_autoUpdateHash.empty() && !l_autoUpdateUrl.empty();
 #else
