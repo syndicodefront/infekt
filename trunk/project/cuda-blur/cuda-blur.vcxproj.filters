@@ -15,11 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\src\cuda-blur\boxblur_kernel.cu">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\src\cuda-blur\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -28,5 +23,10 @@
     <ClInclude Include="..\..\src\cuda-blur\cuda_blur_dll_int.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="..\..\src\cuda-blur\boxblur_kernel.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

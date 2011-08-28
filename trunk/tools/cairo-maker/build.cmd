@@ -2,12 +2,13 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2008
+REM * Visual Studio 2010
 REM * curl in PATH
 
 rem set CONFIG=release
 set CONFIG=debug
 set X64=n
+set STATIC=n
 
 IF EXIST zlib.tgz GOTO AZOK
 curl http://zlib.net/zlib-1.2.5.tar.gz -o zlib.tgz
@@ -74,8 +75,10 @@ cd %ROOTDIR%\libpng\projects\vstudio
 sed "s/zlib-1....</zlib</" zlib.props > zlib.props.fixed
 move /Y zlib.props.fixed zlib.props
 
+IF %STATIC%==y GOTO ZLIBSTATICOK
 sed "s/StaticLibrary/DynamicLibrary/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
+:ZLIBSTATICOK
 
 IF %X64%==n GOTO ZLIBNOX64
 sed "s/Win32/x64/" vstudio.sln > vstudio.sln.fixed
@@ -108,9 +111,17 @@ sed "s/<GenerateDebugInformation>true</<GenerateDebugInformation>false</" libpng
 move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
 :LIBPNGPDBOK
 
+IF %STATIC%==y GOTO LIBPNGSTATICLIB
 msbuild vstudio.sln /p:Platform=%PLATFORM% /p:Configuration="%CONFIG%"
-
 move %ROOTDIR%\libpng\projects\vstudio\x64\%CONFIG% %ROOTDIR%\libpng\projects\vstudio\%CONFIG%
+GOTO LIBPNGSTATICDONE
+:LIBPNGSTATICLIB
+msbuild vstudio.sln /p:Platform=%PLATFORM% /p:Configuration="%CONFIG% Library" /p:ConfigurationType=StaticLibrary /p:RuntimeLibrary=MultiThreaded
+mkdir %ROOTDIR%\libpng\projects\vstudio\%CONFIG%
+move "%ROOTDIR%\libpng\projects\vstudio\x64\%CONFIG% Library\*" %ROOTDIR%\libpng\projects\vstudio\%CONFIG%
+move "%ROOTDIR%\libpng\projects\vstudio\%CONFIG% Library\*" %ROOTDIR%\libpng\projects\vstudio\%CONFIG%
+:LIBPNGSTATICDONE
+
 
 xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng* %ROOTDIR%\libpng
 xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib* %ROOTDIR%\libpng
@@ -122,6 +133,10 @@ rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit
 :PIXMANNOX64
 
 cd %ROOTDIR%\pixman\pixman
+
+sed "s/= -MD/= -MT/" build\Makefile.win32.common > build\Makefile.fixed
+move /Y build\Makefile.fixed build\Makefile.win32.common
+
 IF %CONFIG%==debug GOTO PIXMANDEBUG
 make -f Makefile.win32 "CFG=release"
 GOTO PIXMANDONE
@@ -144,10 +159,17 @@ move /Y build\Makefile.fixed build\Makefile.win32.common
 sed s/zlib\/zdll\.lib/libpng\/zlib.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
-IF %CONFIG%==release GOTO SKIPDEBUGLIBFIX
+rem IF %CONFIG%==release GOTO SKIPDEBUGLIBFIX
+rem sed "s/user32\.lib/user32.lib \/NODEFAULTLIB:msvcrt.lib/" build\Makefile.win32.common > build\Makefile.fixed
+rem move /Y build\Makefile.fixed build\Makefile.win32.common
+rem :SKIPDEBUGLIBFIX
+
+IF %STATIC%==n GOTO SKIPSTATICFIX
+sed "s/CFG_CFLAGS := -MD/CFG_CFLAGS := -MT/" build\Makefile.win32.common > build\Makefile.fixed
+move /Y build\Makefile.fixed build\Makefile.win32.common
 sed "s/user32\.lib/user32.lib \/NODEFAULTLIB:msvcrt.lib/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
-:SKIPDEBUGLIBFIX
+:SKIPSTATICFIX
 
 sed "s/D_CRT_NONSTDC_NO_DEPRECATE/D_CRT_NONSTDC_NO_DEPRECATE -DZLIB_DLL/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
