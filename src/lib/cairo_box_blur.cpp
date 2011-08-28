@@ -184,7 +184,7 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 		bool l_useCpu = true;
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(COMPACT_RELEASE)
 		if(m_allowHwAccel)
 		{
 			int l_tmpSize = l_rows * cairo_image_surface_get_width(m_imgSurface);

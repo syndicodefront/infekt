@@ -1282,8 +1282,12 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 	else if(l_result < 0)
 	{
 		wstring l_auExePath = CUtil::GetExeDir() + L"\\infekt-win32-updater.exe";
+#ifndef COMPACT_RELEASE
 		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) &&
 			!l_autoUpdateHash.empty() && !l_autoUpdateUrl.empty();
+#else
+		bool l_auPossible = false;
+#endif
 
 		wstring l_msg = L"Attention! A new version is available (iNFekt v" + l_serverVersion + L")!\n\n";
 

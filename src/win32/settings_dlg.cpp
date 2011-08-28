@@ -66,13 +66,16 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 	m_tabPageRendered = new CSettingsTabDialog(this, TAB_PAGE_RENDERED, IDD_TAB_VIEWSETTINGS);
 	m_tabPageClassic = new CSettingsTabDialog(this, TAB_PAGE_CLASSIC, IDD_TAB_VIEWSETTINGS);
 	m_tabPageTextOnly = new CSettingsTabDialog(this, TAB_PAGE_TEXTONLY, IDD_TAB_VIEWSETTINGS);
-	m_tabPagePlugins = new CSettingsTabDialog(this, TAB_PAGE_PLUGINS, IDD_TAB_PLUGINS);
 
 	m_tabControl.AddTabPage(m_tabPageGeneral, _T("General"));
 	m_tabControl.AddTabPage(m_tabPageRendered, _T("Rendered View"));
 	m_tabControl.AddTabPage(m_tabPageClassic, _T("Classic View"));
 	m_tabControl.AddTabPage(m_tabPageTextOnly, _T("Text-Only View"));
+
+#ifdef INFEKT_PLUGIN_HOST
+	m_tabPagePlugins = new CSettingsTabDialog(this, TAB_PAGE_PLUGINS, IDD_TAB_PLUGINS);
 	m_tabControl.AddTabPage(m_tabPagePlugins, _T("Plugins"));
+#endif
 
 	m_tabControl.SetItemSize(100, 20);
 	m_tabControl.SelectPage(0);
@@ -93,7 +96,7 @@ void CSettingsWindowDialog::OnOK()
 	b = b && m_tabPageClassic->SaveSettings();
 	b = b && m_tabPageTextOnly->SaveSettings();
 
-	b = b && m_tabPagePlugins->SaveSettings();
+	b = b && (!m_tabPagePlugins || m_tabPagePlugins->SaveSettings());
 
 	if(!b)
 	{
@@ -310,6 +313,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		SET_DLG_CHECKBOX(IDC_CHECK_DEFAULT_VIEWER, l_global->bCheckDefaultOnStartup && ::IsWindowEnabled(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER)));
 
+#ifndef COMPACT_RELEASE
 		if(CCudaUtil::GetInstance()->IsCudaUsable())
 		{
 			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: Yes!"));
@@ -318,11 +322,15 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		{
 			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: No."));
 		}
+#else
+		SetDlgItemText(IDC_CUDA_STATUS, _T("Super Compact Version without NVIDIA CUDA support."));
+#endif
 
 		const std::wstring l_info = L"Active settings backend: " +
 			dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->GetName();
 		SetDlgItemText(IDC_SETTINGS_BACKEND_STATUS, l_info.c_str());
 	}
+#ifdef INFEKT_PLUGIN_HOST
 	else if(m_pageId == TAB_PAGE_PLUGINS)
 	{
 		m_pluginListView.AttachDlgItem(IDC_PLUGIN_LIST, this);
@@ -336,6 +344,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		PopulatePluginList();
 	}
+#endif
 
 	return TRUE;
 }
@@ -1094,6 +1103,7 @@ bool CSettingsTabDialog::SaveSettings()
 
 		return l_set->SaveToRegistry();
 	}
+#ifdef INFEKT_PLUGIN_HOST
 	else if(m_pageId == TAB_PAGE_PLUGINS)
 	{
 		CPluginManager* l_plugMgr = CPluginManager::GetInstance();
@@ -1132,10 +1142,12 @@ bool CSettingsTabDialog::SaveSettings()
 
 		return true;
 	}
+#endif
 
 	return false;
 }
 
+#ifdef INFEKT_PLUGIN_HOST
 static int CALLBACK _PluginSortCallback(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
 	if(lParam1 == -1)
@@ -1214,6 +1226,7 @@ void CSettingsTabDialog::PopulatePluginList()
 
 	::FindClose(l_fh);
 }
+#endif
 
 
 CSettingsTabDialog::~CSettingsTabDialog() 

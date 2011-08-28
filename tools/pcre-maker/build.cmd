@@ -2,12 +2,13 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2008
+REM * Visual Studio 2010
 REM * curl in PATH
 
 rem set CONFIG=release
 set CONFIG=debug
 set X64=n
+set STATIC=n
 
 IF EXIST pcre.tgz GOTO PCREOK
 curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.12.tar.gz -o pcre.tgz
@@ -71,19 +72,14 @@ REM Build dftables
 cd %BDIR%
 
 vcupgrade dftables.vcproj
-IF %CONFIG%==debug GOTO DFTABLESDEBUG
-msbuild dftables.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Release
-GOTO DFTABLESDONE
-:DFTABLESDEBUG
-msbuild dftables.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Debug
-:DFTABLESDONE
+msbuild dftables.vcxproj /p:Platform=%PLATFORM% /p:Configuration=%CONFIG%
 
 vcupgrade pcre.vcproj
-IF %CONFIG%==debug GOTO PCREDEBUG
-msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Release
+IF %STATIC%==y GOTO PCRESTATICLIB
+msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=%CONFIG%
 GOTO PCREDONE
-:PCREDEBUG
-msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=Debug
+:PCRESTATICLIB
+msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=%CONFIG% /p:ConfigurationType=StaticLibrary /p:RuntimeLibrary=MultiThreaded
 :PCREDONE
 
 cd %PARENT%

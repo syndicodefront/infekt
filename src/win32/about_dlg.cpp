@@ -80,6 +80,11 @@ BOOL CAboutDialog::OnInitDialog()
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
 
+#ifdef COMPACT_RELEASE
+	_CREATE_STATIC(l_hSubTitle, L"Super Compact Version", l_top, 20);
+	l_top += 20;
+#endif
+
 	if(l_hTitle)
 	{
 		LOGFONT l_tmpFont;
@@ -87,6 +92,9 @@ BOOL CAboutDialog::OnInitDialog()
 		l_tmpFont.lfWeight = FW_BOLD;
 		m_boldFont = CreateFontIndirect(&l_tmpFont);
 		::SendMessage(l_hTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
+#ifdef COMPACT_RELEASE
+		if(l_hSubTitle) ::SendMessage(l_hSubTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
+#endif
 	}
 
 	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2011"), l_top, 20);
@@ -106,6 +114,7 @@ BOOL CAboutDialog::OnInitDialog()
 		_T("as published by the Free Software Foundation."), l_top, 60);
 	l_top += 65;
 
+#ifndef COMPACT_RELEASE
 	if(CUtil::IsWin6x())
 	{
 		_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. \x2764"), l_top, 20);
@@ -114,6 +123,7 @@ BOOL CAboutDialog::OnInitDialog()
 	{
 		_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. <3"), l_top, 20);
 	}
+#endif
 
 	return TRUE;
 }

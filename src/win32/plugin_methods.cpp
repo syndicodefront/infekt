@@ -21,6 +21,7 @@ using namespace std;
 
 long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long long lParam, void* pParam, void* pUser)
 {
+#ifdef INFEKT_PLUGIN_HOST
 	switch(lCall)
 	{
 	case IPCI_GET_LOADED_NFO_TEXTWIDE:
@@ -48,10 +49,12 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long l
 	case IPCI_HTTP_REQUEST:
 		return DoHttpRequest(szGuid, static_cast<infekt_http_request_t*>(pParam), pUser);
 	}
+#endif
 
 	return IPE_NOT_IMPLEMENTED;
 }
 
+#ifdef INFEKT_PLUGIN_HOST
 
 long CPluginManager::DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8)
 {
@@ -258,3 +261,5 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 		return IPE_INTERNAL_PROBLEM;
 	}
 }
+
+#endif /* INFEKT_PLUGIN_HOST */
