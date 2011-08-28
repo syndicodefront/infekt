@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-shell-dll", "i
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-updater", "win32-updater\infekt-win32-updater.vcxproj", "{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cuda-blur", "cuda-blur\cuda-blur.vcxproj", "{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -57,6 +59,13 @@ Global
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|Win32.ActiveCfg = Release|Win32
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|Win32.Build.0 = Release|Win32
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|x64.ActiveCfg = Release|Win32
+		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Debug|Win32.ActiveCfg = Debug|Win32
+		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Debug|Win32.Build.0 = Debug|Win32
+		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Debug|x64.ActiveCfg = Debug|Win32
+		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|Win32.ActiveCfg = Release|Win32
+		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|Win32.Build.0 = Release|Win32
+		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|x64.ActiveCfg = Release|x64
+		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

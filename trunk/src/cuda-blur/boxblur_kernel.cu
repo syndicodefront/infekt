@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  **/
 
-#include "cutil_inline.h"
+#include "cuda_runtime.h"
 
 
 // how much parallelization?
