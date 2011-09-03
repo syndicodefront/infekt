@@ -28,10 +28,11 @@ public:
 	bool Render();
 
 protected:
-	struct TVertexColor { typedef boost::vertex_property_tag kind; };
+	struct TVertexPropertyHelper { typedef boost::vertex_property_tag kind; };
+	struct TVertexData { unsigned short color; size_t row; size_t col; };
 
-	typedef boost::property<TVertexColor, unsigned short> TVertexColorProperty;
-	typedef boost::adjacency_matrix<boost::undirectedS, TVertexColorProperty> TGraph;
+	typedef boost::property<TVertexPropertyHelper, TVertexData> TVertexDataProperty;
+	typedef boost::adjacency_matrix<boost::undirectedS, TVertexDataProperty> TGraph;
 	typedef boost::shared_ptr<TGraph> PGraph;
 
 	TwoDimVector<unsigned short>* m_intermediate;
