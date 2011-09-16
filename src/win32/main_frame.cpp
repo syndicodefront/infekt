@@ -641,7 +641,10 @@ void CMainFrame::UpdateCaption()
 	}
 
 	if(!l_caption.empty()) l_caption += _T(" - ");
-	l_caption += _T("iNFekt v") + InfektVersionAsString();
+	l_caption += L"iNFekt v" + InfektVersionAsString();
+#ifdef COMPACT_RELEASE
+	l_caption += L"-compact";
+#endif
 
 	if(dynamic_cast<CNFOApp*>(GetApp())->InPortableMode())
 	{
@@ -1261,6 +1264,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 
 			l_serverVersion = l_pairs[L"latest[stable].1"];
 			l_newDownloadUrl = l_pairs[L"download_latest[stable].1"];
+			// 078 defines the compatible auto-update method
 			l_autoUpdateUrl = l_pairs[L"autoupdate_download[stable].1/078"];
 			l_autoUpdateHash = l_pairs[L"autoupdate_hash[stable].1/078"];
 		}
@@ -1326,6 +1330,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 			// URL has been validated above.
 			::ShellExecute(0, L"open", l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
 		}
+#ifndef COMPACT_RELEASE
 		else
 		{
 			// try to perform auto-update.
@@ -1348,6 +1353,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 				}
 			}
 		}
+#endif
 	}
 	else if(l_result > 0)
 	{
