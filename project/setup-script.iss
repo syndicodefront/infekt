@@ -62,6 +62,7 @@ Source: "{#SourceFileDir32}\infekt-win32-updater.exe"; DestDir: "{app}"; Flags: 
 [InstallDelete]
 Type: files; Name: "{app}\cudart.dll"
 ; cudart.dll was used up to v0.6.0
+Type: files; Name: "{app}\libpng14.dll"
 Type: files; Name: "{app}\zlib1.dll"
 Type: files; Name: "{app}\cudart32_31_9.dll"
 Type: files; Name: "{app}\cudart64_31_9.dll"
