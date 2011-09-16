@@ -838,7 +838,7 @@ void CNFOViewControl::SelectAll()
 
 bool CNFOViewControl::FindTerm(const std::wstring& a_term, bool a_up, bool a_matchCase)
 {
-	bool l_wrapped = false;
+	/*bool l_wrapped = false;
 
 	if(m_findPosGlobalRow == m_gridData->GetRows())
 	{
@@ -880,7 +880,7 @@ bool CNFOViewControl::FindTerm(const std::wstring& a_term, bool a_up, bool a_mat
 		{
 			row++;
 		}
-	}
+	}*/
 
 	return false;
 }

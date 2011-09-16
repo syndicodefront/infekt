@@ -158,8 +158,6 @@ BEGIN
     POPUP "&Tools"
     BEGIN
         MENUITEM "Settings\tF6",                IDM_SETTINGS
-        MENUITEM SEPARATOR
-        MENUITEM "Find...\tCtrl+F",             40094
     END
     POPUP "&Help"
     BEGIN
@@ -328,8 +326,6 @@ BEGIN
     VK_F12,         IDM_HIDDENGIMMICK,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
     VK_F3,          IDM_VIEW_CLASSIC,       VIRTKEY, NOINVERT
-    "R",            IDM_VIEW_RELOAD,        VIRTKEY, CONTROL, NOINVERT
-    VK_F5,          IDM_VIEW_RELOAD,        VIRTKEY, NOINVERT
     VK_F2,          IDM_VIEW_RENDERED,      VIRTKEY, NOINVERT
     VK_F4,          IDM_VIEW_TEXTONLY,      VIRTKEY, NOINVERT
     VK_ADD,         IDM_ZOOM_IN,            VIRTKEY, CONTROL, NOINVERT
@@ -340,7 +336,8 @@ BEGIN
     VK_NUMPAD0,     IDM_ZOOM_RESET,         VIRTKEY, CONTROL, NOINVERT
     "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
     "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
-    "F",            IDM_FIND,               VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          IDM_VIEW_RELOAD,        VIRTKEY, NOINVERT
+    "R",            IDM_VIEW_RELOAD,        VIRTKEY, CONTROL, NOINVERT
 END
 
 
