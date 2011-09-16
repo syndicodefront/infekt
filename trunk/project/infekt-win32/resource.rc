@@ -356,8 +356,8 @@ IDI_APPICON             ICON                    "iNFEKT_icon_by_railgun.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,7,9,0
- PRODUCTVERSION 0,7,9,0
+ FILEVERSION 0,8,0,0
+ PRODUCTVERSION 0,8,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -375,12 +375,12 @@ BEGIN
             VALUE "Comments", "http://code.google.com/p/infekt/ - This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation."
             VALUE "CompanyName", "cxxjoe Development"
             VALUE "FileDescription", "iNFekt NFO Viewer"
-            VALUE "FileVersion", "0, 7, 9, 0"
+            VALUE "FileVersion", "0.8.0.0"
             VALUE "InternalName", "iNFekt"
             VALUE "LegalCopyright", "Copyright © 2010-2011 cxxjoe & Contributors"
             VALUE "OriginalFilename", "infekt-winXX.exe"
             VALUE "ProductName", "iNFekt"
-            VALUE "ProductVersion", "0, 7, 9, 0"
+            VALUE "ProductVersion", "0.8.0.0"
         END
     END
     BLOCK "VarFileInfo"
