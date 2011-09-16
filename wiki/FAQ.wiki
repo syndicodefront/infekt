@@ -1,6 +1,9 @@
 #summary Frequently Asked Questions
 #labels Featured,Phase-Support
 
-===I get an error message "_Side-by-side configuration is incorrect_" or "_MSVCR90.DLL is missing_" when I try to start the application. ===
+===I get an error message "_Side-by-side configuration is incorrect_" or "_MSVCR100.DLL is missing_" when I try to start the application. ===
 
-You need to download and install the [http://www.microsoft.com/downloads/details.aspx?familyid=A5C84275-3B97-4AB7-A40D-3802B2AF5FC2&displaylang=en Microsoft Visual C++ 2008 SP1 Redistributable Package (x86)] (for the 32 bit version) or [http://www.microsoft.com/downloads/en/details.aspx?familyid=ba9257ca-337f-4b40-8c14-157cfdffee4e&displaylang=en Microsoft Visual C++ 2008 SP1 Redistributable Package (x64)] (for the 64 bit version) from Microsoft.
+You need to download and install the [http://www.microsoft.com/download/en/details.aspx?id=8328 Microsoft Visual C++ 2010 SP1 Redistributable Package (x86)] (for the 32 bit version) or [http://www.microsoft.com/download/en/details.aspx?id=13523 Microsoft Visual C++ 2010 SP1 Redistributable Package (x64)] (for the 64 bit version) from Microsoft.
+
+===Where can I get a Windows 2000 compatible version?===
+You can use [http://code.google.com/p/infekt/downloads/list?can=1&q=0.7.9 iNFekt 0.7.9].
