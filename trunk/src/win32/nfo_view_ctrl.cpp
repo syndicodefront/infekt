@@ -22,9 +22,6 @@
 
 #define NFOVWR_CTRL_CLASS_NAME _T("iNFEKT_NfoViewCtrl")
 
-#ifndef WM_THEMECHANGED
-#define WM_THEMECHANGED 0x31A
-#endif
 
 CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic) : CNFORenderer(a_classic)
 {
@@ -35,6 +32,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 	m_cursor = IDC_ARROW;
 	m_centerNfo = true;
 	m_copyOnSelect = false;
+	m_findPosGlobalCol = m_findPosGlobalRow = m_findPosTerm = 0;
 
 	m_contextMenuHandle = NULL;
 	m_contextMenuCommandTarget = NULL;
@@ -835,6 +833,56 @@ void CNFOViewControl::SelectAll()
 
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 	}
+}
+
+
+bool CNFOViewControl::FindTerm(const std::wstring& a_term, bool a_up, bool a_matchCase)
+{
+	bool l_wrapped = false;
+
+	if(m_findPosGlobalRow == m_gridData->GetRows())
+	{
+		m_findPosGlobalRow = 0;
+		l_wrapped = true;
+	}
+
+	for(size_t row = 0; row < m_gridData->GetRows(); )
+	{
+		for(size_t col = 0; col < m_gridData->GetCols(); col++)
+		{
+			if(!IsTextChar(row, col, true))
+			{
+				m_findPosTerm = 0;
+				continue;
+			}
+
+			if(m_nfo->GetGridChar(row, col) == m_findTerm[m_findPosTerm])
+			{
+				m_findPosTerm++;
+
+				if(m_findPosTerm == m_findTerm.size())
+				{
+					return true;
+				}
+			}
+			else
+			{
+				m_findPosTerm = 0;
+			}
+		}
+
+		if(!l_wrapped && row + 1 == m_gridData->GetRows())
+		{
+			row = 0;
+			l_wrapped = true;
+		}
+		else
+		{
+			row++;
+		}
+	}
+
+	return false;
 }
 
 

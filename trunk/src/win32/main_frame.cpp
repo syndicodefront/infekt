@@ -21,10 +21,6 @@
 #include "nfo_renderer_export.h"
 #include "resource.h"
 
-#ifndef WM_THEMECHANGED
-#define WM_THEMECHANGED 0x31A
-#endif
-
 
 using namespace std;
 
@@ -42,11 +38,14 @@ enum _toolbar_button_ids {
 };
 
 #define VIEW_MENU_POS 1
+#define IDW_FINDTOOLBAR 90
 
 
 CMainFrame::CMainFrame() : CFrame(),
-	m_showingAbout(false), m_dropHelper(NULL)
+	m_showingAbout(false), m_dropHelper(NULL)/*,
+	m_findDlgHwnd(NULL), m_findDlgMessage(0)*/
 {
+	//memset(&m_findStrBuf, 0, sizeof(m_findStrBuf));
 	SetView(m_view);
 }
 
@@ -227,9 +226,13 @@ void CMainFrame::SetupToolbar()
 	// add main window menu into a rebar:
 	GetMenubar().SetMenu(::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_MENU)));
 
+	// create "find" tool bar:
+	AddFindToolbar();
+
 	// always show grippers in classic themes:
 	RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !::IsThemeActive());
 	RB.ShowGripper(RB.IDToIndex(IDW_MENUBAR), FALSE);
+	RB.ShowGripper(RB.IDToIndex(IDW_FINDTOOLBAR), FALSE);
 
 	AddToolbarButtons();
 
@@ -255,6 +258,7 @@ void CMainFrame::AddToolbarButtons()
 
 	HIMAGELIST l_imgLst = ImageList_Create(22, 22, ILC_COLOR32, _ICOMAX, 0);
 	GetToolbar().SendMessage(TB_SETIMAGELIST, IML, (LPARAM)l_imgLst);
+	m_findToolbar.SendMessage(TB_SETIMAGELIST, IML, (LPARAM)l_imgLst);
 	// CToolbar::OnDestroy destroys the image list...
 
 	int l_icoId[_ICOMAX] = {0};
@@ -287,16 +291,59 @@ void CMainFrame::AddToolbarButtons()
 		_TBBTN(ICO_INFO, TBBID_ABOUT, defState, defStyle, "About (F1)"),
 	};
 
+	TBBUTTON l_findBtns[] = {
+		_TBBTN(ICO_SETTINGS, TBBID_SETTINGS, defState, defStyle | BTNS_SHOWTEXT, "&Next"),
+		_TBBTN(ICO_INFO, TBBID_SETTINGS, defState, defStyle | BTNS_SHOWTEXT, "&Previous"),
+	};
+
 #undef _TBSEP
 #undef _TBBTN
 
 	GetToolbar().SendMessage(TB_ADDBUTTONS, sizeof(l_btns) / sizeof(l_btns[0]), (LPARAM)&l_btns);
-
+	m_findToolbar.SendMessage(TB_ADDBUTTONS, sizeof(l_findBtns) / sizeof(l_findBtns[0]), (LPARAM)&l_findBtns);
+	
 	// adjust size of the toolbar and the parent rebar:
 	GetToolbar().SendMessage(TB_AUTOSIZE);
+	m_findToolbar.SendMessage(TB_AUTOSIZE);
+
 	SIZE l_updatedSize = GetToolbar().GetMaxSize();
-	::SendMessage(GetToolbar().GetParent(), UWM_TOOLBAR_RESIZE,
-		(WPARAM)GetToolbar().GetHwnd(), (LPARAM)&l_updatedSize);
+	::SendMessage(GetToolbar().GetParent(), UWM_TOOLBAR_RESIZE, (WPARAM)GetToolbar().GetHwnd(), (LPARAM)&l_updatedSize);
+
+	l_updatedSize = m_findToolbar.GetMaxSize();
+	::SendMessage(m_findToolbar.GetParent(), UWM_TOOLBAR_RESIZE, (WPARAM)m_findToolbar.GetHwnd(), (LPARAM)&l_updatedSize);
+}
+
+
+void CMainFrame::AddFindToolbar()
+{
+	// add buttons:
+	m_findToolbar.Create(GetRebar());
+
+	REBARBANDINFO rbbi = {0};
+
+	rbbi.fMask = RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_SIZE;
+	rbbi.cyMinChild = 22;
+	rbbi.cyMaxChild = 22;
+	rbbi.cx = 20;
+	rbbi.cxMinChild = 20;
+
+	rbbi.fStyle = RBBS_BREAK | RBBS_NOGRIPPER;
+
+	GetRebar().InsertBand(-1, rbbi);
+
+	CSize sz = m_findToolbar.GetMaxSize();
+
+	rbbi.fMask = RBBIM_CHILDSIZE | RBBIM_STYLE | RBBIM_CHILD | RBBIM_SIZE | RBBIM_ID;
+	rbbi.cyMinChild = sz.cy;
+	rbbi.cyMaxChild = sz.cy;
+	rbbi.cx = sz.cx + 2;
+	rbbi.cxMinChild = sz.cx + 2;
+
+	rbbi.fStyle = 0;//RBBS_BREAK;// | RBBS_FIXEDSIZE;
+	rbbi.hwndChild = m_findToolbar;
+	rbbi.wID = IDW_FINDTOOLBAR;
+
+	GetRebar().InsertBand(-1, rbbi);
 }
 
 
@@ -306,7 +353,7 @@ void CMainFrame::ShowMenuBar(bool a_show)
 
 	GetRebar().ShowBand(GetRebar().IDToIndex(IDW_MENUBAR), b);
 	GetToolbar().SendMessage(TB_CHECKBUTTON, TBBID_SHOWMENU, b);
-
+	
 	m_menuBarVisible = a_show;
 }
 
@@ -449,6 +496,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
 			m_view.GetActiveCtrl()->ZoomReset();
 		break;
+
+	case IDM_FIND:
+		ShowFindTextDialog();		
+		break;
 	}
 
 	return FALSE;
@@ -551,6 +602,22 @@ void CMainFrame::OnHelp()
 	}
 }
 
+
+void CMainFrame::ShowFindTextDialog()
+{
+	/*if(!m_findDlgMessage)
+	{
+		m_findDlgMessage = ::RegisterWindowMessage(FINDMSGSTRING);
+	}
+	
+	FINDREPLACE l_fr = { sizeof(FINDREPLACE), 0 };
+	l_fr.hwndOwner = GetHwnd();
+	l_fr.Flags = FR_HIDEWHOLEWORD;
+	l_fr.lpstrFindWhat = (LPWSTR)::LocalAlloc(LPTR, 80 * sizeof(wchar_t)); //m_findStrBuf;
+	l_fr.wFindWhatLen = 79;//:sizeof(m_findStrBuf) / sizeof(wchar_t);
+
+	m_findDlgHwnd = ::FindText(&l_fr);*/
+}
 
 void CMainFrame::SwitchView(EMainView a_view)
 {
@@ -806,6 +873,11 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	/* return TRUE if the message has been translated */
 
+	/*if(m_findDlgHwnd != 0 && ::IsDialogMessage(m_findDlgHwnd, pMsg))
+	{
+		return TRUE;
+	}*/
+
 	switch(pMsg->message)
 	{
 	case WM_KEYDOWN:
@@ -919,6 +991,23 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		break; // also invoke default
 	}
 
+	/*if(m_findDlgMessage != 0 && uMsg == m_findDlgMessage)
+	{
+		LPFINDREPLACE l_fr = reinterpret_cast<LPFINDREPLACE>(lParam);
+		MessageBox(L"Yo",L"x",0);
+		if(l_fr->Flags & FR_DIALOGTERM)
+		{
+			m_findDlgHwnd = 0;
+			m_findStrBuf[0] = L'\0';
+		}
+		else if(l_fr->Flags & FR_FINDNEXT) 
+		{
+			//m_view.GetActiveCtrl()->FindTerm(l_fr->lpstrFindWhat, (l_fr->Flags & FR_DOWN) == 0, (l_fr->Flags & FR_MATCHCASE) != 0);
+		}
+
+		return 0;
+	}*/
+
 	return WndProcDefault(uMsg, wParam, lParam);
 }
 
@@ -930,15 +1019,14 @@ void CMainFrame::UpdateAlwaysOnTop()
 		this->SetForegroundWindow();
 		this->SetFocus();
 		this->SetWindowPos(HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-
-		::CheckMenuItem(::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS), IDM_ALWAYSONTOP, MF_CHECKED | MF_BYCOMMAND);
 	}
 	else
 	{
 		this->SetWindowPos(HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-
-		::CheckMenuItem(::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS), IDM_ALWAYSONTOP, MF_UNCHECKED | MF_BYCOMMAND);
 	}
+
+	::CheckMenuItem(::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS), IDM_ALWAYSONTOP,
+		(GetSettings()->bAlwaysOnTop ? MF_CHECKED : MF_UNCHECKED) | MF_BYCOMMAND);
 
 	GetSettings()->SaveToRegistry();
 }
