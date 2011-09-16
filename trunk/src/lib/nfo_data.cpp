@@ -1218,7 +1218,7 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 		if(l_tmpw[p] == L'\n' && p < l_tmpw.size() - 2 && l_tmpw[p + 1] == L'\n')
 		{
 			p += 2;
-			while(l_tmpw[p] == L'\n') l_tmpw.erase(p, 1);
+			while(p < l_tmpw.size() && l_tmpw[p] == L'\n') l_tmpw.erase(p, 1);
 		}
 	}
 
