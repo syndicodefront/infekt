@@ -106,6 +106,12 @@ protected:
 	CMainDropTargetHelper *m_dropHelper;
 	std::vector<std::_tstring> m_mruPaths;
 
+	/*UINT m_findDlgMessage;
+	HWND m_findDlgHwnd;
+	wchar_t m_findStrBuf[200];*/
+
+	CToolbar m_findToolbar;
+
 	void LoadOpenMruList();
 	void SaveOpenMruList();
 	void SavePositionSettings();
@@ -126,6 +132,7 @@ protected:
 	// Win32++ stuff end //
 
 	void AddToolbarButtons();
+	void AddFindToolbar();
 	void UpdateCaption();
 	void OpenChooseFileName();
 	void DoNfoExport(UINT a_id);
@@ -135,6 +142,8 @@ protected:
 
 	void CheckForUpdates();
 	void CheckForUpdates_Callback(PWinHttpRequest a_req);
+
+	void ShowFindTextDialog();
 
 	static const int ms_minWidth = 300, ms_minHeight = 150;
 	static const size_t ms_mruLength = 10;

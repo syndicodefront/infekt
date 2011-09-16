@@ -28,6 +28,8 @@ protected:
 	HWND m_hwnd;
 	bool m_centerNfo;
 	bool m_copyOnSelect;
+	std::wstring m_findTerm;
+	size_t m_findPosGlobalRow, m_findPosGlobalCol, m_findPosTerm;
 
 	LPTSTR m_cursor;
 	size_t m_selStartRow, m_selStartCol;
@@ -72,6 +74,8 @@ public:
 	void ZoomIn();
 	void ZoomOut();
 	void ZoomReset();
+
+	bool FindTerm(const std::wstring& a_term, bool a_up, bool a_matchCase);
 
 	virtual void InjectSettings(const CNFORenderSettings& ns);
 };
