@@ -105,18 +105,22 @@ bool CNFOApp::ExtractStartupFilePath(const _tstring& a_commandLine)
 {
 	if(!a_commandLine.empty())
 	{
-		TCHAR* szPath = _tcsdup(a_commandLine.c_str());
+		TCHAR *szPath = _tcsdup(a_commandLine.c_str()),
+			*szPathOrig = szPath; // copy just in case PathUnquoteSpaces messes with the actual pointer instead of data
+		
+		// ignore return value, e.g. because the path may not be quoted at all.
+		::PathUnquoteSpaces(szPath);
 
-		if(PathUnquoteSpaces(szPath) && PathFileExists(szPath))
+		if(::PathFileExists(szPath))
 		{
 			m_startupFilePath = szPath;
 
-			free(szPath);
+			free(szPathOrig);
 
 			return true;
 		}
 
-		free(szPath);
+		free(szPathOrig);
 	}
 
 	return false;
