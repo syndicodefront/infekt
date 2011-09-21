@@ -5,6 +5,11 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.1 ==
+  * Fixed issue 59
+  * Setup/installer fix: don't fail to register shell extension if MSVC++ 2010 runtimes have NOT been installed (this also resolves some auto-update issues)
+  * Setup/installer fix: correctly remove old libpng14.dll
+
 == v0.8.0 (16th September 2011) ==
   * New _Super Compact Version_ (no CUDA H/W acceleration, no plugins, one EXE file without dependencies + configuration INI only)
   * Parallelized CPU-based blur computation using OpenMP (performance improvement for non-Nvidia GPU users)
