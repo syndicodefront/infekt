@@ -168,6 +168,12 @@ static void OnInstallerComplete(HWND hDlg, bool a_success)
 
 		::MessageBoxW(hDlg, L"Update complete!", L"Great Success", MB_ICONINFORMATION);
 	}
+	else
+	{
+		SetDlgItemText(hDlg, IDC_STATUS, L"The update installation reported a problem!");
+
+		::MessageBoxW(hDlg, L"The update process reported a problem. Please consider removing and re-installing the program manually.", L"Warning", MB_ICONEXCLAMATION);
+	}
 
 	::DestroyWindow(hDlg);
 }
