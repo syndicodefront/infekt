@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// German (Germany) resources
+// Deutsch (Deutschland) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
@@ -44,12 +44,12 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // German (Germany) resources
+#endif    // Deutsch (Deutschland) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// Englisch (USA) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -70,8 +70,8 @@ IDI_APPICON             ICON                    "console_app.ico"
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,8,0,0
- PRODUCTVERSION 0,8,0,0
+ FILEVERSION 0,8,1,0
+ PRODUCTVERSION 0,8,1,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -89,12 +89,12 @@ BEGIN
             VALUE "Comments", "http://code.google.com/p/infekt/ - This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation."
             VALUE "CompanyName", "cxxjoe Development"
             VALUE "FileDescription", "iNFekt NFO Renderer - Command Line Version"
-            VALUE "FileVersion", "0.8.0.0"
+            VALUE "FileVersion", "0.8.1.0"
             VALUE "InternalName", "infekt-console"
             VALUE "LegalCopyright", "Copyright © 2010-2011 cxxjoe & Contributors"
             VALUE "OriginalFilename", "infekt-cmd.exe"
             VALUE "ProductName", "iNFekt"
-            VALUE "ProductVersion", "0.8.0.0"
+            VALUE "ProductVersion", "0.8.1.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -103,7 +103,7 @@ BEGIN
     END
 END
 
-#endif    // English (United States) resources
+#endif    // Englisch (USA) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
