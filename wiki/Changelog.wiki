@@ -5,11 +5,13 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
-== v0.8.1 ==
+== v0.8.1 (26th September 2011) ==
   * Fixed issue 59
   * Setup/installer fix: don't fail to register shell extension if MSVC++ 2010 runtimes have NOT been installed (this also resolves some auto-update issues)
   * Setup/installer fix: correctly remove old libpng14.dll
   * Auto-updater: Better user feedback on problems
+  * All known auto-update issues should be resolved with this build (at least when upgrading from 0.8.0 to 0.8.1)
+  * Updated libpng to 1.5.5 and PCRE to 8.13
 
 == v0.8.0 (16th September 2011) ==
   * New _Super Compact Version_ (no CUDA H/W acceleration, no plugins, one EXE file without dependencies + configuration INI only)
