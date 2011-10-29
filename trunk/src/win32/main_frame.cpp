@@ -1529,7 +1529,7 @@ bool CMainSettings::LoadFromRegistry()
 	this->bKeepOpenMRU = l_sect->ReadBool(L"KeepOpenMRU", true);
 
 	this->bCenterWindow = l_sect->ReadBool(L"CenterWindow", true);
-	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", false);
+	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", true);
 	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", true);
 	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
 	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", false);

@@ -30,7 +30,7 @@ public:
 		bSingleInstanceMode = false;
 		bKeepOpenMRU = true;
 		bCenterWindow = true;
-		bAutoWidth = false;
+		bAutoWidth = true;
 		bCenterNFO = true;
 		bDefaultExportToNFODir = false;
 		bCloseOnEsc = false;
