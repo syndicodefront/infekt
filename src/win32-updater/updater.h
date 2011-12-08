@@ -37,7 +37,6 @@
 #define IDT_TIMER_ID 1337
 
 // helper, utility and meat methods:
-bool IsOSSupported();
 std::wstring GetSysDirPath();
 std::wstring GetTempFilePath(const std::wstring& a_suffix);
 std::wstring GetExePath();

@@ -300,12 +300,6 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 	_wsetlocale(LC_CTYPE, L"C");
 
-	if(!IsOSSupported())
-	{
-		::MessageBox(0, L"Sorry, this Windows version is not supported for auto-update.", L"Error", MB_ICONSTOP);
-		return 1;
-	}
-
 	// command line format has to be "<SETUPURL> <SETUPHASH>".
 
 	std::wstring l_cmdLine(wszCommandLine);

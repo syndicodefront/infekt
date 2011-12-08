@@ -20,23 +20,6 @@
 /* HELPER METHODS                                                       */
 /************************************************************************/
 
-bool IsOSSupported()
-{
-	OSVERSIONINFO l_info = { sizeof(OSVERSIONINFO), 0 };
-
-	if(::GetVersionEx(&l_info))
-	{
-		if(l_info.dwMajorVersion > 5 ||
-			(l_info.dwMajorVersion == 5 && l_info.dwMinorVersion >= 1))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-
 std::wstring GetSysDirPath()
 {
 	wchar_t l_buf[1000] = {0};
