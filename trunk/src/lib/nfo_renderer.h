@@ -114,6 +114,19 @@ public:
 };
 
 
+typedef enum _nfo_render_partial_t
+{
+	NRP_RENDER_TEXT = 1,
+	NRP_RENDER_BLOCKS = 2,
+	NRP_RENDER_GAUSS_BLOCKS = 4,
+	NRP_RENDER_GAUSS_SHADOW = 8,
+	NRP_RENDER_GAUSS = NRP_RENDER_GAUSS_BLOCKS | NRP_RENDER_GAUSS_SHADOW,
+
+	NRP_RENDER_EVERYTHING = NRP_RENDER_TEXT | NRP_RENDER_BLOCKS | NRP_RENDER_GAUSS_BLOCKS | NRP_RENDER_GAUSS_SHADOW,
+	_NRP_MAX
+} ENFORenderPartial;
+
+
 class CNFORenderer
 {
 protected:
@@ -122,6 +135,8 @@ protected:
 	bool m_trueGaussian;
 	bool m_allowHwAccel;
 	float m_zoomFactor;
+
+	ENFORenderPartial m_partial;
 
 	// NFO data:
 	PNFOData m_nfo;
@@ -173,6 +188,8 @@ public:
 	bool Render();
 
 	bool IsClassicMode() const { return m_classic; }
+
+	void SetPartialMode(ENFORenderPartial pm) { m_rendered == m_rendered && (m_partial == pm); m_partial = pm; }
 
 	unsigned int GetZoom() const { return static_cast<unsigned int>(m_zoomFactor * 100); }
 	virtual void SetZoom(unsigned int a_percent);
