@@ -20,6 +20,7 @@
 CNFORenderer::CNFORenderer(bool a_classicMode)
 {
 	m_classic = a_classicMode;
+	m_partial = NRP_RENDER_EVERYTHING;
 
 	// reset internal flags:
 	m_gridData = NULL;
@@ -268,16 +269,16 @@ bool CNFORenderer::Render()
 
 	if(!m_classic)
 	{
-		if(GetEnableGaussShadow())
+		if(GetEnableGaussShadow() && ((m_partial & NRP_RENDER_BLOCKS) != 0 || (m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0))
 		{
-			if(m_trueGaussian)
+			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0 && m_trueGaussian)
 			{
 				// this one (true gaussian blur) is much too slow for
 				// big radii.
 				RenderBlocks(true, true);
 				cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
 			}
-			else
+			else if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
 				if(!m_cachedBlur)
 				{
@@ -305,14 +306,26 @@ bool CNFORenderer::Render()
 				cairo_destroy(cr);
 			}
 
-			RenderBlocks(false, false);
+			if((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0)
+			{
+				// render blocks in gaussian color
+				RenderBlocks(false, true);
+			}
+			else if((m_partial & NRP_RENDER_BLOCKS) != 0)
+			{
+				// normal mode
+				RenderBlocks(false, false);
+			}
 		}
-		else
+		else if((m_partial & NRP_RENDER_BLOCKS) != 0)
 		{
 			RenderBlocks(true, false);
 		}
 
-		RenderText();
+		if((m_partial & NRP_RENDER_TEXT) != 0)
+		{
+			RenderText();
+		}
 	}
 	else // classic mode
 	{
@@ -942,7 +955,9 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 			}
 			/* else */
 
-			if(l_curType != _BT_UNDEF && !l_utfBuf.empty())
+			if(l_curType != _BT_UNDEF && !l_utfBuf.empty() &&
+				!(l_curType == BT_BLOCK && (m_partial & NRP_RENDER_BLOCKS) == 0) &&
+				!((l_curType == BT_TEXT || l_curType == BT_LINK) && (m_partial & NRP_RENDER_TEXT) == 0))
 			{
 				// draw buffer:
 				size_t l_len = (col == m_gridData->GetCols() ? utf8_strlen(l_utfBuf.c_str(), -1) :
