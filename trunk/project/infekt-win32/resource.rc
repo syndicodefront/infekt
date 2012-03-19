@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Deutsch (Deutschland) resources
+// German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
@@ -44,12 +44,12 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Deutsch (Deutschland) resources
+#endif    // German (Germany) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// Englisch (USA) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -158,6 +158,9 @@ BEGIN
     POPUP "&Tools"
     BEGIN
         MENUITEM "Settings\tF6",                IDM_SETTINGS
+        MENUITEM SEPARATOR
+        MENUITEM "Next NFO\tK",                 IDM_TOOLS_NEXTNFO
+        MENUITEM "Previous NFO\tJ",             IDM_TOOLS_PREVIOUSNFO
     END
     POPUP "&Help"
     BEGIN
@@ -326,6 +329,8 @@ BEGIN
     VK_F12,         IDM_HIDDENGIMMICK,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
     VK_F3,          IDM_VIEW_CLASSIC,       VIRTKEY, NOINVERT
+    "R",            IDM_VIEW_RELOAD,        VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          IDM_VIEW_RELOAD,        VIRTKEY, NOINVERT
     VK_F2,          IDM_VIEW_RENDERED,      VIRTKEY, NOINVERT
     VK_F4,          IDM_VIEW_TEXTONLY,      VIRTKEY, NOINVERT
     VK_ADD,         IDM_ZOOM_IN,            VIRTKEY, CONTROL, NOINVERT
@@ -336,8 +341,8 @@ BEGIN
     VK_NUMPAD0,     IDM_ZOOM_RESET,         VIRTKEY, CONTROL, NOINVERT
     "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
     "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
-    VK_F5,          IDM_VIEW_RELOAD,        VIRTKEY, NOINVERT
-    "R",            IDM_VIEW_RELOAD,        VIRTKEY, CONTROL, NOINVERT
+    "J",            IDM_TOOLS_PREVIOUSNFO,  VIRTKEY, NOINVERT
+    "K",            IDM_TOOLS_NEXTNFO,      VIRTKEY, NOINVERT
 END
 
 
@@ -389,7 +394,7 @@ BEGIN
     END
 END
 
-#endif    // Englisch (USA) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

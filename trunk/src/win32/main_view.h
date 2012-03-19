@@ -42,6 +42,7 @@ public:
 	PNFOData& GetNfoData() { return m_nfoData; }
 
 	bool OpenFile(const std::wstring& a_filePath);
+	bool OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_nfoData);
 	void SwitchView(EMainView a_view);
 	EMainView GetViewType() { return m_curViewType; }
 

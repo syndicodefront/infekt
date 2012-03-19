@@ -138,13 +138,19 @@
 #define IDM_VIEW_RELOAD                 40084
 #define IDM_OPTIWIDTH                   40089
 #define IDM_SHOWSTATUSBAR               40091
+#define ID_TOOLS_                       40093
+#define ID_TOOLS_40094                  40094
+#define ID_TOOLS_NEXTNFO                40095
+#define ID_TOOLS_PREVIOUSNFO            40096
+#define IDM_TOOLS_NEXTNFO               40097
+#define IDM_TOOLS_PREVIOUSNFO           40098
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        127
-#define _APS_NEXT_COMMAND_VALUE         40093
+#define _APS_NEXT_COMMAND_VALUE         40102
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -91,6 +91,33 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 }
 
 
+bool CViewContainer::OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_nfoData)
+{
+	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
+	if(m_nfoData)
+	{
+		m_nfoData.reset();
+	}
+
+	m_nfoData = a_nfoData;
+
+	CPluginManager::GetInstance()->TriggerNfoLoad(true, a_filePath.c_str());
+
+	if(m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
+	if(m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
+	if(m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
+
+	CPluginManager::GetInstance()->TriggerNfoLoad(false, a_filePath.c_str());
+
+	bool b = CurAssignNfo();
+
+	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+
+	return b;
+}
+
+
 bool CViewContainer::ReloadFile()
 {
 	if(m_nfoData)

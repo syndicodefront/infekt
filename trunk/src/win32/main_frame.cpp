@@ -41,7 +41,8 @@ enum _toolbar_button_ids {
 
 
 CMainFrame::CMainFrame() : CFrame(),
-	m_showingAbout(false), m_dropHelper(NULL)
+	m_showingAbout(false), m_dropHelper(NULL),
+	m_nfoInFolderIndex((size_t)-1)
 {
 	SetView(m_view);
 }
@@ -445,6 +446,14 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
 			m_view.GetActiveCtrl()->ZoomReset();
 		break;
+
+	case IDM_TOOLS_NEXTNFO:
+		BrowseFolderNfoMove(1);
+		break;
+
+	case IDM_TOOLS_PREVIOUSNFO:
+		BrowseFolderNfoMove(-1);
+		break;
 	}
 
 	return FALSE;
@@ -588,7 +597,7 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 	if(m_view.OpenFile(a_filePath))
 	{
 		UpdateCaption();
-
+		
 		UpdateStatusbar();
 
 		// update MRU list:
@@ -1116,6 +1125,92 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			}
 		}
 	}
+}
+
+
+void CMainFrame::BrowseFolderNfoMove(int a_direction)
+{
+	if(m_nfoInFolderIndex == (size_t)-1 /* :TODO: || directory timestamp changed */)
+	{
+		if(!LoadFolderNfoList())
+		{
+			return;
+		}
+		// else: m_nfoInFolderIndex is now set to the current file
+	}
+
+	if(a_direction < 0 && m_nfoInFolderIndex == 0)
+	{
+		m_nfoInFolderIndex = m_nfoPathsInFolder.size() - 1;
+	}
+	else if(a_direction > 0 && m_nfoInFolderIndex == m_nfoPathsInFolder.size() - 1)
+	{
+		m_nfoInFolderIndex = 0;
+	}
+	else
+	{
+		m_nfoInFolderIndex += sgn(a_direction);
+	}
+
+	OpenFile(m_nfoPathsInFolder[m_nfoInFolderIndex]);
+
+	// :TODO: preload next
+}
+
+
+bool CMainFrame::LoadFolderNfoList()
+{
+	if(!m_view || !m_view.GetNfoData())
+	{
+		return false;
+	}
+
+	// :TODO: taskbar update
+	// :TODO: change cursor
+
+	m_nfoInFolderIndex = (size_t)-1;
+
+	const std::wstring l_nfoPath = m_view.GetNfoData()->GetFilePath();
+	wchar_t l_nfoPathFull[1000] = {0};
+
+	const std::wstring l_folderPath = CUtil::PathRemoveFileSpec(l_nfoPath.c_str()) + L"\\",
+		l_filePattern = l_folderPath + L"*.nfo";
+
+	if(!::PathIsDirectory(l_folderPath.c_str()) ||
+		::GetFullPathName(l_nfoPath.c_str(), 999, l_nfoPathFull, NULL) > 999)
+	{
+		// what happened?!
+		return false;
+	}
+
+	WIN32_FIND_DATA l_ffd = {0};
+	HANDLE l_fh;
+
+	if((l_fh = ::FindFirstFile(l_filePattern.c_str(), &l_ffd)) == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
+
+	do
+	{
+		const std::wstring l_nfoPath = l_folderPath + l_ffd.cFileName;
+		
+		wchar_t l_buf[1000] = {0};
+
+		if(::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, NULL) < 1000)
+		{
+			if(wcscmp(l_nfoPathFull, l_buf) == 0)
+			{
+				m_nfoInFolderIndex = m_nfoPathsInFolder.size();
+			}
+
+			m_nfoPathsInFolder.push_back(l_buf);
+		}
+	} while(::FindNextFile(l_fh, &l_ffd));
+
+	::FindClose(l_fh);
+
+	return (m_nfoInFolderIndex != (size_t)-1);
 }
 
 
