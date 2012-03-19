@@ -125,6 +125,9 @@ private:
 	TwoDimVector() {}
 };
 
+template <typename T> int sgn(T val) {
+    return (val > T(0)) - (val < T(0));
+};
 
 /* gutf8.c exports */
 extern "C"

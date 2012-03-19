@@ -104,7 +104,11 @@ protected:
 	bool m_showingAbout;
 	PMainSettings m_settings;
 	CMainDropTargetHelper *m_dropHelper;
-	std::vector<std::_tstring> m_mruPaths;
+	std::vector<std::wstring> m_mruPaths;
+
+	std::vector<std::wstring> m_nfoPathsInFolder;
+	// :TODO: add&check folder timestamp
+	size_t m_nfoInFolderIndex;
 
 	void LoadOpenMruList();
 	void SaveOpenMruList();
@@ -135,6 +139,9 @@ protected:
 
 	void CheckForUpdates();
 	void CheckForUpdates_Callback(PWinHttpRequest a_req);
+
+	void BrowseFolderNfoMove(int a_direction);
+	bool LoadFolderNfoList();
 
 	static const int ms_minWidth = 300, ms_minHeight = 150;
 	static const size_t ms_mruLength = 10;
