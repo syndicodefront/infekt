@@ -109,6 +109,7 @@ protected:
 	std::vector<std::wstring> m_nfoPathsInFolder;
 	// :TODO: add&check folder timestamp
 	size_t m_nfoInFolderIndex;
+	PNFOData m_nfoPreloadData;
 
 	void LoadOpenMruList();
 	void SaveOpenMruList();
@@ -140,6 +141,7 @@ protected:
 	void CheckForUpdates();
 	void CheckForUpdates_Callback(PWinHttpRequest a_req);
 
+	size_t BrowserFolderNfoGetNext(int a_direction);
 	void BrowseFolderNfoMove(int a_direction);
 	bool LoadFolderNfoList();
 
