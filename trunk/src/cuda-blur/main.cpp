@@ -94,7 +94,9 @@ extern "C" __declspec(dllexport) int InitCudaThread()
 	g_canMapHostMem = false;
 	if(l_props.canMapHostMemory)
 	{
-		if(cudaSetDeviceFlags(cudaDeviceMapHost) == cudaSuccess)
+		cudaError ret = cudaSetDeviceFlags(cudaDeviceMapHost);
+
+		if(ret == cudaSuccess || ret == cudaErrorSetOnActiveProcess)
 		{
 			g_canMapHostMem = true;
 		}
