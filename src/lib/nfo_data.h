@@ -116,8 +116,8 @@ protected:
 	std::wstring GetWithBoxedWhitespace();
 };
 
-#ifdef HAVE_BOOST
-typedef boost::shared_ptr<CNFOData> PNFOData;
+#ifndef DONT_USE_SHARED_PTR
+typedef std::shared_ptr<CNFOData> PNFOData;
 #else
 typedef CNFOData* PNFOData;
 #endif

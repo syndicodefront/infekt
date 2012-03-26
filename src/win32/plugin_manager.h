@@ -71,7 +71,7 @@ protected:
 	PWinHttpClient m_httpClient;
 };
 
-typedef boost::shared_ptr<CLoadedPlugin> PLoadedPlugin;
+typedef std::shared_ptr<CLoadedPlugin> PLoadedPlugin;
 
 
 class CPluginManager

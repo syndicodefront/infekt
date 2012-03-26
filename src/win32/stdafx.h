@@ -66,8 +66,6 @@
 #include <windowsx.h>
 #include <shlobj.h>
 
-using std::tr1::shared_ptr;
-
 /* cairo and other lib headers */
 #include <cairo-win32.h>
 #include <pcre.h>

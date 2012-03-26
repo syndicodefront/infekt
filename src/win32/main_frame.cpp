@@ -1143,7 +1143,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 		// else: m_nfoInFolderIndex is now set to the current file
 	}
 
-	m_nfoInFolderIndex = BrowserFolderNfoGetNext(a_direction);
+	m_nfoInFolderIndex = BrowseFolderNfoGetNext(a_direction);
 
 	bool bSuccess;
 
@@ -1162,6 +1162,8 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 		}
 		else
 		{
+			// skip files that can not be opened, also remove them from the list:
+
 			m_nfoPathsInFolder.erase(m_nfoPathsInFolder.begin() + m_nfoInFolderIndex);
 
 			return BrowseFolderNfoMove(0);
@@ -1190,7 +1192,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	}
 
 	// pre-load next:
-	size_t l_preLoadIndex = BrowserFolderNfoGetNext(a_direction);
+	size_t l_preLoadIndex = BrowseFolderNfoGetNext(a_direction);
 
 	if(l_preLoadIndex != m_nfoInFolderIndex)
 	{
@@ -1200,13 +1202,15 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 
 		if(!m_nfoPreloadData->LoadFromFile(m_nfoPathsInFolder[l_preLoadIndex]))
 		{
+			// ignore failed pre-loads.
+
 			m_nfoPreloadData.reset();
 		}
 	}
 }
 
 
-size_t CMainFrame::BrowserFolderNfoGetNext(int a_direction)
+size_t CMainFrame::BrowseFolderNfoGetNext(int a_direction)
 {
 	if(a_direction < 0 && m_nfoInFolderIndex == 0)
 	{
