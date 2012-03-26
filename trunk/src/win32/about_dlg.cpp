@@ -97,7 +97,7 @@ BOOL CAboutDialog::OnInitDialog()
 #endif
 	}
 
-	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2011"), l_top, 20);
+	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2012"), l_top, 20);
 	l_top += 20;
 
 	_CREATE_SYSLINK(l_hHomepage, _T("Project Homepage: <A HREF=\"http://infekt.googlecode.com/\">infekt.googlecode.com</A>"), l_top, 20);

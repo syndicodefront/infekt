@@ -632,6 +632,10 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 			}
 		}
 
+		m_nfoPreloadData.reset();
+		m_nfoInFolderIndex = (size_t)-1;
+		m_nfoPathsInFolder.clear();
+
 		// yay.
 		return true;
 	}
@@ -1139,22 +1143,83 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 		// else: m_nfoInFolderIndex is now set to the current file
 	}
 
+	m_nfoInFolderIndex = BrowserFolderNfoGetNext(a_direction);
+
+	bool bSuccess;
+
+	// use preloaded NFO if there is one:
+	if(m_nfoPreloadData && m_nfoPreloadData->GetFilePath() == m_nfoPathsInFolder[m_nfoInFolderIndex])
+	{
+		bSuccess = m_view.OpenLoadedFile(m_nfoPreloadData->GetFilePath(), m_nfoPreloadData);
+	}
+	else // load from disk otherwise:
+	{
+		PNFOData l_nfo = PNFOData(new CNFOData());
+
+		if(l_nfo->LoadFromFile(m_nfoPathsInFolder[m_nfoInFolderIndex]))
+		{
+			bSuccess = m_view.OpenLoadedFile(m_nfoPathsInFolder[m_nfoInFolderIndex], l_nfo);
+		}
+		else
+		{
+			m_nfoPathsInFolder.erase(m_nfoPathsInFolder.begin() + m_nfoInFolderIndex);
+
+			return BrowseFolderNfoMove(0);
+		}
+	}
+
+	if(bSuccess)
+	{
+		// don't add to MRU.
+
+		UpdateStatusbar();
+
+		if(m_settings->bAutoWidth)
+		{
+			WINDOWPLACEMENT l_wpl = { sizeof(WINDOWPLACEMENT), 0 };
+
+			if(!GetWindowPlacement(l_wpl) || l_wpl.showCmd != SW_MAXIMIZE)
+			{
+				AdjustWindowToNFOWidth();
+			}
+		}
+
+		UpdateCaption();
+
+		::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+	}
+
+	// pre-load next:
+	size_t l_preLoadIndex = BrowserFolderNfoGetNext(a_direction);
+
+	if(l_preLoadIndex != m_nfoInFolderIndex)
+	{
+		m_nfoPreloadData.reset();
+
+		m_nfoPreloadData = PNFOData(new CNFOData());
+
+		if(!m_nfoPreloadData->LoadFromFile(m_nfoPathsInFolder[l_preLoadIndex]))
+		{
+			m_nfoPreloadData.reset();
+		}
+	}
+}
+
+
+size_t CMainFrame::BrowserFolderNfoGetNext(int a_direction)
+{
 	if(a_direction < 0 && m_nfoInFolderIndex == 0)
 	{
-		m_nfoInFolderIndex = m_nfoPathsInFolder.size() - 1;
+		return m_nfoPathsInFolder.size() - 1;
 	}
 	else if(a_direction > 0 && m_nfoInFolderIndex == m_nfoPathsInFolder.size() - 1)
 	{
-		m_nfoInFolderIndex = 0;
+		return 0;
 	}
 	else
 	{
-		m_nfoInFolderIndex += sgn(a_direction);
+		return m_nfoInFolderIndex + sgn(a_direction);
 	}
-
-	OpenFile(m_nfoPathsInFolder[m_nfoInFolderIndex]);
-
-	// :TODO: preload next
 }
 
 
@@ -1165,10 +1230,8 @@ bool CMainFrame::LoadFolderNfoList()
 		return false;
 	}
 
-	// :TODO: taskbar update
-	// :TODO: change cursor
-
 	m_nfoInFolderIndex = (size_t)-1;
+	m_nfoPathsInFolder.clear();
 
 	const std::wstring l_nfoPath = m_view.GetNfoData()->GetFilePath();
 	wchar_t l_nfoPathFull[1000] = {0};
@@ -1209,6 +1272,10 @@ bool CMainFrame::LoadFolderNfoList()
 	} while(::FindNextFile(l_fh, &l_ffd));
 
 	::FindClose(l_fh);
+
+	std::sort(m_nfoPathsInFolder.begin(), m_nfoPathsInFolder.end(), [](std::wstring a, std::wstring b) {
+		return StrCmpLogicalW(a.c_str(), b.c_str()) < 0;
+	});
 
 	return (m_nfoInFolderIndex != (size_t)-1);
 }
