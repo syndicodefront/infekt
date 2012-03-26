@@ -58,6 +58,11 @@ extern "C" __declspec(dllexport) int IsCudaUsable()
 		return 0;
 	}
 
+	if(!g_canMapHostMem && l_props.canMapHostMemory)
+	{
+		g_canMapHostMem = (cudaSetDeviceFlags(cudaDeviceMapHost) == cudaSuccess);
+	}
+
 	int l_curDev = -1;
 	cudaGetDevice(&l_curDev);
 
@@ -82,24 +87,6 @@ extern "C" __declspec(dllexport) int InitCudaThread()
 	if(!IsCudaUsable()) // this calls cudaSetDevice and cudaThreadSynchronize.
 	{
 		return -1;
-	}
-
-	cudaDeviceProp l_props;
-
-	if(cudaGetDeviceProperties(&l_props, cutGetMaxGflopsDeviceId()) != cudaSuccess)
-	{
-		return -2;
-	}
-
-	g_canMapHostMem = false;
-	if(l_props.canMapHostMemory)
-	{
-		cudaError ret = cudaSetDeviceFlags(cudaDeviceMapHost);
-
-		if(ret == cudaSuccess || ret == cudaErrorSetOnActiveProcess)
-		{
-			g_canMapHostMem = true;
-		}
 	}
 
 	g_initialized = true;
