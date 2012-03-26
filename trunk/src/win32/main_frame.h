@@ -54,7 +54,7 @@ public:
 	bool bCloseOnEsc;
 };
 
-typedef boost::shared_ptr<CMainSettings> PMainSettings;
+typedef std::shared_ptr<CMainSettings> PMainSettings;
 
 
 class CMainDropTargetHelper : public IDropTarget
@@ -141,7 +141,7 @@ protected:
 	void CheckForUpdates();
 	void CheckForUpdates_Callback(PWinHttpRequest a_req);
 
-	size_t BrowserFolderNfoGetNext(int a_direction);
+	size_t BrowseFolderNfoGetNext(int a_direction);
 	void BrowseFolderNfoMove(int a_direction);
 	bool LoadFolderNfoList();
 

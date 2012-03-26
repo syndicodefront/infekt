@@ -38,6 +38,7 @@
 #include <vector>
 #include <deque>
 #include <math.h>
+#include <memory>
 #ifdef HAVE_BOOST
 #include <boost/format.hpp>
 #endif

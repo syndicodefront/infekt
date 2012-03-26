@@ -18,18 +18,16 @@
 #include <Windows.h>
 #include <winhttp.h>
 #include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 
 
 // forward decl for the callback arguments:
 class CWinHttpRequest;
-typedef boost::shared_ptr<CWinHttpRequest> PWinHttpRequest;
+typedef std::shared_ptr<CWinHttpRequest> PWinHttpRequest;
 typedef boost::function<void (PWinHttpRequest)> WinHttpRequestCallback;
 
 // forward decl for owner member:
 class CWinHttpClient;
-typedef boost::shared_ptr<CWinHttpClient> PWinHttpClient;
+typedef std::shared_ptr<CWinHttpClient> PWinHttpClient;
 
 /**
  * Encapsulates an HTTP request. Allows options to be set and results to
@@ -37,7 +35,7 @@ typedef boost::shared_ptr<CWinHttpClient> PWinHttpClient;
  * Instances of this class must be created through CWinHttpClient.
  **/
 class CWinHttpRequest :
-	public boost::enable_shared_from_this<CWinHttpRequest>
+	public std::enable_shared_from_this<CWinHttpRequest>
 {
 	friend class CWinHttpClient;
 
@@ -71,7 +69,7 @@ public:
 
 protected:
 	// to be used from within CWinHttpClient only:
-	CWinHttpRequest(int a_reqId, boost::shared_ptr<CWinHttpClient>& a_owner);
+	CWinHttpRequest(int a_reqId, std::shared_ptr<CWinHttpClient>& a_owner);
 	void _RunRequest();
 
 private:
@@ -104,7 +102,7 @@ private:
  * to create and launch HTTP requests (CWinHttpRequest).
  **/
 class CWinHttpClient :
-	public boost::enable_shared_from_this<CWinHttpClient>
+	public std::enable_shared_from_this<CWinHttpClient>
 {
 public:
 	// you must instantiate this class from a thread that is running

@@ -85,7 +85,7 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 
 void CNFORenderer::UnAssignNFO()
 {
-#ifdef HAVE_BOOST
+#ifndef DONT_USE_SHARED_PTR
 	m_nfo.reset();
 #else
 	m_nfo = NULL;

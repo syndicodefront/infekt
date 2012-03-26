@@ -71,7 +71,7 @@ protected:
 	PNFOData m_nfoData;
 
 	bool m_showInfoBar;
-	boost::shared_ptr<CInfektInfoBar> m_infoBar;
+	std::shared_ptr<CInfektInfoBar> m_infoBar;
 	int m_infoBarHeight;
 	bool m_infoBarResizing;
 
