@@ -136,7 +136,7 @@ protected:
 	void DoNfoExport(UINT a_id);
 	bool DoOpenMruMenu(const LPNMTOOLBAR a_lpnm);
 	void UpdateStatusbar();
-	void AdjustWindowToNFOWidth();
+	void AdjustWindowToNFOWidth(bool a_growOnly = false);
 
 	void CheckForUpdates();
 	void CheckForUpdates_Callback(PWinHttpRequest a_req);
