@@ -19,6 +19,10 @@
 
 CNFORenderer::CNFORenderer(bool a_classicMode)
 {
+#ifdef DONT_USE_SHARED_PTR
+	m_nfo = NULL;
+#endif
+
 	m_classic = a_classicMode;
 	m_partial = NRP_RENDER_EVERYTHING;
 
@@ -923,11 +927,10 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 			if(col != m_gridData->GetCols())
 			{
 				const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
-				const CNFOHyperLink* l_link = NULL;
 
 				if(l_block->shape == RGS_NO_BLOCK)
 				{
-					if(GetHilightHyperLinks() && (l_link = m_nfo->GetLink(row, col)) != NULL)
+					if(GetHilightHyperLinks() && m_nfo->GetLink(row, col) != NULL)
 						l_type = BT_LINK;
 					else
 						l_type = BT_TEXT;

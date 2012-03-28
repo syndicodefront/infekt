@@ -35,8 +35,8 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 	_wsetlocale(LC_CTYPE, L"C");
 
-	HANDLE l_instMutex = CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
-	bool l_prevInstance = (GetLastError() == ERROR_ALREADY_EXISTS);
+	::CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
+	bool l_prevInstance = (::GetLastError() == ERROR_ALREADY_EXISTS);
 
 	try
 	{
