@@ -755,7 +755,7 @@ void CMainFrame::UpdateStatusbar()
 }
 
 
-void CMainFrame::AdjustWindowToNFOWidth()
+void CMainFrame::AdjustWindowToNFOWidth(bool a_growOnly)
 {
 	int l_desiredWidth = static_cast<int>(m_view.GetActiveCtrl()->GetWidth());
 
@@ -769,6 +769,11 @@ void CMainFrame::AdjustWindowToNFOWidth()
 	RECT l_rc;
 	if(::GetWindowRect(GetHwnd(), &l_rc))
 	{
+		if(a_growOnly && l_desiredWidth < (l_rc.right - l_rc.left))
+		{
+			return;
+		}
+
 		int l_mid = l_rc.left + (l_rc.right - l_rc.left) / 2;
 		int l_oldLeft = l_rc.left;
 
