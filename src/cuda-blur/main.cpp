@@ -172,3 +172,36 @@ extern "C" __declspec(dllexport) int DoCudaBoxBlurA8(unsigned char* a_data,
 	return l_kernelResult;
 }
 	
+
+extern "C" __declspec(dllexport) int DoCudaGaussianBlurRGBA(unsigned int *a_img, unsigned int a_width, unsigned int a_height, float sigma)
+{
+	unsigned int *l_result, *l_temp, *l_img;
+	unsigned int l_size = a_width * a_height * sizeof(unsigned int);
+
+	if(sigma > 22)
+		sigma = 22;
+	else if(sigma < 0)
+		sigma = 0;
+
+	cudaMalloc((void**)&l_result, l_size);
+    cudaMalloc((void**)&l_temp, l_size);
+	cudaMalloc((void**)&l_img, l_size);
+
+	// copy image to device:
+	cudaMemcpy(l_img, a_img, l_size, cudaMemcpyHostToDevice);
+
+	cudaThreadSynchronize();
+
+	int l_kernelResult = gaussianFilterRGBA(l_img, l_result, l_temp, a_width, a_height, sigma, 0, 64);
+
+	cudaThreadSynchronize();
+
+	// copy result back to RAM:
+	cudaMemcpy(a_img, l_result, l_size, cudaMemcpyDeviceToHost);
+
+	cudaFree(l_temp);
+	cudaFree(l_img);
+	cudaFree(l_result);
+
+	return (l_kernelResult == cudaSuccess ? 1 : 0);
+}

@@ -28,7 +28,7 @@ CAboutDialog::CAboutDialog(HWND hWndParent) :
 
 #define _CREATE_STATIC(A_NAME, A_TEXT, A_TOP, A_HEIGHT) \
 	HWND A_NAME = CreateWindowEx(WS_EX_LEFT | WS_EX_NOPARENTNOTIFY, WC_STATIC, NULL, \
-	WS_CHILDWINDOW | WS_VISIBLE | SS_LEFT, l_left, A_TOP, 280, A_HEIGHT, \
+	WS_CHILDWINDOW | WS_VISIBLE | SS_LEFT, l_left, A_TOP, 270, A_HEIGHT, \
 		m_hWnd, NULL, g_hInstance, NULL); \
 	{ std::_tstring l_tmp = (A_TEXT); \
 	::SetWindowText(A_NAME, l_tmp.c_str()); \
@@ -110,8 +110,8 @@ BOOL CAboutDialog::OnInitDialog()
 
 	_CREATE_STATIC(l_hGPL, _T("This program is free software; you can redistribute it and/or ")
 		_T("modify it under the terms of the GNU General Public License ")
-		_T("as published by the Free Software Foundation."), l_top, 60);
-	l_top += 65;
+		_T("as published by the Free Software Foundation. This software contains source code provided by NVIDIA Corporation."), l_top, 65);
+	l_top += 70;
 
 #ifndef COMPACT_RELEASE
 	if(CUtil::IsWin6x())
