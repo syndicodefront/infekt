@@ -469,9 +469,9 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			return false;
 		}
 
-		if(l_lines.size() > 5000)
+		if(l_lines.size() > 10000)
 		{
-			m_lastErrorDescr = L"This file contains more than 5000 lines. To prevent damage and lock-ups, we do not load it.";
+			m_lastErrorDescr = L"This file contains more than 10000 lines. To prevent damage and lock-ups, we do not load it.";
 			return false;
 		}
 
