@@ -107,10 +107,10 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	while(!feof(l_file))
 	{
-		unsigned char l_chunkBuf[4096];
+		unsigned char l_chunkBuf[8192];
 		size_t l_bytesRead;
 
-		l_bytesRead = fread_s(&l_chunkBuf, sizeof(l_chunkBuf), sizeof(unsigned char), 4096, l_file);
+		l_bytesRead = fread_s(&l_chunkBuf, sizeof(l_chunkBuf), sizeof(unsigned char), 8192, l_file);
 		if(l_bytesRead > 0)
 		{
 			l_totalBytesRead += l_bytesRead;
@@ -978,41 +978,51 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 }
 
 
+/*static*/ void CNFOData::PopulateLinkTriggers()
+{
+#define TRGR(a, b) PLinkRegEx(new CLinkRegEx(a, b))
+
+	// cache compiled trigger regexes because all those execute on
+	// every single line, so this is an easy performance gain.
+
+	if(!ms_linkTriggers.empty())
+	{
+		return;
+	}
+
+	ms_linkTriggers.push_back(TRGR("http://", false));
+	ms_linkTriggers.push_back(TRGR("https://", false));
+	ms_linkTriggers.push_back(TRGR("www\\.", false));
+	ms_linkTriggers.push_back(TRGR("german\\.imdb\\.com", false));
+	ms_linkTriggers.push_back(TRGR("imdb\\.com", false));
+	ms_linkTriggers.push_back(TRGR("ofdb\\.de", false));
+	ms_linkTriggers.push_back(TRGR("imdb\\.de", false));
+	ms_linkTriggers.push_back(TRGR("cinefacts\\.de", false));
+	ms_linkTriggers.push_back(TRGR("zelluloid\\.de", false));
+	ms_linkTriggers.push_back(TRGR("tinyurl\\.com", false));
+	ms_linkTriggers.push_back(TRGR("bit\\.ly", false));
+
+	ms_linkTriggers.push_back(TRGR("^\\s*(/)", true));
+	ms_linkTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?)\\S*)", true));
+	ms_linkTriggers.push_back(TRGR("(\\S+/dp/\\S*)", true)); // for amazon
+	ms_linkTriggers.push_back(TRGR("(\\S*dp/[A-Z]\\S+)", true)); // for amazon
+	ms_linkTriggers.push_back(TRGR("(\\S+[&?]\\w+=\\S*)", true));
+
+	/*if(sPrevLineLink[sPrevLineLink.size() - 1] == '-') originally */
+	ms_linkTriggers.push_back(TRGR("(\\S+/\\S*)", true));
+
+#undef TRGR
+}
+std::vector<CNFOData::PLinkRegEx> CNFOData::ms_linkTriggers;
+
+
 #define OVECTOR_SIZE 30 // multiple of 3!
 bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
 			  std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued)
 {
-	typedef pair<const char*, bool> TRGR;
-	vector<TRGR> mTriggers; // trigger pattern -> is_continuation_trigger
 	size_t uBytePos = (size_t)-1, uByteLen = 0;
 
 	srUrl.clear();
-
-	mTriggers.push_back(TRGR("http://", false));
-	mTriggers.push_back(TRGR("https://", false));
-	mTriggers.push_back(TRGR("www\\.", false));
-	mTriggers.push_back(TRGR("german\\.imdb\\.com", false));
-	mTriggers.push_back(TRGR("imdb\\.com", false));
-	mTriggers.push_back(TRGR("ofdb\\.de", false));
-	mTriggers.push_back(TRGR("imdb\\.de", false));
-	mTriggers.push_back(TRGR("cinefacts\\.de", false));
-	mTriggers.push_back(TRGR("zelluloid\\.de", false));
-	mTriggers.push_back(TRGR("tinyurl\\.com", false));
-	mTriggers.push_back(TRGR("bit\\.ly", false));
-
-	if(!sPrevLineLink.empty())
-	{
-		mTriggers.push_back(TRGR("^\\s*(/)", true));
-		mTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?)\\S*)", true));
-		mTriggers.push_back(TRGR("(\\S+/dp/\\S*)", true)); // for amazon
-		mTriggers.push_back(TRGR("(\\S*dp/[A-Z]\\S+)", true)); // for amazon
-		mTriggers.push_back(TRGR("(\\S+[&?]\\w+=\\S*)", true));
-
-		if(sPrevLineLink[sPrevLineLink.size() - 1] == '-')
-		{
-			mTriggers.push_back(TRGR("(\\S+/\\S*)", true));
-		}
-	}
 
 	if(sLine.size() > (uint64_t)std::numeric_limits<int>::max()
 		|| uirOffset > (uint64_t)std::numeric_limits<int>::max())
@@ -1021,22 +1031,25 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 	}
 
 	// boring vars for pcre_compile:
-	const char *szErrDescr;
+	const char *szErrDescr = NULL;
 	int iErrOffset;
 	int ovector[OVECTOR_SIZE];
 
+	PopulateLinkTriggers();
+
 	// find link starting point:
 	bool bMatchContinuesLink = false;
-	for(vector<TRGR>::const_iterator it = mTriggers.begin(); it != mTriggers.end(); it++)
+	for(vector<PLinkRegEx>::const_iterator it = ms_linkTriggers.begin(); it != ms_linkTriggers.end(); it++)
 	{
-		pcre* re = pcre_compile(it->first,
-			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK,
-			&szErrDescr, &iErrOffset, NULL);
+		if(sPrevLineLink.empty() && (*it)->IsCont())
+		{
+			continue;
+		}
 
-		if(pcre_exec(re, NULL, sLine.c_str(), (int)sLine.size(), (int)uirOffset, 0, ovector, OVECTOR_SIZE) >= 0)
+		if(pcre_exec((*it)->GetRE(), NULL, sLine.c_str(), (int)sLine.size(), (int)uirOffset, 0, ovector, OVECTOR_SIZE) >= 0)
 		{
 			int iCaptures = 0;
-			if(pcre_fullinfo(re, NULL, PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
+			if(pcre_fullinfo((*it)->GetRE(), NULL, PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
 			{
 				int idx = (iCaptures == 1 ? 1 : 0) * 2;
 				_ASSERT(ovector[idx] >= 0 && ovector[idx + 1] > 0);
@@ -1045,12 +1058,10 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 				{
 					uBytePos = (size_t)ovector[idx];
 
-					bMatchContinuesLink = it->second;
+					bMatchContinuesLink = (*it)->IsCont();
 				}
 			}
 		}
-
-		pcre_free(re);
 	}
 
 	if(uBytePos == (size_t)-1)

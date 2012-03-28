@@ -114,6 +114,44 @@ protected:
 	bool TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen);
 
 	std::wstring GetWithBoxedWhitespace();
+
+	// following: static cache stuff for link detection regex.
+
+	class CLinkRegEx
+	{
+	public:
+		CLinkRegEx(const char* regex_str, bool a_cont)
+		{
+			const char *szErrDescr = NULL;
+			int iErrOffset;
+
+			m_re = pcre_compile(regex_str,
+				PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK,
+				&szErrDescr, &iErrOffset, NULL);
+			_ASSERT(m_re != NULL);
+			// no further error handling because all the regex are hardcoded
+
+			m_cont = a_cont;
+		}
+
+		pcre *GetRE() const { return m_re; }
+		bool IsCont() const { return m_cont; }
+
+		virtual ~CLinkRegEx()
+		{
+			if(m_re)
+			{
+				pcre_free(m_re);
+			}
+		}
+	protected:
+		pcre *m_re;
+		bool m_cont;
+	};
+	typedef std::shared_ptr<CLinkRegEx> PLinkRegEx;
+
+	static std::vector<PLinkRegEx> ms_linkTriggers;
+	static void PopulateLinkTriggers();
 };
 
 #ifndef DONT_USE_SHARED_PTR
