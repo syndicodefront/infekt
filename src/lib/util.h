@@ -207,5 +207,19 @@ private:
 
 #endif /* _WIN32 */
 
+class CBenchmarkTimer
+{
+public:
+	CBenchmarkTimer();
+
+	double GetFrequency();
+	void StartTimer();
+	double StopTimer();
+
+protected:
+	LARGE_INTEGER m_start;
+	LARGE_INTEGER m_stop;
+	double m_frequency;
+};
 
 #endif /* !_UTIL_H */
