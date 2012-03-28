@@ -642,7 +642,7 @@ void CSettingsTabDialog::UpdateFontSizesCombo(size_t a_selSize)
 
 		ComboBox_ResetContent(l_hFontCombo);
 
-		if(m_fonts.size() == 0)
+		if(m_fonts.empty())
 		{
 			// we're totally screwed but well, we shouldn't crash...
 			return;

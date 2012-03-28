@@ -19,11 +19,10 @@
 
 
 CAboutDialog::CAboutDialog(HWND hWndParent) :
-	CDialog(IDD_ABOUT, hWndParent)
+	CDialog(IDD_ABOUT, hWndParent),
+	m_mainWin(NULL), m_boldFont(NULL), m_icon(NULL),
+	m_linkCtrl((HWND)-1)
 {
-	m_mainWin = NULL;
-	m_boldFont = NULL;
-	m_linkCtrl = (HWND)-1;
 }
 
 

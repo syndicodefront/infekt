@@ -34,7 +34,7 @@ bool CContentScraper::LoadScraperFile(const std::wstring& a_filePath)
 	{
 		m_scrapeDefs = CXMLParser::ParseFile(a_filePath);
 	}
-	catch(CXMLException e)
+	catch(CXMLException& e)
 	{
 		(void)e;
 		return false;

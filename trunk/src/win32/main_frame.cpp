@@ -42,7 +42,8 @@ enum _toolbar_button_ids {
 
 CMainFrame::CMainFrame() : CFrame(),
 	m_showingAbout(false), m_dropHelper(NULL),
-	m_nfoInFolderIndex((size_t)-1)
+	m_nfoInFolderIndex((size_t)-1),
+	m_menuBarVisible(false)
 {
 	SetView(m_view);
 }
@@ -510,7 +511,7 @@ bool CMainFrame::DoOpenMruMenu(const LPNMTOOLBAR a_lpnm)
 			::AppendMenu(hPopupMenu, MF_STRING, TBBID_OPENMRUSTART + l_idx, l_entry);
 		}
 
-		if(m_mruPaths.size() == 0)
+		if(m_mruPaths.empty())
 		{
 			::AppendMenu(hPopupMenu, MF_STRING, TBBID_CLEARMRU, _T("Browse..."));
 		}

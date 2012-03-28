@@ -103,7 +103,7 @@ void ShowDownloadProgress(HWND hDlg)
 
 	if(s_uBytesTotal > 0)
 	{
-		unsigned int etaH = 0, etaM = 0, etaS = (unsigned int)(s_uBytesTotal / fBytesPerSec - secsIn) + 1;
+		int etaH = 0, etaM = 0, etaS = (int)(s_uBytesTotal / fBytesPerSec - secsIn) + 1;
 		if(etaS < 0) etaS = 0;
 		if(etaS >= 60)
 		{
