@@ -994,4 +994,46 @@ CCudaUtil::~CCudaUtil()
 }
 
 
+/************************************************************************/
+/* WINDOWS BENCHMARK/HIGH RESOLUTION TIMER                              */
+/************************************************************************/
+
+
+CBenchmarkTimer::CBenchmarkTimer()
+{
+	memset(&m_start, 0, sizeof(LARGE_INTEGER));
+	memset(&m_stop, 0, sizeof(LARGE_INTEGER));
+	m_frequency = GetFrequency() / 1000.0f; // milliseconds
+}
+
+double CBenchmarkTimer::GetFrequency()
+{
+	LARGE_INTEGER l_freq;
+
+	::QueryPerformanceFrequency(&l_freq);
+
+	return static_cast<double>(l_freq.QuadPart);
+}
+
+void CBenchmarkTimer::StartTimer()
+{
+	DWORD_PTR l_oldmask = ::SetThreadAffinityMask(::GetCurrentThread(), 0);
+
+	::QueryPerformanceCounter(&m_start);
+
+	::SetThreadAffinityMask(::GetCurrentThread(), l_oldmask);
+}
+
+double CBenchmarkTimer::StopTimer(void)
+{
+	DWORD_PTR l_oldmask = ::SetThreadAffinityMask(::GetCurrentThread(), 0);
+
+	::QueryPerformanceCounter(&m_stop);
+
+	::SetThreadAffinityMask(::GetCurrentThread(), l_oldmask);
+
+	return ((m_stop.QuadPart - m_start.QuadPart) / m_frequency);
+}
+
+
 #endif /* _WIN32 */
