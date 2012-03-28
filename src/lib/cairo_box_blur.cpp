@@ -188,7 +188,16 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 	if(!m_computed)
 	{
 		bool l_ok = false;
+
+		cairo_surface_flush(m_imgSurface);
+
 		unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
+
+		if(!l_boxData)
+		{
+			// too large or something...
+			return;
+		}
 
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
 		if(!m_useCpu)
@@ -208,7 +217,7 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 			PRInt32 l_lobes[3][2];
 			ComputeLobes(m_blurRadius, l_lobes);
-		
+
 			unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
 
 			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
@@ -221,6 +230,8 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 			delete[] l_tmpData;
 		}
+
+		cairo_surface_mark_dirty(m_imgSurface);
 
 		m_computed = true;
 	}

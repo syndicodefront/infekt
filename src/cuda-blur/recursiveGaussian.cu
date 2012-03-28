@@ -76,6 +76,8 @@ void transpose(uint *d_src, uint *d_dest, uint width, int height)
 extern "C"
 int gaussianFilterRGBA(uint *d_src, uint *d_dest, uint *d_temp, int width, int height, float sigma, int order, int nthreads)
 {
+	int l_err;
+
     // compute filter coefficient
     const float
         nsigma = sigma < 0.1f ? 0.1f : sigma,
@@ -126,17 +128,17 @@ int gaussianFilterRGBA(uint *d_src, uint *d_dest, uint *d_temp, int width, int h
 #else
     d_recursiveGaussian_rgba<<< iDivUp(width, nthreads), nthreads >>>(d_src, d_temp, width, height, a0, a1, a2, a3, b1, b2, coefp, coefn);
 #endif
-	if(cudaGetLastError() != cudaSuccess)
+	if((l_err = cudaGetLastError()) != cudaSuccess)
 	{
 		// "Kernel execution failed"
-		return cudaGetLastError();
+		return l_err;
 	}
 
     transpose(d_temp, d_dest, width, height);
-	if(cudaGetLastError() != cudaSuccess)
+	if((l_err = cudaGetLastError()) != cudaSuccess)
 	{
 		// "transpose: Kernel execution failed"
-		return cudaGetLastError();
+		return l_err;
 	}
 
     // process row
@@ -145,17 +147,17 @@ int gaussianFilterRGBA(uint *d_src, uint *d_dest, uint *d_temp, int width, int h
 #else
     d_recursiveGaussian_rgba<<< iDivUp(height, nthreads), nthreads >>>(d_dest, d_temp, height, width, a0, a1, a2, a3, b1, b2, coefp, coefn);
 #endif
-	if(cudaGetLastError() != cudaSuccess)
+	if((l_err = cudaGetLastError()) != cudaSuccess)
 	{
 		// "Kernel execution failed"
-		return cudaGetLastError();
+		return l_err;
 	}
 
     transpose(d_temp, d_dest, height, width);
-	if(cudaGetLastError() != cudaSuccess)
+	if((l_err = cudaGetLastError()) != cudaSuccess)
 	{
 		// "transpose: Kernel execution failed"
-		return cudaGetLastError();
+		return l_err;
 	}
 
 	return cudaSuccess;
