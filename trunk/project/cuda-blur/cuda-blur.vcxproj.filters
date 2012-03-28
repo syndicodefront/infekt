@@ -28,5 +28,8 @@
     <CudaCompile Include="..\..\src\cuda-blur\boxblur_kernel.cu">
       <Filter>Source Files</Filter>
     </CudaCompile>
+    <CudaCompile Include="..\..\src\cuda-blur\recursiveGaussian.cu">
+      <Filter>Source Files</Filter>
+    </CudaCompile>
   </ItemGroup>
 </Project>

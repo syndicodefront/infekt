@@ -40,6 +40,7 @@ public:
 	void Paint(cairo_t* a_destination);
 protected:
 	bool m_allowHwAccel;
+	bool m_useCpu;
 	bool m_computed;
 	// Blur radius in pixels:
 	int m_blurRadius;

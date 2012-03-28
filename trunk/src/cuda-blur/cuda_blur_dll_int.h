@@ -23,4 +23,7 @@ extern bool g_canMapHostMem;
 extern "C" int BoxBlurA8_Device(unsigned char* a_data, int a_stride,
 	int a_rows, int a_lobes[3][2], bool a_mapped);
 
+// exports from recursiveGaussian.cu:
+extern "C" int gaussianFilterRGBA(unsigned int *d_src, unsigned int *d_dest, unsigned int *d_temp, int width, int height, float sigma, int order, int nthreads);
+
 #endif /* !_CUDA_BLUR_DLL_INT_H */

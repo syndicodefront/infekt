@@ -38,9 +38,22 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a
 {
 	m_blurRadius = a_blurRadius;
 
+	m_useCpu = true;
+
+#if defined(_WIN32) && !defined(COMPACT_RELEASE)
+	if(m_allowHwAccel && CCudaUtil::GetInstance()->IsCudaUsable())
+	{
+		if(CCudaUtil::GetInstance()->IsCudaThreadInitialized() ||
+			CCudaUtil::GetInstance()->InitCudaThread())
+		{
+			m_useCpu = false;
+		}
+	}
+#endif /* _WIN32 */
+
 	// Make an alpha-only surface to draw on. We will play with the data after
 	// everything is drawn to create a blur effect.
-	m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_A8, a_width, a_height);
+	m_imgSurface = cairo_image_surface_create(m_useCpu ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32, a_width, a_height);
 
 	m_context = cairo_create(m_imgSurface);
 
@@ -174,46 +187,28 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 {
 	if(!m_computed)
 	{
+		bool l_ok = false;
 		unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
 
-		const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
-		const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
-
-		PRInt32 l_lobes[3][2];
-		ComputeLobes(m_blurRadius, l_lobes);
-
-		bool l_useCpu = true;
-
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
-		if(m_allowHwAccel)
+		if(!m_useCpu)
 		{
-			int l_tmpSize = l_rows * cairo_image_surface_get_width(m_imgSurface);
-			if(l_tmpSize < 3000000)
-			{
-				// CUDA hangs and sometimes takes down the system with too many numbers.
-
-				if(CCudaUtil::GetInstance()->IsCudaUsable())
-				{
-					bool l_ok = true;
-
-					if(!CCudaUtil::GetInstance()->IsCudaThreadInitialized())
-					{
-						l_ok = CCudaUtil::GetInstance()->InitCudaThread();
-					}
-
-					if(l_ok)
-					{
-						l_useCpu = !CCudaUtil::GetInstance()->DoCudaBoxBlurA8(l_boxData, l_stride, l_rows, l_lobes);
-					}
-				}
-
-				_ASSERT(!l_useCpu);
-			}
+			l_ok = CCudaUtil::GetInstance()->DoCudaGaussianBlurRGBA(reinterpret_cast<unsigned int*>(l_boxData),
+				cairo_image_surface_get_width(m_imgSurface),
+				cairo_image_surface_get_height(m_imgSurface), m_blurRadius / 5.0f + 2);
 		}
 #endif /* _WIN32 */
 
-		if(l_useCpu)
+		if(!l_ok)
 		{
+			// CPU or CPU fallback.
+
+			const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
+			const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
+
+			PRInt32 l_lobes[3][2];
+			ComputeLobes(m_blurRadius, l_lobes);
+		
 			unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
 
 			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
@@ -230,7 +225,20 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 		m_computed = true;
 	}
 
-	cairo_mask_surface(a_destination, m_imgSurface, 0, 0);
+	if(m_useCpu)
+	{
+		// 8 bit mask
+		cairo_mask_surface(a_destination, m_imgSurface, 0, 0);
+	}
+	else
+	{
+		// 32 bit RGBA processed shit
+		cairo_save(a_destination);
+		cairo_set_operator(a_destination, CAIRO_OPERATOR_SOURCE);
+		cairo_set_source_surface(a_destination, m_imgSurface, 0, 0);
+		cairo_paint(a_destination);
+		cairo_restore(a_destination);
+	}
 }
 
 

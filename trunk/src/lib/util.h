@@ -198,6 +198,7 @@ public:
 	bool IsCudaThreadInitialized() const;
 	bool UnInitCudaThread() const;
 	bool DoCudaBoxBlurA8(unsigned char* a_data, int a_stride, int a_rows, int a_lobes[3][2]) const;
+	bool DoCudaGaussianBlurRGBA(unsigned int *a_img, unsigned int a_width, unsigned int a_height, float sigma) const;
 
 protected:
 	HMODULE m_hCudaBlur;
