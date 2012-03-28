@@ -992,9 +992,9 @@ bool CCudaUtil::DoCudaGaussianBlurRGBA(unsigned int *a_img, unsigned int a_width
 {
 	typedef int (__cdecl *fnc)(unsigned int *a_img, unsigned int a_width, unsigned int a_height, float sigma);
 
-	if(fnc dcdda8 = (fnc)GetProcAddress(m_hCudaBlur, "DoCudaGaussianBlurRGBA"))
+	if(fnc dcgbr = (fnc)GetProcAddress(m_hCudaBlur, "DoCudaGaussianBlurRGBA"))
 	{
-		return (dcdda8(a_img, a_width, a_height, sigma) > 0);
+		return (dcgbr(a_img, a_width, a_height, sigma) > 0);
 	}
 
 	return false;
