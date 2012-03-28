@@ -11,7 +11,7 @@ set X64=n
 set STATIC=n
 
 IF EXIST pcre.tgz GOTO PCREOK
-curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.13.tar.gz -o pcre.tgz
+curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.30.tar.gz -o pcre.tgz
 :PCREOK
 
 set ROOTDIR=%cd%\work

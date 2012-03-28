@@ -343,6 +343,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\pcre_jit_compile.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\pcre_dfa_exec.c"
 				>
 			</File>
@@ -360,10 +364,6 @@
 			</File>
 			<File
 				RelativePath="..\..\pcre_globals.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\pcre_info.c"
 				>
 			</File>
 			<File
@@ -388,10 +388,6 @@
 			</File>
 			<File
 				RelativePath="..\..\pcre_tables.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\pcre_try_flipped.c"
 				>
 			</File>
 			<File

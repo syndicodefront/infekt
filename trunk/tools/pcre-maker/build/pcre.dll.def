@@ -16,7 +16,6 @@ EXPORTS
 	pcre_get_stringtable_entries
 	pcre_get_substring
 	pcre_get_substring_list
-	pcre_info
 	pcre_maketables
 	pcre_malloc DATA
 	pcre_refcount
