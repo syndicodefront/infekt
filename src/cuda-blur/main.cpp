@@ -183,25 +183,36 @@ extern "C" __declspec(dllexport) int DoCudaGaussianBlurRGBA(unsigned int *a_img,
 	else if(sigma < 0)
 		sigma = 0;
 
-	cudaMalloc((void**)&l_result, l_size);
-    cudaMalloc((void**)&l_temp, l_size);
-	cudaMalloc((void**)&l_img, l_size);
+	int l_kernelResult = -1;
 
-	// copy image to device:
-	cudaMemcpy(l_img, a_img, l_size, cudaMemcpyHostToDevice);
+	if(cudaMalloc((void**)&l_result, l_size) == cudaSuccess)
+	{
+		if(cudaMalloc((void**)&l_temp, l_size) == cudaSuccess)
+		{
+			if(cudaMalloc((void**)&l_img, l_size) == cudaSuccess)
+			{
+				// copy image to device:
+				if(cudaMemcpy(l_img, a_img, l_size, cudaMemcpyHostToDevice) == cudaSuccess)
+				{
+					cudaThreadSynchronize();
 
-	cudaThreadSynchronize();
+					l_kernelResult = gaussianFilterRGBA(l_img, l_result, l_temp, a_width, a_height, sigma, 0, 64);
 
-	int l_kernelResult = gaussianFilterRGBA(l_img, l_result, l_temp, a_width, a_height, sigma, 0, 64);
+					cudaThreadSynchronize();
 
-	cudaThreadSynchronize();
+					if(l_kernelResult == cudaSuccess)
+					{
+						// copy result back to RAM:
+						l_kernelResult = cudaMemcpy(a_img, l_result, l_size, cudaMemcpyDeviceToHost);
+					}
+				}
 
-	// copy result back to RAM:
-	cudaMemcpy(a_img, l_result, l_size, cudaMemcpyDeviceToHost);
-
-	cudaFree(l_temp);
-	cudaFree(l_img);
-	cudaFree(l_result);
+				cudaFree(l_img);
+			}
+			cudaFree(l_temp);
+		}
+		cudaFree(l_result);
+	}
 
 	return (l_kernelResult == cudaSuccess ? 1 : 0);
 }
