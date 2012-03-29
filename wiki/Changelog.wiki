@@ -5,6 +5,13 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.5 (2012) ==
+  * Window auto-width option now defaults to On
+  * NViDiA CUDA H/W acceleration (for Glow Effect) is now even faster
+  * Loading NFO files is now faster
+  * Updated PCRE to 8.30
+  * Some internal changes + improvements
+
 == v0.8.1 (26th September 2011) ==
   * Fixed issue 59
   * Setup/installer fix: don't fail to register shell extension if MSVC++ 2010 runtimes have NOT been installed (this also resolves some auto-update issues)
