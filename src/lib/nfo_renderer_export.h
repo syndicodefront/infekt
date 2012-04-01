@@ -70,7 +70,7 @@ public:
 
 	bool SavePNG(const std::wstring& a_filePath);
 protected:
-	
+	bool SaveWithLibpng(const std::wstring& a_filePath);
 };
 
 #endif /* !_NFO_RENDERER_EXPORT_H */
