@@ -223,4 +223,36 @@ protected:
 	double m_frequency;
 };
 
+class _CCairoSurface
+{
+public:
+	_CCairoSurface()
+	{
+		m_surface = NULL;
+	}
+	_CCairoSurface(cairo_surface_t *p)
+	{
+		m_surface = p;
+	}
+	virtual ~_CCairoSurface()
+	{
+		if(m_surface)
+		{
+			cairo_surface_destroy(m_surface);
+		}
+	}
+	operator cairo_surface_t*() const
+	{
+		return m_surface;
+	}
+	operator bool() const
+	{
+		return (m_surface != NULL);
+	}
+protected:
+	cairo_surface_t *m_surface;
+};
+
+typedef std::shared_ptr<_CCairoSurface> PCairoSurface;
+
 #endif /* !_UTIL_H */
