@@ -285,6 +285,9 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		return false;
 	}
 
+	_ASSERT(m_gridData->GetCols() == m_nfo->GetGridWidth());
+	_ASSERT(m_gridData->GetRows() == m_nfo->GetGridHeight());
+
 	if(m_stripes.empty())
 	{
 		// recalculate stripe dimensions.
@@ -305,7 +308,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		m_numStripes = l_numStripes;
 	}
 
-	a_stripeTo = std::min(a_stripeTo, m_numStripes);
+	a_stripeTo = std::min(a_stripeTo, m_numStripes - 1);
 	for(size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
 	{
 		if(!m_stripes[l_stripe])
