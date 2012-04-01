@@ -29,6 +29,11 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 {
 	double l_pageWidth, l_pageHeight;
 
+	if(!m_gridData && !CalculateGrid())
+	{
+		return false;
+	}
+
 	if(!CalcPageDimensions(l_pageWidth, l_pageHeight))
 	{
 		return false;
@@ -40,7 +45,7 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 #else
 		a_filePath;
 #endif
-	#if 0
+
 	cairo_surface_t* l_pdfSurface = cairo_pdf_surface_create(l_filePath.c_str(), l_pageWidth, l_pageHeight);
 
 	if(cairo_surface_status(l_pdfSurface) != CAIRO_STATUS_SUCCESS)
@@ -48,25 +53,36 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 		return false;
 	}
 
-	if(m_imgSurface)
+	cairo_surface_set_device_offset(l_pdfSurface, (l_pageWidth - GetWidth()) / 2.0, (l_pageHeight - GetHeight()) / 2.0);
+
+	if(GetBackColor().A > 0)
 	{
-		cairo_surface_destroy(m_imgSurface);
+		cairo_t* cr = cairo_create(l_pdfSurface);
+		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+		cairo_paint(cr);
+		cairo_destroy(cr);
 	}
 
-	m_imgSurface = l_pdfSurface;
-	m_rendered = false;
+	if(m_classic)
+	{
+		RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(), false,
+			(size_t)-1, 0, 0, 0, l_pdfSurface, 0, 0);
+	}
+	else
+	{
+		// no shadow effect support in PDFs.
 
-	SetEnableGaussShadow(false);
+		cairo_t* cr = cairo_create(l_pdfSurface);
 
-	cairo_surface_set_device_offset(m_imgSurface, (l_pageWidth - GetWidth()) / 2.0, (l_pageHeight - GetHeight()) / 2.0);
+		RenderBlocks(GetBackColor().A > 0, false, cr, (size_t)-1, 0, 0, 0);
 
-	Render();
+		cairo_destroy(cr);
+
+		RenderText(GetTextColor(), NULL, GetHyperLinkColor(), (size_t)-1, 0, 0, 0, l_pdfSurface, 0, 0);
+	}
 
 	cairo_surface_destroy(l_pdfSurface);
-	m_imgSurface = NULL;
-#else
-	return false;
-#endif
+
 	return true;
 }
 
