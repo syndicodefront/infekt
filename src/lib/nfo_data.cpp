@@ -88,9 +88,9 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	}
 #endif
 
-	if(l_fileBytes > 1024 * 1024 * 1)
+	if(l_fileBytes > 1024 * 1024 * 3)
 	{
-		m_lastErrorDescr = L"NFO file is too large (> 1 MB)";
+		m_lastErrorDescr = L"NFO file is too large (> 3 MB)";
 
 		fclose(l_file);
 		return false;

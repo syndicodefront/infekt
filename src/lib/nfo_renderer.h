@@ -150,7 +150,7 @@ protected:
 	size_t m_linesPerStripe; // in no. of lines
 	int m_stripeHeight; // in pixels
 	size_t m_numStripes;
-	std::map<size_t, PCairoSurface> m_stripes; // line no. -> surface
+	std::map<size_t, PCairoSurface> m_stripes; // stripe no. -> surface
 
 	// internal calls:
 	bool CalculateGrid();
