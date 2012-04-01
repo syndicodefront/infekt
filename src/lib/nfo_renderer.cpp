@@ -29,7 +29,8 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	// reset internal flags:
 	m_gridData = NULL;
 	m_rendered = false;
-	m_imgSurface = NULL;
+	m_linesPerStripe = 0;
+	m_stripeHeight = 0;
 	m_fontSize = -1;
 	m_zoomFactor = 1.0f;
 
@@ -98,11 +99,7 @@ void CNFORenderer::UnAssignNFO()
 	delete m_gridData;
 	m_gridData = NULL;
 
-	if(m_imgSurface)
-	{
-		cairo_surface_destroy(m_imgSurface);
-		m_imgSurface = NULL;
-	}
+	m_stripes.clear();
 }
 
 
@@ -198,8 +195,10 @@ bool CNFORenderer::CalculateGrid()
 }
 
 
-bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface, int dest_x, int dest_y,
-	int source_x, int source_y, int width, int height)
+bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
+	int dest_x, int dest_y, // coordinates in a_surface
+	int source_x, int source_y, // coordinates between 0 and GetHeight() / GetWidth()
+	int a_width, int a_height)
 {
 	if(!m_rendered && !Render())
 	{
@@ -208,9 +207,38 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface, int dest_x, int des
 
 	cairo_t *cr = cairo_create(a_surface);
 
-	cairo_set_source_surface(cr, m_imgSurface, dest_x - source_x, dest_y - source_y);
-	cairo_rectangle(cr, dest_x, dest_y, width, height);
-	cairo_fill(cr);
+	if(m_stripes.size() == 1)
+	{
+		cairo_set_source_surface(cr, *m_stripes[0], dest_x - source_x, dest_y - source_y);
+
+		cairo_rectangle(cr, dest_x, dest_y, a_width, a_height);
+
+		cairo_fill(cr);
+	}
+	else
+	{
+		size_t l_stripeStart = (source_y - m_padding) / m_stripeHeight, // implicit floor()
+			l_stripeEnd = ((source_y + a_height - m_padding) / m_stripeHeight);
+
+		for(size_t l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
+		{
+			// y pos in complete image:
+			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : l_stripe * m_stripeHeight + m_padding);
+			// y pos in dest_y (e.g. viewer frame) clip (can be negative, no problem):
+			int l_stripe_dest_y = l_stripe_virtual_y - source_y;
+
+			cairo_set_source_surface(cr, *m_stripes[l_stripe], dest_x - source_x,
+				static_cast<int>(dest_y + l_stripe_dest_y - 0));
+
+			cairo_rectangle(cr,
+				dest_x,
+				dest_y + l_stripe_dest_y,
+				a_width,
+				m_stripeHeight + (l_stripe == 0 ? m_padding : 0));
+
+			cairo_fill(cr);
+		}
+	}
 
 	cairo_destroy(cr);
 
@@ -227,10 +255,17 @@ bool CNFORenderer::DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y)
 
 	cairo_save(a_cr);
 
-	cairo_set_source_surface(a_cr, m_imgSurface, dest_x - 0, dest_y - 0);
-	cairo_rectangle(a_cr, dest_x, dest_y,
-		static_cast<double>(GetWidth()), static_cast<double>(GetHeight()));
-	cairo_fill(a_cr);
+	if(m_stripes.size() == 1)
+	{
+		cairo_set_source_surface(a_cr, *m_stripes[0], dest_x - 0, dest_y - 0);
+		cairo_rectangle(a_cr, dest_x, dest_y,
+			static_cast<double>(GetWidth()), static_cast<double>(GetHeight()));
+		cairo_fill(a_cr);
+	}
+	else
+	{
+		/* :TODO: */
+	}
 
 	cairo_restore(a_cr);
 
@@ -238,33 +273,89 @@ bool CNFORenderer::DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y)
 }
 
 
-bool CNFORenderer::Render()
+bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 {
-	if(!m_nfo) return false;
-	if(!m_gridData && !CalculateGrid()) return false;
-
-	if(!m_imgSurface)
+	if(!m_nfo)
 	{
-		_ASSERT(GetWidth() < (unsigned int)std::numeric_limits<int>::max() && GetHeight() < (unsigned int)std::numeric_limits<int>::max());
+		return false;
+	}
 
-		m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
-			(int)GetWidth(), (int)GetHeight());
+	if(!m_gridData && !CalculateGrid())
+	{
+		return false;
+	}
 
-		if(!m_imgSurface)
+	if(m_stripes.empty())
+	{
+		// recalculate stripe dimensions.
+
+		size_t l_numStripes = GetHeight() / ms_stripeHeightMax; // implicit floor()
+		if(l_numStripes == 0) l_numStripes = 1;
+		size_t l_linesPerStripe = m_nfo->GetGridHeight() / l_numStripes; // implicit floor()
+
+		while(l_linesPerStripe * l_numStripes < m_nfo->GetGridHeight())
 		{
-			return false;
+			// correct rounding errors
+			l_numStripes++;
 		}
+
+		// storing these three is a bit redundant, but saves code & calculations in other places:
+		m_linesPerStripe = l_linesPerStripe;
+		m_stripeHeight = static_cast<int>(l_linesPerStripe * GetBlockHeight());
+		m_numStripes = l_numStripes;
+	}
+
+	a_stripeTo = std::min(a_stripeTo, m_numStripes);
+	for(size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
+	{
+		if(!m_stripes[l_stripe])
+		{
+			m_stripes[l_stripe] = PCairoSurface(new _CCairoSurface(
+				cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+				(int)GetWidth(),
+				m_stripeHeight + (l_stripe == 0 ? m_padding : 0))
+			));
+
+			// render each stripe only once:
+			RenderStripe(l_stripe);
+		}	
+	}
+
+	m_rendered = true;
+
+	return true;
+}
+
+
+void CNFORenderer::RenderStripe(size_t a_stripe)
+{
+	cairo_surface_t * const l_surface = *m_stripes[a_stripe];
+
+	if(m_classic)
+	{
+		if(GetBackColor().A > 0)
+		{
+			cairo_t* cr = cairo_create(l_surface);
+			cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+			cairo_paint(cr);
+			cairo_destroy(cr);
+		}
+
+		RenderClassic(GetTextColor(),
+			NULL,
+			GetHyperLinkColor(),
+			false,
+			(m_stripes.size() > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
+			0,
+			a_stripe * m_linesPerStripe + m_linesPerStripe,
+			m_nfo->GetGridWidth() - 1,
+			l_surface,
+			0,
+			// hacke-di-hack (RenderClassic is adding m_padding for historical reasons, so we have to subtract it beforehand.
+			// it's also operating on the full NFO image's coordinates, so we have to subtract those too):
+			(a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight));
 	}
 	else
-	{
-		// clean. :TODO: find out if really necessary.
-		cairo_t* cr = cairo_create(m_imgSurface);
-		cairo_set_operator(cr, CAIRO_OPERATOR_CLEAR);
-		cairo_paint(cr);
-		cairo_destroy(cr);
-	}
-
-	if(!m_classic)
 	{
 		if(GetEnableGaussShadow() && ((m_partial & NRP_RENDER_BLOCKS) != 0 || (m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0))
 		{
@@ -272,7 +363,7 @@ bool CNFORenderer::Render()
 			{
 				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur((int)GetWidth(), (int)GetHeight(), (int)GetGaussBlurRadius(), m_allowHwAccel);
 
-				cairo_t* cr = cairo_create(m_imgSurface);
+				cairo_t* cr = cairo_create(l_surface);
 
 				if(GetBackColor().A > 0)
 				{
@@ -284,7 +375,7 @@ bool CNFORenderer::Render()
 				// shadow effect:
 				if(p_blur)
 				{
-					RenderBlocks(false, true, p_blur->GetContext());
+					RenderStripeBlocks(a_stripe, false, true, p_blur->GetContext());
 
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
 					p_blur->Paint(cr);
@@ -298,40 +389,32 @@ bool CNFORenderer::Render()
 			if((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0)
 			{
 				// render blocks in gaussian color
-				RenderBlocks(false, true);
+				RenderStripeBlocks(a_stripe, false, true);
 			}
 			else if((m_partial & NRP_RENDER_BLOCKS) != 0)
 			{
 				// normal mode
-				RenderBlocks(false, false);
+				RenderStripeBlocks(a_stripe, false, false);
 			}
 		}
 		else if((m_partial & NRP_RENDER_BLOCKS) != 0)
 		{
-			RenderBlocks(true, false);
+			RenderStripeBlocks(a_stripe, true, false);
 		}
 
 		if((m_partial & NRP_RENDER_TEXT) != 0)
 		{
-			RenderText();
+			RenderText(GetTextColor(), NULL, GetHyperLinkColor(),
+				(m_stripes.size() > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
+				0,
+				a_stripe * m_linesPerStripe + m_linesPerStripe,
+				m_nfo->GetGridWidth() - 1,
+				l_surface,
+				0,
+				// hacke-di-hack (see above):
+				(a_stripe == 0 ? 0.0 : -m_padding - (double)a_stripe * m_stripeHeight));
 		}
 	}
-	else // classic mode
-	{
-		if(GetBackColor().A > 0)
-		{
-			cairo_t* cr = cairo_create(m_imgSurface);
-			cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
-			cairo_paint(cr);
-			cairo_destroy(cr);
-		}
-
-		RenderClassic();
-	}
-
-	m_rendered = true;
-
-	return true;
 }
 
 
@@ -339,19 +422,35 @@ bool CNFORenderer::Render()
 /* RENDER BLOCKS                                                        */
 /************************************************************************/
 
-void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context)
+void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context)
 {
-	double l_off_x = 0, l_off_y = 0;
+	cairo_t* l_context = (a_context ? a_context : cairo_create(*m_stripes[a_stripe]));
 
-	cairo_t* cr;
+	RenderBlocks(a_opaqueBg, a_gaussStep, l_context,
+		(m_stripes.size() > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
+		a_stripe * m_linesPerStripe + m_linesPerStripe,
+		0, (a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight));
+
 	if(!a_context)
 	{
-		cr = cairo_create(m_imgSurface);
+		cairo_destroy(l_context);
 	}
-	else
+}
+
+void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context,
+	size_t a_rowStart, size_t a_rowEnd, double a_xBase, double a_yBase)
+{
+	double l_off_x = m_padding + a_xBase, l_off_y = m_padding + a_yBase;
+
+	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
+	if(a_rowStart != (size_t)-1)
 	{
-		cr = a_context;
+		l_rowStart = std::max(a_rowStart, l_rowStart);
+		l_rowEnd = std::min(a_rowEnd, l_rowEnd);
 	}
+
+	cairo_t * const cr = a_context;
+	cairo_save(cr);
 
 	if(a_opaqueBg && GetBackColor().A > 0)
 	{
@@ -359,15 +458,12 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 		cairo_paint(cr);
 	}
 
-	l_off_x += m_padding;
-	l_off_y += m_padding;
-
 	cairo_set_antialias(cr, CAIRO_ANTIALIAS_SUBPIXEL);
 
 	int l_oldAlpha = 0;
 	cairo_set_source_rgba(cr, 0, 0, 0, l_oldAlpha);
 
-	for(size_t row = 0; row < m_gridData->GetRows(); row++)
+	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
@@ -427,10 +523,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 		}
 	}
 
-	if(!a_context)
-	{
-		cairo_destroy(cr);
-	}
+	cairo_restore(cr);
 }
 
 
@@ -504,12 +597,6 @@ static inline void _FinalizeDrawingTools(cairo_t** pcr, cairo_font_options_t** p
 /************************************************************************/
 /* RENDER TEXT                                                          */
 /************************************************************************/
-
-void CNFORenderer::RenderText()
-{
-	RenderText(GetTextColor(), NULL, GetHyperLinkColor(), (size_t)-1, 0, 0, 0, m_imgSurface, 0, 0);
-}
-
 
 void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 							  const S_COLOR_T& a_hyperLinkColor,
@@ -609,8 +696,8 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
 	if(a_rowStart != (size_t)-1)
 	{
-		l_rowStart = std::max<size_t>(a_rowStart, l_rowStart);
-		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
+		l_rowStart = std::max(a_rowStart, l_rowStart);
+		l_rowEnd = std::min(a_rowEnd, l_rowEnd);
 	}
 
 	// set main text color:
@@ -693,7 +780,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				// ... no hyperlinks, draw the entire line in one go:
 				cairo_show_glyphs(cr, l_glyphs, l_numGlyphs);
 			}
-			else if(a_rowStart == (size_t)-1)
+			else if(a_rowStart == (size_t)-1 || !a_backColor)
 			{
 				size_t l_nextCol = l_firstCol;
 
@@ -846,14 +933,6 @@ void CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
 }
 
 
-void CNFORenderer::RenderClassic()
-{
-	RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(),
-		false, 0, 0, m_nfo->GetGridHeight(), m_nfo->GetGridWidth(),
-		m_imgSurface, 0, 0);
-}
-
-
 void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 								 const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
 								 size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
@@ -877,8 +956,8 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
 	if(a_rowStart != (size_t)-1)
 	{
-		l_rowStart = std::max<size_t>(a_rowStart, l_rowStart);
-		l_rowEnd = std::min<size_t>(a_rowEnd, l_rowEnd);
+		l_rowStart = std::max(a_rowStart, l_rowStart);
+		l_rowEnd = std::min(a_rowEnd, l_rowEnd);
 	}
 
 	typedef enum
@@ -1035,11 +1114,7 @@ void CNFORenderer::SetZoom(unsigned int a_percent)
 {
 	m_zoomFactor = a_percent / 100.0f;
 
-	if(m_imgSurface)
-	{
-		cairo_surface_destroy(m_imgSurface);
-		m_imgSurface = NULL;
-	}
+	m_stripes.clear();
 
 	m_fontSize = -1;
 	m_rendered = false;
@@ -1146,10 +1221,9 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	SetWrapLines(ns.bWrapLines);
 	SetFontFace(ns.sFontFace);
 
-	if(!m_rendered && m_imgSurface != NULL)
+	if(!m_rendered) // stuff has changed
 	{
-		cairo_surface_destroy(m_imgSurface);
-		m_imgSurface = NULL;
+		m_stripes.clear();
 	}
 }
 
@@ -1158,8 +1232,7 @@ CNFORenderer::~CNFORenderer()
 {
 	delete m_gridData;
 
-	if(m_imgSurface)
-		cairo_surface_destroy(m_imgSurface);
+	m_stripes.clear();
 }
 
 

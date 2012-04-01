@@ -140,7 +140,6 @@ protected:
 	// NFO data:
 	PNFOData m_nfo;
 	TwoDimVector<CRenderGridBlock> *m_gridData;
-	cairo_surface_t *m_imgSurface;
 
 	// internal state data:
 	// don't mess with these, they are NOT settings:
@@ -148,16 +147,23 @@ protected:
 	int m_padding;
 	double m_fontSize;
 
+	size_t m_linesPerStripe; // in no. of lines
+	int m_stripeHeight; // in pixels
+	size_t m_numStripes;
+	std::map<size_t, PCairoSurface> m_stripes; // line no. -> surface
+
 	// internal calls:
 	bool CalculateGrid();
-	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL);
-	void RenderText();
+	void RenderStripe(size_t a_stripe);
+	void RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL);
+
+	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL,
+		size_t a_rowStart = (size_t)-1, size_t a_rowEnd = 0, double a_xBase = 0, double a_yBase = 0);
 	void RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 		const S_COLOR_T& a_hyperLinkColor,
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
 		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
 
-	void RenderClassic();
 	void RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 		const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
@@ -168,6 +174,7 @@ protected:
 	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);
 
 	static const size_t ms_defaultClassicFontSize = 12;
+	static const size_t ms_stripeHeightMax = 16000; // in pixels, 100 for debugging, probably 16000 for production
 public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();
@@ -183,7 +190,7 @@ public:
 		int source_x, int source_y, int width, int height);
 	virtual bool DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y);
 	// you should not call this directly without a good reason, prefer DrawToSurface:
-	bool Render();
+	bool Render(size_t a_stripeFrom = 0, size_t a_stripeTo = (~1));
 
 	bool IsClassicMode() const { return m_classic; }
 

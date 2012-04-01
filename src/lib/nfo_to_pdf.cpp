@@ -40,7 +40,7 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 #else
 		a_filePath;
 #endif
-
+	#if 0
 	cairo_surface_t* l_pdfSurface = cairo_pdf_surface_create(l_filePath.c_str(), l_pageWidth, l_pageHeight);
 
 	if(cairo_surface_status(l_pdfSurface) != CAIRO_STATUS_SUCCESS)
@@ -64,7 +64,9 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 
 	cairo_surface_destroy(l_pdfSurface);
 	m_imgSurface = NULL;
-
+#else
+	return false;
+#endif
 	return true;
 }
 
