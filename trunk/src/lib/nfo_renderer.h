@@ -132,7 +132,6 @@ class CNFORenderer
 protected:
 	CNFORenderSettings m_settings;
 	bool m_classic;
-	bool m_trueGaussian;
 	bool m_allowHwAccel;
 	float m_zoomFactor;
 
@@ -142,7 +141,6 @@ protected:
 	PNFOData m_nfo;
 	TwoDimVector<CRenderGridBlock> *m_gridData;
 	cairo_surface_t *m_imgSurface;
-	CCairoBoxBlur* m_cachedBlur;
 
 	// internal state data:
 	// don't mess with these, they are NOT settings:
@@ -211,16 +209,14 @@ public:
 	S_COLOR_T GetHyperLinkColor() const { return m_settings.cHyperlinkColor; }
 
 	// various other setters & getters:
-	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb;
-		if(!nb) { delete m_cachedBlur; m_cachedBlur = NULL; } }
+	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb; }
 	bool GetEnableGaussShadow() const { return m_settings.bGaussShadow; }
 	void SetGaussBlurRadius(unsigned int r) {
 		m_rendered = m_rendered && (m_settings.uGaussBlurRadius == r); m_settings.uGaussBlurRadius = r;
-		if(m_settings.bGaussShadow) {
+		if(!m_settings.bGaussShadow) {  m_padding = 8; } else {
 		m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
 		if(m_padding < 8) m_padding = 8;
-		} else m_padding = 8;
-		if(!m_rendered) { delete m_cachedBlur; m_cachedBlur = NULL; }
+		}
 	}
 	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
 
@@ -245,8 +241,7 @@ public:
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&
 		a_width == m_settings.uBlockWidth && a_height == m_settings.uBlockHeight; m_settings.uBlockWidth = a_width; m_settings.uBlockHeight = a_height;
-		if(!m_rendered) { m_fontSize = -1;
-			delete m_cachedBlur; m_cachedBlur = NULL; }
+		if(!m_rendered) { m_fontSize = -1; }
 	}}
 	size_t GetBlockWidth() const { return (!m_classic ? static_cast<size_t>(m_settings.uBlockWidth * m_zoomFactor + 0.5) : m_settings.uBlockWidth); }
 	size_t GetBlockHeight() const { return (!m_classic ? static_cast<size_t>(m_settings.uBlockHeight * m_zoomFactor + 0.5) : m_settings.uBlockHeight); }
