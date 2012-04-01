@@ -999,7 +999,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if(!l_filePath.empty())
 		{
-			CNFORenderer l_renderer(m_view.GetViewType() != MAIN_VIEW_RENDERED);
+			CNFOToPNG l_exporter(m_view.GetViewType() != MAIN_VIEW_RENDERED);
 			CNFORenderSettings l_settings = m_view.GetActiveCtrl()->GetSettings();
 
 			if(a_id == IDM_EXPORT_PNG_TRANSP)
@@ -1011,41 +1011,19 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
-			l_renderer.InjectSettings(l_settings);
+			l_exporter.InjectSettings(l_settings);
+			l_exporter.AssignNFO(m_view.GetActiveCtrl()->GetNfoData());
 
-			if(l_renderer.AssignNFO(m_view.GetActiveCtrl()->GetNfoData()))
+			if(!l_exporter.SavePNG(l_filePath))
 			{
-				size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
-
-				_ASSERT(l_imgWidth < (unsigned int)std::numeric_limits<int>::max() && l_imgHeight < (unsigned int)std::numeric_limits<int>::max());
-
-				if(cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, (int)l_imgWidth, (int)l_imgHeight))
-				{
-					if(l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0, (int)l_imgWidth, (int)l_imgHeight))
-					{
-						const std::string l_utfFilePath = CUtil::FromWideStr(l_filePath, CP_UTF8);
-						if(cairo_surface_write_to_png(l_surface, l_utfFilePath.c_str()) != CAIRO_STATUS_SUCCESS)
-						{
-							this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
-						}
-						else
-						{
-							this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
-						}
-
-						l_internalError = false;
-					}
-
-					cairo_surface_destroy(l_surface);
-				}
+				this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
+			}
+			else
+			{
+				this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
 			}
 
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-
-			if(l_internalError)
-			{
-				this->MessageBox(_T("An internal error occured!"), _T("Fail"), MB_ICONEXCLAMATION);
-			}
 		}
 	}
 	else if(a_id == IDM_EXPORT_UTF8 || a_id == IDM_EXPORT_UTF16)
@@ -1060,6 +1038,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if(!l_filePath.empty())
 		{
+			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
 			if(m_view.GetActiveCtrl()->GetNfoData()->SaveToFile(l_filePath, l_utf8))
 			{
 				this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
@@ -1075,6 +1055,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 				this->MessageBox(l_msg.c_str(), _T("Fail"), MB_ICONEXCLAMATION);
 			}
+
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		}
 	}
 	else if(a_id == IDM_EXPORT_XHTML)
@@ -1090,6 +1072,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			CNFOToHTML l_exporter(m_view.GetActiveCtrl()->GetNfoData());
 			l_exporter.SetSettings(m_view.GetActiveCtrl()->GetSettings());
 			l_exporter.SetTitle(l_baseFileName + _T(".nfo"));
+
+			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
 			wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
 			l_html += l_exporter.GetHTML();
@@ -1108,6 +1092,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			{
 				this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
 			}
+
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		}
 	}
 	else if(a_id == IDM_EXPORT_PDF || a_id == IDM_EXPORT_PDF_DIN)
@@ -1120,6 +1106,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if(!l_filePath.empty())
 		{
+			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
 			CNFOToPDF l_exporter(m_view.GetActiveCtrl() != m_view.GetRenderCtrl());
 			l_exporter.SetUseDINSizes(a_id == IDM_EXPORT_PDF_DIN);
 			l_exporter.AssignNFO(m_view.GetNfoData());
@@ -1133,6 +1121,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			{
 				this->MessageBox(_T("An error occured while trying to save this NFO as PDF!"), _T("Fail"), MB_ICONEXCLAMATION);
 			}
+
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		}
 	}
 }
