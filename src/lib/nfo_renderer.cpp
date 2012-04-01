@@ -31,7 +31,6 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	m_rendered = false;
 	m_imgSurface = NULL;
 	m_fontSize = -1;
-	m_cachedBlur = NULL;
 	m_zoomFactor = 1.0f;
 
 	// default settings:
@@ -65,7 +64,6 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	SetUnderlineHyperLinks(true);
 
 	// other stuff:
-	m_trueGaussian = false;
 	m_allowHwAccel = true;
 }
 
@@ -99,9 +97,6 @@ void CNFORenderer::UnAssignNFO()
 	m_fontSize = -1;
 	delete m_gridData;
 	m_gridData = NULL;
-
-	delete m_cachedBlur;
-	m_cachedBlur = NULL;
 
 	if(m_imgSurface)
 	{
@@ -243,8 +238,6 @@ bool CNFORenderer::DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y)
 }
 
 
-#include "cairo_image_surface_blur.inc"
-
 bool CNFORenderer::Render()
 {
 	if(!m_nfo) return false;
@@ -275,24 +268,9 @@ bool CNFORenderer::Render()
 	{
 		if(GetEnableGaussShadow() && ((m_partial & NRP_RENDER_BLOCKS) != 0 || (m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0))
 		{
-			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0 && m_trueGaussian)
+			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
-				// this one (true gaussian blur) is much too slow for
-				// big radii.
-				RenderBlocks(true, true);
-				cairo_blur_image_surface(m_imgSurface, GetGaussBlurRadius());
-			}
-			else if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
-			{
-				if(!m_cachedBlur)
-				{
-					_ASSERT(GetWidth() < (unsigned int)std::numeric_limits<int>::max() && GetHeight() < (unsigned int)std::numeric_limits<int>::max() &&
-						GetGaussBlurRadius() < (uint64_t)std::numeric_limits<int>::max());
-
-					m_cachedBlur = new CCairoBoxBlur((int)GetWidth(), (int)GetHeight(), (int)GetGaussBlurRadius(), m_allowHwAccel);
-
-					RenderBlocks(false, true, m_cachedBlur->GetContext());
-				}
+				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur((int)GetWidth(), (int)GetHeight(), (int)GetGaussBlurRadius(), m_allowHwAccel);
 
 				cairo_t* cr = cairo_create(m_imgSurface);
 
@@ -304,10 +282,17 @@ bool CNFORenderer::Render()
 				}
 
 				// shadow effect:
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
-				m_cachedBlur->Paint(cr);
+				if(p_blur)
+				{
+					RenderBlocks(false, true, p_blur->GetContext());
 
+					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
+					p_blur->Paint(cr);
+				}
+					
 				cairo_destroy(cr);
+
+				delete p_blur;
 			}
 
 			if((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0)
@@ -1049,9 +1034,6 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 void CNFORenderer::SetZoom(unsigned int a_percent)
 {
 	m_zoomFactor = a_percent / 100.0f;
-
-	delete m_cachedBlur;
-	m_cachedBlur = NULL;
 
 	if(m_imgSurface)
 	{
