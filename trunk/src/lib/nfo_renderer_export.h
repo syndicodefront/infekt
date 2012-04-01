@@ -50,7 +50,7 @@ public:
 	bool GetUseDINSizes() const { return m_dinSizes; }
 	void SetUseDINSizes(bool nb) { m_dinSizes = nb; }
 
-	bool SavePDF(const std::_tstring& a_filePath);
+	bool SavePDF(const std::wstring& a_filePath);
 protected:
 	bool m_dinSizes;
 
@@ -59,5 +59,18 @@ protected:
 
 #endif
 
+// PNG export wrapper,
+// uses cairo+pixman for small images and
+// direct libpng calls for large ones.
+class CNFOToPNG : public CNFORenderer
+{
+public:
+	CNFOToPNG(bool a_classicMode = false);
+	virtual ~CNFOToPNG();
+
+	bool SavePNG(const std::wstring& a_filePath);
+protected:
+	
+};
 
 #endif /* !_NFO_RENDERER_EXPORT_H */
