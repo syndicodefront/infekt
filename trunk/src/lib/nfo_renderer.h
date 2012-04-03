@@ -176,7 +176,7 @@ protected:
 	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);
 
 	static const size_t ms_defaultClassicFontSize = 12;
-	static const size_t ms_stripeHeightMax = 16000; // in pixels, 100 for debugging, probably 16000 for production
+	static const size_t ms_stripeHeightMax = 2000; // in pixels
 public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();

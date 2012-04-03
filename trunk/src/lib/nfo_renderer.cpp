@@ -285,14 +285,28 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		return false;
 	}
 
+	// using these exchangably:
 	_ASSERT(m_gridData->GetCols() == m_nfo->GetGridWidth());
 	_ASSERT(m_gridData->GetRows() == m_nfo->GetGridHeight());
+
+	if(m_classic)
+	{
+		// we need the block size to check the minimum maximum (no typo) stripe height:
+		CalcClassicModeBlockSizes();
+	}
+	else
+	{
+		// init font size:
+		PreRenderText();
+	}
 
 	if(m_stripes.empty())
 	{
 		// recalculate stripe dimensions.
 
-		size_t l_numStripes = GetHeight() / ms_stripeHeightMax; // implicit floor()
+		size_t l_stripeHeightMax = std::max(ms_stripeHeightMax, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
+
+		size_t l_numStripes = GetHeight() / l_stripeHeightMax; // implicit floor()
 		if(l_numStripes == 0) l_numStripes = 1;
 		size_t l_linesPerStripe = m_nfo->GetGridHeight() / l_numStripes; // implicit floor()
 
@@ -308,15 +322,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		m_numStripes = l_numStripes;
 	}
 
-	if(m_classic)
-	{
-		CalcClassicModeBlockSizes();
-	}
-	else
-	{
-		// init font size:
-		PreRenderText();
-	}
+	std::vector<size_t> l_changedStripes;
 
 	a_stripeTo = std::min(a_stripeTo, m_numStripes - 1);
 	for(size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
@@ -330,8 +336,15 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 			));
 
 			// render each stripe only once:
-			RenderStripe(l_stripe);
+			l_changedStripes.push_back(l_stripe);
 		}	
+	}
+
+	// parallize rendering:
+	#pragma omp parallel for
+	for(size_t i = 0; i < l_changedStripes.size(); i++)
+	{
+		RenderStripe(l_changedStripes[i]);
 	}
 
 	m_rendered = true;
@@ -390,7 +403,9 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 		{
 			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
-				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur((int)GetWidth(), (int)GetHeight(), (int)GetGaussBlurRadius(), m_allowHwAccel);
+				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur(
+					(int)GetWidth(), (int)m_stripeHeight + (a_stripe == 0 ? m_padding : 0),
+					(int)GetGaussBlurRadius(), m_allowHwAccel);
 
 				cairo_t* cr = cairo_create(l_surface);
 
