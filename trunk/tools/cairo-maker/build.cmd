@@ -11,19 +11,23 @@ set X64=n
 set STATIC=n
 
 IF EXIST zlib.tgz GOTO AZOK
-curl http://zlib.net/zlib-1.2.5.tar.gz -o zlib.tgz
+curl http://zlib.net/zlib-1.2.6.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.5.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.10.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.22.2.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.24.4.tar.gz -o pixman.tgz
+:PZOK
+
+IF EXIST pixman-src.tgz GOTO PZOK
+curl http://cgit.freedesktop.org/pixman/snapshot/pixman-0.24.4.tar.gz -o pixman-src.tgz
 :PZOK
 
 IF EXIST cairo.tgz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.10.2.tar.gz -o cairo.tgz
+curl http://www.cairographics.org/releases/cairo-1.12.0.tar.gz -o cairo.tgz
 :CZOK
 
 set ROOTDIR=%cd%\work
@@ -55,6 +59,7 @@ cd %ROOTDIR%
 tar xzf ../zlib.tgz
 tar xzf ../libpng.tgz
 tar xzf ../pixman.tgz
+tar -kxzf ../pixman-src.tgz
 tar xzf ../cairo.tgz
 
 move zlib-* zlib
@@ -80,6 +85,12 @@ sed "s/StaticLibrary/DynamicLibrary/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 :ZLIBSTATICOK
 
+IF %CONFIG%==release GOTO ZLIBRUNTIMEOK
+sed "s/<RuntimeLibrary>.*<.RuntimeLibrary>//" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+sed "s/<.ClCompile>/<RuntimeLibrary>MultiThreadedDebugDLL<\/RuntimeLibrary><\/ClCompile>/" zlib.vcxproj.fixed > zlib.vcxproj.fixed2
+move /Y zlib.vcxproj.fixed2 zlib/zlib.vcxproj
+:ZLIBRUNTIMEOK
+
 IF %X64%==n GOTO ZLIBNOX64
 sed "s/Win32/x64/" vstudio.sln > vstudio.sln.fixed
 sed "s/Win32/x64/" vstudio.sln.fixed > vstudio.sln.fixed2
@@ -98,11 +109,19 @@ sed "s/Win32/x64/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
 move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
 :ZLIBNOX64
 
+IF %CONFIG%==release GOTO LIBPNGRUNTIMEOK
+sed "s/<RuntimeLibrary>.*<.RuntimeLibrary>//" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+sed "s/<.ClCompile>/<RuntimeLibrary>MultiThreadedDebugDLL<\/RuntimeLibrary><\/ClCompile>/" libpng.vcxproj.fixed > libpng.vcxproj.fixed2
+move /Y libpng.vcxproj.fixed2 libpng/libpng.vcxproj
+:LIBPNGRUNTIMEOK
+
 rem zlib does not always export the gz* calls for some reason
 sed "s/^\s*gz.*$/;\0/m" %ROOTDIR%\zlib\win32\zlib.def > zlib\zlib.def
 
 sed "s/<SubSystem>/<ModuleDefinitionFile>zlib.def<\/ModuleDefinitionFile><SubSystem>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
+
+cat %ROOTDIR%\..\gzflags.txt >> %ROOTDIR%\zlib\zutil.c
 
 IF %CONFIG%==debug GOTO LIBPNGPDBOK
 sed "s/<GenerateDebugInformation>true</<GenerateDebugInformation>false</" zlib/zlib.vcxproj > zlib.vcxproj.fixed
@@ -122,20 +141,24 @@ move "%ROOTDIR%\libpng\projects\vstudio\x64\%CONFIG% Library\*" %ROOTDIR%\libpng
 move "%ROOTDIR%\libpng\projects\vstudio\%CONFIG% Library\*" %ROOTDIR%\libpng\projects\vstudio\%CONFIG%
 :LIBPNGSTATICDONE
 
-
 xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng* %ROOTDIR%\libpng
 xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib* %ROOTDIR%\libpng
+
+
+cd %ROOTDIR%\pixman
 
 REM Build Pixman
 IF %X64%==n GOTO PIXMANNOX64
 set MMX=off
 rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit mode
+goto PIXMANX64
 :PIXMANNOX64
+sed "s/ __inline__ / __inline /" pixman\pixman-mmx.c > mmxtmp
+move /Y mmxtmp pixman\pixman-mmx.c
+:PIXMANX64
 
-cd %ROOTDIR%\pixman\pixman
-
-sed "s/= -MD/= -MT/" build\Makefile.win32.common > build\Makefile.fixed
-move /Y build\Makefile.fixed build\Makefile.win32.common
+sed "s/= -MD/= -MT/" Makefile.win32.common > Makefile.fixed
+move /Y Makefile.fixed Makefile.win32.common
 
 IF %CONFIG%==debug GOTO PIXMANDEBUG
 make -f Makefile.win32 "CFG=release"
@@ -158,11 +181,6 @@ move /Y build\Makefile.fixed build\Makefile.win32.common
 
 sed s/zlib\/zdll\.lib/libpng\/zlib.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
-
-rem IF %CONFIG%==release GOTO SKIPDEBUGLIBFIX
-rem sed "s/user32\.lib/user32.lib \/NODEFAULTLIB:msvcrt.lib/" build\Makefile.win32.common > build\Makefile.fixed
-rem move /Y build\Makefile.fixed build\Makefile.win32.common
-rem :SKIPDEBUGLIBFIX
 
 IF %STATIC%==n GOTO SKIPSTATICFIX
 sed "s/CFG_CFLAGS := -MD/CFG_CFLAGS := -MT/" build\Makefile.win32.common > build\Makefile.fixed
@@ -207,6 +225,9 @@ copy %ROOTDIR%\cairo\src\cairo-deprecated.h include
 copy %ROOTDIR%\cairo\src\cairo-win32.h include
 copy %ROOTDIR%\cairo\src\cairo-ps.h include
 copy %ROOTDIR%\cairo\src\cairo-pdf.h include
+copy %ROOTDIR%\libpng\png.h include
+copy %ROOTDIR%\libpng\pngconf.h include
+copy %ROOTDIR%\libpng\pnglibconf.h include
 
 copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.dll out-%CONFIG%-%PLATFORM%
 copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.lib out-%CONFIG%-%PLATFORM%
