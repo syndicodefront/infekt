@@ -154,20 +154,22 @@ protected:
 
 	// internal calls:
 	bool CalculateGrid();
-	void RenderStripe(size_t a_stripe);
-	void RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL);
+	cairo_surface_t *GetStripeSurface(size_t a_stripe) const;
+	void RenderStripe(size_t a_stripe) const;
+	void RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL) const;
 
 	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL,
-		size_t a_rowStart = (size_t)-1, size_t a_rowEnd = 0, double a_xBase = 0, double a_yBase = 0);
+		size_t a_rowStart = (size_t)-1, size_t a_rowEnd = 0, double a_xBase = 0, double a_yBase = 0) const;
+	void PreRenderText();
 	void RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 		const S_COLOR_T& a_hyperLinkColor,
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
+		cairo_surface_t* a_surface, double a_xBase, double a_yBase) const;
 
 	void RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 		const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-		cairo_surface_t* a_surface, double a_xBase, double a_yBase);
+		cairo_surface_t* a_surface, double a_xBase, double a_yBase) const;
 	void CalcClassicModeBlockSizes(bool a_force = false);
 
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
@@ -200,8 +202,8 @@ public:
 	virtual void SetZoom(unsigned int a_percent);
 
 	// return the calculated image dimensions:
-	size_t GetWidth();
-	size_t GetHeight();
+	size_t GetWidth() const;
+	size_t GetHeight() const;
 
 	// color setters & getters:
 	void SetBackColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cBackColor == nc); m_settings.cBackColor = nc; }

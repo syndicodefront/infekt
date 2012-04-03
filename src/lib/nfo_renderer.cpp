@@ -308,6 +308,16 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		m_numStripes = l_numStripes;
 	}
 
+	if(m_classic)
+	{
+		CalcClassicModeBlockSizes();
+	}
+	else
+	{
+		// init font size:
+		PreRenderText();
+	}
+
 	a_stripeTo = std::min(a_stripeTo, m_numStripes - 1);
 	for(size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
 	{
@@ -330,9 +340,25 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 }
 
 
-void CNFORenderer::RenderStripe(size_t a_stripe)
+// wrapper that we can use in const situations:
+cairo_surface_t *CNFORenderer::GetStripeSurface(size_t a_stripe) const
 {
-	cairo_surface_t * const l_surface = *m_stripes[a_stripe];
+	std::map<size_t, PCairoSurface>::const_iterator it = m_stripes.find(a_stripe);
+
+	if(it != m_stripes.end())
+	{
+		// const_cast justification:
+		// we parallizing per stripe, so one surface can never be used by more than one thread.
+		return *it->second.get();
+	}
+
+	return NULL;
+}
+
+
+void CNFORenderer::RenderStripe(size_t a_stripe) const
+{
+	cairo_surface_t * const l_surface = GetStripeSurface(a_stripe);
 
 	if(m_classic)
 	{
@@ -437,9 +463,9 @@ void CNFORenderer::RenderStripe(size_t a_stripe)
 /* RENDER BLOCKS                                                        */
 /************************************************************************/
 
-void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context)
+void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context) const
 {
-	cairo_t* l_context = (a_context ? a_context : cairo_create(*m_stripes[a_stripe]));
+	cairo_t* l_context = (a_context ? a_context : cairo_create(GetStripeSurface(a_stripe)));
 
 	RenderBlocks(a_opaqueBg, a_gaussStep, l_context,
 		(m_stripes.size() > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
@@ -453,7 +479,7 @@ void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_g
 }
 
 void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context,
-	size_t a_rowStart, size_t a_rowEnd, double a_xBase, double a_yBase)
+	size_t a_rowStart, size_t a_rowEnd, double a_xBase, double a_yBase) const
 {
 	double l_off_x = m_padding + a_xBase, l_off_y = m_padding + a_yBase;
 
@@ -562,7 +588,7 @@ void CNFORenderer::_FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, 
 	}
 }
 
-static inline void _SetUpHyperLinkUnderlining(CNFORenderer* r, cairo_t* cr)
+static inline void _SetUpHyperLinkUnderlining(const CNFORenderer* r, cairo_t* cr)
 {
 	if(r->GetHilightHyperLinks() && r->GetUnderlineHyperLinks())
 	{
@@ -571,7 +597,7 @@ static inline void _SetUpHyperLinkUnderlining(CNFORenderer* r, cairo_t* cr)
 	}
 }
 
-static inline void _SetUpDrawingTools(CNFORenderer* r, cairo_surface_t* a_surface, cairo_t** pcr, cairo_font_options_t** pcfo)
+static inline void _SetUpDrawingTools(const CNFORenderer* r, cairo_surface_t* a_surface, cairo_t** pcr, cairo_font_options_t** pcfo)
 {
 	cairo_t* cr = cairo_create(a_surface);
 
@@ -613,23 +639,17 @@ static inline void _FinalizeDrawingTools(cairo_t** pcr, cairo_font_options_t** p
 /* RENDER TEXT                                                          */
 /************************************************************************/
 
-void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
-							  const S_COLOR_T& a_hyperLinkColor,
-							  size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-							  cairo_surface_t* a_surface, double a_xBase, double a_yBase)
+void CNFORenderer::PreRenderText()
 {
-	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
-
-	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
-
-	cairo_t* cr;
-	cairo_font_options_t* l_fontOptions;
-	_SetUpDrawingTools(this, a_surface, &cr, &l_fontOptions);
-
-	_SetUpHyperLinkUnderlining(this, cr);
-
 	if(m_fontSize < 1)
 	{
+		// create a dummy surface so we can measure things:
+		cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 30);
+		cairo_t* cr;
+		cairo_font_options_t* l_fontOptions;
+
+		_SetUpDrawingTools(this, l_surface, &cr, &l_fontOptions);
+
 		double l_fontSize = static_cast<double>(GetBlockWidth());
 		bool l_broken = false, l_foundText = false;
 
@@ -690,11 +710,28 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		} while(!l_broken && l_foundText);
 
 		m_fontSize = l_fontSize + 1;
+
+		_FinalizeDrawingTools(&cr, &l_fontOptions);
 	}
-	else
-	{
-		cairo_set_font_size(cr, m_fontSize);
-	}
+}
+
+void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
+							  const S_COLOR_T& a_hyperLinkColor,
+							  size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
+							  cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
+{
+	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
+
+	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
+
+	cairo_t* cr;
+	cairo_font_options_t* l_fontOptions;
+	_SetUpDrawingTools(this, a_surface, &cr, &l_fontOptions);
+
+	_SetUpHyperLinkUnderlining(this, cr);
+
+	// m_fontSize has been calculated by PreRenderText:
+	cairo_set_font_size(cr, m_fontSize);
 
 	if(m_fontSize < 4)
 	{
@@ -951,7 +988,7 @@ void CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
 void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 								 const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
 								 size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-								 cairo_surface_t* a_surface, double a_xBase, double a_yBase)
+								 cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
 {
 	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
 
@@ -962,8 +999,6 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 	_SetUpDrawingTools(this, a_surface, &cr, &l_fontOptions);
 
 	_SetUpHyperLinkUnderlining(this, cr);
-
-	CalcClassicModeBlockSizes();
 
 	cairo_font_extents_t l_font_extents;
 	cairo_font_extents(cr, &l_font_extents);
@@ -1136,7 +1171,7 @@ void CNFORenderer::SetZoom(unsigned int a_percent)
 }
 
 
-size_t CNFORenderer::GetWidth()
+size_t CNFORenderer::GetWidth() const
 {
 	if(!m_nfo) return 0;
 
@@ -1144,7 +1179,7 @@ size_t CNFORenderer::GetWidth()
 }
 
 
-size_t CNFORenderer::GetHeight()
+size_t CNFORenderer::GetHeight() const
 {
 	if(!m_nfo) return 0;
 
