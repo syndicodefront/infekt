@@ -37,11 +37,10 @@ public:
 	 * must have drawn whatever they want to be blurred onto the internal
 	 * gfxContext returned by GetContext before calling this.
 	 **/
-	void Paint(cairo_t* a_destination);
+	bool Paint(cairo_t* a_destination);
 protected:
-	bool m_allowHwAccel;
 	bool m_useCpu;
-	bool m_computed;
+	int m_width, m_height;
 	// Blur radius in pixels:
 	int m_blurRadius;
 	// Context of the temporary alpha surface:
