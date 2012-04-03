@@ -34,6 +34,9 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 		return false;
 	}
 
+	CalcClassicModeBlockSizes();
+	PreRenderText();
+
 	if(!CalcPageDimensions(l_pageWidth, l_pageHeight))
 	{
 		return false;
@@ -71,6 +74,8 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 	else
 	{
 		// no shadow effect support in PDFs.
+
+		SetEnableGaussShadow(false);
 
 		cairo_t* cr = cairo_create(l_pdfSurface);
 

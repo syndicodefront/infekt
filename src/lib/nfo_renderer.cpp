@@ -31,6 +31,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	m_rendered = false;
 	m_linesPerStripe = 0;
 	m_stripeHeight = 0;
+	m_numStripes = 0;
 	m_fontSize = -1;
 	m_zoomFactor = 1.0f;
 
@@ -658,7 +659,7 @@ static inline void _FinalizeDrawingTools(cairo_t** pcr, cairo_font_options_t** p
 
 void CNFORenderer::PreRenderText()
 {
-	if(m_fontSize < 1)
+	if(!m_classic && m_fontSize < 1)
 	{
 		// create a dummy surface so we can measure things:
 		cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 30);
