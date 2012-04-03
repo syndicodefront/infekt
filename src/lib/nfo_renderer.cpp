@@ -320,6 +320,8 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		m_linesPerStripe = l_linesPerStripe;
 		m_stripeHeight = static_cast<int>(l_linesPerStripe * GetBlockHeight());
 		m_numStripes = l_numStripes;
+
+		_ASSERT(m_stripeHeight * m_numStripes + m_padding * 2 >= GetHeight());
 	}
 
 	std::vector<size_t> l_changedStripes;
