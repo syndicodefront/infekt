@@ -83,11 +83,11 @@ bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
 
 	png_init_io(png_ptr, fp);
 
-	png_set_IHDR(png_ptr, info_ptr, GetWidth(), GetHeight(),
+	png_set_IHDR(png_ptr, info_ptr, static_cast<uint32_t>(GetWidth()), static_cast<uint32_t>(GetHeight() - m_padding),
 		8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
 		PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
 
-	png_bytep *row_ptr = new (std::nothrow) png_bytep[GetHeight()];
+	png_bytep *row_ptr = new (std::nothrow) png_bytep[GetHeight() - m_padding];
 
 	if(row_ptr)
 	{
@@ -101,16 +101,19 @@ bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
 
 			for(size_t l_row = 0; l_row < l_num_rows; l_row++)
 			{
-				row_ptr[l_png_row] = (png_bytep)(l_data[l_row * l_stride]);
+				row_ptr[l_png_row] = (png_bytep)(&l_data[l_row * l_stride]);
 
 				l_png_row++;
 			}
 		}
 
+		size_t h = GetHeight() - m_padding;
+		_ASSERT(l_png_row == h);
+
 		png_set_rows(png_ptr, info_ptr, row_ptr);
 	}
 
-	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR, NULL);
 	png_write_end(png_ptr, info_ptr);
 	png_destroy_write_struct(&png_ptr, &info_ptr); 
 
