@@ -223,6 +223,8 @@ protected:
 	double m_frequency;
 };
 
+#ifdef CAIRO_H
+
 class _CCairoSurface
 {
 public:
@@ -254,5 +256,7 @@ protected:
 };
 
 typedef std::shared_ptr<_CCairoSurface> PCairoSurface;
+
+#endif /* CAIRO_H */
 
 #endif /* !_UTIL_H */

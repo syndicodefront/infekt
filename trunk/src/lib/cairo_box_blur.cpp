@@ -41,7 +41,7 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a
 	m_useCpu = true;
 
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
-	if(m_allowHwAccel && CCudaUtil::GetInstance()->IsCudaUsable())
+	if(a_allowHwAccel && CCudaUtil::GetInstance()->IsCudaUsable())
 	{
 		if(CCudaUtil::GetInstance()->IsCudaThreadInitialized() ||
 			CCudaUtil::GetInstance()->InitCudaThread())
@@ -51,14 +51,11 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a
 	}
 #endif /* _WIN32 */
 
-	// Make an alpha-only surface to draw on. We will play with the data after
-	// everything is drawn to create a blur effect.
 	m_imgSurface = cairo_image_surface_create(m_useCpu ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32, a_width, a_height);
-
 	m_context = cairo_create(m_imgSurface);
 
-	m_allowHwAccel = a_allowHwAccel;
-	m_computed = false;
+	m_width = a_width;
+	m_height = a_height;
 }
 
 
@@ -183,58 +180,68 @@ static void ComputeLobes(PRInt32 aRadius, PRInt32 aLobes[3][2])
 }
 
 
-void CCairoBoxBlur::Paint(cairo_t* a_destination)
+bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 {
-	if(!m_computed)
+	bool l_ok = false;
+
+	cairo_surface_flush(m_imgSurface);
+
+	unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
+
+	if(!l_boxData)
 	{
-		bool l_ok = false;
-
-		cairo_surface_flush(m_imgSurface);
-
-		unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
-
-		if(!l_boxData)
-		{
-			// too large or something...
-			return;
-		}
+		// too large or something...
+		return false;
+	}
 
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
-		if(!m_useCpu)
-		{
-			l_ok = CCudaUtil::GetInstance()->DoCudaGaussianBlurRGBA(reinterpret_cast<unsigned int*>(l_boxData),
-				cairo_image_surface_get_width(m_imgSurface),
-				cairo_image_surface_get_height(m_imgSurface), m_blurRadius / 5.0f + 2);
-		}
-#endif /* _WIN32 */
+	if(!m_useCpu)
+	{
+		l_ok = CCudaUtil::GetInstance()->DoCudaGaussianBlurRGBA(reinterpret_cast<unsigned int*>(l_boxData),
+			cairo_image_surface_get_width(m_imgSurface),
+			cairo_image_surface_get_height(m_imgSurface), m_blurRadius / 5.0f + 2);
 
 		if(!l_ok)
 		{
-			// CPU or CPU fallback.
+			// must retry!
 
-			const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
-			const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
+			m_useCpu = true;
 
-			PRInt32 l_lobes[3][2];
-			ComputeLobes(m_blurRadius, l_lobes);
+			cairo_destroy(m_context);
+			cairo_surface_destroy(m_imgSurface);
 
-			unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
+			m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_A8, m_width, m_height);
+			m_context = cairo_create(m_imgSurface);
 
-			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
-			BoxBlurHorizontal(l_tmpData, l_boxData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
-			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
-
-			BoxBlurVertical(l_tmpData, l_boxData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
-			BoxBlurVertical(l_boxData, l_tmpData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
-			BoxBlurVertical(l_tmpData, l_boxData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
-
-			delete[] l_tmpData;
+			return false;
 		}
-
-		cairo_surface_mark_dirty(m_imgSurface);
-
-		m_computed = true;
 	}
+#endif /* _WIN32 */
+
+	if(!l_ok)
+	{
+		// CPU or CPU fallback.
+
+		const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
+		const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
+
+		PRInt32 l_lobes[3][2];
+		ComputeLobes(m_blurRadius, l_lobes);
+
+		unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
+
+		BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
+		BoxBlurHorizontal(l_tmpData, l_boxData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
+		BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+
+		BoxBlurVertical(l_tmpData, l_boxData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
+		BoxBlurVertical(l_boxData, l_tmpData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
+		BoxBlurVertical(l_tmpData, l_boxData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+
+		delete[] l_tmpData;
+	}
+
+	cairo_surface_mark_dirty(m_imgSurface);
 
 	if(m_useCpu)
 	{
@@ -245,11 +252,13 @@ void CCairoBoxBlur::Paint(cairo_t* a_destination)
 	{
 		// 32 bit RGBA processed shit
 		cairo_save(a_destination);
-		cairo_set_operator(a_destination, CAIRO_OPERATOR_SOURCE);
+		cairo_set_operator(a_destination, CAIRO_OPERATOR_ATOP);
 		cairo_set_source_surface(a_destination, m_imgSurface, 0, 0);
 		cairo_paint(a_destination);
 		cairo_restore(a_destination);
 	}
+
+	return true;
 }
 
 

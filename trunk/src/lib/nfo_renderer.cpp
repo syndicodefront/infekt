@@ -223,7 +223,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 		for(size_t l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
 		{
 			// y pos in complete image:
-			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : l_stripe * m_stripeHeight + m_padding);
+			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : static_cast<int>(l_stripe) * m_stripeHeight + m_padding);
 			// y pos in dest_y (e.g. viewer frame) clip (can be negative, no problem):
 			int l_stripe_dest_y = l_stripe_virtual_y - source_y;
 
@@ -380,8 +380,20 @@ void CNFORenderer::RenderStripe(size_t a_stripe)
 				{
 					RenderStripeBlocks(a_stripe, false, true, p_blur->GetContext());
 
+					// important when running in CPU fallback mode only:
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
-					p_blur->Paint(cr);
+					
+					if(!p_blur->Paint(cr))
+					{
+						// retry once.
+
+						RenderStripeBlocks(a_stripe, false, true, p_blur->GetContext());
+
+						// important when running in CPU fallback mode only:
+						cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
+
+						p_blur->Paint(cr);
+					}
 				}
 					
 				cairo_destroy(cr);
