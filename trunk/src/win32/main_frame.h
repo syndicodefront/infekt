@@ -34,6 +34,8 @@ public:
 		bCenterNFO = true;
 		bDefaultExportToNFODir = false;
 		bCloseOnEsc = false;
+		bEnableCUDA = true;
+		bOnDemandRendering = true;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -52,6 +54,8 @@ public:
 	bool bCenterNFO;
 	bool bDefaultExportToNFODir;
 	bool bCloseOnEsc;
+	bool bEnableCUDA;
+	bool bOnDemandRendering;
 };
 
 typedef std::shared_ptr<CMainSettings> PMainSettings;

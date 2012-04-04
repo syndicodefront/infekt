@@ -66,7 +66,8 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	SetUnderlineHyperLinks(true);
 
 	// other stuff:
-	m_allowHwAccel = true;
+	m_allowHwAccel = ms_allowHwAccel;
+	m_onDemandRendering = false;
 }
 
 
@@ -201,8 +202,16 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	int source_x, int source_y, // coordinates between 0 and GetHeight() / GetWidth()
 	int a_width, int a_height)
 {
-	if(!m_rendered && !Render())
+	if(!m_onDemandRendering || m_stripes.size() == 1)
 	{
+		if(!m_rendered && !Render())
+		{
+			return false;
+		}
+	}
+	else if(!m_rendered)
+	{
+		// not correctly initialized yet
 		return false;
 	}
 
@@ -220,6 +229,11 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	{
 		size_t l_stripeStart = (source_y - m_padding) / m_stripeHeight, // implicit floor()
 			l_stripeEnd = ((source_y + a_height - m_padding) / m_stripeHeight);
+
+		if(m_onDemandRendering)
+		{
+			Render(l_stripeStart, l_stripeEnd);
+		}
 
 		for(size_t l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
 		{
@@ -290,20 +304,22 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 	_ASSERT(m_gridData->GetCols() == m_nfo->GetGridWidth());
 	_ASSERT(m_gridData->GetRows() == m_nfo->GetGridHeight());
 
-	if(m_classic)
+	if(!m_rendered)
 	{
-		// we need the block size to check the minimum maximum (no typo) stripe height:
-		CalcClassicModeBlockSizes();
-	}
-	else
-	{
-		// init font size:
-		PreRenderText();
-	}
+		if(m_classic)
+		{
+			// we need the block size to check the minimum maximum (no typo) stripe height:
+			CalcClassicModeBlockSizes();
+		}
+		else
+		{
+			// init font size:
+			PreRenderText();
+		}
 
-	if(m_stripes.empty())
-	{
-		// recalculate stripe dimensions.
+		m_stripes.clear();
+
+		// recalculate stripe dimensions:
 
 		size_t l_stripeHeightMax = std::max(ms_stripeHeightMax, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
 
@@ -1457,3 +1473,5 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 
 	return false;
 }
+
+bool CNFORenderer::ms_allowHwAccel;

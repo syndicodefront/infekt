@@ -78,14 +78,12 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
 		m_parent, NULL,
-		m_instance, NULL);
+		m_instance, this);
 
 	if(!m_hwnd)
 	{
 		return false;
 	}
-
-	::SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (INT_PTR)this);
 
 	UpdateScrollbars(true);
 
@@ -401,7 +399,15 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
-		Render();
+		if(!GetOnDemandRendering())
+		{
+			Render();
+		}
+		else
+		{
+			Render(0, 1);
+		}
+
 		UpdateScrollbars(true);
 
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
@@ -731,7 +737,20 @@ void CNFOViewControl::Show(bool a_show)
 
 LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	CNFOViewControl *l_ctrl = (CNFOViewControl*)(void*)(INT_PTR)::GetWindowLongPtr(hWindow, GWLP_USERDATA);
+	CNFOViewControl *l_ctrl = NULL;
+
+	if(uMsg == WM_CREATE)
+	{
+		const CREATESTRUCT *lpc = reinterpret_cast<CREATESTRUCT*>(lParam);
+
+		::SetWindowLongPtr(hWindow, GWLP_USERDATA, (INT_PTR)lpc->lpCreateParams);
+
+		l_ctrl = reinterpret_cast<CNFOViewControl*>(lpc->lpCreateParams);
+	}
+	else
+	{
+		l_ctrl = reinterpret_cast<CNFOViewControl*>((INT_PTR)::GetWindowLongPtr(hWindow, GWLP_USERDATA));
+	}
 
 	if(l_ctrl)
 	{
