@@ -375,7 +375,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 
 	// parallize rendering:
 	#pragma omp parallel for
-	for(size_t i = 0; i < l_changedStripes.size(); i++)
+	for(int i = 0; i < l_changedStripes.size(); i++)
 	{
 		RenderStripe(l_changedStripes[i]);
 	}
