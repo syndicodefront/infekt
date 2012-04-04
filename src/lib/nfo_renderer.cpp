@@ -231,7 +231,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 			l_stripeEnd = ((source_y + a_height - m_padding) / m_stripeHeight);
 
 		// sanity confinement ;)
-		l_stripeStart = std::min(l_stripeEnd, m_numStripes - 1);
+		l_stripeStart = std::min(l_stripeStart, m_numStripes - 1);
 		l_stripeEnd = std::min(l_stripeEnd, m_numStripes - 1);
 
 		if(m_onDemandRendering)
@@ -243,24 +243,27 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 		{
 			cairo_surface_t* l_sourceSourface = GetStripeSurface(l_stripe);
 
-			if(l_sourceSourface)
+			_ASSERT(l_sourceSourface);
+			if(!l_sourceSourface) /* unlikely, "should never happen" */
 			{
-				// y pos in complete image:
-				int l_stripe_virtual_y = (l_stripe == 0 ? 0 : static_cast<int>(l_stripe) * m_stripeHeight + m_padding);
-				// y pos in dest_y (e.g. viewer frame) clip (can be negative, no problem):
-				int l_stripe_dest_y = l_stripe_virtual_y - source_y;
-
-				cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
-					static_cast<int>(dest_y + l_stripe_dest_y - 0));
-
-				cairo_rectangle(cr,
-					dest_x,
-					dest_y + l_stripe_dest_y,
-					a_width,
-					m_stripeHeight + (l_stripe == 0 ? m_padding : 0));
-
-				cairo_fill(cr);
+				continue;
 			}
+
+			// y pos in complete image:
+			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : static_cast<int>(l_stripe) * m_stripeHeight + m_padding);
+			// y pos in dest_y (e.g. viewer frame) clip (can be negative, no problem):
+			int l_stripe_dest_y = l_stripe_virtual_y - source_y;
+
+			cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
+				static_cast<int>(dest_y + l_stripe_dest_y - 0));
+
+			cairo_rectangle(cr,
+				dest_x,
+				dest_y + l_stripe_dest_y,
+				a_width,
+				m_stripeHeight + (l_stripe == 0 ? m_padding : 0));
+
+			cairo_fill(cr);
 		}
 	}
 
