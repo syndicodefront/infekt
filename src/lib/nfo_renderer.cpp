@@ -202,14 +202,14 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	int source_x, int source_y, // coordinates between 0 and GetHeight() / GetWidth()
 	int a_width, int a_height)
 {
-	if(!m_onDemandRendering || m_stripes.size() == 1)
+	if(!m_onDemandRendering || m_numStripes == 1)
 	{
 		if(!m_rendered && !Render())
 		{
 			return false;
 		}
 	}
-	else if(!m_rendered)
+	else if(!m_rendered && !m_gridData)
 	{
 		// not correctly initialized yet
 		return false;
@@ -217,7 +217,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 
 	cairo_t *cr = cairo_create(a_surface);
 
-	if(m_stripes.size() == 1)
+	if(m_numStripes == 1)
 	{
 		cairo_set_source_surface(cr, *m_stripes[0], dest_x - source_x, dest_y - source_y);
 
@@ -230,6 +230,10 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 		size_t l_stripeStart = (source_y - m_padding) / m_stripeHeight, // implicit floor()
 			l_stripeEnd = ((source_y + a_height - m_padding) / m_stripeHeight);
 
+		// sanity confinement ;)
+		l_stripeStart = std::min(l_stripeEnd, m_numStripes - 1);
+		l_stripeEnd = std::min(l_stripeEnd, m_numStripes - 1);
+
 		if(m_onDemandRendering)
 		{
 			Render(l_stripeStart, l_stripeEnd);
@@ -237,21 +241,26 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 
 		for(size_t l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
 		{
-			// y pos in complete image:
-			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : static_cast<int>(l_stripe) * m_stripeHeight + m_padding);
-			// y pos in dest_y (e.g. viewer frame) clip (can be negative, no problem):
-			int l_stripe_dest_y = l_stripe_virtual_y - source_y;
+			cairo_surface_t* l_sourceSourface = GetStripeSurface(l_stripe);
 
-			cairo_set_source_surface(cr, *m_stripes[l_stripe], dest_x - source_x,
-				static_cast<int>(dest_y + l_stripe_dest_y - 0));
+			if(l_sourceSourface)
+			{
+				// y pos in complete image:
+				int l_stripe_virtual_y = (l_stripe == 0 ? 0 : static_cast<int>(l_stripe) * m_stripeHeight + m_padding);
+				// y pos in dest_y (e.g. viewer frame) clip (can be negative, no problem):
+				int l_stripe_dest_y = l_stripe_virtual_y - source_y;
 
-			cairo_rectangle(cr,
-				dest_x,
-				dest_y + l_stripe_dest_y,
-				a_width,
-				m_stripeHeight + (l_stripe == 0 ? m_padding : 0));
+				cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
+					static_cast<int>(dest_y + l_stripe_dest_y - 0));
 
-			cairo_fill(cr);
+				cairo_rectangle(cr,
+					dest_x,
+					dest_y + l_stripe_dest_y,
+					a_width,
+					m_stripeHeight + (l_stripe == 0 ? m_padding : 0));
+
+				cairo_fill(cr);
+			}
 		}
 	}
 
@@ -270,7 +279,7 @@ bool CNFORenderer::DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y)
 
 	cairo_save(a_cr);
 
-	if(m_stripes.size() == 1)
+	if(m_numStripes == 1)
 	{
 		cairo_set_source_surface(a_cr, *m_stripes[0], dest_x - 0, dest_y - 0);
 		cairo_rectangle(a_cr, dest_x, dest_y,
@@ -359,6 +368,8 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		}	
 	}
 
+	_ASSERT(m_stripes.size() <= m_numStripes);
+
 	// parallize rendering:
 	#pragma omp parallel for
 	for(size_t i = 0; i < l_changedStripes.size(); i++)
@@ -406,7 +417,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 			NULL,
 			GetHyperLinkColor(),
 			false,
-			(m_stripes.size() > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
+			(m_numStripes > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
 			0,
 			a_stripe * m_linesPerStripe + m_linesPerStripe,
 			m_nfo->GetGridWidth() - 1,
@@ -480,7 +491,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 		if((m_partial & NRP_RENDER_TEXT) != 0)
 		{
 			RenderText(GetTextColor(), NULL, GetHyperLinkColor(),
-				(m_stripes.size() > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
+				(m_numStripes > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
 				0,
 				a_stripe * m_linesPerStripe + m_linesPerStripe,
 				m_nfo->GetGridWidth() - 1,
@@ -502,7 +513,7 @@ void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_g
 	cairo_t* l_context = (a_context ? a_context : cairo_create(GetStripeSurface(a_stripe)));
 
 	RenderBlocks(a_opaqueBg, a_gaussStep, l_context,
-		(m_stripes.size() > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
+		(m_numStripes > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
 		a_stripe * m_linesPerStripe + m_linesPerStripe,
 		0, (a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight));
 
