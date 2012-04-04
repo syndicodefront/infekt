@@ -6,10 +6,13 @@
   * Made working Imdb plugin
 
 == v0.8.5 (2012) ==
+  * New feature: Browse all NFO files in a folder using the J and K keys
   * Window auto-width option now defaults to On
   * NViDiA CUDA H/W acceleration (for Glow Effect) is now even faster
   * Loading NFO files is now faster
-  * Updated PCRE to 8.30
+  * Rendering (displaying) NFOs is a lot faster, especially for big files (ref: issue 65)
+  * Raised file limits to 3 MB and 10000 lines
+  * Updated PCRE to 8.30, Cairo to 1.12, libpng to 1.5.10, zlib to 1.2.6
   * Some internal changes + improvements
 
 == v0.8.1 (26th September 2011) ==
