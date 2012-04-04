@@ -229,7 +229,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <OpenMPSupport>true</OpenMPSupport>
+      <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo-static.lib;pcre.lib;libpng15.lib;zlib.lib;comctl32.lib;shlwapi.lib;uxtheme.lib;winhttp.lib;msimg32.lib;LIBCMT.LIB;%(AdditionalDependencies)</AdditionalDependencies>
