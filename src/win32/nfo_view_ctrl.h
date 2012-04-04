@@ -77,6 +77,9 @@ public:
 
 	bool FindTerm(const std::wstring& a_term, bool a_up, bool a_matchCase);
 
+	void SetOnDemandRendering(bool nb) { m_onDemandRendering = nb; }
+	bool GetOnDemandRendering() const { return m_onDemandRendering; }
+
 	virtual void InjectSettings(const CNFORenderSettings& ns);
 };
 

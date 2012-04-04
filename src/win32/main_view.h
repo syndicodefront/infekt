@@ -57,6 +57,19 @@ public:
 		m_classicControl->SetCenterNfo(nb);
 	}
 
+	void SetAllowHwAccel(bool nb) {
+		m_renderControl->SetAllowHwAccel(nb);
+		// doesn't currently matter for these two, but yeah:
+		m_classicControl->SetAllowHwAccel(nb);
+		m_textOnlyControl->SetAllowHwAccel(nb);
+	}
+
+	void SetOnDemandRendering(bool nb) {
+		m_renderControl->SetOnDemandRendering(nb);
+		m_classicControl->SetOnDemandRendering(nb);
+		m_textOnlyControl->SetOnDemandRendering(nb);
+	}
+
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
