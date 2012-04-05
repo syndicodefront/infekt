@@ -22,7 +22,7 @@ static const wchar_t map_cp437_to_unicode_high_bit[] = {
 /* 0x8f = */ 0x00c5,
 /* 0x90 = */ 0x00c9,
 /* 0x91 = */ 0x00e6,
-/* 0x92 = */ 0x00c6,
+/* 0x92 = */ 0x0027, /* originally 0x00c6, changed following this request: http://www.xrel.to/forum/thread/1903.html?page=15#cpost153331 */
 /* 0x93 = */ 0x00f4,
 /* 0x94 = */ 0x00f6,
 /* 0x95 = */ 0x00f2,
