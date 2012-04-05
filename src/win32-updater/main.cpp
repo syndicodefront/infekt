@@ -150,6 +150,42 @@ static bool ValidateDownloadedFile()
 }
 
 
+static void RunMainProgram()
+{
+	// GUID is our InnoSetups' AppId.
+	const wchar_t *l_keyPath = L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}_is1";
+	HKEY l_hKey;
+
+	if(::RegOpenKeyEx(HKEY_LOCAL_MACHINE, l_keyPath, 0, KEY_QUERY_VALUE | KEY_WOW64_64KEY, &l_hKey) == ERROR_SUCCESS)
+	{
+		wchar_t l_buffer[1000] = {0};
+		DWORD l_dwType, l_dwSize = 999 * sizeof(wchar_t);
+
+		if(::RegQueryValueEx(l_hKey, L"InstallLocation", 0, &l_dwType, (LPBYTE)l_buffer,
+			&l_dwSize) == ERROR_SUCCESS && l_dwType == REG_SZ &&
+			::PathIsDirectory(l_buffer))
+		{
+			::PathAddBackslash(l_buffer); // is this safe? MAX_PATH et al
+
+			const std::wstring l_installDir(l_buffer),
+				l_exePath64 = l_installDir + L"infekt-win64.exe",
+				l_exePath32 = l_installDir + L"infekt-win32.exe";
+
+			if(::PathFileExists(l_exePath64.c_str()))
+			{
+				::ShellExecute(HWND_DESKTOP, L"open", l_exePath64.c_str(), NULL, NULL, SW_SHOWNORMAL);
+			}
+			else if(::PathFileExists(l_exePath32.c_str()))
+			{
+				::ShellExecute(HWND_DESKTOP, L"open", l_exePath32.c_str(), NULL, NULL, SW_SHOWNORMAL);
+			}
+		}
+
+		::RegCloseKey(l_hKey);
+	}
+}
+
+
 static void OnInstallerComplete(HWND hDlg, bool a_success)
 {
 	// schedule temp files for deletion on reboot:
@@ -166,7 +202,11 @@ static void OnInstallerComplete(HWND hDlg, bool a_success)
 	{
 		SetDlgItemText(hDlg, IDC_STATUS, L"Update has been installed!");
 
-		::MessageBoxW(hDlg, L"Update complete!", L"Great Success", MB_ICONINFORMATION);
+		::MessageBoxW(hDlg, L"Update complete! Click OK to run iNFEKT.", L"Great Success", MB_ICONINFORMATION);
+
+		// try to launch main program( again):
+
+		RunMainProgram();
 	}
 	else
 	{
