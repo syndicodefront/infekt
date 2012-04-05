@@ -1,5 +1,5 @@
-#define SourceFileDir32 "Y:\temp\free\Release"
-#define SourceFileDir64 "Y:\temp\free\Release-x64"
+#define SourceFileDir32 "..\build-out\Release"
+#define SourceFileDir64 "..\build-out\Release-x64"
 #define NfoProgId "iNFEKT.NFOFile.1"
 
 #include "it_download.iss"
@@ -7,14 +7,14 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.8.1
-AppVersion=0.8.1
+AppVerName=iNFekt 0.8.5
+AppVersion=0.8.5
 AppPublisher=cxxjoe & Contributors
 AppPublisherURL=http://infekt.googlecode.com/
 DefaultDirName={pf}\iNFekt
 DefaultGroupName=iNFekt NFO Viewer
 AllowNoIcons=yes
-OutputDir=Y:\temp\free
+OutputDir=..\build-out
 OutputBaseFilename=infekt-setup
 Compression=lzma
 SolidCompression=yes
