@@ -93,7 +93,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
 	if(_wfopen_s(&fp, a_filePath.c_str(), L"wb") == ERROR_SUCCESS)
 	{
 		bool l_error = true; // we perform some custom user-land error checking, too.
-		uint32_t l_imgHeight = static_cast<uint32_t>(GetHeight() - m_padding); // :TODO: change when bottom padding has been fixed
+		uint32_t l_imgHeight = static_cast<uint32_t>(GetHeight());
 
 		png_init_io(png_ptr, fp);
 
@@ -115,7 +115,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
 				size_t l_stride = cairo_image_surface_get_stride(l_surface);
 				size_t l_num_rows = cairo_image_surface_get_height(l_surface);
 
-				_ASSERT(l_num_rows == m_stripeHeight || (l_stripe == 0 && l_num_rows == m_stripeHeight + m_padding));
+				_ASSERT(l_num_rows == GetStripeHeight(l_stripe));
 
 				if(cairo_surface_status(l_surface) == CAIRO_STATUS_SUCCESS)
 				{
