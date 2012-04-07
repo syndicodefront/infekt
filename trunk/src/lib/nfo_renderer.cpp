@@ -257,8 +257,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 			cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
 				static_cast<int>(dest_y - l_stripe_source_y));
 
-			int l_height = (l_stripe == l_stripeEnd ? a_height :
-				m_stripeHeight + (l_stripe == 0 ? m_padding : 0));
+			int l_height = (l_stripe == l_stripeEnd ? a_height : GetStripeHeight(l_stripe));
 
 			cairo_rectangle(cr, dest_x, dest_y, a_width, l_height);
 
@@ -362,7 +361,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 			m_stripes[l_stripe] = PCairoSurface(new _CCairoSurface(
 				cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 				(int)GetWidth(),
-				m_stripeHeight + (l_stripe == 0 ? m_padding : 0))
+				GetStripeHeight(l_stripe))
 			));
 
 			// render each stripe only once:
@@ -392,12 +391,26 @@ cairo_surface_t *CNFORenderer::GetStripeSurface(size_t a_stripe) const
 
 	if(it != m_stripes.end())
 	{
-		// const_cast justification:
-		// we parallizing per stripe, so one surface can never be used by more than one thread.
+		// the actual surface is not really const, but that's safe because
+		// we are parallelizing per stripe, so one surface can never be used by more than one thread.
 		return *it->second.get();
 	}
 
 	return NULL;
+}
+
+
+int CNFORenderer::GetStripeHeight(size_t a_stripe) const
+{
+	int l_height = m_stripeHeight;
+
+	if(a_stripe == 0)
+		l_height += m_padding;
+	
+	if(a_stripe == m_numStripes - 1)
+		l_height += m_padding;
+
+	return l_height;
 }
 
 
@@ -436,7 +449,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
 				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur(
-					(int)GetWidth(), (int)m_stripeHeight + (a_stripe == 0 ? m_padding : 0),
+					(int)GetWidth(), GetStripeHeight(a_stripe),
 					(int)GetGaussBlurRadius(), m_allowHwAccel);
 
 				cairo_t* cr = cairo_create(l_surface);
@@ -500,7 +513,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				l_surface,
 				0,
 				// hacke-di-hack (see above):
-				(a_stripe == 0 ? 0.0 : -m_padding - (double)a_stripe * m_stripeHeight));
+				(a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight));
 		}
 	}
 }
