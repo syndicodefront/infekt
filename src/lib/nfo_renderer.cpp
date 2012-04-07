@@ -251,17 +251,16 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 
 			// y pos in complete image:
 			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : static_cast<int>(l_stripe) * m_stripeHeight + m_padding);
-			// y pos in dest_y (e.g. viewer frame) clip (can be negative, no problem):
-			int l_stripe_dest_y = l_stripe_virtual_y - source_y;
+			// y pos in stripe:
+			int l_stripe_source_y = source_y - l_stripe_virtual_y;
 
 			cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
-				static_cast<int>(dest_y + l_stripe_dest_y - 0));
+				static_cast<int>(dest_y - l_stripe_source_y));
 
-			cairo_rectangle(cr,
-				dest_x,
-				dest_y + l_stripe_dest_y,
-				a_width,
+			int l_height = (l_stripe == l_stripeEnd ? a_height :
 				m_stripeHeight + (l_stripe == 0 ? m_padding : 0));
+
+			cairo_rectangle(cr, dest_x, dest_y, a_width, l_height);
 
 			cairo_fill(cr);
 		}
