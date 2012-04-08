@@ -34,6 +34,7 @@ public:
 	PSettingsBackend GetSettingsBackend() { return m_settings; }
 	bool InPortableMode() const { return m_portableMode; }
 
+	bool ExtractConfigDirPath(std::wstring& ar_path) const;
 	bool ExtractStartupFilePath(const std::_tstring& a_commandLine);
 	bool SwitchToPrevInstance();
 

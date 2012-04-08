@@ -81,12 +81,16 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 CNFOApp::CNFOApp()
 {
-	const std::wstring l_iniPath = CUtil::GetExeDir() + L"\\portable.ini";
+	std::wstring l_iniPath;
 
-	// an existing portable.ini file in the program dir switches
-	// on iNFekt's portable mode.
+	if(!ExtractConfigDirPath(l_iniPath))
+	{
+		abort();
+	}
 
-	if(!PathFileExists(l_iniPath.c_str()))
+	// an existing portable.ini file switches on iNFekt's portable mode.
+
+	if(!::PathFileExists(l_iniPath.c_str()))
 	{
 		m_settings = PSettingsBackend(new CRegistrySettingsBackend(L"Software\\cxxjoe\\iNFEKT\\"));
 
@@ -98,6 +102,77 @@ CNFOApp::CNFOApp()
 
 		m_portableMode = true;
 	}
+}
+
+
+bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
+{
+	std::wstring l_folderIniPath = CUtil::GetExeDir() + L"\\folder.ini",
+		l_portableIniPath;
+	
+	if(::PathFileExists(l_folderIniPath.c_str()))
+	{
+		bool l_error = false;
+		wchar_t l_buf[1000] = {0};
+
+		if(::GetPrivateProfileString(L"iNFekt", L"ConfigFolder", L"", l_buf, 999, l_folderIniPath.c_str()) < 1000)
+		{
+			wchar_t l_buf2[2000] = {0};
+
+			l_error = true; // assume the worst ;)
+
+			if(wcsstr(l_buf, L"%") == NULL && ::PathIsRelative(l_buf))
+			{
+				const std::wstring l_dir = CUtil::GetExeDir() + L"\\" + l_buf;
+
+				if(::PathCanonicalize(l_buf2, l_dir.c_str()))
+				{
+					::PathAddBackslash(l_buf2);
+
+					l_portableIniPath = l_buf2;
+
+					l_error = false;
+				}
+				else
+				{
+					l_portableIniPath = l_buf; // for error message
+					l_portableIniPath += L"\\";
+				}
+			}
+			else
+			{
+				DWORD l_result = ::ExpandEnvironmentStrings(l_buf, l_buf2, 1999);
+
+				if(l_result > 0 && l_result < 2000)
+				{
+					::PathAddBackslash(l_buf2);
+
+					l_portableIniPath = l_buf2;
+
+					l_error = false;
+				}
+			}
+
+			l_portableIniPath += L"portable.ini";
+		}
+
+		if(l_error || (!l_portableIniPath.empty() && !::PathFileExists(l_portableIniPath.c_str())))
+		{
+			const std::wstring l_msg = L"The config file at the following location could not be found:\r\n\r\n" + l_portableIniPath;
+
+			::MessageBox(HWND_DESKTOP, l_msg.c_str(), L"iNFekt Error", MB_ICONEXCLAMATION);
+
+			return false;
+		}
+	}
+	else
+	{
+		l_portableIniPath = CUtil::GetExeDir() + L"\\portable.ini";
+	}
+
+	ar_path = l_portableIniPath;
+
+	return true;
 }
 
 
