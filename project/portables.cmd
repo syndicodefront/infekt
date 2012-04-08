@@ -73,6 +73,7 @@ xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC100.CRT\*.dll" %PAP%\A
 xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC100.OpenMP\*.dll" %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\cuda-blur.dll %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-win32.exe %PAP%\App\iNFekt
+copy /Y %ROOTDIR%\Release\iNFektPortableLauncher.exe %PAP%\iNFektPortable.exe
 xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PAP%\App\iNFekt
 
 copy /Y %ROOTDIR%\..\project\infekt-win32\iNFEKT_icon_by_railgun.ico %PAP%\App\AppInfo\appicon.ico

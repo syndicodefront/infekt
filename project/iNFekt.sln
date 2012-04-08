@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-updater", "win
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cuda-blur", "cuda-blur\cuda-blur.vcxproj", "{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-portableapps-launcher", "win32-portableapps-launcher\win32-portableapps-launcher.vcxproj", "{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -87,6 +89,15 @@ Global
 		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release-Compact|Win32.ActiveCfg = Release|Win32
 		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release-Compact|x64.ActiveCfg = Release|x64
 		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release-Compact|x64.Build.0 = Release|x64
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|Win32.Build.0 = Debug|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|x64.ActiveCfg = Debug|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release|Win32.ActiveCfg = Release|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release|Win32.Build.0 = Release|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release|x64.ActiveCfg = Release|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Compact|Win32.ActiveCfg = Release|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Compact|Win32.Build.0 = Release|Win32
+		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Compact|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
