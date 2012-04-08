@@ -7,6 +7,7 @@ set DEPS=%cd%\..\dependencies
 set PSC=%ROOTDIR%\iNFekt-SuperCompact
 set PP32=%ROOTDIR%\iNFekt-32bit-Portable
 set PP64=%ROOTDIR%\iNFekt-64bit-Portable
+set PAP=%ROOTDIR%\iNFektPortable
 
 rem MAKE SUPER COMPACT THING
 
@@ -34,11 +35,11 @@ xcopy /Y "%ROOTDIR%\..\release\*.url" %PP64%
 
 rem COPY RUNTIME DLLS
 
-xcopy /Y "C:\Program Files (x86)\Microsoft Visual Studio 2010\VC\redist\x86\Microsoft.VC100.CRT\*.dll" %PP32%
-xcopy /Y "C:\Program Files (x86)\Microsoft Visual Studio 2010\VC\redist\x86\Microsoft.VC100.OpenMP\*.dll" %PP32%
+xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC100.CRT\*.dll" %PP32%
+xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC100.OpenMP\*.dll" %PP32%
 
-xcopy /Y "C:\Program Files (x86)\Microsoft Visual Studio 2010\VC\redist\x64\Microsoft.VC100.CRT\*.dll" %PP64%
-xcopy /Y "C:\Program Files (x86)\Microsoft Visual Studio 2010\VC\redist\x64\Microsoft.VC100.OpenMP\*.dll" %PP64%
+xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC100.CRT\*.dll" %PP64%
+xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC100.OpenMP\*.dll" %PP64%
 
 rem COPY BUILT FILES
 
@@ -58,6 +59,23 @@ rem COPY DEPS
 
 xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PP32%
 xcopy /Y "%DEPS%\lib_x64_release\*.dll" %PP64%
+
+rem MAKE PORTABLEAPPS.COM THINGIE
+
+move %PAP% %PAP%.bak
+rmdir /S /Q %PAP%.bak
+mkdir %PAP%
+xcopy /Y /S /E %ROOTDIR%\..\release\PortableApps %PAP%
+
+copy /Y %ROOTDIR%\..\release\portable.ini %PAP%\App\DefaultData
+
+xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC100.CRT\*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS100COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC100.OpenMP\*.dll" %PAP%\App\iNFekt
+copy /Y %ROOTDIR%\Release\cuda-blur.dll %PAP%\App\iNFekt
+copy /Y %ROOTDIR%\Release\infekt-win32.exe %PAP%\App\iNFekt
+xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PAP%\App\iNFekt
+
+copy /Y %ROOTDIR%\..\project\infekt-win32\iNFEKT_icon_by_railgun.ico %PAP%\App\AppInfo\appicon.ico
 
 rem DELETE OLD RARS
 
