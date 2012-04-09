@@ -12,6 +12,7 @@
   * Loading NFO files is now faster
   * Rendering (displaying) NFOs is a lot faster, especially for big files (ref: issue 65)
   * Raised file limits to 3 MB and 10000 lines
+  * Added hidden context menu (right click charset pane in status bar) where users can force a charset to be used instead of having it auto-detected.
   * New options "Enable NVIDIA CUDA" (hardware acceleration) and "On-demand rendering" (reduces initial time required to load an NFO but may freeze for short periods of time when scrolling down). Both default to On.
   * Updated PCRE to 8.30, Cairo to 1.12, libpng to 1.5.10, zlib to 1.2.6
   * Some internal changes + improvements
