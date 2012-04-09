@@ -139,6 +139,7 @@ protected:
 	void OpenChooseFileName();
 	void DoNfoExport(UINT a_id);
 	bool DoOpenMruMenu(const LPNMTOOLBAR a_lpnm);
+	bool DoCharsetMenu(const LPNMMOUSE a_pnmm);
 	void UpdateStatusbar();
 	void AdjustWindowToNFOWidth(bool a_growOnly = false);
 

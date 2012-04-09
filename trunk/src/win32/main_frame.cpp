@@ -38,6 +38,7 @@ enum _toolbar_button_ids {
 };
 
 #define VIEW_MENU_POS 1
+#define STATUSBAR_PANE_CHARSET 3
 
 
 CMainFrame::CMainFrame() : CFrame(),
@@ -482,12 +483,22 @@ LRESULT CMainFrame::OnNotify(WPARAM wParam, LPARAM lParam)
 {
 	LPNMHDR l_lpnm = (LPNMHDR)lParam;
 
-	switch(l_lpnm->code)
+	// charset statusbar pane right-click menu:
+	if(l_lpnm->hwndFrom == GetStatusbar().GetHwnd() && l_lpnm->code == NM_RCLICK)
 	{
-	case TBN_DROPDOWN:
+		LPNMMOUSE l_pnmm = (LPNMMOUSE)lParam;
+			
+		if(l_pnmm->dwItemSpec == STATUSBAR_PANE_CHARSET)
+		{
+			if(DoCharsetMenu(l_pnmm))
+				return FALSE;
+		}
+	}
+	// MRU toolbar dropdown:
+	else if(l_lpnm->code == TBN_DROPDOWN)
+	{
 		if(DoOpenMruMenu((LPNMTOOLBAR)lParam))
 			return FALSE;
-		break;
 	}
 
 	return CFrame::OnNotify(wParam, lParam);
@@ -544,6 +555,36 @@ bool CMainFrame::DoOpenMruMenu(const LPNMTOOLBAR a_lpnm)
 	}
 
 	return false;
+}
+
+
+bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
+{
+	HMENU hPopupMenu = ::CreatePopupMenu();
+
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_AUTO, L"Auto");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437, L"CP437");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_WINDOWS_1252, L"Windows-1252");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_UTF8, L"UTF-8");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_UTF16, L"UTF-16");
+	
+	POINT pt = a_pnmm->pt;
+	::ClientToScreen(GetStatusbar().GetHwnd(), &pt);
+
+	int l_cmd = ::TrackPopupMenuEx(hPopupMenu,
+		TPM_TOPALIGN | TPM_CENTERALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
+		pt.x, pt.y, m_hWnd, NULL); 
+
+	::DestroyMenu(hPopupMenu);
+
+	if(l_cmd > 0)
+	{
+		m_view.ReloadFile((ENfoCharset)l_cmd);
+
+		UpdateStatusbar();
+	}
+
+	return true;
 }
 
 
@@ -735,7 +776,7 @@ void CMainFrame::UpdateStatusbar()
 		int l_sbWidths[5] = {0};
 		l_sbWidths[1] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_timeInfo.c_str());
 		l_sbWidths[2] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_sizeInfo.c_str());
-		l_sbWidths[3] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_charset.c_str());
+		l_sbWidths[STATUSBAR_PANE_CHARSET] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_charset.c_str());
 		l_sbWidths[4] = 25;
 
 		int l_sbParts[5] = { l_width, 0 };
@@ -746,7 +787,7 @@ void CMainFrame::UpdateStatusbar()
 		l_sb.SetPartText(0, l_fileName.c_str());
 		l_sb.SetPartText(1, l_timeInfo.c_str());
 		l_sb.SetPartText(2, l_sizeInfo.c_str());
-		l_sb.SetPartText(3, l_charset.c_str());
+		l_sb.SetPartText(STATUSBAR_PANE_CHARSET, l_charset.c_str());
 
 		l_sb.SetSimple(FALSE);
 	}

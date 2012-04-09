@@ -41,7 +41,7 @@ public:
 	PNFOViewControl& GetActiveCtrl() { return m_curViewCtrl; }
 	PNFOData& GetNfoData() { return m_nfoData; }
 
-	bool OpenFile(const std::wstring& a_filePath);
+	bool OpenFile(const std::wstring& a_filePath, ENfoCharset a_charset = NFOC_AUTO);
 	bool OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_nfoData);
 	void SwitchView(EMainView a_view);
 	EMainView GetViewType() { return m_curViewType; }
@@ -73,7 +73,7 @@ public:
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
-	bool ReloadFile();
+	bool ReloadFile(ENfoCharset a_charset = NFOC_AUTO);
 protected:
 	PNFOViewControl m_renderControl;
 	PNFOViewControl m_classicControl;
@@ -82,6 +82,7 @@ protected:
 	EMainView m_curViewType;
 	PNFOViewControl m_curViewCtrl;
 	PNFOData m_nfoData;
+	std::wstring m_nfoFilePath;
 
 	bool m_showInfoBar;
 	std::shared_ptr<CInfektInfoBar> m_infoBar;
