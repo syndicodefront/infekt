@@ -436,6 +436,9 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	case NFOC_CP437:
 		l_loaded = TryLoad_CP437(a_data, a_dataLen);
 		break;
+	case NFOC_WINDOWS_1252:
+		l_loaded = TryLoad_CP252(a_data, a_dataLen);
+		break;
 	}
 
 	if(l_loaded)
@@ -555,6 +558,10 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			}
 		} // end of foreach line loop.
 
+	}
+	else
+	{
+		m_lastErrorDescr = L"There appears to be a charset/encoding problem.";
 	}
 
 	return l_loaded;
@@ -766,6 +773,14 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 }
 
 
+bool CNFOData::TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen)
+{
+	m_textContent = CUtil::ToWideStr(std::string().append((const char*)a_data, a_dataLen), CP_ACP);
+
+	return (!m_textContent.empty());
+}
+
+
 const wstring& CNFOData::GetLastErrorDescription() const
 {
 	return m_lastErrorDescr;
@@ -882,27 +897,29 @@ char* CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col)
 }
 
 
-const std::_tstring CNFOData::GetCharsetName(ENfoCharset a_charset)
+const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 {
 	switch(a_charset)
 	{
 	case NFOC_AUTO:
-		return _T("(auto)");
+		return L"(auto)";
 	case NFOC_UTF16:
-		return _T("UTF-16");
+		return L"UTF-16";
 	case NFOC_UTF8_SIG:
-		return _T("UTF-8 (Signature)");
+		return L"UTF-8 (Signature)";
 	case NFOC_UTF8:
-		return _T("UTF-8");
+		return L"UTF-8";
 	case NFOC_CP437:
-		return _T("CP 437");
+		return L"CP 437";
 	case NFOC_CP437_IN_UTF8:
-		return _T("CP 437 (in broken UTF-8)");
+		return L"CP 437 (in broken UTF-8)";
 	case NFOC_CP437_IN_UTF16:
-		return _T("CP 437 (in broken UTF-16)");
+		return L"CP 437 (in broken UTF-16)";
+	case NFOC_WINDOWS_1252:
+		return L"Windows-1252";
 	}
 
-	return _T("(huh?)");
+	return L"(huh?)";
 }
 
 

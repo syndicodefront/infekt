@@ -50,9 +50,11 @@ void CViewContainer::OnCreate()
 }
 
 
-bool CViewContainer::OpenFile(const std::wstring& a_filePath)
+bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_charset)
 {
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
+	PNFOData l_nfoDataBackup = m_nfoData;
 
 	if(m_nfoData)
 	{
@@ -61,6 +63,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 	}
 
 	m_nfoData = PNFOData(new CNFOData());
+	m_nfoData->SetCharsetToTry(a_charset);
 
 	CPluginManager::GetInstance()->TriggerNfoLoad(true, a_filePath.c_str());
 
@@ -76,6 +79,8 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 		{
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
+			m_nfoFilePath = m_nfoData->GetFilePath();
+
 			return true;
 		}
 	}
@@ -83,6 +88,8 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath)
 	{
 		this->MessageBox(m_nfoData->GetLastErrorDescription().c_str(), _T("Fail"), MB_ICONEXCLAMATION);
 		// :TODO: better error messages blah blah blah
+
+		m_nfoData = l_nfoDataBackup;
 	}
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
@@ -114,15 +121,20 @@ bool CViewContainer::OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_n
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
+	if(b)
+	{
+		m_nfoFilePath = m_nfoData->GetFilePath();
+	}
+
 	return b;
 }
 
 
-bool CViewContainer::ReloadFile()
+bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 {
 	if(m_nfoData)
 	{
-		if(OpenFile(m_nfoData->GetFilePath()))
+		if(OpenFile(m_nfoFilePath, a_charset))
 		{
 			// redraw scrollbars and such:
 			SendMessage(WM_SETREDRAW, 1);
