@@ -122,6 +122,8 @@ bool CNFORenderer::CalculateGrid()
 		m_nfo->GetGridWidth(), l_emptyBlock);
 	TwoDimVector<CRenderGridBlock>& l_grid = (*m_gridData);
 
+	bool l_hasBlocks = false;
+
 	for(size_t row = 0; row < m_gridData->GetRows(); row++)
 	{
 		bool l_textStarted = false;
@@ -129,7 +131,11 @@ bool CNFORenderer::CalculateGrid()
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			CRenderGridBlock *l_block = &l_grid[row][col];
+
 			l_block->shape = CharCodeToGridShape(m_nfo->GetGridChar(row, col), &l_block->alpha);
+
+			if(!l_hasBlocks && l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE) l_hasBlocks = true;
+
 			if(l_block->shape == RGS_WHITESPACE && l_textStarted) l_block->shape = RGS_WHITESPACE_IN_TEXT;
 			else if(l_block->shape == RGS_NO_BLOCK) l_textStarted = true;
 		}
@@ -151,6 +157,8 @@ bool CNFORenderer::CalculateGrid()
 			}
 		}
 	}
+
+	m_hasBlocks = l_hasBlocks;
 
 	return true;
 }
@@ -444,7 +452,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 	}
 	else
 	{
-		if(GetEnableGaussShadow() && ((m_partial & NRP_RENDER_BLOCKS) != 0 || (m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0))
+		if(m_hasBlocks && GetEnableGaussShadow() && ((m_partial & NRP_RENDER_BLOCKS) != 0 || (m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0))
 		{
 			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
@@ -498,7 +506,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				RenderStripeBlocks(a_stripe, false, false);
 			}
 		}
-		else if((m_partial & NRP_RENDER_BLOCKS) != 0)
+		else if(m_hasBlocks && (m_partial & NRP_RENDER_BLOCKS) != 0)
 		{
 			RenderStripeBlocks(a_stripe, true, false);
 		}
