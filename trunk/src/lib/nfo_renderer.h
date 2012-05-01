@@ -141,6 +141,7 @@ protected:
 	// NFO data:
 	PNFOData m_nfo;
 	TwoDimVector<CRenderGridBlock> *m_gridData;
+	bool m_hasBlocks;
 
 	// internal state data:
 	// don't mess with these, they are NOT settings:
