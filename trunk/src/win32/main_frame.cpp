@@ -577,7 +577,7 @@ bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
 
 	::DestroyMenu(hPopupMenu);
 
-	if(l_cmd > 0)
+	if(l_cmd > 0 && l_cmd < _NFOC_MAX)
 	{
 		m_view.ReloadFile((ENfoCharset)l_cmd);
 
