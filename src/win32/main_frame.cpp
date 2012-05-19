@@ -987,13 +987,24 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	case WM_SYSKEYUP:
 		if(pMsg->wParam == VK_MENU || pMsg->wParam == VK_F10)
 		{
-			ShowMenuBar(!m_menuBarVisible);
-
-			/*if(m_menuBarVisible)
+			if(pMsg->wParam == VK_F10 && (::GetAsyncKeyState(VK_LSHIFT) || ::GetAsyncKeyState(VK_RSHIFT)))
 			{
-				::SetFocus(GetMenubar().GetHwnd());
-			} we can't let this happen or the menu bar will grab all keyboard events...
-			... gonna have to figure this out some other day :TODO: */
+				// OH LAWD HAVE MERCY :(
+				MSG l_msg = {0};
+				l_msg.message = WM_KEYDOWN;
+				l_msg.wParam = VK_APPS;
+				m_view.ForwardFocusTypeMouseKeyboardEvent(&l_msg);
+			}
+			else
+			{
+				ShowMenuBar(!m_menuBarVisible);
+
+				/*if(m_menuBarVisible)
+				{
+					::SetFocus(GetMenubar().GetHwnd());
+				} we can't let this happen or the menu bar will grab all keyboard events...
+				... gonna have to figure this out some other day :TODO: */
+			}
 		}
 		return TRUE;
 	}
