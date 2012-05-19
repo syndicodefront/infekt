@@ -105,6 +105,8 @@ public:
 protected:
 	CViewContainer m_view;
 	bool m_menuBarVisible;
+	CToolbar* m_searchToolbar;
+	HWND m_hSearchEditBox;
 	bool m_showingAbout;
 	PMainSettings m_settings;
 	CMainDropTargetHelper *m_dropHelper;
@@ -135,6 +137,8 @@ protected:
 	// Win32++ stuff end //
 
 	void AddToolbarButtons();
+	void CreateSearchToolbar();
+	void ShowSearchToolbar(bool a_show = true);
 	void UpdateCaption();
 	void OpenChooseFileName();
 	void DoNfoExport(UINT a_id);

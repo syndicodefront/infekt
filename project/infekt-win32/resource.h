@@ -21,6 +21,11 @@
 #define IDB_PNG_VIEW_RENDERED           125
 #define IDB_PNG_MENU                    126
 #define IDB_PNG_SHOWMENU                126
+#define IDB_PNG1                        127
+#define IDB_PNG_FIND16                  127
+#define IDB_PNG_CLOSE16                 128
+#define IDB_PNG_DOWN16                  129
+#define IDB_PNG_UP16                    130
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_CHECK_DEFAULT_VIEWER        1006
@@ -147,13 +152,14 @@
 #define ID_TOOLS_PREVIOUSNFO            40096
 #define IDM_TOOLS_NEXTNFO               40097
 #define IDM_TOOLS_PREVIOUSNFO           40098
+#define IDM_FINDTEXT                    40102
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        127
-#define _APS_NEXT_COMMAND_VALUE         40102
+#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_COMMAND_VALUE         40104
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

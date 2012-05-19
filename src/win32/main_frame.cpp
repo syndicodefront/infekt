@@ -26,6 +26,7 @@ using namespace std;
 
 
 enum _toolbar_button_ids {
+	// main toolbar:
 	TBBID_OPEN = 9001, // over 9000!
 	TBBID_SETTINGS,
 	TBBID_VIEW_RENDERED,
@@ -34,17 +35,24 @@ enum _toolbar_button_ids {
 	TBBID_ABOUT,
 	TBBID_CLEARMRU,
 	TBBID_SHOWMENU,
+	// search toolbar:
+	TBBID_SEARCH_UP,
+	TBBID_SEARCH_DOWN,
+	TBBID_SEARCH_CLOSE,
+	// MRU + x:
 	TBBID_OPENMRUSTART // must be the last item in this list.
 };
 
 #define VIEW_MENU_POS 1
 #define STATUSBAR_PANE_CHARSET 3
+#define IDW_SEARCHTOOLBAR (IDW_TOOLBAR + 1)
 
 
 CMainFrame::CMainFrame() : CFrame(),
 	m_showingAbout(false), m_dropHelper(NULL),
 	m_nfoInFolderIndex((size_t)-1),
-	m_menuBarVisible(false)
+	m_menuBarVisible(false),
+	m_searchToolbar(NULL), m_hSearchEditBox(NULL)
 {
 	SetView(m_view);
 }
@@ -273,7 +281,7 @@ void CMainFrame::AddToolbarButtons()
 
 #define _TBBTN(A_ICO, A_IDF, A_STATE, A_STYLE, A_TEXT) \
 		{ MAKELONG(l_icoId[A_ICO], IML), A_IDF, A_STATE, A_STYLE, {0}, 0, (INT_PTR)_T(A_TEXT) }
-#define _TBSEP { 0, 0, 0, BTNS_SEP, {0}, 0, 0 }
+#define _TBSEP { 0, 0, 0, BTNS_SEP, {0}, 0, -1 }
 
 	// define buttons:
 	TBBUTTON l_btns[] = {
@@ -299,6 +307,89 @@ void CMainFrame::AddToolbarButtons()
 
 	SIZE l_updatedSize = GetToolbar().GetMaxSize();
 	::SendMessage(GetToolbar().GetParent(), UWM_TOOLBAR_RESIZE, (WPARAM)GetToolbar().GetHwnd(), (LPARAM)&l_updatedSize);
+}
+
+
+void CMainFrame::CreateSearchToolbar()
+{
+	const int IML = 0;
+	const int EDITCTRL_WIDTH = 100;
+	const int EDITCTRL_HEIGHT = 21;
+
+	HIMAGELIST l_imgLst = ImageList_Create(16, 16, ILC_COLOR32, 1, 0);
+	// we also use this image list for the toolbar, so CToolbar::OnDestroy destroys it.
+	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_FIND16, 16, 16);
+	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_DOWN16, 16, 16);
+	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_UP16, 16, 16);
+	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_CLOSE16, 16, 16);
+
+	// add ImageList to rebar (not limited to this band, but currently only used by it):
+	REBARINFO l_rbi;
+	l_rbi.fMask = RBIM_IMAGELIST;
+	l_rbi.himl = l_imgLst;
+	GetRebar().SetBarInfo(l_rbi);
+
+	// create toolbar container:
+	m_searchToolbar = new CToolbar();
+	m_searchToolbar->Create(GetRebar());
+	m_searchToolbar->SendMessage(TB_SETIMAGELIST, IML, (LPARAM)l_imgLst);
+	m_searchToolbar->SendMessage(TB_SETMAXTEXTROWS, 1, 0);
+	m_searchToolbar->SendMessage(TB_SETSTYLE, 0, m_searchToolbar->SendMessage(TB_GETSTYLE) | TBSTYLE_LIST);
+	m_searchToolbar->SendMessage(TB_SETEXTENDEDSTYLE, 0, TBSTYLE_EX_DRAWDDARROWS | TBSTYLE_EX_MIXEDBUTTONS);
+
+	TBBUTTON l_btns[] = {
+		{ EDITCTRL_WIDTH, 0, TBSTATE_ENABLED, BTNS_SEP, { 0 }, 0, -1 }, // space for edit control
+		{ MAKELONG(1, IML), TBBID_SEARCH_DOWN, TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX, { 0 }, 0, (INT_PTR)L"Next" },
+		{ MAKELONG(2, IML), TBBID_SEARCH_UP, TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX, { 0 }, 0, (INT_PTR)L"Previous" },
+		{ MAKELONG(3, IML), TBBID_SEARCH_CLOSE, TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_NOPREFIX, { 0 }, 0, 0 }
+	};
+
+	m_searchToolbar->SendMessage(TB_ADDBUTTONS, sizeof(l_btns) / sizeof(l_btns[0]), (LPARAM)&l_btns);
+	
+	// create search edit control:
+	m_hSearchEditBox = ::CreateWindowEx(WS_EX_CLIENTEDGE, L"Edit", NULL,
+		WS_CHILD | WS_VISIBLE | ES_LEFT | ES_AUTOHSCROLL,
+		0, 0, EDITCTRL_WIDTH, EDITCTRL_HEIGHT,
+		m_hWnd, NULL, g_hInstance, 0);
+	::SendMessage(m_hSearchEditBox, WM_SETFONT, m_searchToolbar->SendMessage(WM_GETFONT, 0, 0), FALSE);
+
+	// notifications still go to the main window, but the control should live inside the toolbar window:
+	::SetParent(m_hSearchEditBox, m_searchToolbar->GetHwnd());
+
+	// create rebar band:
+	REBARBANDINFO l_rbbi;
+
+	l_rbbi.fMask = RBBIM_ID | RBBIM_STYLE | RBBIM_TEXT | RBBIM_IMAGE | RBBIM_HEADERSIZE | RBBIM_CHILD | RBBIM_SIZE | RBBIM_CHILDSIZE;
+	l_rbbi.wID = IDW_SEARCHTOOLBAR;
+	l_rbbi.fStyle = RBBS_BREAK | RBBS_NOGRIPPER | RBBS_NOVERT;
+	l_rbbi.lpText = L" Find: ";
+	l_rbbi.iImage = 0;
+	l_rbbi.cxHeader = 55;
+	l_rbbi.hwndChild = m_searchToolbar->GetHwnd();
+
+	// dat size:
+	m_searchToolbar->SendMessage(TB_AUTOSIZE);
+	CSize sz = m_searchToolbar->GetMaxSize();
+	l_rbbi.cyMinChild = sz.cy;
+	l_rbbi.cyMaxChild = sz.cy;
+	l_rbbi.cxMinChild = sz.cx + 2;
+
+	GetRebar().InsertBand(-1, l_rbbi);
+
+	GetRebar().MaximizeBand(GetRebar().IDToIndex(IDW_SEARCHTOOLBAR));
+}
+
+
+void CMainFrame::ShowSearchToolbar(bool a_show)
+{
+	if(m_searchToolbar)
+	{
+		GetRebar().ShowBand(GetRebar().IDToIndex(IDW_SEARCHTOOLBAR), a_show ? 1 : 0);
+	}
+	else if(a_show)
+	{
+		CreateSearchToolbar();
+	}
 }
 
 
@@ -458,6 +549,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDM_TOOLS_PREVIOUSNFO:
 		BrowseFolderNfoMove(-1);
+		break;
+
+	case IDM_FINDTEXT:
+		ShowSearchToolbar();
 		break;
 	}
 
@@ -1676,6 +1771,8 @@ CMainFrame::~CMainFrame()
 	{
 		CCudaUtil::GetInstance()->UnInitCudaThread();
 	}
+
+	delete m_searchToolbar;
 }
 
 

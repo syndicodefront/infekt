@@ -501,8 +501,12 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="icons\1downarrow.png" />
+    <None Include="icons\1uparrow.png" />
     <None Include="icons\advancedsettings.png" />
     <None Include="icons\editcopy.png" />
+    <None Include="icons\fileclose.png" />
+    <None Include="icons\find.png" />
     <None Include="icons\folder_txt.png" />
     <None Include="iNFEKT_icon_by_railgun.ico" />
     <None Include="icons\info.png" />
