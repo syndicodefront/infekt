@@ -196,6 +196,10 @@ IDB_PNG_VIEW_CLASSIC    PNG                     "icons\\mime_colorset.png"
 IDB_PNG_VIEW_TEXTONLY   PNG                     "icons\\template_source.png"
 IDB_PNG_VIEW_RENDERED   PNG                     "icons\\kllckety_doc.png"
 IDB_PNG_SHOWMENU        PNG                     "icons\\view_top_bottom.png"
+IDB_PNG_FIND16          PNG                     "icons\\find.png"
+IDB_PNG_CLOSE16         PNG                     "icons\\fileclose.png"
+IDB_PNG_DOWN16          PNG                     "icons\\1downarrow.png"
+IDB_PNG_UP16            PNG                     "icons\\1uparrow.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -331,6 +335,8 @@ BEGIN
     "O",            IDM_FILE_OPEN,          VIRTKEY, CONTROL, NOINVERT
     VK_F12,         IDM_HIDDENGIMMICK,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
+    "K",            IDM_TOOLS_NEXTNFO,      VIRTKEY, NOINVERT
+    "J",            IDM_TOOLS_PREVIOUSNFO,  VIRTKEY, NOINVERT
     VK_F3,          IDM_VIEW_CLASSIC,       VIRTKEY, NOINVERT
     "R",            IDM_VIEW_RELOAD,        VIRTKEY, CONTROL, NOINVERT
     VK_F5,          IDM_VIEW_RELOAD,        VIRTKEY, NOINVERT
@@ -344,8 +350,7 @@ BEGIN
     VK_NUMPAD0,     IDM_ZOOM_RESET,         VIRTKEY, CONTROL, NOINVERT
     "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
     "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
-    "J",            IDM_TOOLS_PREVIOUSNFO,  VIRTKEY, NOINVERT
-    "K",            IDM_TOOLS_NEXTNFO,      VIRTKEY, NOINVERT
+    "F",            IDM_FINDTEXT,           VIRTKEY, CONTROL, NOINVERT
 END
 
 

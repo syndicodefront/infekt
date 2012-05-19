@@ -178,6 +178,18 @@
     <None Include="icons\view_top_bottom.png">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="icons\find.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\fileclose.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\1downarrow.png">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="icons\1uparrow.png">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
