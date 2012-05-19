@@ -184,7 +184,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		OnMouseClickEvent(uMsg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 #ifndef NFOVWR_NO_CONTEXT_MENU
-	case WM_CONTEXTMENU: { // :TODO: Shift+F10 not working
+	case WM_CONTEXTMENU: {
 		POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 		::ScreenToClient(m_hwnd, &pt);
 		OnMouseClickEvent(uMsg, pt.x, pt.y);

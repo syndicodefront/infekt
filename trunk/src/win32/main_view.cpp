@@ -281,6 +281,13 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 		switch(pMsg->wParam)
 		{
+		case VK_APPS: {
+			POINT pt;
+			::GetCursorPos(&pt);
+			::PostMessage(hScrollTarget, WM_CONTEXTMENU, 0, MAKELONG(pt.x, pt.y));
+			return false;
+		}
+		// scrolling-related:
 		case VK_UP: wScrollNotify = SB_LINEUP; break;
 		case VK_PRIOR: wScrollNotify = SB_PAGEUP; break;
 		case VK_NEXT: wScrollNotify = SB_PAGEDOWN; break;
