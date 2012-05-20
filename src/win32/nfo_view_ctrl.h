@@ -28,8 +28,7 @@ protected:
 	HWND m_hwnd;
 	bool m_centerNfo;
 	bool m_copyOnSelect;
-	std::wstring m_findTerm;
-	size_t m_findPosGlobalRow, m_findPosGlobalCol, m_findPosTerm;
+	size_t m_findPosGlobalRow, m_findPosGlobalCol;
 
 	LPTSTR m_cursor;
 	size_t m_selStartRow, m_selStartCol;
@@ -75,7 +74,9 @@ public:
 	void ZoomOut();
 	void ZoomReset();
 
-	bool FindTerm(const std::wstring& a_term, bool a_up, bool a_matchCase);
+	bool FindTermDown(const std::wstring& a_term, size_t& a_startRow, size_t& a_startCol);
+	bool FindTermUp(const std::wstring& a_term, size_t& a_startRow, size_t& a_startCol);
+	bool FindAndSelectTerm(const std::wstring& a_term, bool a_up);
 
 	void SetOnDemandRendering(bool nb) { m_onDemandRendering = nb; }
 	bool GetOnDemandRendering() const { return m_onDemandRendering; }
