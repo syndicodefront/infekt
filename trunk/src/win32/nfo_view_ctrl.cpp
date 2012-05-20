@@ -32,7 +32,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 	m_cursor = IDC_ARROW;
 	m_centerNfo = true;
 	m_copyOnSelect = false;
-	m_findPosGlobalCol = m_findPosGlobalRow = m_findPosTerm = 0;
+	m_findPosGlobalCol = m_findPosGlobalRow = 0;
 
 	m_contextMenuHandle = NULL;
 	m_contextMenuCommandTarget = NULL;
@@ -855,38 +855,48 @@ void CNFOViewControl::SelectAll()
 }
 
 
-bool CNFOViewControl::FindTerm(const std::wstring& a_term, bool a_up, bool a_matchCase)
+bool CNFOViewControl::FindTermDown(const std::wstring& a_term, size_t& a_startRow, size_t& a_startCol)
 {
-	/*bool l_wrapped = false;
+	bool l_wrapped = false;
+	size_t l_termIndex = 0;
+	size_t l_termStartRow = 0;
+	size_t l_termStartCol = 0;
+	bool l_first = true;
 
-	if(m_findPosGlobalRow == m_gridData->GetRows())
+	for(size_t row = a_startRow; row < m_gridData->GetRows(); )
 	{
-		m_findPosGlobalRow = 0;
-		l_wrapped = true;
-	}
-
-	for(size_t row = 0; row < m_gridData->GetRows(); )
-	{
-		for(size_t col = 0; col < m_gridData->GetCols(); col++)
+		for(size_t col = (l_first ? a_startCol : 0); col < m_gridData->GetCols(); col++)
 		{
 			if(!IsTextChar(row, col, true))
 			{
-				m_findPosTerm = 0;
+				l_termIndex = 0;
 				continue;
 			}
 
-			if(m_nfo->GetGridChar(row, col) == m_findTerm[m_findPosTerm])
+			wchar_t l_char = m_nfo->GetGridChar(row, col);
+			
+			if(_wcsnicmp(&l_char, &a_term[l_termIndex], 1) != 0)
 			{
-				m_findPosTerm++;
-
-				if(m_findPosTerm == m_findTerm.size())
-				{
-					return true;
-				}
+				l_termIndex = 0;
+				continue;
 			}
-			else
+
+			// on track...
+			l_termIndex++;
+
+			if(l_termIndex == 1)
 			{
-				m_findPosTerm = 0;
+				l_termStartRow = row;
+				l_termStartCol = col;
+			}
+
+			if(l_termIndex == a_term.size())
+			{
+				// done!
+				a_startRow = l_termStartRow;
+				a_startCol = l_termStartCol;
+
+				return true;
 			}
 		}
 
@@ -899,7 +909,109 @@ bool CNFOViewControl::FindTerm(const std::wstring& a_term, bool a_up, bool a_mat
 		{
 			row++;
 		}
-	}*/
+
+		l_first = false;
+	}
+
+	return false;
+}
+
+bool CNFOViewControl::FindTermUp(const std::wstring& a_term, size_t& a_startRow, size_t& a_startCol)
+{
+	bool l_wrapped = false;
+	size_t l_termIndex = a_term.size() - 1;
+	size_t l_termStartRow = 0;
+	size_t l_termStartCol = 0;
+	bool l_first = true;
+
+	for(size_t row = a_startRow; row >= 0; )
+	{
+		for(size_t col = (l_first ? a_startCol : m_gridData->GetCols()); col >= 0; col--)
+		{
+			if(IsTextChar(row, col, true))
+			{
+				wchar_t l_char = m_nfo->GetGridChar(row, col);
+			
+				if(_wcsnicmp(&l_char, &a_term[l_termIndex], 1) == 0)
+				{
+					// on track...
+					if(l_termIndex = a_term.size() - 1)
+					{
+						l_termStartRow = row;
+						l_termStartCol = col;
+					}
+
+					l_termIndex--;
+
+					if(l_termIndex == 0)
+					{
+						// done!
+						a_startRow = l_termStartRow;
+						a_startCol = l_termStartCol;
+
+						return true;
+					}
+				}
+				else
+				{
+					l_termIndex = 0;
+				}
+			}
+			else
+			{
+				l_termIndex = 0;
+			}
+
+			if(col == 0) break;
+		}
+
+		if(!l_wrapped && row == 0)
+		{
+			row = m_gridData->GetRows() - 1;
+			l_wrapped = true;
+		}
+		else if(row > 0)
+		{
+			row--;
+		}
+		else
+		{
+			break;
+		}
+
+		l_first = false;
+	}
+
+	return false;
+}
+
+
+bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
+{
+	if(a_term.empty())
+		return false;
+
+	size_t l_startRow = m_findPosGlobalRow,
+		l_startCol = m_findPosGlobalCol;
+
+	if((a_up && FindTermUp(a_term, l_startRow, l_startCol))
+		|| (!a_up && FindTermDown(a_term, l_startRow, l_startCol)))
+	{
+		// XXX
+
+		m_selStartRow = l_startRow;
+		m_selStartCol = l_startCol;
+		m_selEndRow = l_startRow;
+		m_selEndCol = l_startCol + a_term.size();
+
+		return true;
+	}
+	else
+	{
+		m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
+	}
+
+	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 
 	return false;
 }

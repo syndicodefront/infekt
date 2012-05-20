@@ -175,7 +175,7 @@ void CMainFrame::OnInitialUpdate()
 	LoadRenderSettingsFromRegistry(_T("RenderedView"), m_view.GetRenderCtrl().get());
 	LoadRenderSettingsFromRegistry(_T("ClassicView"), m_view.GetClassicCtrl().get());
 	LoadRenderSettingsFromRegistry(_T("TextOnlyView"), m_view.GetTextOnlyCtrl().get());
-
+	
 	UpdateStatusbar();
 
 	if(GetSettings()->iDefaultView == -1)
@@ -390,6 +390,29 @@ void CMainFrame::ShowSearchToolbar(bool a_show)
 	{
 		CreateSearchToolbar();
 	}
+
+	if(a_show)
+	{
+		::SetFocus(m_hSearchEditBox);
+		::SendMessage(m_hSearchEditBox, EM_SETSEL, 0, -1);
+	}
+	else
+	{
+		::SetFocus(GetHwnd());
+	}
+}
+
+
+void CMainFrame::DoFindText(bool a_up)
+{
+	if(!m_hSearchEditBox)
+		return;
+
+	wchar_t l_text[100] = {0};
+
+	::GetWindowText(m_hSearchEditBox, l_text, 99);
+
+	m_view.GetActiveCtrl()->FindAndSelectTerm(l_text, a_up);
 }
 
 
@@ -553,6 +576,18 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDM_FINDTEXT:
 		ShowSearchToolbar();
+		break;
+
+	case TBBID_SEARCH_DOWN:
+		DoFindText(false);
+		break;
+
+	case TBBID_SEARCH_UP:
+		DoFindText(true);
+		break;
+
+	case TBBID_SEARCH_CLOSE:
+		ShowSearchToolbar(false);
 		break;
 	}
 
@@ -971,7 +1006,11 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	case WM_KEYDOWN:
 		if(pMsg->wParam == VK_ESCAPE)
 		{
-			if(m_settings->bCloseOnEsc)
+			if(m_searchToolbar && GetRebar().IsBandVisible(GetRebar().IDToIndex(IDW_SEARCHTOOLBAR)))
+			{
+				ShowSearchToolbar(false);
+			}
+			else if(m_settings->bCloseOnEsc)
 			{
 				PostMessage(WM_CLOSE);
 			}
