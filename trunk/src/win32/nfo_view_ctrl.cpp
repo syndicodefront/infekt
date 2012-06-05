@@ -273,13 +273,13 @@ void CNFOViewControl::OnPaint()
 	int l_x, l_y;
 	GetScrollPositions(l_x, l_y);
 
-	// let's paint!
-	l_dc = ::BeginPaint(m_hwnd, &l_ps);
-	l_realSurface = cairo_win32_surface_create(l_dc);
-
 	if(l_smart)
 	{
 		// smart = buffer invalidated rect only
+
+		l_dc = ::BeginPaint(m_hwnd, &l_ps);
+		l_realSurface = cairo_win32_surface_create(l_dc);
+
 		l_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24,
 			l_ps.rcPaint.right - l_ps.rcPaint.left,
 			l_ps.rcPaint.bottom - l_ps.rcPaint.top);
@@ -287,6 +287,12 @@ void CNFOViewControl::OnPaint()
 	else
 	{
 		// not smart = redraw (copy) entire control contents
+
+		l_dc = ::GetDC(m_hwnd);
+		l_realSurface = cairo_win32_surface_create(l_dc);
+		memset(&l_ps, 0, sizeof(PAINTSTRUCT));
+		l_ps.fErase = 1;
+
 		l_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, m_width, m_height);
 	}
 
@@ -295,7 +301,17 @@ void CNFOViewControl::OnPaint()
 	{
 		cairo_t* l_cr = cairo_create(!HasNfoData() ? l_realSurface : l_surface);
 		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
-		cairo_paint(l_cr);
+		if(HasNfoData())
+		{
+			cairo_rectangle(l_cr, 0, 0, m_padding, m_height);
+			cairo_rectangle(l_cr, m_width - m_padding, 0, m_padding, m_height);
+			cairo_rectangle(l_cr, 0, m_height - m_padding, m_width, m_padding); // not sure why, but there were artifacts
+			cairo_fill(l_cr);
+		}
+		else
+		{
+			cairo_paint(l_cr);
+		}
 		cairo_destroy(l_cr);
 	}
 
@@ -371,7 +387,7 @@ void CNFOViewControl::OnPaint()
 	// Kill possible artifacts (non-background-color pixels)
 	// from the screen buffer. Required e.g. when loading a narrow
 	// NFO after a wide one or when zooming out.
-	if(l_ps.fErase && HasNfoData() && l_smart && l_destx > 0)
+	if(l_smart && l_ps.fErase && HasNfoData() && l_destx > 0)
 	{
 		cairo_t* l_cr = cairo_create(l_realSurface);
 		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
@@ -382,7 +398,17 @@ void CNFOViewControl::OnPaint()
 
 	cairo_surface_destroy(l_realSurface);
 	cairo_surface_destroy(l_surface);
-	::EndPaint(m_hwnd, &l_ps);
+
+	if(l_smart)
+	{
+		::EndPaint(m_hwnd, &l_ps);
+	}
+	else
+	{
+		const RECT l_rect = { 0, 0, m_width, m_height };
+		::ValidateRect(m_hwnd, &l_rect);
+		::ReleaseDC(m_hwnd, l_dc);
+	}
 
 	if(m_cursor == IDC_WAIT)
 	{
