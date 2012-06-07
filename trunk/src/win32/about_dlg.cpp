@@ -58,6 +58,7 @@ BOOL CAboutDialog::OnInitDialog()
 	int l_top = 15;
 
 	std::_tstring l_verStr = _T("iNFekt v") + m_mainWin->InfektVersionAsString();
+#ifndef COMPACT_RELEASE
 #ifdef _WIN64
 	l_verStr += _T(" (64 bit)");
 #else
@@ -65,6 +66,7 @@ BOOL CAboutDialog::OnInitDialog()
 		l_verStr += _T(" (32 bit emulation)");
 	else
 		l_verStr += _T(" (32 bit)");
+#endif
 #endif
 	if(CUtil::IsWinXP())
 		l_verStr += _T(" on Windows XP");
