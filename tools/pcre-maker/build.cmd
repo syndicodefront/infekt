@@ -84,16 +84,21 @@ msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=%CONFIG% /p:Configu
 
 cd %PARENT%
 
+set OUTDIR=out-%CONFIG%-%PLATFORM%
+IF %STATIC%==n GOTO OUTDIRSTATICOK
+set OUTDIR=%OUTDIR%-static
+:OUTDIRSTATICOK
+
 REM Copy results
-IF EXIST out-%CONFIG%-%PLATFORM% GOTO ODEXS
-mkdir out-%CONFIG%-%PLATFORM%
+IF EXIST %OUTDIR% GOTO ODEXS
+mkdir %OUTDIR%
 :ODEXS
 
 IF EXIST include GOTO INCDEXS
 mkdir include
 :INCDEXS
 
-del /Q out-%CONFIG%-%PLATFORM%\*
+del /Q %OUTDIR%\*
 del /Q include\*
 
 xcopy %BDIR%\pcre.h include
@@ -102,12 +107,12 @@ xcopy %BDIR%\pcrecpparg.h include
 xcopy %BDIR%\pcre_stringpiece.h include
 
 IF %X64%==n GOTO FINALCOPYX86
-xcopy "%BDIR%\x64\%CONFIG%\pcre%DBD%.dll" out-%CONFIG%-%PLATFORM%
-xcopy "%BDIR%\x64\%CONFIG%\pcre.lib" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\x64\%CONFIG%\pcre%DBD%.dll" %OUTDIR%
+xcopy "%BDIR%\x64\%CONFIG%\pcre.lib" %OUTDIR%
 GOTO FINALCOPYDONE
 :FINALCOPYX86
-xcopy "%BDIR%\%CONFIG%\pcre%DBD%.dll" out-%CONFIG%-%PLATFORM%
-xcopy "%BDIR%\%CONFIG%\pcre.lib" out-%CONFIG%-%PLATFORM%
+xcopy "%BDIR%\%CONFIG%\pcre%DBD%.dll" %OUTDIR%
+xcopy "%BDIR%\%CONFIG%\pcre.lib" %OUTDIR%
 :FINALCOPYDONE
 
 goto END
