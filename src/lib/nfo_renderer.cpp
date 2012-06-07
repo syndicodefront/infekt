@@ -443,16 +443,16 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 {
 	cairo_surface_t * const l_surface = GetStripeSurface(a_stripe);
 
+	if(!m_hasBlocks || m_classic && (GetBackColor().A > 0))
+	{
+		cairo_t* cr = cairo_create(l_surface);
+		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+		cairo_paint(cr);
+		cairo_destroy(cr);
+	}
+
 	if(m_classic)
 	{
-		if(GetBackColor().A > 0)
-		{
-			cairo_t* cr = cairo_create(l_surface);
-			cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
-			cairo_paint(cr);
-			cairo_destroy(cr);
-		}
-
 		RenderClassic(GetTextColor(),
 			NULL,
 			GetHyperLinkColor(),
