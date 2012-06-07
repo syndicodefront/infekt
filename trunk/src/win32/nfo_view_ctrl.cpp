@@ -417,6 +417,8 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 	m_linkUnderMenu = NULL;
 
+	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
+
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
 		if(!GetOnDemandRendering())
@@ -686,7 +688,7 @@ void CNFOViewControl::GetScrollPositions(int& ar_x, int& ar_y)
 }
 
 
-void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
+bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 {
 	int l_prevPos;
 
@@ -706,6 +708,9 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	{
 	case INT_MIN:
 		l_si.nPos += a_change;
+		break;
+	case INT_MAX:
+		l_si.nPos = a_change;
 		break;
 	case SB_TOP: // user hit the HOME keyboard key
 		l_si.nPos = l_si.nMin;
@@ -742,7 +747,22 @@ void CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 		::ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? (int)GetBlockWidth() * (l_prevPos - l_si.nPos) : 0),
 			(a_dir == SB_VERT ? (int)GetBlockHeight() * (l_prevPos - l_si.nPos) : 0),
 			NULL, NULL);
+
+		return true;
 	}
+
+	// scroll pos unchanged:
+	return false;
+}
+
+
+// returns whether scrolling has triggered a repaint:
+bool CNFOViewControl::ScrollIntoView(size_t a_row, size_t a_col)
+{
+	bool bH = HandleScrollEvent(SB_HORZ, INT_MAX, (int)a_col),
+		bV = HandleScrollEvent(SB_VERT, INT_MAX, (int)a_row);
+
+	return bH || bV;
 }
 
 
@@ -940,46 +960,46 @@ bool CNFOViewControl::FindTermUp(const std::wstring& a_term, size_t& a_startRow,
 {
 	bool l_wrapped = false;
 	size_t l_termIndex = a_term.size() - 1;
-	size_t l_termStartRow = 0;
-	size_t l_termStartCol = 0;
 	bool l_first = true;
+	size_t l_startRow = a_startRow;
 
-	for(size_t row = a_startRow; row >= 0; )
+	// "manually" wrap for corner case where search term is at col 0:
+	if(a_startCol == 0)
+	{
+		l_wrapped = true;
+		l_startRow = (a_startRow == 0 ? m_gridData->GetRows() - 1 : a_startRow - 1);
+		l_first = false;
+	}
+
+	for(size_t row = l_startRow; row >= 0; )
 	{
 		for(size_t col = (l_first ? a_startCol : m_gridData->GetCols()); col >= 0; col--)
 		{
 			if(IsTextChar(row, col, true))
 			{
 				wchar_t l_char = m_nfo->GetGridChar(row, col);
-			
+
 				if(_wcsnicmp(&l_char, &a_term[l_termIndex], 1) == 0)
 				{
-					// on track...
-					if(l_termIndex = a_term.size() - 1)
-					{
-						l_termStartRow = row;
-						l_termStartCol = col;
-					}
-
-					l_termIndex--;
-
 					if(l_termIndex == 0)
 					{
 						// done!
-						a_startRow = l_termStartRow;
-						a_startCol = l_termStartCol;
+						a_startRow = row;
+						a_startCol = col;
 
 						return true;
 					}
+
+					l_termIndex--;
 				}
 				else
 				{
-					l_termIndex = 0;
+					l_termIndex = a_term.size() - 1;
 				}
 			}
 			else
 			{
-				l_termIndex = 0;
+				l_termIndex = a_term.size() - 1;
 			}
 
 			if(col == 0) break;
@@ -1011,29 +1031,59 @@ bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 	if(a_term.empty())
 		return false;
 
-	size_t l_startRow = m_findPosGlobalRow,
+	size_t l_startRow, l_startCol;
+
+	if(m_lastFindTerm != a_term)
+	{
+		l_startRow = 0;
+		l_startCol = 0;
+	}
+	else
+	{
+		l_startRow = m_findPosGlobalRow;
 		l_startCol = m_findPosGlobalCol;
+
+		if(!a_up)
+		{
+			l_startCol += a_term.size();
+		}
+		else if(l_startCol > 0)
+		{
+			// important for 1-char searches, but also recurring chars:
+			l_startCol--;
+		}
+	}
 
 	if((a_up && FindTermUp(a_term, l_startRow, l_startCol))
 		|| (!a_up && FindTermDown(a_term, l_startRow, l_startCol)))
 	{
-		// XXX
-
 		m_selStartRow = l_startRow;
 		m_selStartCol = l_startCol;
 		m_selEndRow = l_startRow;
-		m_selEndCol = l_startCol + a_term.size();
+		m_selEndCol = l_startCol + a_term.size() - 1;
+
+		m_findPosGlobalRow = m_selStartRow;
+		m_findPosGlobalCol = m_selStartCol;
+
+		m_lastFindTerm = a_term;
+
+		// ScrollIntoView also triggers a repaint, but only if the scroll pos has changed:
+		if(!ScrollIntoView(l_startRow, l_startCol))
+		{
+			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		}
 
 		return true;
 	}
 	else
 	{
 		m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
+		m_lastFindTerm = L"";
+
+		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+
+		return false;
 	}
-
-	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
-
-	return false;
 }
 
 

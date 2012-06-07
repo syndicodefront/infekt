@@ -28,6 +28,7 @@ protected:
 	HWND m_hwnd;
 	bool m_centerNfo;
 	bool m_copyOnSelect;
+	std::wstring m_lastFindTerm;
 	size_t m_findPosGlobalRow, m_findPosGlobalCol;
 
 	LPTSTR m_cursor;
@@ -40,9 +41,10 @@ protected:
 	const CNFOHyperLink* m_linkUnderMenu;
 
 	void UpdateScrollbars(bool a_resetPos);
-	void HandleScrollEvent(int a_dir, int a_event, int a_change);
+	bool HandleScrollEvent(int a_dir, int a_event, int a_change);
 	void GetScrollPositions(int& ar_x, int& ar_y);
 	void CalcFromMouseCoords(int a_x, int a_y, ssize_t& ar_row, ssize_t& ar_col);
+	bool ScrollIntoView(size_t a_row, size_t a_col);
 
 	void OnPaint();
 	void OnMouseMove(int a_x, int a_y);
