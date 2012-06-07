@@ -296,6 +296,10 @@ void CNFOViewControl::OnPaint()
 		l_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, m_width, m_height);
 	}
 
+	int l_destx = 0;
+	if(m_centerNfo && m_width > (int)GetWidth())
+		l_destx = (m_width - (int)GetWidth()) / 2;
+
 	// erase the background if necessary:
 	if(l_ps.fErase)
 	{
@@ -303,9 +307,16 @@ void CNFOViewControl::OnPaint()
 		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
 		if(HasNfoData())
 		{
-			cairo_rectangle(l_cr, 0, 0, m_padding, m_height);
-			cairo_rectangle(l_cr, m_width - m_padding, 0, m_padding, m_height);
-			cairo_rectangle(l_cr, 0, m_height - m_padding, m_width, m_padding); // not sure why, but there were artifacts
+			// white-out area surrounding NFO contents:
+			cairo_move_to(l_cr, 0, 0);
+			cairo_line_to(l_cr, l_destx, 0);
+			cairo_line_to(l_cr, l_destx, GetHeight());
+			cairo_line_to(l_cr, l_destx + GetWidth(), GetHeight());
+			cairo_line_to(l_cr, l_destx + GetWidth(), 0);
+			cairo_line_to(l_cr, m_width, 0);
+			cairo_line_to(l_cr, m_width, m_height);
+			cairo_line_to(l_cr, 0, m_height);
+			cairo_close_path(l_cr);
 			cairo_fill(l_cr);
 		}
 		else
@@ -314,10 +325,6 @@ void CNFOViewControl::OnPaint()
 		}
 		cairo_destroy(l_cr);
 	}
-
-	int l_destx = 0;
-	if(m_centerNfo && m_width > (int)GetWidth())
-		l_destx = (m_width - (int)GetWidth()) / 2;
 
 	// draw draw fight the power!
 	if(l_smart)
@@ -333,8 +340,7 @@ void CNFOViewControl::OnPaint()
 		DrawToSurface(l_surface, l_destx, 0,
 			l_x * (int)GetBlockWidth(),
 			l_y * (int)GetBlockHeight(),
-			m_width + m_padding,
-			m_height + m_padding);
+			m_width, m_height);
 	}
 
 	// draw highlighted (selected) text:
@@ -382,18 +388,6 @@ void CNFOViewControl::OnPaint()
 		}
 
 		cairo_destroy(cr);
-	}
-
-	// Kill possible artifacts (non-background-color pixels)
-	// from the screen buffer. Required e.g. when loading a narrow
-	// NFO after a wide one or when zooming out.
-	if(l_smart && l_ps.fErase && HasNfoData() && l_destx > 0)
-	{
-		cairo_t* l_cr = cairo_create(l_realSurface);
-		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
-		cairo_rectangle(l_cr, 0, 0, l_destx, m_height);
-		cairo_fill(l_cr);
-		cairo_destroy(l_cr);
 	}
 
 	cairo_surface_destroy(l_realSurface);
