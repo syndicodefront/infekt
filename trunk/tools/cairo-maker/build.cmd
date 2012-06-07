@@ -11,7 +11,7 @@ set X64=n
 set STATIC=n
 
 IF EXIST zlib.tgz GOTO AZOK
-curl http://zlib.net/zlib-1.2.6.tar.gz -o zlib.tgz
+curl http://zlib.net/zlib-1.2.7.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
@@ -19,15 +19,11 @@ curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.10.tar.gz -o libp
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.24.4.tar.gz -o pixman.tgz
+curl http://cgit.freedesktop.org/pixman/snapshot/pixman-0.26.0.tar.gz -o pixman.tgz
 :PZOK
 
-IF EXIST pixman-src.tgz GOTO PZOK
-curl http://cgit.freedesktop.org/pixman/snapshot/pixman-0.24.4.tar.gz -o pixman-src.tgz
-:PZOK
-
-IF EXIST cairo.tgz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.12.0.tar.gz -o cairo.tgz
+IF EXIST cairo.tar.xz GOTO CZOK
+curl http://www.cairographics.org/releases/cairo-1.12.2.tar.xz -o cairo.tar.xz
 :CZOK
 
 set ROOTDIR=%cd%\work
@@ -59,8 +55,9 @@ cd %ROOTDIR%
 tar xzf ../zlib.tgz
 tar xzf ../libpng.tgz
 tar xzf ../pixman.tgz
-tar -kxzf ../pixman-src.tgz
-tar xzf ../cairo.tgz
+REM oh god why :(
+xz -dkf ../cairo.tar.xz
+tar xf ../cairo.tar
 
 move zlib-* zlib
 move libpng-* libpng
@@ -151,20 +148,19 @@ REM Build Pixman
 IF %X64%==n GOTO PIXMANNOX64
 set MMX=off
 rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit mode
-goto PIXMANX64
 :PIXMANNOX64
-sed "s/ __inline__ / __inline /" pixman\pixman-mmx.c > mmxtmp
-move /Y mmxtmp pixman\pixman-mmx.c
-:PIXMANX64
 
-sed "s/= -MD/= -MT/" Makefile.win32.common > Makefile.fixed
-move /Y Makefile.fixed Makefile.win32.common
+IF EXIST pixman\pixman-version.h GOTO PIXMANVERSIONHOK
+sed "s/@PIXMAN_VERSION_MAJOR@/0/" pixman\pixman-version.h.in > v1
+sed "s/@PIXMAN_VERSION_MINOR@/26/" v1 > v2
+sed "s/@PIXMAN_VERSION_MICRO@/0/" v2 > pixman\pixman-version.h
+:PIXMANVERSIONHOK
 
 IF %CONFIG%==debug GOTO PIXMANDEBUG
-make -f Makefile.win32 "CFG=release"
+make -f Makefile.win32 pixman_r "CFG=release"
 GOTO PIXMANDONE
 :PIXMANDEBUG
-make -f Makefile.win32 "CFG=debug"
+make -f Makefile.win32 pixman_r "CFG=debug"
 :PIXMANDONE
 
 REM FINAL BUILD STAGE
@@ -207,15 +203,20 @@ make -f Makefile.win32 "CFG=debug"
 
 cd %ROOTDIR%\..
 
+set OUTDIR=out-%CONFIG%-%PLATFORM%
+IF %STATIC%==n GOTO OUTDIRSTATICOK
+set OUTDIR=%OUTDIR%-static
+:OUTDIRSTATICOK
+
 REM Copy results
-IF EXIST out-%CONFIG%-%PLATFORM% GOTO BLAH
-mkdir out-%CONFIG%-%PLATFORM%
+IF EXIST %OUTDIR% GOTO BLAH
+mkdir %OUTDIR%
 :BLAH
 IF EXIST include GOTO BLAH2
 mkdir include
 :BLAH2
 
-del /Q out-%CONFIG%-%PLATFORM%\*
+del /Q %OUTDIR%\*
 del /Q include\*
 
 copy %ROOTDIR%\cairo\cairo-version.h include
@@ -229,19 +230,25 @@ copy %ROOTDIR%\libpng\png.h include
 copy %ROOTDIR%\libpng\pngconf.h include
 copy %ROOTDIR%\libpng\pnglibconf.h include
 
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.lib out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.lib out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.lib %OUTDIR%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.lib %OUTDIR%
 
-copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.dll out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.lib out-%CONFIG%-%PLATFORM%
+IF %STATIC%==y GOTO SKIPCOPYDLLS
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.dll %OUTDIR%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.dll %OUTDIR%
+copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.dll %OUTDIR%
+copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.lib %OUTDIR%
+:SKIPCOPYDLLS
+
+IF %STATIC%==n GOTO SKIPSTATIC
+copy %ROOTDIR%\cairo\src\%CONFIG%\cairo-static.lib %OUTDIR%
+:SKIPSTATIC
 
 IF %CONFIG%==release GOTO FINALCOPYDONE
 rem copy PDB files
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.pdb out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.pdb out-%CONFIG%-%PLATFORM%
-copy %ROOTDIR%\cairo\src\debug\cairo.pdb out-%CONFIG%-%PLATFORM%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.pdb %OUTDIR%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.pdb %OUTDIR%
+copy %ROOTDIR%\cairo\src\debug\cairo.pdb %OUTDIR%
 :FINALCOPYDONE
 
 goto END
