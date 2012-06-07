@@ -1089,8 +1089,8 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 	// get the rest of the link:
 	const string sLineRemainder = sLine.substr(uBytePos);
 
-	pcre* reUrlRemainder = pcre_compile("^[a-zA-Z0-9,/._!#:%;?&=~+-]{9,}",
-		PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+	pcre* reUrlRemainder = pcre_compile("^[\\w,/.!#:%;?&=~+-]{9,}",
+		PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_UCP, &szErrDescr, &iErrOffset, NULL);
 
 	if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
 	{

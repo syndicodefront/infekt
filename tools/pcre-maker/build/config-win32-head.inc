@@ -3,3 +3,4 @@
 #define HAVE__STRTOI64 1
 #define NEWLINE 3338
 #define SUPPORT_UTF8 1
+#define SUPPORT_UCP 1
