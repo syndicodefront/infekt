@@ -225,11 +225,15 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 
 	cairo_t *cr = cairo_create(a_surface);
 
+	// fix for sloppy width + height calculations...
+	int l_widthFixed = std::min(a_width, (int)GetWidth() - source_x);
+	int l_heightFixed = std::min(a_height, (int)GetHeight() - source_y);
+
 	if(m_numStripes == 1)
 	{
 		cairo_set_source_surface(cr, *m_stripes[0], dest_x - source_x, dest_y - source_y);
 
-		cairo_rectangle(cr, dest_x, dest_y, a_width, a_height);
+		cairo_rectangle(cr, dest_x, dest_y, l_widthFixed, l_heightFixed);
 
 		cairo_fill(cr);
 	}
@@ -265,12 +269,25 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 			cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
 				static_cast<int>(dest_y - l_stripe_source_y));
 
-			int l_height = (l_stripe == l_stripeEnd ? a_height : GetStripeHeight(l_stripe));
+			int l_height = (l_stripe == l_stripeEnd ? l_heightFixed : GetStripeHeight(l_stripe));
 
-			cairo_rectangle(cr, dest_x, dest_y, a_width, l_height);
+			cairo_rectangle(cr, dest_x, dest_y, l_widthFixed, l_height);
 
 			cairo_fill(cr);
 		}
+	}
+
+	if(l_heightFixed < a_height)
+	{
+		cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(GetBackColor()));
+		cairo_rectangle(cr, dest_x, dest_y + l_heightFixed, a_width, a_height - l_heightFixed);
+		cairo_fill(cr);
+	}
+	if(l_widthFixed < a_width)
+	{
+		cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(GetBackColor()));
+		cairo_rectangle(cr, dest_x + l_widthFixed, dest_y, a_width - l_widthFixed, a_height);
+		cairo_fill(cr);
 	}
 
 	cairo_destroy(cr);
