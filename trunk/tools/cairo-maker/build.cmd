@@ -156,6 +156,11 @@ sed "s/@PIXMAN_VERSION_MINOR@/26/" v1 > v2
 sed "s/@PIXMAN_VERSION_MICRO@/0/" v2 > pixman\pixman-version.h
 :PIXMANVERSIONHOK
 
+IF %STATIC%==n GOTO PIXMANSKIPSTATICFIX
+sed "s/= -MD/= -MT/" Makefile.win32.common > Makefile.fixed
+move /Y Makefile.fixed Makefile.win32.common
+:PIXMANSKIPSTATICFIX
+
 IF %CONFIG%==debug GOTO PIXMANDEBUG
 make -f Makefile.win32 pixman_r "CFG=release"
 GOTO PIXMANDONE
@@ -178,12 +183,12 @@ move /Y build\Makefile.fixed build\Makefile.win32.common
 sed s/zlib\/zdll\.lib/libpng\/zlib.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
-IF %STATIC%==n GOTO SKIPSTATICFIX
+IF %STATIC%==n GOTO CAIROSKIPSTATICFIX
 sed "s/CFG_CFLAGS := -MD/CFG_CFLAGS := -MT/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 sed "s/user32\.lib/user32.lib \/NODEFAULTLIB:msvcrt.lib/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
-:SKIPSTATICFIX
+:CAIROSKIPSTATICFIX
 
 sed "s/D_CRT_NONSTDC_NO_DEPRECATE/D_CRT_NONSTDC_NO_DEPRECATE -DZLIB_DLL/" build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
