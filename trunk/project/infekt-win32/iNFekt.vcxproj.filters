@@ -190,6 +190,9 @@
     <None Include="icons\1uparrow.png">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="icons\messagebox_warning.png">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">

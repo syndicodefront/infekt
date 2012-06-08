@@ -107,6 +107,7 @@ protected:
 	bool m_menuBarVisible;
 	CToolbar* m_searchToolbar;
 	HWND m_hSearchEditBox;
+	std::wstring m_lastSearchTerm;
 	bool m_showingAbout;
 	PMainSettings m_settings;
 	CMainDropTargetHelper *m_dropHelper;

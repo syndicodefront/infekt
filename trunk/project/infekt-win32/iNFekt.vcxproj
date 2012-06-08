@@ -508,6 +508,7 @@
     <None Include="icons\fileclose.png" />
     <None Include="icons\find.png" />
     <None Include="icons\folder_txt.png" />
+    <None Include="icons\messagebox_warning.png" />
     <None Include="iNFEKT_icon_by_railgun.ico" />
     <None Include="icons\info.png" />
     <None Include="icons\kllckety_doc.png" />

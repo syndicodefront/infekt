@@ -200,6 +200,7 @@ IDB_PNG_FIND16          PNG                     "icons\\find.png"
 IDB_PNG_CLOSE16         PNG                     "icons\\fileclose.png"
 IDB_PNG_DOWN16          PNG                     "icons\\1downarrow.png"
 IDB_PNG_UP16            PNG                     "icons\\1uparrow.png"
+IDB_PNG_WARNING16       PNG                     "icons\\messagebox_warning.png"
 
 /////////////////////////////////////////////////////////////////////////////
 //
