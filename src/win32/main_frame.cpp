@@ -39,6 +39,7 @@ enum _toolbar_button_ids {
 	TBBID_SEARCH_UP,
 	TBBID_SEARCH_DOWN,
 	TBBID_SEARCH_CLOSE,
+	TBBID_SEARCH_NOTFOUND,
 	// MRU + x:
 	TBBID_OPENMRUSTART // must be the last item in this list.
 };
@@ -322,6 +323,7 @@ void CMainFrame::CreateSearchToolbar()
 	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_DOWN16, 16, 16);
 	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_UP16, 16, 16);
 	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_CLOSE16, 16, 16);
+	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_WARNING16, 16, 16);
 
 	// add ImageList to rebar (not limited to this band, but currently only used by it):
 	REBARINFO l_rbi;
@@ -341,7 +343,8 @@ void CMainFrame::CreateSearchToolbar()
 		{ EDITCTRL_WIDTH, 0, TBSTATE_ENABLED, BTNS_SEP, { 0 }, 0, -1 }, // space for edit control
 		{ MAKELONG(1, IML), TBBID_SEARCH_DOWN, TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX, { 0 }, 0, (INT_PTR)L"Next" },
 		{ MAKELONG(2, IML), TBBID_SEARCH_UP, TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX, { 0 }, 0, (INT_PTR)L"Previous" },
-		{ MAKELONG(3, IML), TBBID_SEARCH_CLOSE, TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_NOPREFIX, { 0 }, 0, 0 }
+		{ MAKELONG(3, IML), TBBID_SEARCH_CLOSE, TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_NOPREFIX, { 0 }, 0, 0 },
+		{ MAKELONG(4, IML), TBBID_SEARCH_NOTFOUND, TBSTATE_HIDDEN | TBSTATE_ENABLED, BTNS_BUTTON | BTNS_AUTOSIZE | BTNS_SHOWTEXT | BTNS_NOPREFIX, { 0 }, 0, (INT_PTR)L"Phrase not found" },
 	};
 
 	m_searchToolbar->SendMessage(TB_ADDBUTTONS, sizeof(l_btns) / sizeof(l_btns[0]), (LPARAM)&l_btns);
@@ -415,14 +418,18 @@ void CMainFrame::DoFindText(bool a_up, bool a_force)
 
 	::GetWindowText(m_hSearchEditBox, l_text, 99);
 
-	static std::wstring sl_previousText;
+	bool l_showNotFound;
 
-	if(a_force || wcsicmp(l_text, sl_previousText.c_str()) != 0)
+	if(a_force || wcsicmp(l_text, m_lastSearchTerm.c_str()) != 0)
 	{
-		sl_previousText = l_text;
+		m_lastSearchTerm = l_text;
 
-		m_view.GetActiveCtrl()->FindAndSelectTerm(sl_previousText, a_up);
+		l_showNotFound = !m_view.GetActiveCtrl()->FindAndSelectTerm(m_lastSearchTerm, a_up);
 	}
+
+	if(!*l_text) l_showNotFound = false;
+
+	m_searchToolbar->SendMessage(TB_HIDEBUTTON, TBBID_SEARCH_NOTFOUND, MAKELONG(l_showNotFound ? FALSE : TRUE, 0));
 }
 
 
@@ -828,6 +835,8 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 		m_nfoPreloadData.reset();
 		m_nfoInFolderIndex = (size_t)-1;
 		m_nfoPathsInFolder.clear();
+
+		m_lastSearchTerm = L"";
 
 		// yay.
 		return true;
@@ -1409,6 +1418,8 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 		}
 
 		UpdateCaption();
+
+		m_lastSearchTerm = L"";
 
 		::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 	}

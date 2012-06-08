@@ -26,6 +26,8 @@
 #define IDB_PNG_CLOSE16                 128
 #define IDB_PNG_DOWN16                  129
 #define IDB_PNG_UP16                    130
+#define IDB_PNG2                        133
+#define IDB_PNG_WARNING16               133
 #define IDC_SETTINGS_TAB                1004
 #define IDC_CHECK1                      1006
 #define IDC_CHECK_DEFAULT_VIEWER        1006
@@ -158,7 +160,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        133
+#define _APS_NEXT_RESOURCE_VALUE        134
 #define _APS_NEXT_COMMAND_VALUE         40104
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
