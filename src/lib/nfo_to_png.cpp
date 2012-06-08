@@ -27,6 +27,8 @@ CNFOToPNG::CNFOToPNG(bool a_classicMode)
 
 bool CNFOToPNG::SavePNG(const std::wstring& a_filePath)
 {
+	SetAllowHwAccel(GetBackColor().A == 255);
+
 	if(!Render())
 	{
 		return false;
