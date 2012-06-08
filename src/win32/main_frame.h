@@ -135,6 +135,7 @@ protected:
 	virtual inline void SetStatusText() {}
 	virtual void OnClose();
 	virtual void ShowStatusbar(BOOL bShow);
+	virtual void ShowToolbar(BOOL bShow);
 	// Win32++ stuff end //
 
 	void AddToolbarButtons();

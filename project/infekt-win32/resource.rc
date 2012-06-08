@@ -154,6 +154,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Always on Top\tCtrl+T",       IDM_ALWAYSONTOP
         MENUITEM "Show Status bar",             IDM_SHOWSTATUSBAR
+        MENUITEM "Show Toolbar",                IDM_VIEW_SHOWTOOLBAR
     END
     POPUP "&Tools"
     BEGIN
@@ -180,6 +181,7 @@ BEGIN
         MENUITEM "Copy Shortcut",               IDMC_COPYSHORTCUT
         MENUITEM SEPARATOR
         MENUITEM "Always on Top\tCtrl+T",       IDMC_ALWAYSONTOP
+        MENUITEM "Toggle Toolbar\tCtrl+G",      IMDC_TOGGLE_TOOLBAR
     END
 END
 
@@ -334,6 +336,7 @@ BEGIN
     "P",            IDM_EXPORT_PNG,         VIRTKEY, CONTROL, NOINVERT
     "S",            IDM_EXPORT_UTF8,        VIRTKEY, CONTROL, NOINVERT
     "O",            IDM_FILE_OPEN,          VIRTKEY, CONTROL, NOINVERT
+    "F",            IDM_FINDTEXT,           VIRTKEY, CONTROL, NOINVERT
     VK_F12,         IDM_HIDDENGIMMICK,      VIRTKEY, NOINVERT
     VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
     "K",            IDM_TOOLS_NEXTNFO,      VIRTKEY, NOINVERT
@@ -351,7 +354,7 @@ BEGIN
     VK_NUMPAD0,     IDM_ZOOM_RESET,         VIRTKEY, CONTROL, NOINVERT
     "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
     "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
-    "F",            IDM_FINDTEXT,           VIRTKEY, CONTROL, NOINVERT
+    "G",            IMDC_TOGGLE_TOOLBAR,    VIRTKEY, CONTROL, NOINVERT
 END
 
 
