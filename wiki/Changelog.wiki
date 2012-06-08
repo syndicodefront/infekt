@@ -8,6 +8,7 @@
 == v0.8.5 (2012) ==
   * New feature: Browse all NFO files in a folder using the J and K keys
   * New feature: Ctrl + F to search
+  * New feature: Toolbar can be hidden if desired (Ctrl + G or right-click menu, use Alt to get menu bar)
   * Fixed issue 69: non-latin characters in hyperlinks are now supported
   * Window auto-width option now defaults to On
   * NViDiA CUDA H/W acceleration (for Glow Effect) is now even faster
@@ -17,7 +18,7 @@
   * Added hidden context menu (right click charset pane in status bar) where users can force a charset to be used instead of having it auto-detected.
   * New options "Enable NVIDIA CUDA" (hardware acceleration) and "On-demand rendering" (reduces initial time required to load an NFO but may freeze for short periods of time when scrolling down). Both default to On.
   * Rendering files without any block art is now faster
-  * Updated PCRE to 8.30, Cairo to 1.12.2, libpng to 1.5.10, zlib to 1.2.7
+  * Updated PCRE to 8.30 with UCP, Cairo to 1.12.2, libpng to 1.5.10, zlib to 1.2.7
   * Some internal changes + improvements
   * New download: PortableApps.com edition
 
