@@ -139,7 +139,7 @@ protected:
 	void AddToolbarButtons();
 	void CreateSearchToolbar();
 	void ShowSearchToolbar(bool a_show = true);
-	void DoFindText(bool a_up);
+	void DoFindText(bool a_up, bool a_force = true);
 	void UpdateCaption();
 	void OpenChooseFileName();
 	void DoNfoExport(UINT a_id);

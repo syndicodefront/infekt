@@ -382,6 +382,9 @@ void CMainFrame::CreateSearchToolbar()
 
 void CMainFrame::ShowSearchToolbar(bool a_show)
 {
+	// don't show the toolbar if no NFO is loaded:
+	a_show = a_show && m_view.GetActiveCtrl()->HasNfoData();
+
 	if(m_searchToolbar)
 	{
 		GetRebar().ShowBand(GetRebar().IDToIndex(IDW_SEARCHTOOLBAR), a_show ? 1 : 0);
@@ -403,7 +406,7 @@ void CMainFrame::ShowSearchToolbar(bool a_show)
 }
 
 
-void CMainFrame::DoFindText(bool a_up)
+void CMainFrame::DoFindText(bool a_up, bool a_force)
 {
 	if(!m_hSearchEditBox)
 		return;
@@ -412,7 +415,14 @@ void CMainFrame::DoFindText(bool a_up)
 
 	::GetWindowText(m_hSearchEditBox, l_text, 99);
 
-	m_view.GetActiveCtrl()->FindAndSelectTerm(l_text, a_up);
+	static std::wstring sl_previousText;
+
+	if(a_force || wcsicmp(l_text, sl_previousText.c_str()) != 0)
+	{
+		sl_previousText = l_text;
+
+		m_view.GetActiveCtrl()->FindAndSelectTerm(sl_previousText, a_up);
+	}
 }
 
 
@@ -450,6 +460,14 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		}
 
 		return TRUE;
+	}
+
+	if(m_hSearchEditBox && (HWND)lParam == m_hSearchEditBox)
+	{
+		if(HIWORD(wParam) == EN_CHANGE)
+		{
+			DoFindText(false, false);
+		}
 	}
 
 	switch(l_item)
@@ -1014,6 +1032,19 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 			{
 				PostMessage(WM_CLOSE);
 			}
+			return TRUE;
+		}
+
+		if(m_hSearchEditBox && ::GetFocus() == m_hSearchEditBox)
+		{
+			if(pMsg->wParam == VK_RETURN)
+			{
+				DoFindText(false);
+
+				return TRUE;
+			}
+
+			return FALSE;
 		}
 		// fall through
 	case WM_MOUSEWHEEL:
