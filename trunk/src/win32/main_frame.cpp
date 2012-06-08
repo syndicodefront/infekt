@@ -549,6 +549,11 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		UpdateAlwaysOnTop();
 		return TRUE;
 
+	case IDM_VIEW_SHOWTOOLBAR:
+	case IMDC_TOGGLE_TOOLBAR:
+		ShowToolbar(m_bShowToolbar = !m_bShowToolbar);
+		return TRUE;
+
 	case IDM_VIEW_RELOAD:
 		m_view.ReloadFile();
 		return TRUE;
@@ -631,6 +636,15 @@ void CMainFrame::ShowStatusbar(BOOL bShow)
 	Invalidate();
 
 	UpdateStatusbar();
+}
+
+
+void CMainFrame::ShowToolbar(BOOL bShow)
+{
+	::CheckMenuItem(::GetSubMenu(GetMenubar().GetMenu(), VIEW_MENU_POS), IDM_VIEW_SHOWTOOLBAR,
+		(m_bShowToolbar ? MF_CHECKED : MF_UNCHECKED) | MF_BYCOMMAND);
+
+	GetRebar().SendMessage(RB_SHOWBAND, GetRebar().GetBand(GetToolbar()), bShow);
 }
 
 
