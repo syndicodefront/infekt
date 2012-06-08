@@ -66,6 +66,7 @@ public:
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
+	void ClearSelection(bool a_redraw);
 	void Show(bool a_show = true);
 	bool ControlCreated() const { return (m_hwnd != 0); }
 	void SetCenterNfo(bool nb);

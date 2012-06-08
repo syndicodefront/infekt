@@ -38,7 +38,7 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 	m_contextMenuCommandTarget = NULL;
 	m_linkUnderMenu = NULL;
 
-	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
+	ClearSelection(false);
 	m_leftMouseDown = m_movedDownMouse = false;
 }
 
@@ -417,7 +417,7 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 	m_linkUnderMenu = NULL;
 
-	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
+	ClearSelection(false);
 
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
@@ -532,10 +532,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 	{
 		if(m_selStartRow != (size_t)-1)
 		{
-			// clear previous selection
-			m_selStartRow = m_selEndRow = (size_t)-1;
-			m_selStartCol = m_selEndCol = (size_t)-1;
-			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			ClearSelection(true);
 		}
 
 		m_leftMouseDown = true;
@@ -568,8 +565,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 			if(l_reset)
 			{
-				m_selStartRow = m_selEndRow = (size_t)-1;
-				m_selStartCol = m_selEndCol = (size_t)-1;
+				ClearSelection(false);
 			}
 
 			m_leftMouseDown = false;
@@ -1028,8 +1024,15 @@ bool CNFOViewControl::FindTermUp(const std::wstring& a_term, size_t& a_startRow,
 
 bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 {
-	if(a_term.empty())
+	if(!HasNfoData())
 		return false;
+
+	if(a_term.empty())
+	{
+		m_lastFindTerm = L"";
+		ClearSelection(true);
+		return false;
+	}
 
 	size_t l_startRow, l_startCol;
 
@@ -1077,12 +1080,21 @@ bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 	}
 	else
 	{
-		m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
 		m_lastFindTerm = L"";
-
-		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		ClearSelection(true);
 
 		return false;
+	}
+}
+
+
+void CNFOViewControl::ClearSelection(bool a_redraw)
+{
+	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
+
+	if(a_redraw)
+	{
+		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 	}
 }
 
