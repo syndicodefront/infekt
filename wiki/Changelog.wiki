@@ -5,7 +5,7 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
-== v0.8.5 (2012) ==
+== v0.8.5 (June 9 2012) ==
   * New feature: Browse all NFO files in a folder using the J and K keys
   * New feature: Ctrl + F to search
   * New feature: Toolbar can be hidden if desired (Ctrl + G or right-click menu, use Alt to get menu bar)
