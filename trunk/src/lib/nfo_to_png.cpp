@@ -80,7 +80,11 @@ bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
 		if(fp)
 		{
 			fclose(fp);
+#ifdef _UNICODE // also assume Win32...
 			::DeleteFile(a_filePath.c_str());
+#else
+			unlink(a_filePath.c_str());
+#endif
 		}
 
 		if(row_ptr)
@@ -166,8 +170,12 @@ bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
 		else
 		{
 			fclose(fp);
-
+			
+#ifdef _UNICODE // also assume Win32...
 			::DeleteFile(a_filePath.c_str());
+#else
+			unlink(a_filePath.c_str());
+#endif
 		}
 
 		if(row_ptr)
