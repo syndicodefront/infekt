@@ -206,8 +206,6 @@ private:
 	CCudaUtil();
 };
 
-#endif /* _WIN32 */
-
 class CBenchmarkTimer
 {
 public:
@@ -222,6 +220,8 @@ protected:
 	LARGE_INTEGER m_stop;
 	double m_frequency;
 };
+
+#endif /* _WIN32 */
 
 #ifdef CAIRO_H
 
