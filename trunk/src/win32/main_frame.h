@@ -58,7 +58,7 @@ public:
 	bool bOnDemandRendering;
 };
 
-typedef std::shared_ptr<CMainSettings> PMainSettings;
+typedef shared_ptr<CMainSettings> PMainSettings;
 
 
 class CMainDropTargetHelper : public IDropTarget

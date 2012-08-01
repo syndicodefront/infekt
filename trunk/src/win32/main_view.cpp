@@ -44,7 +44,7 @@ void CViewContainer::OnCreate()
 	// this context menu will be used for all three view controls.
 	m_contextMenuHandle = ::LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXT_MENU));
 
-	m_infoBar = std::shared_ptr<CInfektInfoBar>(new CInfektInfoBar(g_hInstance, GetHwnd()));
+	m_infoBar = shared_ptr<CInfektInfoBar>(new CInfektInfoBar(g_hInstance, GetHwnd()));
 	m_infoBar->CreateControl(0, 0, 100, m_infoBarHeight);
 	if(!m_showInfoBar) ::ShowWindow(m_infoBar->GetHwnd(), SW_HIDE);
 }

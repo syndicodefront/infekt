@@ -38,7 +38,7 @@ protected:
 	std::wstring m_name;
 };
 
-typedef std::shared_ptr<CSettingsSection> PSettingsSection;
+typedef shared_ptr<CSettingsSection> PSettingsSection;
 
 
 class CSettingsBackend
@@ -55,7 +55,7 @@ protected:
 	std::wstring m_appIdf;
 };
 
-typedef std::shared_ptr<CSettingsBackend> PSettingsBackend;
+typedef shared_ptr<CSettingsBackend> PSettingsBackend;
 
 
 /************************************************************************/

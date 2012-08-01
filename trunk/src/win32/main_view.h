@@ -85,7 +85,7 @@ protected:
 	std::wstring m_nfoFilePath;
 
 	bool m_showInfoBar;
-	std::shared_ptr<CInfektInfoBar> m_infoBar;
+	shared_ptr<CInfektInfoBar> m_infoBar;
 	int m_infoBarHeight;
 	bool m_infoBarResizing;
 

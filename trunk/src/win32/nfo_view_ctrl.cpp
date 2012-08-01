@@ -307,12 +307,15 @@ void CNFOViewControl::OnPaint()
 		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
 		if(HasNfoData())
 		{
+			double dh = static_cast<double>(GetHeight()),
+				dw = static_cast<double>(GetWidth());
+
 			// white-out area surrounding NFO contents:
 			cairo_move_to(l_cr, 0, 0);
 			cairo_line_to(l_cr, l_destx, 0);
-			cairo_line_to(l_cr, l_destx, GetHeight());
-			cairo_line_to(l_cr, l_destx + GetWidth(), GetHeight());
-			cairo_line_to(l_cr, l_destx + GetWidth(), 0);
+			cairo_line_to(l_cr, l_destx, dh);
+			cairo_line_to(l_cr, l_destx + dw, dh);
+			cairo_line_to(l_cr, l_destx + dw, 0);
 			cairo_line_to(l_cr, m_width, 0);
 			cairo_line_to(l_cr, m_width, m_height);
 			cairo_line_to(l_cr, 0, m_height);
