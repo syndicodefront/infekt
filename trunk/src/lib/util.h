@@ -255,7 +255,9 @@ protected:
 	cairo_surface_t *m_surface;
 };
 
+#ifndef DONT_USE_SHARED_PTR
 typedef shared_ptr<_CCairoSurface> PCairoSurface;
+#endif
 
 #endif /* CAIRO_H */
 

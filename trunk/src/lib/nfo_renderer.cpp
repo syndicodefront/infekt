@@ -93,6 +93,7 @@ void CNFORenderer::UnAssignNFO()
 #ifndef DONT_USE_SHARED_PTR
 	m_nfo.reset();
 #else
+	// we don't own m_nfo
 	m_nfo = NULL;
 #endif
 
@@ -101,7 +102,7 @@ void CNFORenderer::UnAssignNFO()
 	delete m_gridData;
 	m_gridData = NULL;
 
-	m_stripes.clear();
+	ClearStripes();
 }
 
 
@@ -352,7 +353,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 			PreRenderText();
 		}
 
-		m_stripes.clear();
+		ClearStripes();
 
 		// recalculate stripe dimensions:
 
@@ -1249,7 +1250,7 @@ void CNFORenderer::SetZoom(unsigned int a_percent)
 {
 	m_zoomFactor = a_percent / 100.0f;
 
-	m_stripes.clear();
+	ClearStripes();
 
 	m_fontSize = -1;
 	m_rendered = false;
@@ -1358,8 +1359,22 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 
 	if(!m_rendered) // stuff has changed
 	{
-		m_stripes.clear();
+		ClearStripes();
 	}
+}
+
+
+void CNFORenderer::ClearStripes()
+{
+#ifndef DONT_USE_SHARED_PTR
+	m_stripes.clear();
+#else
+	while(m_stripes.size() > 0)
+	{
+		delete m_stripes[m_stripes.size() - 1];
+		m_stripes.erase(m_stripes.size() - 1);
+	}
+#endif
 }
 
 
