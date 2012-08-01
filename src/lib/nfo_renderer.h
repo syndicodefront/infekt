@@ -178,6 +178,8 @@ protected:
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
 	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);
 
+	void ClearStripes();
+
 	static const size_t ms_defaultClassicFontSize = 12;
 	static const size_t ms_stripeHeightMax = 2000; // in pixels
 	static bool ms_allowHwAccel;
