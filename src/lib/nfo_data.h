@@ -150,14 +150,14 @@ protected:
 		pcre *m_re;
 		bool m_cont;
 	};
-	typedef std::shared_ptr<CLinkRegEx> PLinkRegEx;
+	typedef shared_ptr<CLinkRegEx> PLinkRegEx;
 
 	static std::vector<PLinkRegEx> ms_linkTriggers;
 	static void PopulateLinkTriggers();
 };
 
 #ifndef DONT_USE_SHARED_PTR
-typedef std::shared_ptr<CNFOData> PNFOData;
+typedef shared_ptr<CNFOData> PNFOData;
 #else
 typedef CNFOData* PNFOData;
 #endif

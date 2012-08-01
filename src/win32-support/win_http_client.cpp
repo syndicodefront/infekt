@@ -223,7 +223,7 @@ private:
 /* CWinHttpRequest implementation                                       */
 /************************************************************************/
 
-CWinHttpRequest::CWinHttpRequest(int a_reqId, std::shared_ptr<CWinHttpClient>& a_owner)
+CWinHttpRequest::CWinHttpRequest(int a_reqId, shared_ptr<CWinHttpClient>& a_owner)
 	: m_reqId(a_reqId), m_owner(a_owner), m_doingStuff(0),
 	m_bypassCache(false), m_maxBuffer(1024 * 1024),
 	m_downloadSucceeded(false), m_cancel(false),

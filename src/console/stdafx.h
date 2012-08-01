@@ -54,4 +54,10 @@
 /* local headers */
 #include "infekt.h"
 
+#if defined(_MSC_VER) && _MSC_VER >= 1600
+using std::shared_ptr;
+#else if defined(HAVE_BOOST)
+using boost::shared_ptr;
+#endif
+
 #endif /* !_STDAFX_H */

@@ -80,6 +80,12 @@ typedef signed __int64 ssize_t;
 typedef signed int ssize_t;
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER >= 1600
+using std::shared_ptr;
+#else if defined(HAVE_BOOST)
+using boost::shared_ptr;
+#endif
+
 // disable "switch statement contains 'default' but no 'case' labels"
 #pragma warning(disable : 4065)
 

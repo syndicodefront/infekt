@@ -37,7 +37,7 @@ protected:
 	static int CALLBACK FontSizesProc(const LOGFONT*, const TEXTMETRIC*, DWORD, LPARAM);
 };
 
-typedef std::shared_ptr<CFontListEntry> PFontListEntry;
+typedef shared_ptr<CFontListEntry> PFontListEntry;
 
 
 class CSettingsTabDialog;
