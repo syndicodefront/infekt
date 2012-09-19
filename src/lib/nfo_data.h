@@ -91,7 +91,7 @@ public:
 
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
 	ENfoCharset GetCharset() const { return m_sourceCharset; }
-	static const std::_tstring GetCharsetName(ENfoCharset a_charset);
+	static const std::wstring GetCharsetName(ENfoCharset a_charset);
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
 protected:
@@ -150,7 +150,11 @@ protected:
 		pcre *m_re;
 		bool m_cont;
 	};
+#ifndef DONT_USE_SHARED_PTR
 	typedef shared_ptr<CLinkRegEx> PLinkRegEx;
+#else
+	typedef CLinkRegEx* PLinkRegEx;
+#endif
 
 	static std::vector<PLinkRegEx> ms_linkTriggers;
 	static void PopulateLinkTriggers();

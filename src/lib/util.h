@@ -257,6 +257,8 @@ protected:
 
 #ifndef DONT_USE_SHARED_PTR
 typedef shared_ptr<_CCairoSurface> PCairoSurface;
+#else
+typedef _CCairoSurface* PCairoSurface;
 #endif
 
 #endif /* CAIRO_H */

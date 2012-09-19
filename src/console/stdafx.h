@@ -24,8 +24,7 @@
 #include <io.h>
 #include <conio.h>
 #define _tstring wstring
-#else
-#include "infekt-posix.h"
+// going to get rid of tchar.h some day.
 #endif
 
 /* standard / system headers */
@@ -39,8 +38,20 @@
 #include <deque>
 #include <math.h>
 #include <memory>
+
+#if !defined(DONT_USE_SHARED_PTR) && !defined(HAVE_BOOST) && !(defined(_MSC_VER) && _MSC_VER >= 1600)
+#error No shared_ptr available...
+#endif
+
 #ifdef HAVE_BOOST
 #include <boost/format.hpp>
+#include <boost/shared_ptr.hpp>
+#endif
+
+#if defined(_MSC_VER) && _MSC_VER >= 1600
+using std::shared_ptr;
+#elif defined(HAVE_BOOST)
+using boost::shared_ptr;
 #endif
 
 /* cairo and other lib headers */
@@ -54,10 +65,8 @@
 /* local headers */
 #include "infekt.h"
 
-#if defined(_MSC_VER) && _MSC_VER >= 1600
-using std::shared_ptr;
-#elif defined(HAVE_BOOST)
-using boost::shared_ptr;
+#ifndef _WIN32
+#include "infekt-posix.h"
 #endif
 
 #endif /* !_STDAFX_H */

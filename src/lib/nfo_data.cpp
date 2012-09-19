@@ -1031,6 +1031,9 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 #undef TRGR
 }
 std::vector<CNFOData::PLinkRegEx> CNFOData::ms_linkTriggers;
+// note: if DONT_USE_SHARED_PTR is defined, PLinkRegEx is a regular pointer
+// this will trigger memleak checks, but since this is a static list, it's
+// not really an issue.
 
 
 #define OVECTOR_SIZE 30 // multiple of 3!
