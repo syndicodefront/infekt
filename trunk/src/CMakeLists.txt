@@ -19,5 +19,8 @@ endif (NOT PCRE_LIBRARY)
 
 set (LIBS ${LIBS} pcre)
 
+# we don't use boost on Linux yet:
+add_definitions ( -DDONT_USE_SHARED_PTR )
+
 add_subdirectory (console)
 add_subdirectory (gtk)

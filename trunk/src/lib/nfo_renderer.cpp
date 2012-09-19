@@ -419,7 +419,11 @@ cairo_surface_t *CNFORenderer::GetStripeSurface(size_t a_stripe) const
 	{
 		// the actual surface is not really const, but that's safe because
 		// we are parallelizing per stripe, so one surface can never be used by more than one thread.
+#ifndef DONT_USE_SHARED_PTR
 		return *it->second.get();
+#else
+		return *it->second;
+#endif
 	}
 
 	return NULL;
