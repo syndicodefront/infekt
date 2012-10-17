@@ -4,6 +4,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (INFEKT)
 
+option (OPTION_GTK "Building iNFEKT-GTK")
+
 set (CMAKE_BUILD_TYPE "Release")
 
 add_subdirectory (src)

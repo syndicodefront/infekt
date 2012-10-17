@@ -23,4 +23,6 @@ set (LIBS ${LIBS} pcre)
 add_definitions ( -DDONT_USE_SHARED_PTR )
 
 add_subdirectory (console)
-add_subdirectory (gtk)
+if (OPTION_GTK)
+	add_subdirectory (gtk)
+endif (OPTION_GTK)
