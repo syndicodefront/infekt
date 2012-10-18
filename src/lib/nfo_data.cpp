@@ -1074,7 +1074,10 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 				int idx = (iCaptures == 1 ? 1 : 0) * 2;
 				_ASSERT(ovector[idx] >= 0 && ovector[idx + 1] > 0);
 
-				if((size_t)ovector[idx] < uBytePos)
+				if((size_t)ovector[idx] < uBytePos &&
+					// this weird shit fixes a problem where some links in consecutive lines would not be recognized correctly:
+					!((*it)->IsCont() && !bMatchContinuesLink)
+				)
 				{
 					uBytePos = (size_t)ovector[idx];
 
