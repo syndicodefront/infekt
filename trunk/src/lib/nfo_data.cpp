@@ -598,8 +598,8 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool 
 		// the following is a typical collection of characters that indicate
 		// a CP437 representation that has been (very badly) UTF-8 encoded
 		// using an "ISO-8559-1 to UTF-8" or similar routine.
-		if(a_tryToFix && l_utf.find("\xC3\x9F") != string::npos
-			/* one "Eszett" */ &&
+		if(a_tryToFix && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
+			/* one "Eszett" or LATIN CAPITAL LETTER I WITH ACUTE (horizontal double line in 437) */ &&
 			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos)
 			/* two consecutive 'LATIN CAPITAL LETTER U WITH DIAERESIS' or 'LATIN CAPITAL LETTER U WITH CIRCUMFLEX' */ &&
 			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos)
@@ -704,7 +704,7 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, bo
 	}
 
 	// see comments in TryLoad_UTF8...
-	if(a_tryToFix && m_textContent.find(L'\u00DF') != wstring::npos &&
+	if(a_tryToFix && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
 		(m_textContent.find(L"\u00DC\u00DC") != wstring::npos || m_textContent.find(L"\u00DB\u00DB") != wstring::npos) &&
 		(m_textContent.find(L"\u00B1") != wstring::npos || m_textContent.find(L"\u00B2") != wstring::npos))
 	{
