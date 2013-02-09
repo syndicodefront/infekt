@@ -2,7 +2,7 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2010
+REM * Visual Studio 2012
 REM * curl in PATH
 
 rem set CONFIG=release
@@ -15,7 +15,7 @@ curl http://zlib.net/zlib-1.2.7.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.10.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.14.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
@@ -28,13 +28,14 @@ curl http://www.cairographics.org/releases/cairo-1.12.2.tar.xz -o cairo.tar.xz
 
 set ROOTDIR=%cd%\work
 set PATH=%PATH%;C:\msys\1.0\bin
+set VisualStudioVersion=11.0
 
 IF %X64%==y GOTO SWITCHX64
-call "%VS100COMNTOOLS%\vsvars32.bat"
+call "%VS110COMNTOOLS%\vsvars32.bat"
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
-call "%VS100COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
+call "%VS110COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
 set PLATFORM=x64
 :SWITCHNOX64
 
@@ -87,6 +88,16 @@ sed "s/<RuntimeLibrary>.*<.RuntimeLibrary>//" zlib/zlib.vcxproj > zlib.vcxproj.f
 sed "s/<.ClCompile>/<RuntimeLibrary>MultiThreadedDebugDLL<\/RuntimeLibrary><\/ClCompile>/" zlib.vcxproj.fixed > zlib.vcxproj.fixed2
 move /Y zlib.vcxproj.fixed2 zlib/zlib.vcxproj
 :ZLIBRUNTIMEOK
+
+grep -v "AFCC227E3C1D.*Build" vstudio.sln | grep -v "BBEF8099F1D8.*Build" > vstudio.sln.fixed
+move /Y vstudio.sln.fixed vstudio.sln
+
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
+move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
 IF %X64%==n GOTO ZLIBNOX64
 sed "s/Win32/x64/" vstudio.sln > vstudio.sln.fixed
