@@ -19,11 +19,11 @@ curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.14.tar.gz -o libp
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://cgit.freedesktop.org/pixman/snapshot/pixman-0.26.0.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.28.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tar.xz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.12.2.tar.xz -o cairo.tar.xz
+curl http://www.cairographics.org/releases/cairo-1.12.12.tar.xz -o cairo.tar.xz
 :CZOK
 
 set ROOTDIR=%cd%\work
@@ -163,8 +163,8 @@ rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit
 
 IF EXIST pixman\pixman-version.h GOTO PIXMANVERSIONHOK
 sed "s/@PIXMAN_VERSION_MAJOR@/0/" pixman\pixman-version.h.in > v1
-sed "s/@PIXMAN_VERSION_MINOR@/26/" v1 > v2
-sed "s/@PIXMAN_VERSION_MICRO@/0/" v2 > pixman\pixman-version.h
+sed "s/@PIXMAN_VERSION_MINOR@/28/" v1 > v2
+sed "s/@PIXMAN_VERSION_MICRO@/2/" v2 > pixman\pixman-version.h
 :PIXMANVERSIONHOK
 
 IF %STATIC%==n GOTO PIXMANSKIPSTATICFIX
@@ -173,10 +173,10 @@ move /Y Makefile.fixed Makefile.win32.common
 :PIXMANSKIPSTATICFIX
 
 IF %CONFIG%==debug GOTO PIXMANDEBUG
-make -f Makefile.win32 pixman_r "CFG=release"
+make -f Makefile.win32 pixman "CFG=release"
 GOTO PIXMANDONE
 :PIXMANDEBUG
-make -f Makefile.win32 pixman_r "CFG=debug"
+make -f Makefile.win32 pixman "CFG=debug"
 :PIXMANDONE
 
 REM FINAL BUILD STAGE
