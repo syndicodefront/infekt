@@ -319,9 +319,8 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,74,159,10
     CONTROL         "Escape key quits program",IDC_CLOSE_ON_ESC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,38,148,10
     GROUPBOX        "Internals",IDC_STATIC,7,95,303,32
-    CONTROL         "Use CUDA if available",IDC_ENABLE_CUDA,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,109,121,10
-    CONTROL         "Use on-demand rendering for long files",IDC_ONDEMAND_RENDERING,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,109,148,10
+    CONTROL         "Use on-demand rendering for large files",IDC_ONDEMAND_RENDERING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,109,148,10
 END
 
 

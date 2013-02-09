@@ -313,19 +313,6 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		SET_DLG_CHECKBOX(IDC_CHECK_DEFAULT_VIEWER, l_global->bCheckDefaultOnStartup && ::IsWindowEnabled(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER)));
 
-#ifndef COMPACT_RELEASE
-		if(CCudaUtil::GetInstance()->IsCudaUsable())
-		{
-			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: Yes!"));
-		}
-		else
-		{
-			SetDlgItemText(IDC_CUDA_STATUS, _T("NVIDIA CUDA support on this system: No."));
-		}
-#else
-		SetDlgItemText(IDC_CUDA_STATUS, _T("Super Compact Version without NVIDIA CUDA support."));
-#endif
-
 		const std::wstring l_info = L"Active settings backend: " +
 			dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->GetName();
 		SetDlgItemText(IDC_SETTINGS_BACKEND_STATUS, l_info.c_str());
@@ -598,9 +585,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 
 			CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
 			l_view->SetCenterNfo(m_mainWin->GetSettings()->bCenterNFO);
-			l_view->SetAllowHwAccel(m_mainWin->GetSettings()->bEnableCUDA);
 			l_view->SetOnDemandRendering(m_mainWin->GetSettings()->bOnDemandRendering);
-			CNFORenderer::GlobalAllowHwAccel(m_mainWin->GetSettings()->bEnableCUDA);
 			break; }
 		default:
 			return FALSE;
@@ -1327,12 +1312,7 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_CENTER_NFO, m_settings->bCenterNFO);
 	SET_DLG_CHECKBOX(IDC_EXPORT_NFO_DIR, m_settings->bDefaultExportToNFODir);
 	SET_DLG_CHECKBOX(IDC_CLOSE_ON_ESC, m_settings->bCloseOnEsc);
-	SET_DLG_CHECKBOX(IDC_ENABLE_CUDA, m_settings->bEnableCUDA);
 	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
-
-#ifdef COMPACT_RELEASE
-	::EnableWindow(GetDlgItem(IDC_ENABLE_CUDA), FALSE);
-#endif
 
 	ShowWindow(SW_SHOW);
 
@@ -1347,7 +1327,6 @@ void CAdvancedSettingsWindowDialog::OnOK()
 	m_settings->bCenterNFO = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_NFO) != FALSE);
 	m_settings->bDefaultExportToNFODir = (::IsDlgButtonChecked(GetHwnd(), IDC_EXPORT_NFO_DIR) != FALSE);
 	m_settings->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
-	m_settings->bEnableCUDA = (::IsDlgButtonChecked(GetHwnd(), IDC_ENABLE_CUDA) != FALSE);
 	m_settings->bOnDemandRendering = (::IsDlgButtonChecked(GetHwnd(), IDC_ONDEMAND_RENDERING) != FALSE);
 
 	CDialog::OnOK();

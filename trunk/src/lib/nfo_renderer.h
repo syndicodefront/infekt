@@ -132,7 +132,6 @@ class CNFORenderer
 protected:
 	CNFORenderSettings m_settings;
 	bool m_classic;
-	bool m_allowHwAccel;
 	float m_zoomFactor;
 	bool m_onDemandRendering;
 
@@ -182,7 +181,6 @@ protected:
 
 	static const size_t ms_defaultClassicFontSize = 12;
 	static const size_t ms_stripeHeightMax = 2000; // in pixels
-	static bool ms_allowHwAccel;
 public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();
@@ -249,11 +247,6 @@ public:
 		_tcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
 	}
 	std::_tstring GetFontFace() const { return m_settings.sFontFace; }
-
-	void SetAllowHwAccel(bool nb) { m_allowHwAccel = nb; }
-	bool GetAllowHwAccel() const { return m_allowHwAccel; }
-
-	static void GlobalAllowHwAccel(bool nb) { ms_allowHwAccel = nb; }
 
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&

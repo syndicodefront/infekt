@@ -106,7 +106,6 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 
 	// set up renderer:
 	CNFORenderer l_renderer;
-	l_renderer.SetAllowHwAccel(false);
 
 	if(!l_renderer.AssignNFO(l_nfoData))
 	{
