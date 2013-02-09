@@ -2,7 +2,7 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2010
+REM * Visual Studio 2012
 REM * curl in PATH
 
 rem set CONFIG=release
@@ -11,18 +11,19 @@ set X64=n
 set STATIC=n
 
 IF EXIST pcre.tgz GOTO PCREOK
-curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.30.tar.gz -o pcre.tgz
+curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.32.tar.gz -o pcre.tgz
 :PCREOK
 
 set ROOTDIR=%cd%\work
 set PATH=%PATH%;C:\msys\1.0\bin
+set VisualStudioVersion=11.0
 
 IF %X64%==y GOTO SWITCHX64
-call "%VS100COMNTOOLS%vsvars32.bat"
+call "%VS110COMNTOOLS%vsvars32.bat"
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
-call "%VS100COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
+call "%VS110COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
 set PLATFORM=x64
 :SWITCHNOX64
 
@@ -71,10 +72,8 @@ cat %BDIR%\config-win32-head.inc %PDIR%\config.h.generic %BDIR%\config-win32-tai
 REM Build dftables
 cd %BDIR%
 
-vcupgrade dftables.vcproj
 msbuild dftables.vcxproj /p:Platform=%PLATFORM% /p:Configuration=%CONFIG%
 
-vcupgrade pcre.vcproj
 IF %STATIC%==y GOTO PCRESTATICLIB
 msbuild pcre.vcxproj /p:Platform=%PLATFORM% /p:Configuration=%CONFIG%
 GOTO PCREDONE
