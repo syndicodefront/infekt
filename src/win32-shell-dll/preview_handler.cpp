@@ -203,9 +203,6 @@ HRESULT CNFOPreviewHandler::DoPreview()
 	if(l_temp)
 	{
 		m_view = PNFOViewControl(l_temp);
-		m_view->SetAllowHwAccel(false);
-		// CUDA doesn't work for some reason, probably because of the
-		// "low integrity" process.
 
 		PNFOData l_nfoData;
 

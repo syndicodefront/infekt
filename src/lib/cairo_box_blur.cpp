@@ -19,7 +19,13 @@
 #include "util.h"
 #include <omp.h>
 
-// largely based on
+#if defined(_MSC_VER) && _MSC_VER >= 1700 && !defined(COMPACT_RELEASE)
+#include <amp.h>
+using namespace concurrency;
+#define HAVE_AMP
+#endif
+
+// the CPU fallback for non-MSVC compilers is largely based on
 // http://mxr.mozilla.org/mozilla1.9.2/source/gfx/thebes/src/gfxBlur.cpp
 // (GPL v2)
 
@@ -34,24 +40,23 @@ typedef int32_t PRInt32;
 #define NS_ASSERTION(a, b) _ASSERT(a)
 
 
-CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a_allowHwAccel)
+CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius)
 {
 	m_blurRadius = a_blurRadius;
 
-	m_useCpu = true;
+	m_useFallback = true;
 
-#if defined(_WIN32) && !defined(COMPACT_RELEASE)
-	if(a_allowHwAccel && CCudaUtil::GetInstance()->IsCudaUsable())
+#ifdef HAVE_AMP
+	accelerator l_defaultDevice;
+	// only accept a real GPU or the CPU fallback, no D3D emulation (slow):
+	if(l_defaultDevice == accelerator(accelerator::direct3d_ref) ||
+		(l_defaultDevice.is_emulated && l_defaultDevice != accelerator(accelerator::cpu_accelerator)))
 	{
-		if(CCudaUtil::GetInstance()->IsCudaThreadInitialized() ||
-			CCudaUtil::GetInstance()->InitCudaThread())
-		{
-			m_useCpu = false;
-		}
+		m_useFallback = false;
 	}
-#endif /* _WIN32 */
+#endif /* HAVE_AMP */
 
-	m_imgSurface = cairo_image_surface_create(m_useCpu ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32, a_width, a_height);
+	m_imgSurface = cairo_image_surface_create(m_useFallback ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32, a_width, a_height);
 	m_context = cairo_create(m_imgSurface);
 
 	m_width = a_width;
@@ -194,33 +199,16 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		return false;
 	}
 
-#if defined(_WIN32) && !defined(COMPACT_RELEASE)
-	if(!m_useCpu)
+#ifdef HAVE_AMP
+	if(!m_useFallback)
 	{
-		l_ok = CCudaUtil::GetInstance()->DoCudaGaussianBlurRGBA(reinterpret_cast<unsigned int*>(l_boxData),
-			cairo_image_surface_get_width(m_imgSurface),
-			cairo_image_surface_get_height(m_imgSurface), m_blurRadius / 5.0f + 2);
-
-		if(!l_ok)
-		{
-			// must retry!
-
-			m_useCpu = true;
-
-			cairo_destroy(m_context);
-			cairo_surface_destroy(m_imgSurface);
-
-			m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_A8, m_width, m_height);
-			m_context = cairo_create(m_imgSurface);
-
-			return false;
-		}
+		
 	}
-#endif /* _WIN32 */
+#endif /* HAVE_AMP */
 
 	if(!l_ok)
 	{
-		// CPU or CPU fallback.
+		// fallback.
 
 		const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
 		const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
@@ -243,7 +231,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 	cairo_surface_mark_dirty(m_imgSurface);
 
-	if(m_useCpu)
+	if(m_useFallback)
 	{
 		// 8 bit mask
 		cairo_mask_surface(a_destination, m_imgSurface, 0, 0);

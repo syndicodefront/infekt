@@ -51,10 +51,6 @@ Source: "{#SourceFileDir32}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; C
 Source: "{#SourceFileDir64}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#SourceFileDir64}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#SourceFileDir32}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\cuda-blur.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#SourceFileDir32}\cudart32_32_16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\cudart64_32_16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: not Is64BitInstallMode
 Source: "{#SourceFileDir64}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\infekt-win32-updater.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -67,6 +63,10 @@ Type: files; Name: "{app}\zlib1.dll"
 Type: files; Name: "{app}\cudart32_31_9.dll"
 Type: files; Name: "{app}\cudart64_31_9.dll"
 ; these 4 were used up to v0.7.9
+Type: files; Name: "{app}\cuda-blur.dll"
+Type: files; Name: "{app}\cudart32_32_16.dll"
+Type: files; Name: "{app}\cudart64_32_16.dll"
+; these 3 were used up to 0.8.5
 
 [UnInstallDelete]
 Type: files; Name: "{app}\infekt-nfo-shell.dll"

@@ -148,8 +148,6 @@ void CMainFrame::OnCreate()
 
 	m_settings = PMainSettings(new CMainSettings(true));
 
-	CNFORenderer::GlobalAllowHwAccel(m_settings->bEnableCUDA);
-
 	// tame Win32++:
 	m_bUseThemes = FALSE;
 	m_bShowIndicatorStatus = FALSE;
@@ -1873,11 +1871,6 @@ void CMainFrame::OnClose()
 
 CMainFrame::~CMainFrame()
 {
-	if(CCudaUtil::GetInstance()->IsCudaThreadInitialized())
-	{
-		CCudaUtil::GetInstance()->UnInitCudaThread();
-	}
-
 	delete m_searchToolbar;
 }
 
@@ -1908,7 +1901,6 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"CenterNFO", this->bCenterNFO);
 	l_sect->WriteBool(L"DefaultExportToNFODir", this->bDefaultExportToNFODir);
 	l_sect->WriteBool(L"CloseOnEsc", this->bCloseOnEsc);
-	l_sect->WriteBool(L"EnableCUDA", this->bEnableCUDA);
 	l_sect->WriteBool(L"OnDemandRendering", this->bOnDemandRendering);
 
 	// "deputy" return value:
@@ -1950,7 +1942,6 @@ bool CMainSettings::LoadFromRegistry()
 	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", true);
 	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
 	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", false);
-	this->bEnableCUDA = l_sect->ReadBool(L"EnableCUDA", true);
 	this->bOnDemandRendering = l_sect->ReadBool(L"OnDemandRendering", true);
 
 	return true;
