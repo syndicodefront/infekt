@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iNFekt", "infekt-win32\iNFekt.vcxproj", "{1A43C657-CFFD-4BDF-A031-7F9C2449D6A0}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-console", "infekt-console\infekt-console.vcxproj", "{CBB123C8-0763-4BFD-BF90-4DD767096287}"
@@ -10,8 +10,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-shell-dll", "infekt-win32-shell-dll\infekt-win32-shell-dll.vcxproj", "{398F9B1D-82AC-4D6C-A88E-68401EBC831A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-updater", "win32-updater\infekt-win32-updater.vcxproj", "{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cuda-blur", "cuda-blur\cuda-blur.vcxproj", "{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-portableapps-launcher", "win32-portableapps-launcher\win32-portableapps-launcher.vcxproj", "{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}"
 EndProject
@@ -78,17 +76,6 @@ Global
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|x64.ActiveCfg = Release|Win32
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release-Compact|Win32.ActiveCfg = Release|Win32
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release-Compact|x64.ActiveCfg = Release|Win32
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Debug|Win32.ActiveCfg = Debug|Win32
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Debug|Win32.Build.0 = Debug|Win32
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Debug|x64.ActiveCfg = Debug|x64
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Debug|x64.Build.0 = Debug|x64
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|Win32.ActiveCfg = Release|Win32
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|Win32.Build.0 = Release|Win32
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|x64.ActiveCfg = Release|x64
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release|x64.Build.0 = Release|x64
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release-Compact|Win32.ActiveCfg = Release|Win32
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release-Compact|x64.ActiveCfg = Release|x64
-		{206BE5F9-2BAA-468C-9F78-28E8B3F0D488}.Release-Compact|x64.Build.0 = Release|x64
 		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|Win32.Build.0 = Debug|Win32
 		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|x64.ActiveCfg = Debug|Win32
