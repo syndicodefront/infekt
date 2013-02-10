@@ -13,6 +13,8 @@
  **/
 
 #include "stdafx.h"
+
+#if _WIN32_WINNT < 0x600
 #include "default_app.h"
 #include "util.h"
 #include <shlobj.h>
@@ -180,3 +182,4 @@ bool CWin5xDefaultApp::MakeDefault()
 	return l_success;
 }
 
+#endif /* _WIN32_WINNT */

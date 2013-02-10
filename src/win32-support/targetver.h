@@ -4,6 +4,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define NOMINMAX
 
+#if !defined(_TARGETVER_WIN7) && !defined(_TARGETVER_VISTA) && defined(_MSC_VER) && _MSC_VER >= 1700
+// the Visual C++ 2012 runtime does not support XP.
+#define _TARGETVER_VISTA
+#endif
+
 #ifdef _TARGETVER_WIN7
 // yes I know about NTDDI_VERSION
 // but I haven't figured out how to make it work without running

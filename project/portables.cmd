@@ -37,9 +37,11 @@ rem COPY RUNTIME DLLS
 
 xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.CRT\msvc*.dll" %PP32%
 xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.OpenMP\*.dll" %PP32%
+xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.CXXAMP\*.dll" %PP32%
 
 xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC110.CRT\msvc*.dll" %PP64%
 xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC110.OpenMP\*.dll" %PP64%
+xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC110.CXXAMP\*.dll" %PP64%
 
 rem COPY BUILT FILES
 
