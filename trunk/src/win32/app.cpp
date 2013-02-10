@@ -274,13 +274,16 @@ int CNFOApp::IsDefaultNfoViewer()
 {
 	int l_result = 0;
 
+#if _WIN32_WINNT < 0x600
 	if(CUtil::IsWinXP())
 	{
 		CWin5xDefaultApp l_defApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 
 		l_result = (l_defApp.IsDefault() ? 1 : 0);
 	}
-	else if(CUtil::IsWin6x())
+	else
+#endif
+	if(CUtil::IsWin6x())
 	{
 		CWin6xDefaultApp l_defApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 

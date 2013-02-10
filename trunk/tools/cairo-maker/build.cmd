@@ -23,7 +23,7 @@ curl http://www.cairographics.org/releases/pixman-0.28.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tar.xz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.12.12.tar.xz -o cairo.tar.xz
+curl http://www.cairographics.org/releases/cairo-1.12.14.tar.xz -o cairo.tar.xz
 :CZOK
 
 set ROOTDIR=%cd%\work

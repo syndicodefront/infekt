@@ -55,6 +55,8 @@ protected:
 };
 
 
+#if _WIN32_WINNT < 0x600
+
 // class for Windows 2000 and XP, using direct registry writes
 
 class CWin5xDefaultApp : public CWinDefaultApp 
@@ -68,5 +70,7 @@ public:
 protected:
 	bool RegisterProgIdData();
 };
+
+#endif /* _WIN32_WINNT */
 
 #endif /* !_DEFAULT_APP_H */
