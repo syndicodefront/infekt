@@ -15,7 +15,7 @@ curl http://zlib.net/zlib-1.2.7.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-1.5.14.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng15/libpng-1.5.14.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
@@ -92,11 +92,11 @@ move /Y zlib.vcxproj.fixed2 zlib/zlib.vcxproj
 grep -v "AFCC227E3C1D.*Build" vstudio.sln | grep -v "BBEF8099F1D8.*Build" > vstudio.sln.fixed
 move /Y vstudio.sln.fixed vstudio.sln
 
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110_xp<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
 move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110_xp<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
 move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110_xp<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
 IF %X64%==n GOTO ZLIBNOX64

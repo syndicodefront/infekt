@@ -312,11 +312,14 @@ bool CNFOApp::MakeDefaultNfoViewer()
 {
 	CWinDefaultApp* l_defApp = NULL;
 
+#if _WIN32_WINNT < 0x600
 	if(CUtil::IsWinXP())
 	{
 		l_defApp = new (std::nothrow) CWin5xDefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 	}
-	else if(CUtil::IsWin6x())
+	else 
+#endif
+	if(CUtil::IsWin6x())
 	{
 		l_defApp = new (std::nothrow) CWin6xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 	}
