@@ -4,10 +4,11 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define NOMINMAX
 
+/* we're still keeping XP compatibility for now.
+http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 #if !defined(_TARGETVER_WIN7) && !defined(_TARGETVER_VISTA) && defined(_MSC_VER) && _MSC_VER >= 1700
-// the Visual C++ 2012 runtime does not support XP.
 #define _TARGETVER_VISTA
-#endif
+#endif*/
 
 #ifdef _TARGETVER_WIN7
 // yes I know about NTDDI_VERSION
@@ -16,6 +17,7 @@
 #define WINVER			0x0700
 #define _WIN32_IE		0x0800
 #else
+#define PSAPI_VERSION   1
 #ifdef _TARGETVER_VISTA
 #define WINVER			0x0600
 #define _WIN32_IE		0x0700
