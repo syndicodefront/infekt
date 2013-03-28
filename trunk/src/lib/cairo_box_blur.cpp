@@ -195,14 +195,14 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 	unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
 
-	if(!l_boxData || cairo_image_surface_get_format(m_imgSurface) != CAIRO_FORMAT_ARGB32)
+	if(!l_boxData)
 	{
 		// too large or something...
 		return false;
 	}
 
 #ifndef COMPACT_RELEASE
-	if(!m_useFallback)
+	if(!m_useFallback && cairo_image_surface_get_format(m_imgSurface) == CAIRO_FORMAT_ARGB32)
 	{
 		typedef int (__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
 
