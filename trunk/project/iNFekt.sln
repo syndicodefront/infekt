@@ -2,6 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iNFekt", "infekt-win32\iNFekt.vcxproj", "{1A43C657-CFFD-4BDF-A031-7F9C2449D6A0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{65A54016-1A50-421A-BEBC-948F1937C695} = {65A54016-1A50-421A-BEBC-948F1937C695}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-console", "infekt-console\infekt-console.vcxproj", "{CBB123C8-0763-4BFD-BF90-4DD767096287}"
 EndProject
@@ -12,6 +15,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-updater", "win32-updater\infekt-win32-updater.vcxproj", "{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-portableapps-launcher", "win32-portableapps-launcher\win32-portableapps-launcher.vcxproj", "{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-amp", "win32-amp\win32-amp.vcxproj", "{65A54016-1A50-421A-BEBC-948F1937C695}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -85,6 +90,16 @@ Global
 		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Compact|Win32.ActiveCfg = Release|Win32
 		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Compact|Win32.Build.0 = Release|Win32
 		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Compact|x64.ActiveCfg = Release|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Debug|Win32.ActiveCfg = Debug|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Debug|Win32.Build.0 = Debug|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Debug|x64.ActiveCfg = Debug|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Release|Win32.ActiveCfg = Release|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Release|Win32.Build.0 = Release|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Release|x64.ActiveCfg = Release|x64
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Release|x64.Build.0 = Release|x64
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Release-Compact|Win32.ActiveCfg = Release|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Release-Compact|Win32.Build.0 = Release|Win32
+		{65A54016-1A50-421A-BEBC-948F1937C695}.Release-Compact|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
