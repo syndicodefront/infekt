@@ -54,6 +54,9 @@ copy /Y %ROOTDIR%\Release-x64\infekt-win64.exe %PP64%
 copy /Y %ROOTDIR%\Release\infekt-cmd.exe %PP32%
 copy /Y %ROOTDIR%\Release-x64\infekt-cmd.exe %PP64%
 
+copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PP32%
+copy /Y %ROOTDIR%\Release-x64\infekt-gpu.dll %PP64%
+
 rem COPY DEPS
 
 xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PP32%
