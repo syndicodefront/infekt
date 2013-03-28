@@ -19,11 +19,6 @@
 #include "util.h"
 #include <omp.h>
 
-#if defined(_MSC_VER) && _MSC_VER >= 1700 && !defined(COMPACT_RELEASE)
-#include <amp.h>
-using namespace concurrency;
-#define HAVE_AMP
-#endif
 
 // the CPU fallback for non-MSVC compilers is largely based on
 // http://mxr.mozilla.org/mozilla1.9.2/source/gfx/thebes/src/gfxBlur.cpp
@@ -46,15 +41,22 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius)
 
 	m_useFallback = true;
 
-#ifdef HAVE_AMP
-	accelerator l_defaultDevice;
-	// only accept a real GPU or the CPU fallback, no D3D emulation (slow):
-	if(l_defaultDevice == accelerator(accelerator::direct3d_ref) ||
-		(l_defaultDevice.is_emulated && l_defaultDevice != accelerator(accelerator::cpu_accelerator)))
+#ifndef COMPACT_RELEASE
+	if(CUtil::IsWin6x())
 	{
-		m_useFallback = false;
+		if(!m_hAmpDll)
+		{
+			m_hAmpDll = CUtil::SilentLoadLibrary(CUtil::GetExeDir() + L"\\infekt-gpu.dll");
+		}
+
+		typedef int (__cdecl *fnc)();
+
+		if(fnc igu = (fnc)::GetProcAddress(m_hAmpDll, "IsGpuUsable"))
+		{
+			m_useFallback = (igu() == 0);
+		}
 	}
-#endif /* HAVE_AMP */
+#endif /* !COMPACT_RELEASE */
 
 	m_imgSurface = cairo_image_surface_create(m_useFallback ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32, a_width, a_height);
 	m_context = cairo_create(m_imgSurface);
@@ -193,20 +195,43 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 	unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
 
-	if(!l_boxData)
+	if(!l_boxData || cairo_image_surface_get_format(m_imgSurface) != CAIRO_FORMAT_ARGB32)
 	{
 		// too large or something...
 		return false;
 	}
 
-#ifdef HAVE_AMP
+#ifndef COMPACT_RELEASE
 	if(!m_useFallback)
 	{
-		
-	}
-#endif /* HAVE_AMP */
+		typedef int (__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
 
-	if(!l_ok)
+		if(fnc gb = (fnc)GetProcAddress(m_hAmpDll, "GaussianBlurARGB32"))
+		{
+			l_ok = (gb(
+				reinterpret_cast<unsigned int*>(l_boxData),
+				cairo_image_surface_get_width(m_imgSurface),
+				cairo_image_surface_get_height(m_imgSurface),
+				m_blurRadius / 5.0f + 2) != 0);
+		}
+
+		if(!l_ok)
+		{
+			// must retry!
+
+			m_useFallback = true;
+
+			cairo_destroy(m_context);
+			cairo_surface_destroy(m_imgSurface);
+
+			m_imgSurface = cairo_image_surface_create(CAIRO_FORMAT_A8, m_width, m_height);
+			m_context = cairo_create(m_imgSurface);
+
+			return false;
+		}
+	}
+	else
+#endif /* !COMPACT_RELEASE */
 	{
 		// fallback.
 
@@ -255,3 +280,6 @@ CCairoBoxBlur::~CCairoBoxBlur()
 	cairo_destroy(m_context);
 	cairo_surface_destroy(m_imgSurface);
 }
+
+
+HMODULE CCairoBoxBlur::m_hAmpDll = NULL;
