@@ -41,7 +41,7 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius)
 
 	m_useFallback = true;
 
-#ifndef COMPACT_RELEASE
+#if defined(_WIN32) && !defined(COMPACT_RELEASE)
 	if(CUtil::IsWin6x())
 	{
 		if(!m_hAmpDll)
@@ -201,7 +201,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		return false;
 	}
 
-#ifndef COMPACT_RELEASE
+#if defined(_WIN32) && !defined(COMPACT_RELEASE)
 	if(!m_useFallback && cairo_image_surface_get_format(m_imgSurface) == CAIRO_FORMAT_ARGB32)
 	{
 		typedef int (__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
@@ -281,5 +281,6 @@ CCairoBoxBlur::~CCairoBoxBlur()
 	cairo_surface_destroy(m_imgSurface);
 }
 
-
+#if defined(_WIN32) && !defined(COMPACT_RELEASE)
 HMODULE CCairoBoxBlur::m_hAmpDll = NULL;
+#endif
