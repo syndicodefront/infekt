@@ -47,8 +47,9 @@ protected:
 	cairo_t* m_context;
 	// The temporary alpha surface:
 	cairo_surface_t* m_imgSurface;
-
+#if defined(_WIN32) && !defined(COMPACT_RELEASE)
 	static HMODULE m_hAmpDll;
+#endif
 };
 
 
