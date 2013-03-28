@@ -495,9 +495,10 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		for(TLineContainer::const_iterator it = l_lines.begin();
 			it != l_lines.end(); it++, i++)
 		{
-			size_t l_lineLen = it->length();
+			int l_lineLen = static_cast<int>(it->length());
 
-			for(size_t j = 0; j < l_lineLen; j++)
+			#pragma omp parallel for
+			for(int j = 0; j < l_lineLen; j++)
 			{
 				(*m_grid)[i][j] = (*it)[j];
 
