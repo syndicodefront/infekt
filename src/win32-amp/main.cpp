@@ -48,7 +48,7 @@ extern "C" __declspec(dllexport) int GaussianBlurARGB32(unsigned int *img_data, 
 
 		return 1;
 	}
-	catch(std::runtime_error& ex)
+	catch(runtime_exception& ex)
 	{
 		(void)ex;
 
