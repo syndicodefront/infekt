@@ -5,6 +5,15 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.7 (2013) ==
+  * Tweaked detection to match some more broken NFOs and display them correctly.
+  * Fixed a problem where some links in consecutive lines would not be recognized correctly
+  * Got rid of all CUDA/NViDiA specific code and files
+  * Made the blur effect use AMP - also supports ATI hardware now, but only on Windows Vista, 7 and 8
+  * Needs Visual C++ 2012 runtime DLLs (previously 2010), installer will download if necessary, shipped with portable versions
+  * PCRE update to 8.32, cairo update to 1.12.14, pixman update to 0.28.2
+  * Attention: The 64-bit build for this and all following versions will no longer work on Windows XP 64-bit (32-bit is fine)
+
 == v0.8.5 (June 9 2012) ==
   * New feature: Browse all NFO files in a folder using the J and K keys
   * New feature: Ctrl + F to search
