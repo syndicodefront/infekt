@@ -10,6 +10,11 @@ http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 #define _TARGETVER_VISTA
 #endif*/
 
+// we are however dropping WinXP 64-bit edition compatibility:
+#if !defined(_TARGETVER_WIN7) && !defined(_TARGETVER_VISTA) && defined(_WIN64)
+#define _TARGETVER_VISTA
+#endif
+
 #ifdef _TARGETVER_WIN7
 // yes I know about NTDDI_VERSION
 // but I haven't figured out how to make it work without running
