@@ -6,8 +6,11 @@
   * Made working Imdb plugin
 
 == v0.8.7 (2013) ==
-  * Tweaked detection to match some more broken NFOs and display them correctly.
+  * Attention: Due to a bug in all previous versions' auto updater, it's not possible to auto-update to this version. Please download & install the new version manually.
+  * Optionally associate .diz files during setup (issue 73)
+  * Tweaked detection to match some more broken NFOs and display them correctly
   * Fixed a problem where some links in consecutive lines would not be recognized correctly
+  * Fixed PortableApps.com wrapper ignoring command line arguments (issue 76)
   * Got rid of all CUDA/NViDiA specific code and files
   * Made the blur effect use AMP - also supports ATI hardware now, but only on Windows Vista, 7 and 8
   * Needs Visual C++ 2012 runtime DLLs (previously 2010), installer will download if necessary, shipped with portable versions
