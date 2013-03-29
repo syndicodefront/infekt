@@ -80,7 +80,7 @@ static void __cdecl InstallerThread(void *pvStartupInfo)
 	::SetEvent(hStartEvent);
 
 	bool b = ShellExecuteAndWait(l_installerPath.c_str(),
-		L"/SILENT /LOG /NOCANCEL", SW_SHOWNORMAL, true);
+		L"/VERYSILENT /NOCANCEL", SW_HIDE, true, INFINITE);
 
 	Sleep(1000);
 

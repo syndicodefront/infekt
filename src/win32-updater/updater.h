@@ -40,7 +40,8 @@
 std::wstring GetSysDirPath();
 std::wstring GetTempFilePath(const std::wstring& a_suffix);
 std::wstring GetExePath();
-bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd, bool a_requireZeroExitCode = false);
+bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd,
+						 bool a_requireZeroExitCode = false, DWORD dwMaxWait = 10000);
 
 std::wstring SHA1_File(const std::wstring& a_filePath);
 

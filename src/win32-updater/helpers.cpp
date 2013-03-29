@@ -71,7 +71,8 @@ std::wstring GetExePath()
 }
 
 
-bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters, int nShowCmd, bool a_requireZeroExitCode)
+bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters,
+						 int nShowCmd, bool a_requireZeroExitCode, DWORD dwMaxWait)
 {
 	SHELLEXECUTEINFO l_sei = { sizeof(SHELLEXECUTEINFO), 0 };
 
@@ -83,7 +84,7 @@ bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_param
 
 	if(::ShellExecuteEx(&l_sei))
 	{
-		if(::WaitForSingleObject(l_sei.hProcess, 10000) == WAIT_OBJECT_0)
+		if(::WaitForSingleObject(l_sei.hProcess, dwMaxWait) == WAIT_OBJECT_0)
 		{
 			if(a_requireZeroExitCode)
 			{

@@ -121,6 +121,39 @@ Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win32.exe"; Flags: don
 Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win64.exe"; Flags: dontcreatekey uninsdeletekey; Check: Is64BitInstallMode
 
 [Code]
+type
+ TCopyDataStruct = record
+ dwData: DWORD;
+ cbData: DWORD;
+ lpData: AnsiString;
+ end;
+
+function FindWindow(lpClassName, lpWindowName: AnsiString): HWND;
+  external 'FindWindowA@User32.dll stdcall';
+
+function SendMessageCopyData(a: HWND; m: Integer; x: Integer; var data: TCopyDataStruct): Integer;
+	external 'SendMessageA@User32.dll stdcall'; 
+
+const
+	WM_COPYDATA = $4A;
+
+procedure SendStatusMessageToUpdater(msg: String);
+var
+	updWindow: HWND;
+	cds: TCopyDataStruct;
+begin
+	updWindow := FindWindow('#32770', 'iNFekt Program Updater');
+	if updWindow <> 0 then
+	begin
+		cds.dwData := 666;
+		cds.cbData := Length(msg) + 1;
+		cds.lpData := msg;
+
+		SendMessageCopyData(updWindow, WM_COPYDATA, 0, cds);
+	end;
+end;
+
+
 function MsiQueryProductState(ProductCode: String): Integer; external 'MsiQueryProductStateW@msi.dll stdcall';
 
 var
@@ -142,7 +175,7 @@ end;
 procedure InitializeWizard();
 begin
 	ITD_Init();
-	ITD_SetOption('UI_AllowContinue', 1);
+	ITD_SetOption('UI_AllowContinue', '1');
 
 	if Is64BitInstallMode() then
 	begin
@@ -191,7 +224,25 @@ begin
 			else
 				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2012 (x86) runtime...';
 
+			SendStatusMessageToUpdater(WizardForm.StatusLabel.Caption);
+
 			Exec(exepath, '/q /norestart', '', SW_HIDE, ewWaitUntilTerminated, exitcode);
 		end;
 	end;
+end;
+
+procedure CurPageChanged(CurPageID: Integer);
+var
+	msg: String;
+begin
+	if (CurPageID = wpReady) and InstallCppRuntime() then
+		msg := 'Downloading Microsoft Visual C++ 2012 runtime... this may take a minute.'
+	else if WizardForm.StatusLabel.Caption <> '' then
+		msg := WizardForm.StatusLabel.Caption
+	else if WizardForm.PageNameLabel.Caption <> '' then
+		msg := WizardForm.PageNameLabel.Caption + ': ' + WizardForm.PageDescriptionLabel.Caption
+	else
+		msg := 'Installing update...';
+
+	SendStatusMessageToUpdater(msg);
 end;
