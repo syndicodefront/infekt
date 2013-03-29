@@ -64,6 +64,6 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	{
 		const std::wstring l_exePath = l_path + L"\\App\\iNFEKT\\infekt-win32.exe";
 
-		return (INT)::ShellExecute(HWND_DESKTOP, L"open", l_exePath.c_str(), NULL, NULL, nShowCmd);
+		return (INT)::ShellExecute(HWND_DESKTOP, L"open", l_exePath.c_str(), wszCommandLine, NULL, nShowCmd);
 	}
 }
