@@ -72,7 +72,7 @@ bool StartTaskKill(HWND hDlg)
 
 static void __cdecl InstallerThread(void *pvStartupInfo)
 {
-	HANDLE hStartEvent = static_cast<HANDLE>(pvStartupInfo);
+	HANDLE hStartEvent = pvStartupInfo;
 
 	HWND l_hDlg = s_hDlg;
 	std::wstring l_installerPath = s_installerPath;
