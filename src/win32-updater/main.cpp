@@ -288,12 +288,13 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 	case WM_COPYDATA: // installer sends status messages via WM_COPYDATA:
 		if(wParam == 0 && lParam != 0)
 		{
-			PCOPYDATASTRUCT cd = (PCOPYDATASTRUCT)lParam;
+			PCOPYDATASTRUCT cd = reinterpret_cast<PCOPYDATASTRUCT>(lParam);
+
 			if(cd->dwData == 666 && cd->cbData > 0 && cd->cbData < 256)
 			{
 				char msg[256] = {0};
-				strcpy_s(msg, 255, (char*)cd->lpData);
-				SetDlgItemTextA(hDlg, IDC_STATUS, msg);
+				if(strncpy_s(msg, 255, reinterpret_cast<char*>(cd->lpData), cd->cbData) == 0)
+					SetDlgItemTextA(hDlg, IDC_STATUS, msg);
 			}
 		}
 		return TRUE;
