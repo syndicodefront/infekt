@@ -153,7 +153,7 @@ static bool ValidateDownloadedFile()
 static void RunMainProgram()
 {
 	// GUID is our InnoSetups' AppId.
-	const wchar_t *l_keyPath = L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}_is1";
+	const wchar_t *l_keyPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}_is1";
 	HKEY l_hKey;
 
 	if(::RegOpenKeyEx(HKEY_LOCAL_MACHINE, l_keyPath, 0, KEY_QUERY_VALUE | KEY_WOW64_64KEY, &l_hKey) == ERROR_SUCCESS)
@@ -264,6 +264,7 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		{
 			SendDlgItemMessage(hDlg, IDC_PGB, PBM_SETPOS, 0, 0);
 			SetDlgItemText(hDlg, IDC_STATUS, L"Validating the downloaded file failed! Please update manually.");
+			SetDlgItemText(hDlg, IDCANCEL, L"Close");
 		}
 		return TRUE;
 
@@ -281,6 +282,19 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		if(wParam == IDT_TIMER_ID && HttpIsDownloading())
 		{
 			ShowDownloadProgress(hDlg);
+		}
+		return TRUE;
+
+	case WM_COPYDATA: // installer sends status messages via WM_COPYDATA:
+		if(wParam == 0 && lParam != 0)
+		{
+			PCOPYDATASTRUCT cd = (PCOPYDATASTRUCT)lParam;
+			if(cd->dwData == 666 && cd->cbData > 0 && cd->cbData < 256)
+			{
+				char msg[256] = {0};
+				strcpy_s(msg, 255, (char*)cd->lpData);
+				SetDlgItemTextA(hDlg, IDC_STATUS, msg);
+			}
 		}
 		return TRUE;
 
