@@ -53,6 +53,7 @@
 #include <deque>
 #include <set>
 #include <memory>
+#include <omp.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <shellapi.h>

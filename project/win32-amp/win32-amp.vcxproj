@@ -139,6 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>..\..\src\win32-support</AdditionalIncludeDirectories>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -158,6 +159,7 @@
       <SDLCheck>true</SDLCheck>
       <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>..\..\src\win32-support</AdditionalIncludeDirectories>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
