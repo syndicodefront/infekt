@@ -180,7 +180,6 @@ protected:
 	void ClearStripes();
 
 	static const size_t ms_defaultClassicFontSize = 12;
-	static const size_t ms_stripeHeightMax = 2000; // in pixels
 public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();

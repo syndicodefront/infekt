@@ -269,7 +269,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 			cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
 				static_cast<int>(dest_y - l_stripe_source_y));
 
-			int l_height = (l_stripe == l_stripeEnd ? l_heightFixed : GetStripeHeight(l_stripe));
+			int l_height = (l_stripe == l_stripeEnd ? l_heightFixed : GetStripeHeight(l_stripe) - l_stripe_source_y);
 
 			cairo_rectangle(cr, dest_x, dest_y, l_widthFixed, l_height);
 
@@ -356,7 +356,13 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 
 		// recalculate stripe dimensions:
 
-		size_t l_stripeHeightMax = std::max(ms_stripeHeightMax, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
+		// 2 CPU cores <=> 2000 px stripe height
+		// ==> 8 CPU cores <=> 250
+		// (= more threads)
+		// but: never use less than 500px per stripe.
+		size_t l_stripeHeightMaxForCores = std::max(2000 * 2 / omp_get_num_procs(), 500);
+
+		size_t l_stripeHeightMax = std::max(l_stripeHeightMaxForCores, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
 
 		size_t l_numStripes = GetHeight() / l_stripeHeightMax; // implicit floor()
 		if(l_numStripes == 0) l_numStripes = 1;
