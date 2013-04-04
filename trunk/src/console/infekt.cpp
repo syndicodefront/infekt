@@ -314,66 +314,34 @@ int main(int argc, char* argv[])
 	if(l_makePng)
 	{
 		// Renderer instance that we are going to use:
-		CNFORenderer l_renderer(l_classic);
+		CNFOToPNG l_exporter(l_classic);
 
-		l_renderer.InjectSettings(l_pngSettings);
+		l_exporter.InjectSettings(l_pngSettings);
 
 		if(!l_classic)
 		{
 			if(!l_setBlockColor)
 			{
-				l_renderer.SetArtColor(l_renderer.GetTextColor());
+				l_exporter.SetArtColor(l_exporter.GetTextColor());
 			}
 
-			if(!l_setGlowColor && l_renderer.GetEnableGaussShadow())
+			if(!l_setGlowColor && l_exporter.GetEnableGaussShadow())
 			{
-				l_renderer.SetGaussColor(l_renderer.GetArtColor());
+				l_exporter.SetGaussColor(l_exporter.GetArtColor());
 			}
 		}
 
-		l_renderer.AssignNFO(&l_nfoData);
+		l_exporter.AssignNFO(&l_nfoData);
 
-		// render!
-		size_t l_imgWidth = l_renderer.GetWidth(), l_imgHeight = l_renderer.GetHeight();
-
-		if(!l_imgWidth || !l_imgHeight)
-		{
-			fprintf(stderr, "ERROR: Unable to render an empty file.\n");
-			return 1;
-		}
-
-		cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, (int)l_imgWidth, (int)l_imgHeight);
-
-		if(!l_surface)
-		{
-			fprintf(stderr, "ERROR: Unable to create an image surface (%u x %u)\n", l_imgWidth, l_imgHeight);
-			return 1;
-		}
-
-		if(!l_renderer.DrawToSurface(l_surface, 0, 0, 0, 0, (int)l_imgWidth, (int)l_imgHeight))
-		{
-			fprintf(stderr, "ERROR: Rendering failed.\n");
-			cairo_surface_destroy(l_surface);
-			return 1;
-		}
-
-	#ifdef _UNICODE
-		const std::string l_utfOutFileName = CUtil::FromWideStr(l_outFileName, CP_UTF8);
-		if(cairo_surface_write_to_png(l_surface, l_utfOutFileName.c_str()) != CAIRO_STATUS_SUCCESS)
-	#else
-		if(cairo_surface_write_to_png(l_surface, l_outFileName.c_str()) != CAIRO_STATUS_SUCCESS)
-	#endif
-		{
-			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
-			cairo_surface_destroy(l_surface);
-			return 1;
-		}
-		else
+		if(l_exporter.SavePNG(l_outFileName))
 		{
 			_tprintf(_T("Rendered `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
 		}
-
-		cairo_surface_destroy(l_surface);
+		else
+		{
+			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
+			return 1;
+		}
 	}
 	else if(l_makePdf)
 	{
@@ -390,6 +358,7 @@ int main(int argc, char* argv[])
 		else
 		{
 			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
+			return 1;
 		}
 #endif
 	}
@@ -406,6 +375,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
+				return 1;
 			}
 		}
 		else
@@ -435,6 +405,7 @@ int main(int argc, char* argv[])
 			else
 			{
 				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
+				return 1;
 			}
 		}
 	}
