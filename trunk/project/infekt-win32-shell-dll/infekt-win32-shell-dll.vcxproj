@@ -145,6 +145,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;cairo.lib;pcre.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -174,6 +175,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <AdditionalDependencies>shlwapi.lib;cairo.lib;pcre.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>

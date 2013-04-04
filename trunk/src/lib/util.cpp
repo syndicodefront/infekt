@@ -457,9 +457,9 @@ int CUtil::AddPngToImageList(HIMAGELIST a_imgList,
 			cairo_t *cr = cairo_create(l_surfaceOut);
 
 			// copy PNG to bitmap surface:
+			cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 			cairo_set_source_surface(cr, l_surfacePng, 0, 0);
-			cairo_rectangle(cr, 0, 0, a_width, a_height);
-			cairo_fill(cr);
+			cairo_paint(cr);
 			cairo_destroy(cr);
 
 			// finally add to image list:
@@ -489,11 +489,8 @@ wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpe
 
 wstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
 {
-	if(CUtil::IsWin6x())
-	{
-		return Win6x_OpenFileDialog(a_parent, a_filterSpec, a_nFilterSpec);
-	}
-	else
+#if _WIN32_WINNT < 0x600
+	if(!CUtil::IsWin6x())
 	{
 		OPENFILENAME ofn = {0};
 		TCHAR szBuf[1000] = {0};
@@ -514,17 +511,19 @@ wstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR
 
 		return L"";
 	}
+	else
+#endif
+	{
+		return Win6x_OpenFileDialog(a_parent, a_filterSpec, a_nFilterSpec);
+	}
 }
 
 
 wstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
 	const LPCTSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath)
 {
-	if(CUtil::IsWin6x())
-	{
-		return Win6x_SaveFileDialog(a_parent, a_filterSpec, a_nFilterSpec, a_defaultExt, a_currentFileName, a_initialPath);
-	}
-	else
+#if _WIN32_WINNT < 0x600
+	if(!CUtil::IsWin6x())
 	{
 		OPENFILENAME ofn = {0};
 		TCHAR szBuf[1000] = {0};
@@ -555,6 +554,11 @@ wstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR
 		}
 
 		return L"";
+	}
+	else
+#endif
+	{
+		return Win6x_SaveFileDialog(a_parent, a_filterSpec, a_nFilterSpec, a_defaultExt, a_currentFileName, a_initialPath);
 	}
 }
 
