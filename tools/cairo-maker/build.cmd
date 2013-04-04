@@ -5,17 +5,22 @@ REM * mingw's msys in C:\msys\1.0\bin
 REM * Visual Studio 2012
 REM * curl in PATH
 
+IF NOT "%CONFIG%x"=="x" GOTO PRECONFIGURED
 rem set CONFIG=release
 set CONFIG=debug
 set X64=n
 set STATIC=n
+:PRECONFIGURED
+
+SETLOCAL
+PUSHD
 
 IF EXIST zlib.tgz GOTO AZOK
 curl http://zlib.net/zlib-1.2.7.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng15/libpng-1.5.14.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.1.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
@@ -78,18 +83,15 @@ cd %ROOTDIR%\libpng\projects\vstudio
 sed "s/zlib-1....</zlib</" zlib.props > zlib.props.fixed
 move /Y zlib.props.fixed zlib.props
 
+sed "s/;Z_SOLO//" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
+
 IF %STATIC%==y GOTO ZLIBSTATICOK
 sed "s/StaticLibrary/DynamicLibrary/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 :ZLIBSTATICOK
 
-IF %CONFIG%==release GOTO ZLIBRUNTIMEOK
-sed "s/<RuntimeLibrary>.*<.RuntimeLibrary>//" zlib/zlib.vcxproj > zlib.vcxproj.fixed
-sed "s/<.ClCompile>/<RuntimeLibrary>MultiThreadedDebugDLL<\/RuntimeLibrary><\/ClCompile>/" zlib.vcxproj.fixed > zlib.vcxproj.fixed2
-move /Y zlib.vcxproj.fixed2 zlib/zlib.vcxproj
-:ZLIBRUNTIMEOK
-
-grep -v "AFCC227E3C1D.*Build" vstudio.sln | grep -v "BBEF8099F1D8.*Build" > vstudio.sln.fixed
+grep -iv "\(AFCC227E3C1D\|BBEF8099F1D8\|A3CDB672D2FF\|2B829BA36FEC\).*Build" vstudio.sln > vstudio.sln.fixed
 move /Y vstudio.sln.fixed vstudio.sln
 
 sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110_xp<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
@@ -110,18 +112,10 @@ sed "s/Win32/x64/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
 move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
 sed "s/<TargetMachine>MachineX86</<TargetMachine>MachineX64</" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
-sed "s/<TargetMachine>MachineX86</<TargetMachine>MachineX64</" libpng/libpng.vcxproj > libpng.vcxproj.fixed
-move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
 
 sed "s/Win32/x64/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
 move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
 :ZLIBNOX64
-
-IF %CONFIG%==release GOTO LIBPNGRUNTIMEOK
-sed "s/<RuntimeLibrary>.*<.RuntimeLibrary>//" libpng/libpng.vcxproj > libpng.vcxproj.fixed
-sed "s/<.ClCompile>/<RuntimeLibrary>MultiThreadedDebugDLL<\/RuntimeLibrary><\/ClCompile>/" libpng.vcxproj.fixed > libpng.vcxproj.fixed2
-move /Y libpng.vcxproj.fixed2 libpng/libpng.vcxproj
-:LIBPNGRUNTIMEOK
 
 rem zlib does not always export the gz* calls for some reason
 sed "s/^\s*gz.*$/;\0/m" %ROOTDIR%\zlib\win32\zlib.def > zlib\zlib.def
@@ -188,7 +182,12 @@ set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\src
 
 cd %ROOTDIR%\cairo
 
-sed s/libpng\.lib/libpng15.lib/ build\Makefile.win32.common > build\Makefile.fixed
+cd src
+rem source = http://lists.cairographics.org/archives/cairo/2013-March/024195.html
+patch -i %ROOTDIR%\..\cairo-libpng.patch -p0
+cd ..
+
+sed s/libpng\.lib/libpng16.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
 
 sed s/zlib\/zdll\.lib/libpng\/zlib.lib/ build\Makefile.win32.common > build\Makefile.fixed
@@ -246,12 +245,12 @@ copy %ROOTDIR%\libpng\png.h include
 copy %ROOTDIR%\libpng\pngconf.h include
 copy %ROOTDIR%\libpng\pnglibconf.h include
 
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.lib %OUTDIR%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng16.lib %OUTDIR%
 copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.lib %OUTDIR%
 
 IF %STATIC%==y GOTO SKIPCOPYDLLS
 copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.dll %OUTDIR%
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.dll %OUTDIR%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng16.dll %OUTDIR%
 copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.dll %OUTDIR%
 copy %ROOTDIR%\cairo\src\%CONFIG%\cairo.lib %OUTDIR%
 :SKIPCOPYDLLS
@@ -262,7 +261,7 @@ copy %ROOTDIR%\cairo\src\%CONFIG%\cairo-static.lib %OUTDIR%
 
 IF %CONFIG%==release GOTO FINALCOPYDONE
 rem copy PDB files
-copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng15.pdb %OUTDIR%
+copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng16.pdb %OUTDIR%
 copy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib.pdb %OUTDIR%
 copy %ROOTDIR%\cairo\src\debug\cairo.pdb %OUTDIR%
 :FINALCOPYDONE
@@ -272,8 +271,13 @@ goto END
 :ROOTDIRDELFAIL
 echo Failed to delete root dir.
 
-
 :END
+
+IF "%SILENT%x"=="yx" GOTO END2
 echo.
 echo.
 PAUSE
+:END2
+
+POPD
+ENDLOCAL

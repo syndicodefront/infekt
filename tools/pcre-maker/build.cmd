@@ -5,10 +5,15 @@ REM * mingw's msys in C:\msys\1.0\bin
 REM * Visual Studio 2012
 REM * curl in PATH
 
+IF NOT "%CONFIG%x"=="x" GOTO PRECONFIGURED
 rem set CONFIG=release
 set CONFIG=debug
 set X64=n
 set STATIC=n
+:PRECONFIGURED
+
+SETLOCAL
+PUSHD
 
 IF EXIST pcre.tgz GOTO PCREOK
 curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.32.tar.gz -o pcre.tgz
@@ -119,8 +124,13 @@ goto END
 :ROOTDIRDELFAIL
 echo Failed to delete root dir.
 
-
 :END
+
+IF "%SILENT%x"=="yx" GOTO END2
 echo.
 echo.
 PAUSE
+:END2
+
+POPD
+ENDLOCAL
