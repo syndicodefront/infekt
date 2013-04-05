@@ -162,6 +162,13 @@ void CMainFrame::OnCreate()
 
 void CMainFrame::OnInitialUpdate()
 {
+	CNFOApp *l_app = dynamic_cast<CNFOApp*>(GetApp());
+	std::wstring l_path, l_viewMode;
+	bool l_wrap;
+
+	if(!l_app)
+		abort();
+
 	ShowStatusbar(m_bShowStatusbar);
 
 	if(m_settings->bCenterWindow)
@@ -175,9 +182,20 @@ void CMainFrame::OnInitialUpdate()
 	LoadRenderSettingsFromRegistry(_T("ClassicView"), m_view.GetClassicCtrl().get());
 	LoadRenderSettingsFromRegistry(_T("TextOnlyView"), m_view.GetTextOnlyCtrl().get());
 	
+	l_wrap = m_view.GetTextOnlyCtrl()->GetWrapLines();
+	l_app->GetStartupOptions(l_path, l_viewMode, l_wrap);
+
 	UpdateStatusbar();
 
-	if(GetSettings()->iDefaultView == -1)
+	if(!l_viewMode.empty())
+	{
+		// set from command line.
+		if(l_viewMode == L"rendered") SwitchView(MAIN_VIEW_RENDERED);
+		else if(l_viewMode == L"classic") SwitchView(MAIN_VIEW_CLASSIC);
+		else if(l_viewMode == L"text") SwitchView(MAIN_VIEW_TEXTONLY);
+		m_view.GetActiveCtrl()->SetWrapLines(l_wrap);
+	}
+	else if(GetSettings()->iDefaultView == -1)
 	{
 		SwitchView((EMainView)GetSettings()->iLastView);
 	}
@@ -196,7 +214,7 @@ void CMainFrame::OnInitialUpdate()
 	PSettingsSection l_sect;
 	bool l_maximize = false;
 
-	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
+	if(l_app->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
 	{
 		l_maximize = l_sect->ReadBool(L"Maximized", false);
 		l_sect.reset();
@@ -210,10 +228,9 @@ void CMainFrame::OnInitialUpdate()
 
 	if(m_settings->bCheckDefaultOnStartup)
 	{
-		dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd, false);
+		l_app->CheckDefaultNfoViewer(m_hWnd, false);
 	}
 
-	std::_tstring l_path = dynamic_cast<CNFOApp*>(GetApp())->GetStartupFilePath();
 	if(!l_path.empty())
 	{
 		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
