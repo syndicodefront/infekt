@@ -41,3 +41,7 @@ http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 #define VC_EXTRALEAN
 
 #define STRICT /* http://msdn.microsoft.com/en-us/library/aa383681%28VS.85%29.aspx */
+
+#if (_WIN32_WINNT >= 0x600) && (_MSC_VER >= 1700) && !defined(COMPACT_RELEASE)
+#define HAVE_AMP
+#endif
