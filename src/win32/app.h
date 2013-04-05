@@ -30,12 +30,17 @@ public:
 	virtual BOOL InitInstance();
 
 	CMainFrame& GetMainFrame() { return m_frame; }
-	const std::_tstring& GetStartupFilePath() const { return m_startupFilePath; }
+	void GetStartupOptions(std::wstring& ar_filePath, std::wstring& ar_viewMode, bool& ar_lineWrap) const {
+		ar_filePath = m_startupFilePath;
+		ar_viewMode = m_startupViewMode;
+		if(m_startupLineWrapOverride && m_startupViewMode == L"text")
+			ar_lineWrap = m_startupLineWrap;
+	}
 	PSettingsBackend GetSettingsBackend() { return m_settings; }
 	bool InPortableMode() const { return m_portableMode; }
 
 	bool ExtractConfigDirPath(std::wstring& ar_path) const;
-	bool ExtractStartupFilePath(const std::_tstring& a_commandLine);
+	int ExtractStartupOptions(const std::wstring& a_commandLine);
 	bool SwitchToPrevInstance();
 
 	int IsDefaultNfoViewer();
@@ -43,7 +48,8 @@ public:
 	void CheckDefaultNfoViewer(HWND a_hwnd = 0, bool a_confirmation = true);
 protected:
 	CMainFrame m_frame;
-	std::_tstring m_startupFilePath;
+	std::wstring m_startupFilePath, m_startupViewMode;
+	bool m_startupLineWrap, m_startupLineWrapOverride;
 	PSettingsBackend m_settings;
 	bool m_portableMode;
 };

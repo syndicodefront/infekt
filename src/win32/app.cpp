@@ -15,9 +15,10 @@
 #include "stdafx.h"
 #include "app.h"
 #include "default_app.h"
-#include <mbctype.h>
+#include <boost/program_options.hpp>
 
 using namespace std;
+namespace bpo = boost::program_options;
 
 
 /************************************************************************/
@@ -42,15 +43,20 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	{
 		// Start Win32++:
 		CNFOApp theApp;
+		int l_cmdLineResult = theApp.ExtractStartupOptions(wszCommandLine);
 
 		// extract file path from command line:
-		if(theApp.ExtractStartupFilePath(wszCommandLine))
+		if(l_cmdLineResult > 0)
 		{
 			// activate prev instance if in single window/view mode:
 			if(l_prevInstance && theApp.SwitchToPrevInstance())
 			{
 				return 0;
 			}
+		}
+		else if(l_cmdLineResult < 0)
+		{
+			return l_cmdLineResult;
 		}
 
 		// we need COM for default app stuff on Vista+,
@@ -176,29 +182,83 @@ bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
 }
 
 
-bool CNFOApp::ExtractStartupFilePath(const wstring& a_commandLine)
+int CNFOApp::ExtractStartupOptions(const wstring& a_commandLine)
 {
-	if(!a_commandLine.empty())
+	bpo::options_description l_odesc("Allowed options");
+	bpo::positional_options_description l_posopt;
+	std::string l_message;
+	int l_result = 0;
+
+	std::wstring l_viewMode, l_filePath, l_wrap;
+
+	// define command line options:
+	l_odesc.add_options()
+		("help,h", "Show available command line options")
+		("view,v", bpo::wvalue<wstring>(&l_viewMode), "One of: default, rendered, classic, text")
+		("wrap,w", bpo::wvalue<wstring>(&l_wrap), "Enables line wrap (text view only)")
+		("filename", bpo::wvalue<wstring>(&l_filePath), "Path to a file")
+	;
+	l_posopt.add("filename", 1);
+
+	// parse command line options:
+	bpo::variables_map vm;
+
+	try
 	{
-		TCHAR *szPath = _wcsdup(a_commandLine.c_str()),
-			*szPathOrig = szPath; // copy just in case PathUnquoteSpaces messes with the actual pointer instead of data
-		
-		// ignore return value, e.g. because the path may not be quoted at all.
-		::PathUnquoteSpaces(szPath);
+		const vector<wstring> l_args = bpo::split_winmain(a_commandLine);
+		bpo::store(bpo::basic_command_line_parser<wchar_t>(l_args).
+			options(l_odesc).positional(l_posopt).run(), vm);
 
-		if(::PathFileExists(szPath))
+		if(vm.count("help"))
 		{
-			m_startupFilePath = szPath;
-
-			free(szPathOrig);
-
-			return true;
+			std::stringstream l_temp;
+			l_temp << l_odesc;
+			l_message = l_temp.str();
+			l_result = -1;
 		}
 
-		free(szPathOrig);
+		bpo::notify(vm);
+
+		if(vm.count("filename") && ::PathFileExists(l_filePath.c_str()))
+		{
+			m_startupFilePath = l_filePath;
+			l_result = 1;
+		}
+
+		if(vm.count("wrap") > 0)
+		{
+			m_startupLineWrapOverride = true;
+			m_startupLineWrap = !l_wrap.empty() && !boost::iequals(l_wrap, L"false") &&
+				!boost::iequals(l_wrap, L"no") && !boost::iequals(l_wrap, L"0");
+		}
+
+		std::transform(l_viewMode.begin(), l_viewMode.end(), l_viewMode.begin(), ::tolower);
+
+		if(l_viewMode == L"rendered" || l_viewMode == L"classic" || l_viewMode == L"text")
+		{
+			m_startupViewMode = l_viewMode;
+		}
+		// else: don't bother to show an error...
+	}
+	catch(bpo::error& e)
+	{
+		l_message = "Error parsing command line: " + string(e.what());
+		l_result = -1;
 	}
 
-	return false;
+	if(!l_message.empty())
+	{
+		if(::GetConsoleWindow()) /* this does not actually work. */
+		{
+			std::cerr << l_message << std::endl;
+		}
+		else
+		{
+			::MessageBoxA(HWND_DESKTOP, l_message.c_str(), "iNFEKT", MB_ICONEXCLAMATION);
+		}
+	}
+
+	return l_result;
 }
 
 
@@ -206,6 +266,11 @@ bool CNFOApp::SwitchToPrevInstance()
 {
 	PSettingsSection l_sect;
 	bool l_singleInstanceMode = false;
+
+	if(m_startupFilePath.empty())
+	{
+		return false;
+	}
 
 	// read setting (single instance yes/no):
 	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
