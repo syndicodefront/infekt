@@ -406,11 +406,14 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 
 	_ASSERT(m_stripes.size() <= m_numStripes);
 
-	// parallize rendering:
-	#pragma omp parallel for
-	for(int i = 0; i < static_cast<int>(l_changedStripes.size()); i++)
+	// for some weird reason, this conditional saves a lot of CPU time when scrolling?!.
+	if(l_changedStripes.size() > 0)
 	{
-		RenderStripe(l_changedStripes[i]);
+		#pragma omp parallel for
+		for(int i = 0; i < static_cast<int>(l_changedStripes.size()); i++)
+		{
+			RenderStripe(l_changedStripes[i]);
+		}
 	}
 
 	m_rendered = true;
