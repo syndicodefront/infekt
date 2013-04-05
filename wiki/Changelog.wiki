@@ -14,6 +14,7 @@
   * Got rid of all CUDA/NViDiA specific code and files
   * Made the blur effect use AMP - also supports ATI hardware now, but only on Windows Vista, 7 and 8
   * Needs Visual C++ 2012 runtime DLLs (previously 2010), installer will download if necessary, shipped with portable versions
+  * Usual round of performance improvements
   * PCRE update to 8.32, cairo update to 1.12.14, pixman update to 0.28.2
   * Attention: The 64-bit build for this and all following versions will no longer work on Windows XP 64-bit (32-bit is fine)
 
