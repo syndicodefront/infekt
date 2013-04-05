@@ -167,24 +167,38 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 {
-	for(size_t p = 0; p < a_text.size(); p++)
-	{
-		if(a_text[p] == L'\r')
-		{
-			if(p < a_text.size() - 1 && a_text[p + 1] == '\n')
-			{
-				a_text.erase(p, 1);
-			}
-			a_text[p] = L'\n';
-		}
-		else if(a_text[p] == L'\t' || a_text[p] == 0xA0)
-		{
-			a_text[p] = L' ';
-		}
-	}
-	// we should only have \ns and no tabs now.
+	wstring l_text;
+	wstring::size_type l_prevPos = 0, l_pos;
 
 	CUtil::StrTrimRight(a_text);
+
+	l_text.reserve(a_text.size());
+
+	l_pos = a_text.find_first_of(L"\r\t\xA0");
+
+	while(l_pos != wstring::npos)
+	{
+		l_text.append(a_text, l_prevPos, l_pos - l_prevPos);
+
+		if(a_text[l_pos] == L'\t' || a_text[l_pos] == 0xA0)
+		{
+			l_text += L' ';
+		}
+
+		l_prevPos = l_pos + 1;
+		l_pos = a_text.find_first_of(L"\r\t\xA0", l_prevPos);
+	}
+
+	if(l_prevPos != 0)
+	{
+		l_text.append(a_text.substr(l_prevPos));
+		a_text = l_text;
+	}
+
+	_ASSERT(a_text.find_first_of(L"\r\t\xA0") == wstring::npos);
+
+	// we should only have \ns and no tabs now.
+
 	a_text += L'\n';
 }
 
@@ -634,53 +648,64 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool 
 
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 {
+	bool l_error = false;
+
 	m_textContent.clear();
-	m_textContent.reserve(a_dataLen);
 
 	// kill trailing NULL chars that some NFOs have so our
 	// binary file check doesn't trigger.
 	while(a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
 
-	for(size_t i = 0; i < a_dataLen; i++)
+	m_textContent.resize(a_dataLen);
+
+	#pragma omp parallel for
+	for(int i = 0; i < static_cast<int>(a_dataLen); i++)
 	{
 		unsigned char p = a_data[i];
-
+		
 		if(p == 0x7F)
 		{
 			// Code 127 (7F), DEL, shows as a graphic (a house).
-			m_textContent += (wchar_t)0x2302;
+			m_textContent[i] = (wchar_t)0x2302;
 		}
 		else if(p >= 0x80)
 		{
-			m_textContent += map_cp437_to_unicode_high_bit[p - 0x80];
+			m_textContent[i] = map_cp437_to_unicode_high_bit[p - 0x80];
 		}
 		else if(p <= 0x1F)
 		{
 			if(p == 0)
 			{
-				m_lastErrorDescr = L"Binary files can not be loaded.";
-				return false;
+				l_error = true;
 			}
-			else if(p == 0x0D && i < a_dataLen - 1 && a_data[i + 1] == 0x0A)
+			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
 			{
-				m_textContent += L'\r';
+				m_textContent[i] = L'\r';
 			}
 			else
 			{
-				m_textContent += map_cp437_to_unicode_control_range[p];
+				m_textContent[i] = map_cp437_to_unicode_control_range[p];
 			}
 		}
 		else
 		{
 			_ASSERT(p > 0x1F && p < 0x80);
 
-			m_textContent += (wchar_t)p;
+			m_textContent[i] = (wchar_t)p;
 		}
 	}
 
-	m_sourceCharset = NFOC_CP437;
+	if(l_error)
+	{
+		m_lastErrorDescr = L"Binary files can not be loaded.";
+		return false;
+	}
+	else
+	{
+		m_sourceCharset = NFOC_CP437;
 
-	return true;
+		return true;
+	}
 }
 
 
