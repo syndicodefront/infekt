@@ -38,6 +38,7 @@
 #include <deque>
 #include <math.h>
 #include <memory>
+#include <omp.h>
 
 #if !defined(DONT_USE_SHARED_PTR) && !defined(HAVE_BOOST) && !(defined(_MSC_VER) && _MSC_VER >= 1600)
 #error No shared_ptr available...

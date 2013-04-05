@@ -33,6 +33,7 @@
 #include <limits>
 #include <map>
 #include <io.h>
+#include <omp.h>
 
 #include <memory>
 using std::tr1::shared_ptr;
