@@ -195,6 +195,7 @@ public:
 	double GetFrequency();
 	void StartTimer();
 	double StopTimer();
+	double StopDumpTimer(const char* a_name);
 
 protected:
 	LARGE_INTEGER m_start;

@@ -950,5 +950,17 @@ double CBenchmarkTimer::StopTimer(void)
 	return ((m_stop.QuadPart - m_start.QuadPart) / m_frequency);
 }
 
+double CBenchmarkTimer::StopDumpTimer(const char* a_name)
+{
+	double l_secs = StopTimer();
+	char l_buf[256] = {0};
+
+	sprintf_s(l_buf, 255, "BenchmarkTimer: [%s] %.2f msec\r\n", a_name, l_secs);
+
+	::OutputDebugStringA(l_buf);
+
+	return l_secs;
+}
+
 
 #endif /* _WIN32 */
