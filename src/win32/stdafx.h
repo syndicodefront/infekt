@@ -48,6 +48,7 @@
 #include <string>
 #include <sstream>
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <vector>
 #include <deque>
