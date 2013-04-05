@@ -751,12 +751,15 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, bo
 	return true;
 }
 
+#if !defined(_WIN32)
+static inline unsigned short _byteswap_ushort(unsigned short val)
+{
+	return (val >> CHAR_BIT) | (val << CHAR_BIT);    
+}
+#endif
 
 bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 {
-#if !defined(_WIN32)
-	return false;
-#else
 	if(sizeof(wchar_t) != sizeof(unsigned short))
 	{
 		return false;
@@ -795,7 +798,6 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 	m_sourceCharset = NFOC_UTF16;
 
 	return true;
-#endif
 }
 
 
