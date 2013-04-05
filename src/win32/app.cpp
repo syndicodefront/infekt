@@ -35,7 +35,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 	_wsetlocale(LC_CTYPE, L"C");
 
-	::CreateMutex(NULL, TRUE, _T("iNFektNfoViewerOneInstanceMutex"));
+	::CreateMutex(NULL, TRUE, L"iNFektNfoViewerOneInstanceMutex");
 	bool l_prevInstance = (::GetLastError() == ERROR_ALREADY_EXISTS);
 
 	try
@@ -176,11 +176,11 @@ bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
 }
 
 
-bool CNFOApp::ExtractStartupFilePath(const _tstring& a_commandLine)
+bool CNFOApp::ExtractStartupFilePath(const wstring& a_commandLine)
 {
 	if(!a_commandLine.empty())
 	{
-		TCHAR *szPath = _tcsdup(a_commandLine.c_str()),
+		TCHAR *szPath = _wcsdup(a_commandLine.c_str()),
 			*szPathOrig = szPath; // copy just in case PathUnquoteSpaces messes with the actual pointer instead of data
 		
 		// ignore return value, e.g. because the path may not be quoted at all.
@@ -245,7 +245,7 @@ BOOL CNFOApp::InitInstance()
 {
 	if(!m_frame.Create())
 	{
-		::MessageBox(NULL, _T("Failed to create Frame window"), _T("ERROR"), MB_ICONERROR);
+		::MessageBox(NULL, L"Failed to create Frame window", L"ERROR", MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -347,16 +347,16 @@ void CNFOApp::CheckDefaultNfoViewer(HWND a_hwnd, bool a_confirmation)
 
 	if(l_status == 0)
 	{
-		if(MessageBox(a_hwnd, _T("iNFekt is not your default NFO file viewer. Do you want to make it the default viewer now?"),
-			_T("Important"), MB_ICONQUESTION | MB_YESNO) == IDYES)
+		if(::MessageBox(a_hwnd, L"iNFekt is not your default NFO file viewer. Do you want to make it the default viewer now?",
+			L"Important", MB_ICONQUESTION | MB_YESNO) == IDYES)
 		{
 			if(MakeDefaultNfoViewer())
 			{
-				MessageBox(a_hwnd, _T("iNFekt is now your default NFO viewer!"), _T("Great Success"), MB_ICONINFORMATION);
+				::MessageBox(a_hwnd, L"iNFekt is now your default NFO viewer!", L"Great Success", MB_ICONINFORMATION);
 			}
 			else
 			{
-				MessageBox(a_hwnd, _T("A problem occured while trying to make iNFekt your default NFO viewer. Please do it manually."), _T("Problem"), MB_ICONEXCLAMATION);
+				::MessageBox(a_hwnd, L"A problem occured while trying to make iNFekt your default NFO viewer. Please do it manually.", L"Problem", MB_ICONEXCLAMATION);
 			}
 		}
 	}
@@ -364,13 +364,13 @@ void CNFOApp::CheckDefaultNfoViewer(HWND a_hwnd, bool a_confirmation)
 	{
 		if(l_status == -1)
 		{
-			MessageBox(a_hwnd, _T("iNFekt has not been installed properly. Since you are using Windows Vista, 7, or a newer version, ")
-				_T("this means that iNFekt can not register itself. Please re-install iNFekt using the setup routine, or manually ")
-				_T("associate iNFekt with .nfo files."), _T("Problem"), MB_ICONEXCLAMATION);
+			::MessageBox(a_hwnd, L"iNFekt has not been installed properly. Since you are using Windows Vista, 7, or a newer version, "
+				L"this means that iNFekt can not register itself. Please re-install iNFekt using the setup routine, or manually "
+				L"associate iNFekt with .nfo files.", L"Problem", MB_ICONEXCLAMATION);
 		}
 		else
 		{
-			MessageBox(a_hwnd, _T("iNFekt seems to be your default NFO viewer!"), _T("Great Success"), MB_ICONINFORMATION);
+			::MessageBox(a_hwnd, L"iNFekt seems to be your default NFO viewer!", L"Great Success", MB_ICONINFORMATION);
 		}
 	}
 }
