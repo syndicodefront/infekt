@@ -273,7 +273,7 @@ bool CNFOApp::SwitchToPrevInstance()
 	}
 
 	// read setting (single instance yes/no):
-	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
+	if(this->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
 	{
 		l_singleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
 		l_sect.reset();
