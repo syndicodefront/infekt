@@ -181,7 +181,9 @@ BEGIN
         MENUITEM "Copy Shortcut",               IDMC_COPYSHORTCUT
         MENUITEM SEPARATOR
         MENUITEM "Always on Top\tCtrl+T",       IDMC_ALWAYSONTOP
-        MENUITEM "Toggle Toolbar\tCtrl+G",      IMDC_TOGGLE_TOOLBAR
+        MENUITEM "Toggle Toolbar\tCtrl+G",      IDMC_TOGGLE_TOOLBAR
+        MENUITEM SEPARATOR
+        MENUITEM "Reload\tF5",                  IDMC_RELOAD
     END
 END
 
