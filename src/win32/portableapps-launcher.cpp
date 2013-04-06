@@ -40,14 +40,14 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 		l_dataPath = l_path + L"\\Data",
 		l_defaultDataPath = l_path + L"\\App\\DefaultData";
 
-	if(!::PathIsDirectory(l_dataPath.c_str()))
+	if(!::PathIsDirectory(l_dataPath.c_str()) && ::PathIsDirectory(l_defaultDataPath.c_str()))
 	{
 		_wmkdir(l_dataPath.c_str());
 	}
 
 	std::wstring l_portableIniPath = l_dataPath + L"\\portable.ini";
 
-	if(!::PathFileExists(l_portableIniPath.c_str()))
+	if(!::PathFileExists(l_portableIniPath.c_str()) && ::PathIsDirectory(l_dataPath.c_str()))
 	{
 		const std::wstring l_copyFrom = l_defaultDataPath + L"\\portable.ini";
 
