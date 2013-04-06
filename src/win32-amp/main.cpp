@@ -22,12 +22,22 @@ using namespace Concurrency;
 // returns nonzero if calling AMP stuff from this DLL is advisable.
 extern "C" __declspec(dllexport) int IsGpuUsable()
 {
-	accelerator l_defaultDevice;
-
-	// only accept a real GPU or the CPU fallback, no D3D emulation (slow):
-	if(l_defaultDevice == accelerator(accelerator::direct3d_ref) ||
-		(l_defaultDevice.is_emulated && l_defaultDevice != accelerator(accelerator::cpu_accelerator)))
+	try
 	{
+		accelerator l_defaultDevice;
+
+		// http://msdn.microsoft.com/en-us/library/hh873132.aspx
+		if(l_defaultDevice.is_emulated ||
+			l_defaultDevice.device_path == accelerator::direct3d_ref ||
+			l_defaultDevice.device_path == accelerator::cpu_accelerator)
+		{
+			return 0;
+		}
+	}
+	catch(runtime_exception& ex)
+	{
+		(void)ex;
+
 		return 0;
 	}
 
