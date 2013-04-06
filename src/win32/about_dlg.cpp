@@ -107,7 +107,6 @@ BOOL CAboutDialog::OnInitDialog()
 
 	const char* l_gpuFlag = "no";
 
-#ifdef HAVE_AMP
 	if(CUtil::IsWin6x())
 	{
 		HMODULE hGpuDll = CUtil::SilentLoadLibrary(CUtil::GetExeDir() + L"\\infekt-gpu.dll");
@@ -120,7 +119,6 @@ BOOL CAboutDialog::OnInitDialog()
 				l_gpuFlag = "yes";
 		}
 	}
-#endif
 
 	_CREATE_STATIC(l_hLibVersions, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%02d, GPU: %s"),
 		CAIRO_VERSION_MAJOR % CAIRO_VERSION_MINOR % CAIRO_VERSION_MICRO %
