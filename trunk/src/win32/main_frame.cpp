@@ -565,11 +565,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		return TRUE;
 
 	case IDM_VIEW_SHOWTOOLBAR:
-	case IMDC_TOGGLE_TOOLBAR:
+	case IDMC_TOGGLE_TOOLBAR:
 		ShowToolbar(m_bShowToolbar = !m_bShowToolbar);
 		return TRUE;
 
 	case IDM_VIEW_RELOAD:
+	case IDMC_RELOAD:
 		m_view.ReloadFile();
 		return TRUE;
 
