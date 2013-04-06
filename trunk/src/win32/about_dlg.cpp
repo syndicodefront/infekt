@@ -98,7 +98,7 @@ BOOL CAboutDialog::OnInitDialog()
 #endif
 	}
 
-	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2012"), l_top, 20);
+	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2013"), l_top, 20);
 	l_top += 20;
 
 	_CREATE_SYSLINK(l_hHomepage, _T("Project Homepage: <A HREF=\"http://infekt.googlecode.com/\">infekt.googlecode.com</A>"), l_top, 20);
@@ -112,8 +112,8 @@ BOOL CAboutDialog::OnInitDialog()
 
 	_CREATE_STATIC(l_hGPL, _T("This program is free software; you can redistribute it and/or ")
 		_T("modify it under the terms of the GNU General Public License ")
-		_T("as published by the Free Software Foundation. This software contains source code provided by NVIDIA Corporation."), l_top, 65);
-	l_top += 70;
+		_T("as published by the Free Software Foundation."), l_top, 55);
+	l_top += 60;
 
 #ifndef COMPACT_RELEASE
 	if(CUtil::IsWin6x())

@@ -1692,9 +1692,9 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 
 			l_serverVersion = l_pairs[L"latest[stable].1"];
 			l_newDownloadUrl = l_pairs[L"download_latest[stable].1"];
-			// 078 defines the compatible auto-update method
-			l_autoUpdateUrl = l_pairs[L"autoupdate_download[stable].1/078"];
-			l_autoUpdateHash = l_pairs[L"autoupdate_hash[stable].1/078"];
+			// 087 defines the compatible auto-update method
+			l_autoUpdateUrl = l_pairs[L"autoupdate_download[stable].1/087"];
+			l_autoUpdateHash = l_pairs[L"autoupdate_hash[stable].1/087"];
 		}
 	}
 
