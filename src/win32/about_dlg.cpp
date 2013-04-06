@@ -105,9 +105,26 @@ BOOL CAboutDialog::OnInitDialog()
 	m_linkCtrl = l_hHomepage;
 	l_top += 20;
 
-	_CREATE_STATIC(l_hLibVersions, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%02d"),
+	const char* l_gpuFlag = "no";
+
+#ifdef HAVE_AMP
+	if(CUtil::IsWin6x())
+	{
+		HMODULE hGpuDll = CUtil::SilentLoadLibrary(CUtil::GetExeDir() + L"\\infekt-gpu.dll");
+
+		typedef int (__cdecl *fnc)();
+
+		if(fnc igu = (fnc)::GetProcAddress(hGpuDll, "IsGpuUsable"))
+		{
+			if(igu())
+				l_gpuFlag = "yes";
+		}
+	}
+#endif
+
+	_CREATE_STATIC(l_hLibVersions, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%02d, GPU: %s"),
 		CAIRO_VERSION_MAJOR % CAIRO_VERSION_MINOR % CAIRO_VERSION_MICRO %
-		PCRE_MAJOR % PCRE_MINOR), l_top, 20);
+		PCRE_MAJOR % PCRE_MINOR % l_gpuFlag), l_top, 20);
 	l_top += 20;
 
 	_CREATE_STATIC(l_hGPL, _T("This program is free software; you can redistribute it and/or ")
