@@ -118,6 +118,8 @@ protected:
 	PNFOData m_nfoPreloadData;
 
 	PWinFileWatcher m_fileChangeWatcher;
+	void WatchFileStart();
+	void WatchFileStop();
 	void OnFileChanged();
 
 	void LoadOpenMruList();
