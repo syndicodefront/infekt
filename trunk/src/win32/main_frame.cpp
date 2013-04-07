@@ -1430,10 +1430,10 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	}
 	else if(a_id == IDM_EXPORT_XHTML)
 	{
-		COMDLG_FILTERSPEC l_filter[] = { { L"(X)HTML File", L"*.html" } };
+		COMDLG_FILTERSPEC l_filter[] = { { L"HTML File", L"*.html" } };
 
 		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("(X)HTML File\0*.html\0\0"), l_filter, 1, _T("html"),
+			_T("HTML File\0*.html\0\0"), l_filter, 1, _T("html"),
 			l_baseFileName + _T(".html"), l_defaultPath);
 
 		if(!l_filePath.empty())
@@ -1444,10 +1444,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
-			wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
-			l_html += l_exporter.GetHTML();
-
-			const string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
+			const string l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
 
 			FILE* l_file;
 			if(_tfopen_s(&l_file, l_filePath.c_str(), _T("wb")) == 0 && l_file)

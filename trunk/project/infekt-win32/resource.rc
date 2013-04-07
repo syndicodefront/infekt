@@ -131,7 +131,7 @@ BEGIN
             MENUITEM "As UTF-16 Text File...",      IDM_EXPORT_UTF16
             MENUITEM "As CP 437 NFO File...",       IDM_EXPORT_CP437
             MENUITEM SEPARATOR
-            MENUITEM "As XHTML...",                 IDM_EXPORT_XHTML
+            MENUITEM "As HTML...",                  IDM_EXPORT_XHTML
             MENUITEM SEPARATOR
             MENUITEM "As PDF...",                   IDM_EXPORT_PDF
             MENUITEM "As PDF (DIN Size)...",        IDM_EXPORT_PDF_DIN
