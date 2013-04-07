@@ -323,7 +323,8 @@ BEGIN
     CONTROL         "Use on-demand rendering for large files",IDC_ONDEMAND_RENDERING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,109,148,10
     CONTROL         "Auto-refresh when file changes",IDC_MONITOR_FILE_CHANGES,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,176,74,116,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,173,74,116,10
+    CONTROL         "Enable hardware (GPU) acceleration",IDC_USE_GPU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,173,109,127,10
 END
 
 

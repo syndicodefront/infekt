@@ -169,6 +169,8 @@ void CMainFrame::OnInitialUpdate()
 	if(!l_app)
 		abort();
 
+	CNFORenderer::SetGlobalUseGPUFlag(m_settings->bUseGPU);
+
 	ShowStatusbar(m_bShowStatusbar);
 
 	if(m_settings->bCenterWindow)
@@ -926,6 +928,8 @@ void CMainFrame::OnAfterSettingsChanged() // meh
 	// stop+start watching the file to reflect new setting state:
 	WatchFileStop();
 	WatchFileStart();
+
+	CNFORenderer::SetGlobalUseGPUFlag(m_settings->bUseGPU);
 
 	// update or reset text-only view's word-wrap flag:
 	m_view.SwitchView(m_view.GetViewType());
@@ -1986,6 +1990,7 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"CloseOnEsc", this->bCloseOnEsc);
 	l_sect->WriteBool(L"OnDemandRendering", this->bOnDemandRendering);
 	l_sect->WriteBool(L"MonitorFileChanges", this->bMonitorFileChanges);
+	l_sect->WriteBool(L"UseGPU", this->bUseGPU);
 
 	// "deputy" return value:
 	return l_sect->WriteBool(L"SingleInstanceMode", this->bSingleInstanceMode);
@@ -2028,6 +2033,7 @@ bool CMainSettings::LoadFromRegistry()
 	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", false);
 	this->bOnDemandRendering = l_sect->ReadBool(L"OnDemandRendering", true);
 	this->bMonitorFileChanges = l_sect->ReadBool(L"MonitorFileChanges", true);
+	this->bUseGPU = l_sect->ReadBool(L"UseGPU", true);
 
 	return true;
 }

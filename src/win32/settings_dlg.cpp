@@ -1313,6 +1313,15 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
 	SET_DLG_CHECKBOX(IDC_MONITOR_FILE_CHANGES, m_settings->bMonitorFileChanges);
 
+	if(CUtil::IsWin6x())
+	{
+		SET_DLG_CHECKBOX(IDC_USE_GPU, m_settings->bUseGPU);
+	}
+	else
+	{
+		::EnableWindow(GetDlgItem(IDC_USE_GPU), FALSE);
+	}
+
 	ShowWindow(SW_SHOW);
 
 	return TRUE;
@@ -1328,6 +1337,7 @@ void CAdvancedSettingsWindowDialog::OnOK()
 	m_settings->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
 	m_settings->bOnDemandRendering = (::IsDlgButtonChecked(GetHwnd(), IDC_ONDEMAND_RENDERING) != FALSE);
 	m_settings->bMonitorFileChanges = (::IsDlgButtonChecked(GetHwnd(), IDC_MONITOR_FILE_CHANGES) != FALSE);
+	m_settings->bUseGPU = (::IsDlgButtonChecked(GetHwnd(), IDC_USE_GPU) != FALSE);
 
 	CDialog::OnOK();
 }

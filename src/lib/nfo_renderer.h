@@ -180,11 +180,14 @@ protected:
 	void ClearStripes();
 
 	static const size_t ms_defaultClassicFontSize = 12;
+	static bool ms_useGPU;
 public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();
 
 	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);
+
+	static void SetGlobalUseGPUFlag(bool nb) { ms_useGPU = nb; }
 
 	// mainly important methods:
 	virtual void UnAssignNFO();

@@ -51,7 +51,6 @@
 #define IDC_CLOSE_ON_ESC                1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_ENABLE_CUDA                 1012
-#define IDC_WATCH_FILE_CHANGES          1012
 #define IDC_MONITOR_FILE_CHANGES        1012
 #define IDC_BUTTON2                     1013
 #define IDC_PREVIEW_BTN                 1013
@@ -60,6 +59,8 @@
 #define IDC_ONDEMAND_RENDERING          1013
 #define IDC_BUTTON_DEFAULT_VIEWER2      1014
 #define IDC_BUTTON_ADVANCED             1014
+#define IDC_MONITOR_FILE_CHANGES2       1014
+#define IDC_USE_GPU                     1014
 #define IDC_CLR_GAUSS                   1015
 #define IDC_SYNC_FROM_RENDERED          1016
 #define IDC_SYNC_FROM_NORMAL            1017

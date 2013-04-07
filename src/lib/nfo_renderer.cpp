@@ -492,7 +492,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 			{
 				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur(
 					(int)GetWidth(), GetStripeHeight(a_stripe),
-					(int)GetGaussBlurRadius());
+					(int)GetGaussBlurRadius(), ms_useGPU);
 
 				cairo_t* cr = cairo_create(l_surface);
 
@@ -1555,3 +1555,5 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 
 	return false;
 }
+
+bool CNFORenderer::ms_useGPU = true;

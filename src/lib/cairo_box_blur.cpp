@@ -35,14 +35,14 @@ typedef int32_t PRInt32;
 #define NS_ASSERTION(a, b) _ASSERT(a)
 
 
-CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius)
+CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a_useGPU)
 {
 	m_blurRadius = a_blurRadius;
 
 	m_useFallback = true;
 
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
-	if(CUtil::IsWin6x())
+	if(CUtil::IsWin6x() && a_useGPU)
 	{
 		if(!m_hAmpDll)
 		{
