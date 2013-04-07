@@ -42,9 +42,6 @@
     <ClCompile Include="..\..\src\win32-shell-dll\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\win32-support\theme_api.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\win32-shell-dll\thumbnail_provider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

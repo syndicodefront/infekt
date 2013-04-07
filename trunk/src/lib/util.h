@@ -16,7 +16,6 @@
 #define _UTIL_H
 
 #ifdef _WIN32_UI
-#include "theme_api.h"
 
 #if _WIN32_WINNT < 0x600
 /* just make it compile! */

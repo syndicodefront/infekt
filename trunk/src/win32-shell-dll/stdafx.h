@@ -49,7 +49,6 @@ typedef signed int ssize_t;
 #endif
 #define _tstring wstring
 #include "util.h"
-#include "theme_api.h"
 
 template <class T> void SafeRelease(T **ppT)
 {
