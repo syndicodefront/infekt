@@ -1,3 +1,7 @@
+/*
+	based on http://en.wikipedia.org/wiki/Code_page_437
+*/
+
 
 /*
 	The high-bit range, 128 to 255 (80 to FF), is mapped to various symbols

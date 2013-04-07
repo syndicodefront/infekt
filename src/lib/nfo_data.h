@@ -79,7 +79,8 @@ public:
 	const std::string& GetTextUtf8() const { return m_utf8Content; }
 	const std::wstring& GetTextWide() const { return m_textContent; }
 
-	bool SaveToFile(std::_tstring a_filePath, bool a_utf8 = true, bool a_compoundWhitespace = false);
+	bool SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8 = true, bool a_compoundWhitespace = false);
+	bool SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted);
 
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
@@ -94,6 +95,7 @@ public:
 	static const std::wstring GetCharsetName(ENfoCharset a_charset);
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
+
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;

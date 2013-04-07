@@ -600,7 +600,6 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 }
 
 
-/* based on http://en.wikipedia.org/wiki/Code_page_437 */
 #include "nfo_data_cp437.inc"
 
 
@@ -826,7 +825,7 @@ const std::_tstring CNFOData::GetFileName() const
 }
 
 
-bool CNFOData::SaveToFile(std::_tstring a_filePath, bool a_utf8, bool a_compoundWhitespace)
+bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, bool a_compoundWhitespace)
 {
 	FILE *l_file = NULL;
 
@@ -1346,6 +1345,67 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 	return l_text;
 }
 
+
+bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted)
+{
+	FILE *fp = NULL;
+	map<wchar_t, char> l_transl;
+	vector<char> l_converted;
+
+	for(int j = 0; j < 32; j++)
+	{
+		l_transl[map_cp437_to_unicode_control_range[j]] = j;
+	}
+
+	for(int j = 0x80; j <= 0xFF; j++)
+	{
+		l_transl[map_cp437_to_unicode_high_bit[j - 0x80]] = j;
+	}
+
+#ifdef _UNICODE
+	if(_wfopen_s(&fp, a_filePath.c_str(), L"wb") != ERROR_SUCCESS)
+#else
+	if((fp = fopen(a_filePath.c_str(), "wb")) == NULL)
+#endif
+	{
+		return false;
+	}
+
+	ar_charsNotConverted = 0;
+
+	l_converted.resize(m_textContent.size(), ' ');
+
+	#pragma omp parallel for
+	for(int i = 0; i < static_cast<int>(m_textContent.size()); i++)
+	{
+		wchar_t wc = m_textContent[i];
+		map<wchar_t, char>::const_iterator it;
+
+		if(wc > 0x1F && wc < 0x80 || wc == L'\n')
+		{
+			l_converted[i] = (char)wc;
+		}
+		else if(wc == (wchar_t)0x2302)
+		{
+			l_converted[i] = 0x7F;
+		}
+		else if((it = l_transl.find(wc)) != l_transl.end())
+		{
+			l_converted[i] = it->second;
+		}
+		else
+		{
+			#pragma omp atomic
+			ar_charsNotConverted++;
+		}
+	}
+
+	bool l_success = (fwrite(l_converted.data(), 1, l_converted.size(), fp) == l_converted.size());
+
+	fclose(fp);
+
+	return l_success;
+}
 
 
 CNFOData::~CNFOData()
