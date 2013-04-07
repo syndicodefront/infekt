@@ -37,6 +37,7 @@ public:
 		bCloseOnEsc = false;
 		bOnDemandRendering = true;
 		bMonitorFileChanges = true;
+		bUseGPU = true;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -57,6 +58,7 @@ public:
 	bool bCloseOnEsc;
 	bool bOnDemandRendering;
 	bool bMonitorFileChanges;
+	bool bUseGPU;
 };
 
 typedef shared_ptr<CMainSettings> PMainSettings;

@@ -22,7 +22,7 @@
 class CCairoBoxBlur
 {
 public:
-	CCairoBoxBlur(int a_width, int a_height, int a_blurRadius);
+	CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a_useGPU = true);
 	virtual ~CCairoBoxBlur();
 
 	/**

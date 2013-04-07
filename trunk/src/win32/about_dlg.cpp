@@ -109,7 +109,7 @@ BOOL CAboutDialog::OnInitDialog()
 
 	const char* l_gpuFlag = "no";
 
-	if(CUtil::IsWin6x())
+	if(CUtil::IsWin6x() && m_mainWin->GetSettings()->bUseGPU)
 	{
 		HMODULE hGpuDll = CUtil::SilentLoadLibrary(CUtil::GetExeDir() + L"\\infekt-gpu.dll");
 
