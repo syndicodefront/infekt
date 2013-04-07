@@ -7,7 +7,9 @@
 
 == v0.8.7 (2013) ==
   * Attention: Due to a bug in all previous versions' auto updater, it's not possible to auto-update to this version. Please download & install the new version manually.
-  * Optionally associate .diz files during setup (issue 73)
+  * New feature: iNFekt automatically reloads the currently viewed file if it changes on disk
+  * New feature: Export NFOs as CP 437 (informs about nonconvertible characters, too)
+  * New: Optionally associate .diz files during setup (issue 73)
   * Tweaked detection to match some more broken NFOs and display them correctly
   * Fixed a problem where some links in consecutive lines would not be recognized correctly
   * Fixed PortableApps.com wrapper ignoring command line arguments (issue 76)
@@ -15,8 +17,9 @@
   * Added some command line arguments to main iNFEKT program (try --help) - issue 74
   * Got rid of all CUDA/NViDiA specific code and files
   * Made the blur effect use C++ AMP - also supports ATI hardware now, but only on Windows Vista, 7 and 8
+  * Status of GPU acceleration (used yes/no) is now shown in About dialog (F1)
   * Needs Visual C++ 2012 runtime DLLs (previously 2010), installer will download if necessary, shipped with portable versions
-  * Usual round of performance improvements
+  * Usual round of performance improvements, bug fixes and mini improvements
   * PCRE update to 8.32, cairo update to 1.12.14, pixman update to 0.28.2
   * Attention: The 64-bit build for this and all following versions will no longer work on Windows XP 64-bit (32-bit is fine)
 
