@@ -26,7 +26,7 @@ CWinFileWatcher::CWinFileWatcher(WinFileChangedCallback a_callback) :
 	m_watching(false)
 {
 	m_hStopEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-	m_hThreadEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+	m_hThreadEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
 void CWinFileWatcher::SetCallback(WinFileChangedCallback a_callback)
@@ -36,24 +36,27 @@ void CWinFileWatcher::SetCallback(WinFileChangedCallback a_callback)
 
 void CWinFileWatcher::SetFile(const std::wstring& a_path)
 {
-	bool bWasWatching = m_watching;
-
-	if(m_watching)
+	if(a_path != m_filePath)
 	{
-		StopWatching();
-	}
+		bool bWasWatching = m_watching;
 
-	m_filePath = a_path;
+		if(m_watching)
+		{
+			StopWatching();
+		}
 
-	if(bWasWatching)
-	{
-		StartWatching();
-	}
+		m_filePath = a_path;
+
+		if(bWasWatching)
+		{
+			StartWatching();
+		}
+	}	
 }
 
 bool CWinFileWatcher::StartWatching()
 {
-	if(!m_callback)
+	if(!m_callback || m_watching)
 	{
 		return false;
 	}
@@ -63,7 +66,7 @@ bool CWinFileWatcher::StartWatching()
 		return false;
 	}
 
-	::ResetEvent(m_hThreadEvent);
+	::ResetEvent(m_hStopEvent);
 
 	uintptr_t l_thread = _beginthread(_WatchEventThread, 0, this);
 
@@ -85,8 +88,6 @@ bool CWinFileWatcher::StopWatching()
 		return false;
 	}
 
-	::ResetEvent(m_hThreadEvent);
-
 	// signal:
 	::SetEvent(m_hStopEvent);
 
@@ -95,6 +96,8 @@ bool CWinFileWatcher::StopWatching()
 
 	m_watching = false;
 
+	_ASSERT(dwEvent == WAIT_OBJECT_0);
+
 	return (dwEvent == WAIT_OBJECT_0);
 }
 
@@ -102,13 +105,11 @@ void CWinFileWatcher::WatchEventThread()
 {
 	HANDLE l_hEvents[2];
 	bool bStop = false;
-	std::wstring l_FolderPath;
-	uint64_t l_lastModTime;
+	std::wstring l_FolderPath = CUtil::PathRemoveFileSpec(m_filePath);;
+	uint64_t l_lastModTime = GetFileModificationTime();
 	
-	::SetEvent(m_hThreadEvent); // thread has started
-
-	l_FolderPath = CUtil::PathRemoveFileSpec(m_filePath);
-	l_lastModTime = GetFileModificationTime();
+	::SetEvent(m_hThreadEvent); // thread has started.
+	// placing this call here ensures that accessing m_filePatj is locked.
 
 	l_hEvents[0] = ::FindFirstChangeNotification(l_FolderPath.c_str(), FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE);
 	l_hEvents[1] = m_hStopEvent;
