@@ -1388,7 +1388,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	}
 	else if(a_id == IDM_EXPORT_CP437)
 	{
-		size_t l_unconvertable;
+		size_t l_inconvertible;
 
 		COMDLG_FILTERSPEC l_filter[] = { { L"NFO File", L"*.nfo" }, { L"Text File", L"*.txt" } };
 
@@ -1400,15 +1400,15 @@ void CMainFrame::DoNfoExport(UINT a_id)
 		{
 			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
-			if(m_view.GetActiveCtrl()->GetNfoData()->SaveToCP437File(l_filePath, l_unconvertable))
+			if(m_view.GetActiveCtrl()->GetNfoData()->SaveToCP437File(l_filePath, l_inconvertible))
 			{
 				std::wstringstream l_msg;
 				std::wstring l_msgstr;
 
 				l_msg << L"File saved!\r\n\r\n";
-				
-				if(l_unconvertable)
-					l_msg << l_unconvertable << L" characters could not be converted to CP 437.";
+
+				if(l_inconvertible)
+					l_msg << l_inconvertible << L" characters could not be converted to CP 437.";
 				else
 					l_msg << L"All characters in this NFO are CP 437-compatible and have been converted.";
 
