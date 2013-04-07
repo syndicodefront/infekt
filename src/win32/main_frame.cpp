@@ -826,6 +826,11 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 {
 	if(m_view.OpenFile(a_filePath))
 	{
+		if(m_fileChangeWatcher)
+		{
+			m_fileChangeWatcher->StopWatching();
+		}
+
 		UpdateCaption();
 		
 		UpdateStatusbar();
@@ -868,11 +873,31 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 
 		m_lastSearchTerm = L"";
 
+		if(true)
+		{
+			if(!m_fileChangeWatcher)
+			{
+				m_fileChangeWatcher = PWinFileWatcher(new CWinFileWatcher(
+					boost::bind(&CMainFrame::OnFileChanged, this)));
+			}
+
+			m_fileChangeWatcher->SetFile(a_filePath);
+
+			m_fileChangeWatcher->StartWatching();
+		}
+
 		// yay.
 		return true;
 	}
 
 	return false;
+}
+
+
+// warning: most likely running in background thread
+void CMainFrame::OnFileChanged()
+{
+	::PostMessage(m_hWnd, WM_RELOAD_NFO, 0, 0);
 }
 
 
@@ -1151,6 +1176,9 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			OpenFile(l_path);
 		}
 		return 1; }
+	case WM_RELOAD_NFO:
+		m_view.ReloadFile();
+		return 1;
 	case WM_SYNC_PLUGIN_TO_CORE:
 		return CPluginManager::GetInstance()->SynchedPluginToCore((void*)lParam);
 	case WM_COPYDATA: {

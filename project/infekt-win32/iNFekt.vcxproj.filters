@@ -87,6 +87,9 @@
     <ClCompile Include="..\..\src\lib\nfo_to_png.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\win32-support\win_file_watcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\win32\about_dlg.h">
