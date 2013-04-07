@@ -368,7 +368,7 @@ int main(int argc, char* argv[])
 		{
 			// text export
 
-			if(l_nfoData.SaveToFile(l_outFileName, l_textUtf8, l_compoundWhitespace))
+			if(l_nfoData.SaveToUnicodeFile(l_outFileName, l_textUtf8, l_compoundWhitespace))
 			{
 				_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
 			}

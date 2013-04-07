@@ -539,6 +539,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDM_EXPORT_PNG_TRANSP:
 	case IDM_EXPORT_UTF8:
 	case IDM_EXPORT_UTF16:
+	case IDM_EXPORT_CP437:
 	case IDM_EXPORT_XHTML:
 	case IDM_EXPORT_PDF:
 	case IDM_EXPORT_PDF_DIN:
@@ -1352,8 +1353,6 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			{
 				this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
 			}
-
-			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		}
 	}
 	else if(a_id == IDM_EXPORT_UTF8 || a_id == IDM_EXPORT_UTF16)
@@ -1370,7 +1369,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 		{
 			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
-			if(m_view.GetActiveCtrl()->GetNfoData()->SaveToFile(l_filePath, l_utf8))
+			if(m_view.GetActiveCtrl()->GetNfoData()->SaveToUnicodeFile(l_filePath, l_utf8))
 			{
 				this->MessageBox(_T("File saved!"), _T("Success"), MB_ICONINFORMATION);
 			}
@@ -1385,8 +1384,48 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 				this->MessageBox(l_msg.c_str(), _T("Fail"), MB_ICONEXCLAMATION);
 			}
+		}
+	}
+	else if(a_id == IDM_EXPORT_CP437)
+	{
+		size_t l_unconvertable;
 
-			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		COMDLG_FILTERSPEC l_filter[] = { { L"NFO File", L"*.nfo" }, { L"Text File", L"*.txt" } };
+
+		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			L"NFO File\0*.nfo;\0Text File\0*.txt\0\0", l_filter, 2, L"nfo",
+			l_baseFileName + L"-msdos.nfo", l_defaultPath);
+
+		if(!l_filePath.empty())
+		{
+			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
+			if(m_view.GetActiveCtrl()->GetNfoData()->SaveToCP437File(l_filePath, l_unconvertable))
+			{
+				std::wstringstream l_msg;
+				std::wstring l_msgstr;
+
+				l_msg << L"File saved!\r\n\r\n";
+				
+				if(l_unconvertable)
+					l_msg << l_unconvertable << L" characters could not be converted to CP 437.";
+				else
+					l_msg << L"All characters in this NFO are CP 437-compatible and have been converted.";
+
+				l_msgstr = l_msg.str();
+				this->MessageBox(l_msgstr.c_str(), L"Success", MB_ICONINFORMATION);
+			}
+			else
+			{
+				std::wstring l_msg = m_view.GetActiveCtrl()->GetNfoData()->GetLastErrorDescription();
+
+				if(l_msg.empty())
+				{
+					l_msg = L"Writing to the file failed. Please select a different file or folder.";
+				}
+
+				this->MessageBox(l_msg.c_str(), L"Fail", MB_ICONEXCLAMATION);
+			}
 		}
 	}
 	else if(a_id == IDM_EXPORT_XHTML)
@@ -1422,8 +1461,6 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			{
 				this->MessageBox(_T("Unable to open file for writing!"), _T("Fail"), MB_ICONEXCLAMATION);
 			}
-
-			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		}
 	}
 	else if(a_id == IDM_EXPORT_PDF || a_id == IDM_EXPORT_PDF_DIN)
@@ -1451,10 +1488,10 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			{
 				this->MessageBox(_T("An error occured while trying to save this NFO as PDF!"), _T("Fail"), MB_ICONEXCLAMATION);
 			}
-
-			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		}
 	}
+
+	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 }
 
 
