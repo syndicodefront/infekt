@@ -134,8 +134,21 @@ bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 {
 	if(m_nfoData)
 	{
+		// save scroll positions:
+		int l_savedScrollPos[3] = {0};
+
+		if(m_curViewCtrl)
+		{
+			l_savedScrollPos[0] = 1;
+			m_curViewCtrl->GetScrollPositions(l_savedScrollPos[0], l_savedScrollPos[1]);
+		}
+
+		// actually reload the file:
 		if(OpenFile(m_nfoFilePath, a_charset))
 		{
+			// restore scroll positions:
+			m_curViewCtrl->ScrollIntoView(l_savedScrollPos[1], l_savedScrollPos[0]);
+
 			// redraw scrollbars and such:
 			SendMessage(WM_SETREDRAW, 1);
 			::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
