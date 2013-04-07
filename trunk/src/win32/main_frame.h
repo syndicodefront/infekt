@@ -17,6 +17,7 @@
 
 #include "main_view.h"
 #include "win_http_client.h"
+#include "win_file_watcher.h"
 
 
 class CMainSettings
@@ -115,6 +116,9 @@ protected:
 	// :TODO: add&check folder timestamp
 	size_t m_nfoInFolderIndex;
 	PNFOData m_nfoPreloadData;
+
+	PWinFileWatcher m_fileChangeWatcher;
+	void OnFileChanged();
 
 	void LoadOpenMruList();
 	void SaveOpenMruList();
