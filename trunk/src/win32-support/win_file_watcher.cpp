@@ -36,6 +36,9 @@ void CWinFileWatcher::SetCallback(WinFileChangedCallback a_callback)
 
 void CWinFileWatcher::SetFile(const std::wstring& a_path)
 {
+	// changing the path of the watched file requires the thread
+	// to be restarted.
+
 	if(a_path != m_filePath)
 	{
 		bool bWasWatching = m_watching;
@@ -56,12 +59,12 @@ void CWinFileWatcher::SetFile(const std::wstring& a_path)
 
 bool CWinFileWatcher::StartWatching()
 {
-	if(!m_callback || m_watching)
+	if(m_watching)
 	{
-		return false;
+		return true;
 	}
 
-	if(m_filePath.empty() || !::PathFileExists(m_filePath.c_str()))
+	if(!m_callback || m_filePath.empty() || !::PathFileExists(m_filePath.c_str()))
 	{
 		return false;
 	}

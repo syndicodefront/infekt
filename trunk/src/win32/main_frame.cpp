@@ -826,10 +826,7 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 {
 	if(m_view.OpenFile(a_filePath))
 	{
-		if(m_fileChangeWatcher)
-		{
-			m_fileChangeWatcher->StopWatching();
-		}
+		WatchFileStop();
 
 		UpdateCaption();
 		
@@ -873,24 +870,44 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 
 		m_lastSearchTerm = L"";
 
-		if(true)
-		{
-			if(!m_fileChangeWatcher)
-			{
-				m_fileChangeWatcher = PWinFileWatcher(new CWinFileWatcher(
-					boost::bind(&CMainFrame::OnFileChanged, this)));
-			}
-
-			m_fileChangeWatcher->SetFile(a_filePath);
-
-			m_fileChangeWatcher->StartWatching();
-		}
+		WatchFileStart();
 
 		// yay.
 		return true;
 	}
 
 	return false;
+}
+
+
+void CMainFrame::WatchFileStart()
+{
+	if(true)
+	{
+		if(!m_fileChangeWatcher)
+		{
+			m_fileChangeWatcher = PWinFileWatcher(new CWinFileWatcher(
+				boost::bind(&CMainFrame::OnFileChanged, this)));
+		}
+		
+		if(PNFOData l_nfo = m_view.GetActiveCtrl()->GetNfoData())
+		{
+			m_fileChangeWatcher->SetFile(l_nfo->GetFilePath());
+
+			m_fileChangeWatcher->StartWatching();
+		}
+	}
+}
+
+
+void CMainFrame::WatchFileStop()
+{
+	if(!m_fileChangeWatcher)
+	{
+		return;
+	}
+
+	m_fileChangeWatcher->StopWatching();
 }
 
 
@@ -1432,6 +1449,8 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 		// else: m_nfoInFolderIndex is now set to the current file
 	}
 
+	WatchFileStop();
+
 	m_nfoInFolderIndex = BrowseFolderNfoGetNext(a_direction);
 
 	bool bSuccess;
@@ -1480,6 +1499,8 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 		m_lastSearchTerm = L"";
 
 		::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+
+		WatchFileStart();
 	}
 
 	// pre-load next:
