@@ -68,6 +68,7 @@ public:
 	static bool IsWinVista();
 	static bool IsWin7(bool a_orHigher = false);
 	static bool IsWin8();
+	static bool IsWin81();
 	static bool IsWow64();
 
 	static std::wstring GetExePath();

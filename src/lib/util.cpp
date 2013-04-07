@@ -887,6 +887,12 @@ bool CUtil::IsWin8()
 	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 2);
 }
 
+bool CUtil::IsWin81()
+{
+	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
+	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 3);
+}
+
 bool CUtil::IsWow64()
 {
 	typedef BOOL (WINAPI *fiw6p)(HANDLE, PBOOL);

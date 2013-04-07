@@ -76,6 +76,8 @@ BOOL CAboutDialog::OnInitDialog()
 		l_verStr += _T(" on Windows 7");
 	else if(CUtil::IsWin8())
 		l_verStr += _T(" on Windows 8");
+	else if(CUtil::IsWin81())
+		l_verStr += _T(" on Windows 8.1");
 	// ignore server OSes (they'll show their desktop equivalent version)
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
