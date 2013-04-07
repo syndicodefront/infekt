@@ -25,7 +25,7 @@ CNFOToPNG::CNFOToPNG(bool a_classicMode)
 }
 
 
-bool CNFOToPNG::SavePNG(const std::wstring& a_filePath)
+bool CNFOToPNG::SavePNG(const std::_tstring& a_filePath)
 {
 	if(!Render())
 	{
@@ -48,7 +48,7 @@ bool CNFOToPNG::SavePNG(const std::wstring& a_filePath)
 }
 
 
-bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
+bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 {
 	FILE *fp = NULL;
 	png_bytep *row_ptr = NULL;
@@ -94,7 +94,11 @@ bool CNFOToPNG::SaveWithLibpng(const std::wstring& a_filePath)
 		return false;
 	}
 
+#ifdef _UNICODE
 	if(_wfopen_s(&fp, a_filePath.c_str(), L"wb") == ERROR_SUCCESS)
+#else
+	if((fp = fopen(a_filePath.c_str(), "wb")) != NULL)
+#endif
 	{
 		bool l_error = true; // we perform some custom user-land error checking, too.
 		uint32_t l_imgHeight = static_cast<uint32_t>(GetHeight());

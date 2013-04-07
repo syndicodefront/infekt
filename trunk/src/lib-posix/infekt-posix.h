@@ -17,6 +17,8 @@
 
 #include <string.h>
 #include <wctype.h>
+#include <limits.h>
+#include <omp.h>
 
 #include "iconv_string.h"
 

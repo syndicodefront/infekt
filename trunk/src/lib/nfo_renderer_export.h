@@ -68,9 +68,9 @@ public:
 	CNFOToPNG(bool a_classicMode = false);
 	virtual ~CNFOToPNG();
 
-	bool SavePNG(const std::wstring& a_filePath);
+	bool SavePNG(const std::_tstring& a_filePath);
 protected:
-	bool SaveWithLibpng(const std::wstring& a_filePath);
+	bool SaveWithLibpng(const std::_tstring& a_filePath);
 };
 
 #endif /* !_NFO_RENDERER_EXPORT_H */

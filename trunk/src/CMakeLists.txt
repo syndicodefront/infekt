@@ -19,6 +19,11 @@ endif (NOT PCRE_LIBRARY)
 
 set (LIBS ${LIBS} pcre)
 
+find_package (OpenMP REQUIRED)
+if (OPENMP_FOUND)
+	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 # we don't use boost on Linux yet:
 add_definitions ( -DDONT_USE_SHARED_PTR )
 

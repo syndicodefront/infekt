@@ -52,5 +52,4 @@ protected:
 #endif
 };
 
-
 #endif /* !_CAIRO_BOX_BLUR_H */
