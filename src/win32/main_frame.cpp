@@ -572,6 +572,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDM_VIEW_RELOAD:
 	case IDMC_RELOAD:
 		m_view.ReloadFile();
+		UpdateStatusbar();
 		return TRUE;
 
 	case IDM_SHOWSTATUSBAR:
@@ -1209,6 +1210,7 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 1; }
 	case WM_RELOAD_NFO:
 		m_view.ReloadFile();
+		UpdateStatusbar();
 		return 1;
 	case WM_SYNC_PLUGIN_TO_CORE:
 		return CPluginManager::GetInstance()->SynchedPluginToCore((void*)lParam);

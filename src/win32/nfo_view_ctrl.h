@@ -42,9 +42,7 @@ protected:
 
 	void UpdateScrollbars(bool a_resetPos);
 	bool HandleScrollEvent(int a_dir, int a_event, int a_change);
-	void GetScrollPositions(int& ar_x, int& ar_y);
 	void CalcFromMouseCoords(int a_x, int a_y, ssize_t& ar_row, ssize_t& ar_col);
-	bool ScrollIntoView(size_t a_row, size_t a_col);
 
 	void OnPaint();
 	void OnMouseMove(int a_x, int a_y);
@@ -62,6 +60,9 @@ public:
 	HWND GetHwnd() const { return m_hwnd; }
 	HWND GetParent() const { return m_parent; }
 	void SetParent(HWND a_new);
+
+	void GetScrollPositions(int& ar_x, int& ar_y);
+	bool ScrollIntoView(size_t a_row, size_t a_col);
 
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
