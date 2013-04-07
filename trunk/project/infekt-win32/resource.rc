@@ -322,6 +322,8 @@ BEGIN
     GROUPBOX        "Internals",IDC_STATIC,7,95,303,32
     CONTROL         "Use on-demand rendering for large files",IDC_ONDEMAND_RENDERING,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,109,148,10
+    CONTROL         "Auto-refresh when file changes",IDC_MONITOR_FILE_CHANGES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,176,74,116,10
 END
 
 

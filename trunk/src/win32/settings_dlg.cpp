@@ -109,9 +109,7 @@ void CSettingsWindowDialog::OnOK()
 	l_view->GetClassicCtrl()->InjectSettings(*m_tabPageClassic->GetViewSettings());
 	l_view->GetTextOnlyCtrl()->InjectSettings(*m_tabPageTextOnly->GetViewSettings());
 
-	// update or reset text-only view's word-wrap flag:
-	l_view->SwitchView(l_view->GetViewType());
-	// if that hasn't changed the call won't do anything.
+	m_mainWin->OnAfterSettingsChanged();
 
 	CPluginManager::GetInstance()->TriggerSettingsChanged();
 
@@ -1313,6 +1311,7 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_EXPORT_NFO_DIR, m_settings->bDefaultExportToNFODir);
 	SET_DLG_CHECKBOX(IDC_CLOSE_ON_ESC, m_settings->bCloseOnEsc);
 	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
+	SET_DLG_CHECKBOX(IDC_MONITOR_FILE_CHANGES, m_settings->bMonitorFileChanges);
 
 	ShowWindow(SW_SHOW);
 
@@ -1328,6 +1327,7 @@ void CAdvancedSettingsWindowDialog::OnOK()
 	m_settings->bDefaultExportToNFODir = (::IsDlgButtonChecked(GetHwnd(), IDC_EXPORT_NFO_DIR) != FALSE);
 	m_settings->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
 	m_settings->bOnDemandRendering = (::IsDlgButtonChecked(GetHwnd(), IDC_ONDEMAND_RENDERING) != FALSE);
+	m_settings->bMonitorFileChanges = (::IsDlgButtonChecked(GetHwnd(), IDC_MONITOR_FILE_CHANGES) != FALSE);
 
 	CDialog::OnOK();
 }

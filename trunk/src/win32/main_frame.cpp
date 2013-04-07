@@ -882,20 +882,22 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 
 void CMainFrame::WatchFileStart()
 {
-	if(true)
+	if(!m_settings->bMonitorFileChanges)
 	{
-		if(!m_fileChangeWatcher)
-		{
-			m_fileChangeWatcher = PWinFileWatcher(new CWinFileWatcher(
-				boost::bind(&CMainFrame::OnFileChanged, this)));
-		}
-		
-		if(PNFOData l_nfo = m_view.GetActiveCtrl()->GetNfoData())
-		{
-			m_fileChangeWatcher->SetFile(l_nfo->GetFilePath());
+		return;
+	}
 
-			m_fileChangeWatcher->StartWatching();
-		}
+	if(!m_fileChangeWatcher)
+	{
+		m_fileChangeWatcher = PWinFileWatcher(new CWinFileWatcher(
+			boost::bind(&CMainFrame::OnFileChanged, this)));
+	}
+
+	if(PNFOData l_nfo = m_view.GetActiveCtrl()->GetNfoData())
+	{
+		m_fileChangeWatcher->SetFile(l_nfo->GetFilePath());
+
+		m_fileChangeWatcher->StartWatching();
 	}
 }
 
@@ -915,6 +917,18 @@ void CMainFrame::WatchFileStop()
 void CMainFrame::OnFileChanged()
 {
 	::PostMessage(m_hWnd, WM_RELOAD_NFO, 0, 0);
+}
+
+
+void CMainFrame::OnAfterSettingsChanged() // meh
+{
+	// stop+start watching the file to reflect new setting state:
+	WatchFileStop();
+	WatchFileStart();
+
+	// update or reset text-only view's word-wrap flag:
+	m_view.SwitchView(m_view.GetViewType());
+	// if that hasn't changed the call won't do anything.
 }
 
 
@@ -1969,6 +1983,7 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"DefaultExportToNFODir", this->bDefaultExportToNFODir);
 	l_sect->WriteBool(L"CloseOnEsc", this->bCloseOnEsc);
 	l_sect->WriteBool(L"OnDemandRendering", this->bOnDemandRendering);
+	l_sect->WriteBool(L"MonitorFileChanges", this->bMonitorFileChanges);
 
 	// "deputy" return value:
 	return l_sect->WriteBool(L"SingleInstanceMode", this->bSingleInstanceMode);
@@ -2010,6 +2025,7 @@ bool CMainSettings::LoadFromRegistry()
 	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
 	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", false);
 	this->bOnDemandRendering = l_sect->ReadBool(L"OnDemandRendering", true);
+	this->bMonitorFileChanges = l_sect->ReadBool(L"MonitorFileChanges", true);
 
 	return true;
 }

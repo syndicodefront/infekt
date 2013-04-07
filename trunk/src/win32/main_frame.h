@@ -36,6 +36,7 @@ public:
 		bDefaultExportToNFODir = false;
 		bCloseOnEsc = false;
 		bOnDemandRendering = true;
+		bMonitorFileChanges = true;
 		if(bFromRegistry) LoadFromRegistry();
 	}
 	bool LoadFromRegistry();
@@ -55,6 +56,7 @@ public:
 	bool bDefaultExportToNFODir;
 	bool bCloseOnEsc;
 	bool bOnDemandRendering;
+	bool bMonitorFileChanges;
 };
 
 typedef shared_ptr<CMainSettings> PMainSettings;
@@ -99,6 +101,8 @@ public:
 	void UpdateAlwaysOnTop();
 	void ShowMenuBar(bool a_show = true);
 	PMainSettings GetSettings() { return m_settings; }
+
+	void OnAfterSettingsChanged();
 
 	static const std::_tstring InfektVersionAsString();
 protected:

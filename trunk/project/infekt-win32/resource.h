@@ -51,6 +51,8 @@
 #define IDC_CLOSE_ON_ESC                1011
 #define IDC_GLOW_RADIUS                 1012
 #define IDC_ENABLE_CUDA                 1012
+#define IDC_WATCH_FILE_CHANGES          1012
+#define IDC_MONITOR_FILE_CHANGES        1012
 #define IDC_BUTTON2                     1013
 #define IDC_PREVIEW_BTN                 1013
 #define IDC_THEME_EXPORT                1013
