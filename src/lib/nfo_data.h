@@ -80,7 +80,7 @@ public:
 	const std::wstring& GetTextWide() const { return m_textContent; }
 
 	bool SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8 = true, bool a_compoundWhitespace = false);
-	bool SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted);
+	bool SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace = false);
 
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
