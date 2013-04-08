@@ -819,6 +819,8 @@ void CMainFrame::SwitchView(EMainView a_view)
 
 		m_view.SwitchView(a_view);
 
+		AdjustWindowToNFOWidth(true, true);
+
 		CPluginManager::GetInstance()->TriggerViewChanged();
 	}
 }
