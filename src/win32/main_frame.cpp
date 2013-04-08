@@ -584,7 +584,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDM_OPTIWIDTH:
 		ShowWindow(SW_SHOWNORMAL);
-		AdjustWindowToNFOWidth();
+		AdjustWindowToNFOWidth(false);
 		return TRUE;
 
 	case TBBID_CLEARMRU:
@@ -858,15 +858,7 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 			SaveOpenMruList();
 		}
 
-		if(m_settings->bAutoWidth)
-		{
-			WINDOWPLACEMENT l_wpl = { sizeof(WINDOWPLACEMENT), 0 };
-
-			if(!GetWindowPlacement(l_wpl) || l_wpl.showCmd != SW_MAXIMIZE)
-			{
-				AdjustWindowToNFOWidth();
-			}
-		}
+		AdjustWindowToNFOWidth(true);
 
 		m_nfoPreloadData.reset();
 		m_nfoInFolderIndex = (size_t)-1;
@@ -1048,8 +1040,23 @@ void CMainFrame::UpdateStatusbar()
 }
 
 
-void CMainFrame::AdjustWindowToNFOWidth(bool a_growOnly)
+void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 {
+	if(a_preflightCheck)
+	{
+		if(!m_settings->bAutoWidth)
+		{
+			return;
+		}
+
+		WINDOWPLACEMENT l_wpl = { sizeof(WINDOWPLACEMENT), 0 };
+
+		if(GetWindowPlacement(l_wpl) && l_wpl.showCmd == SW_MAXIMIZE)
+		{
+			return;
+		}
+	}
+
 	int l_desiredWidth = static_cast<int>(m_view.GetActiveCtrl()->GetWidth());
 
 	l_desiredWidth += ::GetSystemMetrics(SM_CXSIZEFRAME) * 2;
@@ -1538,15 +1545,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 
 		UpdateStatusbar();
 
-		if(m_settings->bAutoWidth)
-		{
-			WINDOWPLACEMENT l_wpl = { sizeof(WINDOWPLACEMENT), 0 };
-
-			if(!GetWindowPlacement(l_wpl) || l_wpl.showCmd != SW_MAXIMIZE)
-			{
-				AdjustWindowToNFOWidth();
-			}
-		}
+		AdjustWindowToNFOWidth(true);
 
 		UpdateCaption();
 

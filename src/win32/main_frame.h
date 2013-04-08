@@ -158,7 +158,7 @@ protected:
 	bool DoOpenMruMenu(const LPNMTOOLBAR a_lpnm);
 	bool DoCharsetMenu(const LPNMMOUSE a_pnmm);
 	void UpdateStatusbar();
-	void AdjustWindowToNFOWidth(bool a_growOnly = false);
+	void AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly = false);
 
 	void CheckForUpdates();
 	void CheckForUpdates_Callback(PWinHttpRequest a_req);
