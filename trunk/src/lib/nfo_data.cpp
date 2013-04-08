@@ -965,7 +965,7 @@ wstring CNFOData::GetWithBoxedWhitespace()
 			wchar_t l_tmp = (*m_grid)[rr][cc];
 			l_result += (l_tmp != 0 ? l_tmp : L' ');
 		}
-		l_result += L"\r\n";
+		l_result += L"\n";
 	}
 
 	return l_result;
@@ -1346,9 +1346,10 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 }
 
 
-bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted)
+bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
 {
 	FILE *fp = NULL;
+	const std::wstring& l_input = (a_compoundWhitespace ? GetWithBoxedWhitespace() : m_textContent);
 	map<wchar_t, char> l_transl;
 	vector<char> l_converted;
 
@@ -1373,15 +1374,15 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 
 	ar_charsNotConverted = 0;
 
-	l_converted.resize(m_textContent.size(), ' ');
+	l_converted.resize(l_input.size(), ' ');
 
 	#pragma omp parallel for
-	for(int i = 0; i < static_cast<int>(m_textContent.size()); i++)
+	for(int i = 0; i < static_cast<int>(l_input.size()); i++)
 	{
-		wchar_t wc = m_textContent[i];
+		wchar_t wc = l_input[i];
 		map<wchar_t, char>::const_iterator it;
 
-		if(wc > 0x1F && wc < 0x80 || wc == L'\n')
+		if(wc > 0x1F && wc < 0x80 || wc == L'\n' || wc == L'\r')
 		{
 			l_converted[i] = (char)wc;
 		}
@@ -1438,4 +1439,3 @@ void CNFOHyperLink::SetHref(const wstring& a_href)
 CNFOHyperLink::~CNFOHyperLink()
 {
 }
-

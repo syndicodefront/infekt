@@ -71,6 +71,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -p, --png-classic           Prints the NFO file into a PNG file as text.\n");
 	printf("  -f, --utf-8                 Converts the NFO file into UTF-8.\n");
 	printf("  -t, --utf-16                Converts the NFO file into UTF-16.\n");
+	printf("  -e, --cp-437                Save the NFO file as CP 437.\n");
 	printf("  -m, --html                  Makes a nice HTML document.\n");
 #ifdef CAIRO_HAS_PDF_SURFACE
 	printf("  -d, --pdf                   Makes a PDF document.\n");
@@ -128,7 +129,7 @@ int main(int argc, char* argv[])
 	std::_tstring l_outFileName;
 	bool l_classic = false, l_makePng = true, l_textUtf8 = true,
 		l_htmlOut = false, l_makePdf = false, l_pdfDin = false,
-		l_compoundWhitespace = false;
+		l_textCp437 = false, l_compoundWhitespace = false;
 
 #ifdef _WIN32
 	CUtil::EnforceDEP();
@@ -156,7 +157,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDc"), g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDce"), g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -225,6 +226,9 @@ int main(int argc, char* argv[])
 			break;
 		case 't':
 			l_makePng = false; l_textUtf8 = false;
+			break;
+		case 'e':
+			l_makePng = false; l_textCp437 = true;
 			break;
 		case 'm':
 			l_makePng = false; l_htmlOut = true;
@@ -301,6 +305,10 @@ int main(int argc, char* argv[])
 		{
 			l_outFileName += _T(".pdf");
 		}
+		else if(l_textCp437)
+		{
+			l_outFileName += _T("-dos.nfo");
+		}
 		else if(l_textUtf8)
 		{
 			l_outFileName += _T("-utf8.nfo");
@@ -310,6 +318,8 @@ int main(int argc, char* argv[])
 			l_outFileName += _T("-utf16.nfo");
 		}
 	}
+
+	bool l_exportSuccess = false;
 
 	if(l_makePng)
 	{
@@ -333,15 +343,7 @@ int main(int argc, char* argv[])
 
 		l_exporter.AssignNFO(&l_nfoData);
 
-		if(l_exporter.SavePNG(l_outFileName))
-		{
-			_tprintf(_T("Rendered `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
-		}
-		else
-		{
-			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
-			return 1;
-		}
+		l_exportSuccess = l_exporter.SavePNG(l_outFileName);
 	}
 	else if(l_makePdf)
 	{
@@ -351,64 +353,64 @@ int main(int argc, char* argv[])
 		l_exporter.AssignNFO(&l_nfoData);
 		l_exporter.InjectSettings(l_pngSettings);
 
-		if(l_exporter.SavePDF(l_outFileName))
-		{
-			_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
-		}
-		else
-		{
-			_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
-			return 1;
-		}
+		l_exportSuccess = l_exporter.SavePDF(l_outFileName);
 #endif
+	}
+	else if(l_htmlOut)
+	{
+		// html export
+
+		CNFOToHTML l_exporter(&l_nfoData);
+		l_exporter.SetSettings(l_pngSettings);
+
+		std::wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
+		l_html += l_exporter.GetHTML();
+
+		const std::string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
+
+		FILE* l_file;
+#ifdef _WIN32
+		if(_tfopen_s(&l_file, l_outFileName.c_str(), _T("wb")) == 0 && l_file)
+#else
+		if(l_file = fopen(l_outFileName.c_str(), _T("wb")))
+#endif
+		{
+			fwrite(l_utf8.c_str(), l_utf8.size(), 1, l_file);
+			fclose(l_file);
+
+			l_exportSuccess = true;
+		}
 	}
 	else
 	{
-		if(!l_htmlOut)
-		{
-			// text export
+		// text export
 
-			if(l_nfoData.SaveToUnicodeFile(l_outFileName, l_textUtf8, l_compoundWhitespace))
+		if(l_textCp437)
+		{
+			size_t l_inconvertible;
+
+			l_exportSuccess = l_nfoData.SaveToCP437File(l_outFileName, l_inconvertible, l_compoundWhitespace);
+
+			if(l_inconvertible > 0)
 			{
-				_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
-			}
-			else
-			{
-				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
-				return 1;
+				_ftprintf(stderr, _T("WARNING: %d characters in NFO do not have a CP 437 equivalent and were dropped.\n"), l_inconvertible);
 			}
 		}
 		else
 		{
-			// html export
-
-			CNFOToHTML l_exporter(&l_nfoData);
-			l_exporter.SetSettings(l_pngSettings);
-
-			std::wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
-			l_html += l_exporter.GetHTML();
-
-			const std::string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
-
-			FILE* l_file;
-#ifdef _WIN32
-			if(_tfopen_s(&l_file, l_outFileName.c_str(), _T("wb")) == 0 && l_file)
-#else
-			if(l_file = fopen(l_outFileName.c_str(), _T("wb")))
-#endif
-			{
-				fwrite(l_utf8.c_str(), l_utf8.size(), 1, l_file);
-				fclose(l_file);
-
-				_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
-			}
-			else
-			{
-				_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
-				return 1;
-			}
+			l_exportSuccess = l_nfoData.SaveToUnicodeFile(l_outFileName, l_textUtf8, l_compoundWhitespace);
 		}
 	}
 
-	return 0;
-}
+	if(l_exportSuccess)
+	{
+		_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
+	}
+	else
+	{
+		_ftprintf(stderr, _T("ERROR: Unable to write to `%s`.\n"), l_outFileName.c_str());
+
+		return 1;
+	}
+
+} /* end of main() */
