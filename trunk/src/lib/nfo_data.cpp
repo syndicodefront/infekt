@@ -1382,7 +1382,7 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 		wchar_t wc = l_input[i];
 		map<wchar_t, char>::const_iterator it;
 
-		if(wc > 0x1F && wc < 0x80 || wc == L'\n' || wc == L'\r')
+		if((wc > 0x1F && wc < 0x80) || wc == L'\n' || wc == L'\r')
 		{
 			l_converted[i] = (char)wc;
 		}
