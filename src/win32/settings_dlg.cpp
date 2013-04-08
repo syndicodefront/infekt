@@ -1248,7 +1248,7 @@ int CALLBACK CFontListEntry::FontSizesProc(const LOGFONT* plf, const TEXTMETRIC*
 
 	if(FontType == TRUETYPE_FONTTYPE)
 	{
-		static int ls_ttSizes[] = { 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 0 };
+		static int ls_ttSizes[] = { 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 0 };
 
 		int* psz = ls_ttSizes;
 		do
