@@ -817,10 +817,10 @@ const wstring& CNFOData::GetLastErrorDescription() const
 const std::_tstring CNFOData::GetFileName() const
 {
 #ifdef _WIN32
-	const TCHAR* l_name = PathFindFileName(m_filePath.c_str());
+	const wchar_t* l_name = ::PathFindFileName(m_filePath.c_str());
 	return l_name;
 #else
-	return "/not_implemented/"; // :TODO:
+	return basename(m_filePath.c_str());
 #endif
 }
 
