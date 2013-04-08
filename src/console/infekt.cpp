@@ -363,10 +363,7 @@ int main(int argc, char* argv[])
 		CNFOToHTML l_exporter(&l_nfoData);
 		l_exporter.SetSettings(l_pngSettings);
 
-		std::wstring l_html = L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n";
-		l_html += l_exporter.GetHTML();
-
-		const std::string l_utf8 = CUtil::FromWideStr(l_html, CP_UTF8);
+		const std::string l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
 
 		FILE* l_file;
 #ifdef _WIN32
