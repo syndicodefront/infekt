@@ -19,6 +19,7 @@
 #include <wctype.h>
 #include <limits.h>
 #include <omp.h>
+#include <libgen.h>
 
 #include "iconv_string.h"
 
@@ -31,7 +32,7 @@
 
 #define _fileno fileno
 #define _filelength filelength
-/* :TODO: make sure we don't rely on the _s functionality without or own
+/* :TODO: make sure we don't rely on the _s functionality without our own
 	checks in too many places. */
 #define fread_s(b, s, e, c, f) fread(b, e, c, f)
 #define memmove_s(d, e, s, c) memmove(d, s, c)
@@ -59,4 +60,3 @@
 int _wtoi(const wchar_t* str);
 
 #endif /* !_INFEKT_POSIX_H */
-
