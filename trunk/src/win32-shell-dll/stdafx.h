@@ -50,11 +50,4 @@ typedef signed int ssize_t;
 #define _tstring wstring
 #include "util.h"
 
-template <class T> void SafeRelease(T **ppT)
-{
-	if (*ppT)
-	{
-		(*ppT)->Release();
-		*ppT = NULL;
-	}
-}
+#include "safe_release.h"
