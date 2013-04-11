@@ -12,6 +12,7 @@
   * New: Optionally associate .diz files during setup (issue 73)
   * Tweaked detection to match some more broken NFOs and display them correctly
   * Fixed a problem where some links in consecutive lines would not be recognized correctly
+  * Fixed weird-looking transparent PNG export
   * Fixed PortableApps.com wrapper ignoring command line arguments (issue 76)
   * Command line version (infekt-cmd) can now export PNGs > 32768 px height as well
   * Added some command line arguments to main iNFEKT program (try --help) - issue 74
