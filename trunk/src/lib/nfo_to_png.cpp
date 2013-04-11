@@ -76,6 +76,10 @@ unpremultiply_data(png_structp png, png_row_infop row_info, png_bytep data)
 	}
 }
 
+#ifndef DeleteFile
+#define DeleteFile(a) unlink(a)
+#endif
+
 
 bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 {
@@ -107,11 +111,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 		if(fp)
 		{
 			fclose(fp);
-#ifdef _UNICODE // also assume Win32...
 			::DeleteFile(a_filePath.c_str());
-#else
-			unlink(a_filePath.c_str());
-#endif
 		}
 
 		if(row_ptr)
@@ -210,12 +210,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 		else
 		{
 			fclose(fp);
-			
-#ifdef _UNICODE // also assume Win32...
 			::DeleteFile(a_filePath.c_str());
-#else
-			unlink(a_filePath.c_str());
-#endif
 		}
 
 		if(row_ptr)
