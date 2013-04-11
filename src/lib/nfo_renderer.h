@@ -134,6 +134,7 @@ protected:
 	bool m_classic;
 	float m_zoomFactor;
 	bool m_onDemandRendering;
+	bool m_forceGPUOff;
 
 	ENFORenderPartial m_partial;
 

@@ -21,7 +21,8 @@
 CNFOToPNG::CNFOToPNG(bool a_classicMode)
 	: CNFORenderer(a_classicMode)
 {
-
+	// the GPU algorithm does not produce a mask, so it can't handle transparency.
+	m_forceGPUOff = true;
 }
 
 
@@ -45,6 +46,34 @@ bool CNFOToPNG::SavePNG(const std::_tstring& a_filePath)
 	}
 
 	return SaveWithLibpng(a_filePath);
+}
+
+
+// there is no built-in filter for this conversion in libpng, therefore, to correctly handle
+// the alpha channel, we have to resort to this piece of code from cairo:
+
+/* Unpremultiplies data and converts native endian ARGB => RGBA bytes */
+static void
+unpremultiply_data(png_structp png, png_row_infop row_info, png_bytep data)
+{
+	unsigned int i;
+
+	for (i = 0; i < row_info->rowbytes; i += 4) {
+		uint8_t *b = &data[i];
+		uint32_t pixel;
+		uint8_t  alpha;
+
+		memcpy(&pixel, b, sizeof(uint32_t));
+		alpha = (pixel & 0xff000000) >> 24;
+		if (alpha == 0) {
+			b[0] = b[1] = b[2] = b[3] = 0;
+		} else {
+			b[0] = (((pixel & 0xff0000) >> 16) * 255 + alpha / 2) / alpha;
+			b[1] = (((pixel & 0x00ff00) >>  8) * 255 + alpha / 2) / alpha;
+			b[2] = (((pixel & 0x0000ff) >>  0) * 255 + alpha / 2) / alpha;
+			b[3] = alpha;
+		}
+	}
 }
 
 
@@ -103,11 +132,20 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 		bool l_error = true; // we perform some custom user-land error checking, too.
 		uint32_t l_imgHeight = static_cast<uint32_t>(GetHeight());
 
+		int bpc = 8;
+
 		png_init_io(png_ptr, fp);
 
 		png_set_IHDR(png_ptr, info_ptr, static_cast<uint32_t>(GetWidth()), l_imgHeight,
-			8, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+			bpc, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
 			PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
+		png_color_16 white;
+		white.red = white.blue = white.green = white.gray = (1 << bpc) - 1;
+		png_set_bKGD(png_ptr, info_ptr, &white);
+
+		png_write_info(png_ptr, info_ptr);
+		png_set_write_user_transform_fn(png_ptr, unpremultiply_data);
 
 		row_ptr = new (std::nothrow) png_bytep[l_imgHeight];
 
@@ -163,7 +201,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 
 		if(!l_error)
 		{
-			png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_BGR, NULL);
+			png_write_png(png_ptr, info_ptr, 0, NULL);
 
 			fclose(fp);
 
