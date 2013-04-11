@@ -25,6 +25,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 
 	m_classic = a_classicMode;
 	m_partial = NRP_RENDER_EVERYTHING;
+	m_forceGPUOff = false;
 
 	// reset internal flags:
 	m_gridData = NULL;
@@ -492,7 +493,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 			{
 				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur(
 					(int)GetWidth(), GetStripeHeight(a_stripe),
-					(int)GetGaussBlurRadius(), ms_useGPU);
+					(int)GetGaussBlurRadius(), ms_useGPU && !m_forceGPUOff);
 
 				cairo_t* cr = cairo_create(l_surface);
 
