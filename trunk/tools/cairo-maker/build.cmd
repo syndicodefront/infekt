@@ -185,6 +185,8 @@ cd %ROOTDIR%\cairo
 cd src
 rem source = http://lists.cairographics.org/archives/cairo/2013-March/024195.html
 patch -i %ROOTDIR%\..\cairo-libpng.patch -p0
+rem source = http://cgit.freedesktop.org/cairo/commit/?id=e66e9ac12e3e11af76f14e8de3cfee72d4299864
+patch -i %ROOTDIR%\..\cairo-src_height.patch -p0
 cd ..
 
 sed s/libpng\.lib/libpng16.lib/ build\Makefile.win32.common > build\Makefile.fixed
