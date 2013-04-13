@@ -269,9 +269,9 @@ BEGIN
     CONTROL         "",IDC_CLR_BACK,"Button",BS_OWNERDRAW | WS_TABSTOP,62,97,50,14,WS_EX_STATICEDGE
     CONTROL         "",IDC_CLR_GAUSS,"Button",BS_OWNERDRAW | WS_TABSTOP,271,74,50,14,WS_EX_STATICEDGE
     CONTROL         "Synchronize settings from Rendered View",IDC_SYNC_FROM_RENDERED,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_DISABLED | WS_TABSTOP,8,193,149,10
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,8,193,149,10
     CONTROL         "Synchronize settings from Classic View",IDC_SYNC_FROM_NORMAL,
-                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_DISABLED | WS_TABSTOP,191,193,139,10
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,191,193,139,10
     LTEXT           "The Windows color picker does not support an alpha channel setting, so you have to edit the Registry to change that until we made our own picker.",IDC_STATIC,15,117,244,16
     LTEXT           "Hyperlinks:",IDC_STATIC,126,76,36,8
     CONTROL         "",IDC_CLR_LINKS,"Button",BS_OWNERDRAW | WS_TABSTOP,165,74,50,14,WS_EX_STATICEDGE

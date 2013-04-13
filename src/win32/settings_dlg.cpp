@@ -234,8 +234,8 @@ BOOL CSettingsTabDialog::OnInitDialog()
 {
 	if(IsViewSettingPage())
 	{
-		DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_NORMAL, m_pageId == TAB_PAGE_TEXTONLY);
-		DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_RENDERED, m_pageId != TAB_PAGE_RENDERED);
+		//DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_NORMAL, m_pageId == TAB_PAGE_TEXTONLY);
+		//DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_RENDERED, m_pageId != TAB_PAGE_RENDERED);
 
 		DLG_SHOW_CTRL_IF(IDC_ACTIVATE_GLOW, m_pageId == TAB_PAGE_RENDERED);
 		DLG_SHOW_CTRL_IF(IDC_GLOW_LABEL1, m_pageId == TAB_PAGE_RENDERED);
@@ -1313,11 +1313,13 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
 	SET_DLG_CHECKBOX(IDC_MONITOR_FILE_CHANGES, m_settings->bMonitorFileChanges);
 
+#ifndef COMPACT_RELEASE
 	if(CUtil::IsWin6x())
 	{
 		SET_DLG_CHECKBOX(IDC_USE_GPU, m_settings->bUseGPU);
 	}
 	else
+#endif
 	{
 		::EnableWindow(GetDlgItem(IDC_USE_GPU), FALSE);
 	}
