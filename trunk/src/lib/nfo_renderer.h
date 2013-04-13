@@ -158,6 +158,11 @@ protected:
 	bool CalculateGrid();
 	cairo_surface_t *GetStripeSurface(size_t a_stripe) const;
 	int GetStripeHeight(size_t a_stripe) const;
+	int GetStripeHeightExtraTop(size_t a_stripe) const;
+	int GetStripeHeightExtraBottom(size_t a_stripe) const;
+	int GetStripeHeightPhysical(size_t a_stripe) const;
+	size_t GetStripeExtraLinesTop(size_t a_stripe) const;
+	size_t GetStripeExtraLinesBottom(size_t a_stripe) const;
 	void RenderStripe(size_t a_stripe) const;
 	void RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL) const;
 
