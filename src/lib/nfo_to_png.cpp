@@ -159,13 +159,13 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 
 				unsigned char *l_data = cairo_image_surface_get_data(l_surface);
 				size_t l_stride = cairo_image_surface_get_stride(l_surface);
-				size_t l_num_rows = cairo_image_surface_get_height(l_surface);
+				size_t l_num_rows = cairo_image_surface_get_height(l_surface) - GetStripeHeightExtraBottom(l_stripe);
 
-				_ASSERT(l_num_rows == GetStripeHeight(l_stripe));
+				_ASSERT(l_num_rows - GetStripeHeightExtraTop(l_stripe) == GetStripeHeight(l_stripe));
 
 				if(cairo_surface_status(l_surface) == CAIRO_STATUS_SUCCESS)
 				{
-					for(size_t l_row = 0; l_row < l_num_rows; l_row++)
+					for(size_t l_row = GetStripeHeightExtraTop(l_stripe); l_row < l_num_rows; l_row++)
 					{
 						if(l_png_row >= l_imgHeight)
 						{

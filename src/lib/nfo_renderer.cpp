@@ -240,41 +240,56 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	}
 	else
 	{
-		size_t l_stripeStart = (source_y - m_padding) / m_stripeHeight, // implicit floor()
+		int l_stripeStart = (source_y - m_padding) / m_stripeHeight, // implicit floor()
 			l_stripeEnd = ((source_y + a_height - m_padding) / m_stripeHeight);
 
 		// sanity confinement ;)
-		l_stripeStart = std::min(l_stripeStart, m_numStripes - 1);
-		l_stripeEnd = std::min(l_stripeEnd, m_numStripes - 1);
+		l_stripeStart = std::min(l_stripeStart, (int)m_numStripes - 1);
+		l_stripeEnd = std::min(l_stripeEnd, (int)m_numStripes - 1);
 
 		if(m_onDemandRendering)
 		{
 			Render(l_stripeStart, l_stripeEnd);
 		}
 
-		for(size_t l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
+		for(int l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
 		{
 			cairo_surface_t* l_sourceSourface = GetStripeSurface(l_stripe);
 
-			_ASSERT(l_sourceSourface);
-			if(!l_sourceSourface) /* unlikely, "should never happen" */
+			if(!l_sourceSourface)
 			{
+				// happens when zooming out, shouldn't happen otherwise.
 				continue;
 			}
 
 			// y pos in complete image:
-			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : static_cast<int>(l_stripe) * m_stripeHeight + m_padding);
+			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : l_stripe * m_stripeHeight + m_padding);
 			// y pos in stripe:
-			int l_stripe_source_y = source_y - l_stripe_virtual_y;
+			int l_stripe_source_y = (source_y - l_stripe_virtual_y);
 
-			cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
-				static_cast<int>(dest_y - l_stripe_source_y));
-
+			// height of area of this stripe that is to be painted:
 			int l_height = (l_stripe == l_stripeEnd ? l_heightFixed : GetStripeHeight(l_stripe) - l_stripe_source_y);
 
-			cairo_rectangle(cr, dest_x, dest_y, l_widthFixed, l_height);
+			if(l_stripe > l_stripeStart)
+			{
+				// must clip destination or additional pixels that have been added to stripes for
+				// correct blurring will be copied, too:
+				cairo_save(cr);
+				cairo_rectangle(cr, 0, l_stripe_virtual_y - source_y, l_widthFixed, l_height);
+				cairo_clip(cr);
+			}
 
+			// actual copy operation:
+			cairo_set_source_surface(cr, l_sourceSourface, dest_x - source_x,
+				dest_y - l_stripe_source_y - GetStripeHeightExtraTop(l_stripe));
+			cairo_rectangle(cr, dest_x, dest_y, l_widthFixed, l_height);
 			cairo_fill(cr);
+
+			if(l_stripe > l_stripeStart)
+			{
+				// undo clip:
+				cairo_restore(cr);
+			}
 		}
 	}
 
@@ -397,7 +412,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 			m_stripes[l_stripe] = PCairoSurface(new _CCairoSurface(
 				cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 				(int)GetWidth(),
-				GetStripeHeight(l_stripe))
+				GetStripeHeightPhysical(l_stripe))
 			));
 
 			// render each stripe only once:
@@ -457,6 +472,51 @@ int CNFORenderer::GetStripeHeight(size_t a_stripe) const
 }
 
 
+// adds some more pixels that allow the blur effect to be rendered without
+// issues on the lower and upper edges.
+int CNFORenderer::GetStripeHeightPhysical(size_t a_stripe) const
+{
+	if(IsClassicMode() || m_numStripes < 2)
+		return GetStripeHeight(a_stripe);
+	else if(a_stripe == 0)
+		return GetStripeHeightExtraBottom(a_stripe) + GetStripeHeight(a_stripe);
+	else if(a_stripe == m_numStripes - 1)
+		return GetStripeHeightExtraTop(a_stripe) + GetStripeHeight(a_stripe);
+	else
+		return GetStripeHeightExtraTop(a_stripe) + GetStripeHeightExtraBottom(a_stripe) + GetStripeHeight(a_stripe);
+}
+
+
+int CNFORenderer::GetStripeHeightExtraTop(size_t a_stripe) const
+{
+	return static_cast<int>(GetStripeExtraLinesTop(a_stripe) * GetBlockHeight());
+}
+
+
+int CNFORenderer::GetStripeHeightExtraBottom(size_t a_stripe) const
+{
+	return static_cast<int>(GetStripeExtraLinesBottom(a_stripe) * GetBlockHeight());
+}
+
+
+size_t CNFORenderer::GetStripeExtraLinesTop(size_t a_stripe) const
+{
+	if(IsClassicMode() || !GetEnableGaussShadow() || a_stripe == 0)
+		return 0;
+
+	return static_cast<size_t>(ceil(static_cast<double>(GetGaussBlurRadius()) / static_cast<double>(GetBlockHeight())));
+}
+
+
+size_t CNFORenderer::GetStripeExtraLinesBottom(size_t a_stripe) const
+{
+	if(IsClassicMode() || !GetEnableGaussShadow() || a_stripe == m_numStripes - 1)
+		return 0;
+
+	return static_cast<size_t>(ceil(static_cast<double>(GetGaussBlurRadius()) / static_cast<double>(GetBlockHeight())));
+}
+
+
 void CNFORenderer::RenderStripe(size_t a_stripe) const
 {
 	cairo_surface_t * const l_surface = GetStripeSurface(a_stripe);
@@ -469,21 +529,18 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 		cairo_destroy(cr);
 	}
 
+	// hacke-di-hack (RenderClassic is adding m_padding for historical reasons, so we have to subtract it beforehand.
+	// it's also operating on the full NFO image's coordinates, so we have to subtract those too):
+	double l_baseY = (a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight) + GetStripeHeightExtraTop(a_stripe);
+	size_t l_rowStart = (m_numStripes > 1 ? a_stripe * m_linesPerStripe - GetStripeExtraLinesTop(a_stripe) : (size_t)-1),
+		l_rowEnd = a_stripe * m_linesPerStripe + m_linesPerStripe + GetStripeExtraLinesBottom(a_stripe);
+
 	if(m_classic)
 	{
-		RenderClassic(GetTextColor(),
-			NULL,
-			GetHyperLinkColor(),
+		RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(),
 			false,
-			(m_numStripes > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
-			0,
-			a_stripe * m_linesPerStripe + m_linesPerStripe,
-			m_nfo->GetGridWidth() - 1,
-			l_surface,
-			0,
-			// hacke-di-hack (RenderClassic is adding m_padding for historical reasons, so we have to subtract it beforehand.
-			// it's also operating on the full NFO image's coordinates, so we have to subtract those too):
-			(a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight));
+			l_rowStart, 0, l_rowEnd, m_nfo->GetGridWidth() - 1,
+			l_surface, 0, l_baseY);
 	}
 	else
 	{
@@ -492,7 +549,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
 				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur(
-					(int)GetWidth(), GetStripeHeight(a_stripe),
+					(int)GetWidth(), GetStripeHeightPhysical(a_stripe),
 					(int)GetGaussBlurRadius(), ms_useGPU && !m_forceGPUOff);
 
 				cairo_t* cr = cairo_create(l_surface);
@@ -524,7 +581,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 						p_blur->Paint(cr);
 					}
 				}
-					
+
 				cairo_destroy(cr);
 
 				delete p_blur;
@@ -549,14 +606,8 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 		if((m_partial & NRP_RENDER_TEXT) != 0)
 		{
 			RenderText(GetTextColor(), NULL, GetHyperLinkColor(),
-				(m_numStripes > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
-				0,
-				a_stripe * m_linesPerStripe + m_linesPerStripe,
-				m_nfo->GetGridWidth() - 1,
-				l_surface,
-				0,
-				// hacke-di-hack (see above):
-				(a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight));
+				l_rowStart, 0, l_rowEnd, m_nfo->GetGridWidth() - 1,
+				l_surface, 0, l_baseY);
 		}
 	}
 }
@@ -571,9 +622,10 @@ void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_g
 	cairo_t* l_context = (a_context ? a_context : cairo_create(GetStripeSurface(a_stripe)));
 
 	RenderBlocks(a_opaqueBg, a_gaussStep, l_context,
-		(m_numStripes > 1 ? a_stripe * m_linesPerStripe : (size_t)-1),
-		a_stripe * m_linesPerStripe + m_linesPerStripe,
-		0, (a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight));
+		(m_numStripes > 1 ? a_stripe * m_linesPerStripe - GetStripeExtraLinesTop(a_stripe) : (size_t)-1),
+		a_stripe * m_linesPerStripe + m_linesPerStripe + GetStripeExtraLinesBottom(a_stripe),
+		// see comment in RenderStripe():
+		0, (a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight) + GetStripeHeightExtraTop(a_stripe));
 
 	if(!a_context)
 	{
