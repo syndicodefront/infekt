@@ -74,6 +74,7 @@ copy /Y %ROOTDIR%\..\release\portable.ini %PAP%\App\DefaultData
 xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.CRT\*.dll" %PAP%\App\iNFekt
 xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.OpenMP\*.dll" %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-win32.exe %PAP%\App\iNFekt
+copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\iNFektPortableLauncher.exe %PAP%\iNFektPortable.exe
 xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PAP%\App\iNFekt
 
