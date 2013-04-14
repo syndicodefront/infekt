@@ -275,7 +275,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 				// must clip destination or additional pixels that have been added to stripes for
 				// correct blurring will be copied, too:
 				cairo_save(cr);
-				cairo_rectangle(cr, 0, l_stripe_virtual_y - source_y, l_widthFixed, l_height);
+				cairo_rectangle(cr, dest_x, l_stripe_virtual_y - source_y, l_widthFixed, l_height);
 				cairo_clip(cr);
 			}
 
