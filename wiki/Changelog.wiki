@@ -13,6 +13,7 @@
   * Tweaked detection to match some more broken NFOs and display them correctly
   * Fixed a problem where some links in consecutive lines would not be recognized correctly
   * Fixed weird-looking transparent PNG export
+  * Fixed some artifacts in Rendered Mode that were introduced with 0.8.5
   * Fixed PortableApps.com wrapper ignoring command line arguments (issue 76)
   * Command line version (infekt-cmd) can now export PNGs > 32768 px height as well
   * Added some command line arguments to main iNFEKT program (try --help) - issue 74
