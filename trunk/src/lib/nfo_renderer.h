@@ -194,6 +194,7 @@ public:
 	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);
 
 	static void SetGlobalUseGPUFlag(bool nb) { ms_useGPU = nb; }
+	static bool GetGlobalUseGPUFlag() { return ms_useGPU; }
 
 	// mainly important methods:
 	virtual void UnAssignNFO();

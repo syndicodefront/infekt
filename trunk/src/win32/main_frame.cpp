@@ -164,7 +164,7 @@ void CMainFrame::OnInitialUpdate()
 {
 	CNFOApp *l_app = dynamic_cast<CNFOApp*>(GetApp());
 	std::wstring l_path, l_viewMode;
-	bool l_wrap;
+	bool l_wrap, l_noGpu;
 
 	if(!l_app)
 		abort();
@@ -183,9 +183,9 @@ void CMainFrame::OnInitialUpdate()
 	LoadRenderSettingsFromRegistry(_T("RenderedView"), m_view.GetRenderCtrl().get());
 	LoadRenderSettingsFromRegistry(_T("ClassicView"), m_view.GetClassicCtrl().get());
 	LoadRenderSettingsFromRegistry(_T("TextOnlyView"), m_view.GetTextOnlyCtrl().get());
-	
+
 	l_wrap = m_view.GetTextOnlyCtrl()->GetWrapLines();
-	l_app->GetStartupOptions(l_path, l_viewMode, l_wrap);
+	l_app->GetStartupOptions(l_path, l_viewMode, l_wrap, l_noGpu);
 
 	UpdateStatusbar();
 
@@ -225,6 +225,12 @@ void CMainFrame::OnInitialUpdate()
 	m_view.SetCopyOnSelect(m_settings->bCopyOnSelect);
 	m_view.SetCenterNfo(m_settings->bCenterNFO);
 	m_view.SetOnDemandRendering(m_settings->bOnDemandRendering);
+
+	if(l_noGpu)
+	{
+		// will toggle on again if settings are opened + OK is used, but whatever.
+		CNFORenderer::SetGlobalUseGPUFlag(false);
+	}
 
 	ShowWindow(l_maximize ? SW_MAXIMIZE : SW_SHOWNORMAL);
 
