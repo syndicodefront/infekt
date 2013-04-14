@@ -5,7 +5,7 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
-== v0.8.7 (2013) ==
+== v0.8.7 (April 14 2013) ==
   * Attention: Due to a bug in all previous versions' auto updater, it's not possible to auto-update to this version. Please download & install the new version manually.
   * New feature: iNFekt automatically reloads the currently viewed file if it changes on disk
   * New feature: Export NFOs as CP 437 (informs about nonconvertible characters, too)
