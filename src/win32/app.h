@@ -31,11 +31,12 @@ public:
 	virtual BOOL InitInstance();
 
 	CMainFrame& GetMainFrame() { return m_frame; }
-	void GetStartupOptions(std::wstring& ar_filePath, std::wstring& ar_viewMode, bool& ar_lineWrap) const {
+	void GetStartupOptions(std::wstring& ar_filePath, std::wstring& ar_viewMode, bool& ar_lineWrap, bool& ar_noGpu) const {
 		ar_filePath = m_startupFilePath;
 		ar_viewMode = m_startupViewMode;
 		if(m_startupLineWrapOverride && m_startupViewMode == L"text")
 			ar_lineWrap = m_startupLineWrap;
+		ar_noGpu = m_startupNoGpu;
 	}
 	PSettingsBackend GetSettingsBackend() { return m_settings; }
 	bool InPortableMode() const { return m_portableMode; }
@@ -50,7 +51,7 @@ public:
 protected:
 	CMainFrame m_frame;
 	std::wstring m_startupFilePath, m_startupViewMode;
-	bool m_startupLineWrap, m_startupLineWrapOverride;
+	bool m_startupLineWrap, m_startupLineWrapOverride, m_startupNoGpu;
 	PSettingsBackend m_settings;
 	bool m_portableMode;
 };

@@ -196,6 +196,7 @@ int CNFOApp::ExtractStartupOptions(const wstring& a_commandLine)
 		("help,h", "Show available command line options")
 		("view,v", bpo::wvalue<wstring>(&l_viewMode), "One of: default, rendered, classic, text")
 		("wrap,w", bpo::wvalue<wstring>(&l_wrap), "Enables line wrap (text view only)")
+		("nogpu", "Disable GPU acceleration on startup")
 		("filename", bpo::wvalue<wstring>(&l_filePath), "Path to a file")
 	;
 	l_posopt.add("filename", 1);
@@ -230,6 +231,11 @@ int CNFOApp::ExtractStartupOptions(const wstring& a_commandLine)
 			m_startupLineWrapOverride = true;
 			m_startupLineWrap = !l_wrap.empty() && !boost::iequals(l_wrap, L"false") &&
 				!boost::iequals(l_wrap, L"no") && !boost::iequals(l_wrap, L"0");
+		}
+
+		if(vm.count("nogpu") > 0)
+		{
+			m_startupNoGpu = true;
 		}
 
 		std::transform(l_viewMode.begin(), l_viewMode.end(), l_viewMode.begin(), ::tolower);
