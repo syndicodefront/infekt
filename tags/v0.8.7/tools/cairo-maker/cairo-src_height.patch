@@ -1,0 +1,17 @@
+--- win32/cairo-win32-gdi-compositor.c
++++ win32/cairo-win32-gdi-compositor.c
+@@ -151,10 +151,11 @@ static cairo_bool_t upload_box (cairo_box_t *box, void *closure)
+     int y = _cairo_fixed_integer_part (box->p1.y);
+     int width  = _cairo_fixed_integer_part (box->p2.x - box->p1.x);
+     int height = _cairo_fixed_integer_part (box->p2.y - box->p1.y);
++    int src_height = -cb->bi.bmiHeader.biHeight;
+ 
+     TRACE ((stderr, "%s\n", __FUNCTION__));
+     return StretchDIBits (cb->dst, x, y + height - 1, width, -height,
+-			  x + cb->tx,  height - (y + cb->ty - 1),
++			  x + cb->tx,  src_height - (y + cb->ty - 1),
+ 			  width, -height,
+ 			  cb->data, &cb->bi,
+ 			  DIB_RGB_COLORS, SRCCOPY);
+--
+cgit v0.9.0.2-2-gbebe
