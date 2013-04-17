@@ -402,7 +402,10 @@ static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMa
 			l_new += l_line.substr(0, l_cut);
 			l_newLines.push_back(l_new);
 
-			l_line.erase(0, l_cut + 1);
+			if(l_cut != l_maxLen)
+				l_line.erase(0, l_cut + 1);
+			else
+				l_line.erase(0, l_cut);
 
 			l_firstRun = false;
 		}
