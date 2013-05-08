@@ -1040,17 +1040,14 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 	ms_linkTriggers.push_back(TRGR("http://", false));
 	ms_linkTriggers.push_back(TRGR("https://", false));
 	ms_linkTriggers.push_back(TRGR("www\\.", false));
-	ms_linkTriggers.push_back(TRGR("german\\.imdb\\.com", false));
+	ms_linkTriggers.push_back(TRGR("\\w+\\.imdb\\.com", false));
 	ms_linkTriggers.push_back(TRGR("imdb\\.com", false));
-	ms_linkTriggers.push_back(TRGR("ofdb\\.de", false));
-	ms_linkTriggers.push_back(TRGR("imdb\\.de", false));
-	ms_linkTriggers.push_back(TRGR("cinefacts\\.de", false));
-	ms_linkTriggers.push_back(TRGR("zelluloid\\.de", false));
-	ms_linkTriggers.push_back(TRGR("tinyurl\\.com", false));
-	ms_linkTriggers.push_back(TRGR("bit\\.ly", false));
+	ms_linkTriggers.push_back(TRGR("(imdb|ofdb|cinefacts|zelluloid|kino)\\.de", false));
+	ms_linkTriggers.push_back(TRGR("(tinyurl|twitter|facebook|imgur|youtube)\\.com", false));
+	ms_linkTriggers.push_back(TRGR("(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)", false));
 
 	ms_linkTriggers.push_back(TRGR("^\\s*(/)", true));
-	ms_linkTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?)\\S*)", true));
+	ms_linkTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?|jpe?g|png|gif)\\S*)", true));
 	ms_linkTriggers.push_back(TRGR("(\\S+/dp/\\S*)", true)); // for amazon
 	ms_linkTriggers.push_back(TRGR("(\\S*dp/[A-Z]\\S+)", true)); // for amazon
 	ms_linkTriggers.push_back(TRGR("(\\S+[&?]\\w+=\\S*)", true));
@@ -1124,8 +1121,12 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 	// get the rest of the link:
 	const string sLineRemainder = sLine.substr(uBytePos);
 
-	pcre* reUrlRemainder = pcre_compile("^[\\w,/.!#:%;?&=~+-]{9,}",
+#define REMPAT "^[\\w,/.!#:%;?&=~+-]"
+
+	pcre* reUrlRemainder = pcre_compile(bMatchContinuesLink ? REMPAT "{4,}" : REMPAT "{9,}",
 		PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_UCP, &szErrDescr, &iErrOffset, NULL);
+
+#undef REMPAT
 
 	if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
 	{
