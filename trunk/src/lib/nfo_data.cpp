@@ -438,7 +438,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_TRY);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
 		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_TRY);
-		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen, EA_TRY);
 		break;
 	case NFOC_UTF16:
 		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_FALSE);
@@ -451,7 +451,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_FALSE);
 		break;
 	case NFOC_CP437:
-		l_loaded = TryLoad_CP437(a_data, a_dataLen);
+		l_loaded = TryLoad_CP437(a_data, a_dataLen, EA_FALSE);
 		break;
 	case NFOC_WINDOWS_1252:
 		l_loaded = TryLoad_CP252(a_data, a_dataLen);
@@ -461,6 +461,9 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		break;
 	case NFOC_CP437_IN_UTF16:
 		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_FORCE);
+		break;
+	case NFOC_CP437_IN_CP437:
+		l_loaded = TryLoad_CP437(a_data, a_dataLen, EA_FORCE);
 		break;
 	}
 
@@ -631,7 +634,7 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 			const wstring l_unicode = CUtil::ToWideStr(l_utf, CP_UTF8);
 			const string l_cp437 = CUtil::FromWideStr(l_unicode, CP_ACP);
 
-			if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
+			if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EA_FALSE))
 			{
 				m_sourceCharset = NFOC_CP437_IN_UTF8;
 
@@ -654,12 +657,24 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 }
 
 
-bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
+bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
 	bool l_error = false;
 
 	m_textContent.clear();
 
+	if(a_fix == EA_TRY)
+	{
+		const std::string l_txt((const char*)a_data, a_dataLen);
+
+		// look for bad full blocks and shadowed full blocks or black half blocks:
+		if(l_txt.find("\x9A\x9A") != std::string::npos && (l_txt.find("\xFD\xFD") != std::string::npos
+			|| l_txt.find("\xE1\xE1") != std::string::npos))
+		{
+			a_fix = EA_FORCE;
+		}
+	}
+	
 	// kill trailing NULL chars that some NFOs have so our
 	// binary file check doesn't trigger.
 	while(a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
@@ -678,7 +693,17 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 		}
 		else if(p >= 0x80)
 		{
-			m_textContent[i] = map_cp437_to_unicode_high_bit[p - 0x80];
+			if(a_fix != EA_FORCE)
+			{
+				m_textContent[i] = map_cp437_to_unicode_high_bit[p - 0x80];
+			}
+			else
+			{
+				wchar_t l_temp = map_cp437_to_unicode_high_bit[p - 0x80];
+
+				m_textContent[i] = (l_temp >= 0x80 ?
+					map_cp437_to_unicode_high_bit[l_temp & 0xFF - 0x80] : l_temp);
+			}
 		}
 		else if(p <= 0x1F)
 		{
@@ -700,6 +725,28 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 			_ASSERT(p > 0x1F && p < 0x80);
 
 			m_textContent[i] = (wchar_t)p;
+
+			if(a_fix == EA_FORCE && (p == 0x55 || p == 0x59 || p == 0x5F))
+			{
+				// untransliterated CAPITAL U WITH CIRCUMFLEX
+				// => regular U (0x55) -- was full block (0x2588)
+				// same for Y (0x59) and _ (0x5F)
+				unsigned char l_next = (i < static_cast<int>(a_dataLen) - 1 ? a_data[i + 1] : 0),
+					l_prev = (i > 0 ? a_data[i - 1] : 0);
+
+				if((l_next >= 'a' && l_next <= 'z') || (l_prev >= 'a' && l_prev <= 'z') ||
+					(l_next >= 'A' && l_next <= 'Z' && l_next != 'U' && l_next != 'Y' && l_next != '_') || (l_prev >= 'A' && l_prev <= 'Z' && l_prev != 'U' && l_prev != 'Y' && l_prev != '_') ||
+					(l_next >= '0' && l_next <= '9') || (l_prev >= '0' && l_prev <= '9'))
+				{
+					// most probably a regular 'U'/'Y'/'_'
+				}
+				else if(p == 0x55)
+					m_textContent[i] = 0x2588;
+				else if(p == 0x59)
+					m_textContent[i] = 0x258C;
+				else if(p == 0x5F)
+					m_textContent[i] = 0x2590;
+			}			
 		}
 	}
 
@@ -710,7 +757,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 	}
 	else
 	{
-		m_sourceCharset = NFOC_CP437;
+		m_sourceCharset = (a_fix == EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
 
 		return true;
 	}
@@ -744,7 +791,7 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	{
 		const string l_cp437 = CUtil::FromWideStr(m_textContent, CP_ACP);
 
-		if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
+		if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EA_FALSE))
 		{
 			m_sourceCharset = NFOC_CP437_IN_UTF16;
 
@@ -951,6 +998,8 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 		return L"CP 437 (in broken UTF-8)";
 	case NFOC_CP437_IN_UTF16:
 		return L"CP 437 (in broken UTF-16)";
+	case NFOC_CP437_IN_CP437:
+		return L"CP 437 (double encoded)";
 	case NFOC_WINDOWS_1252:
 		return L"Windows-1252";
 	}
