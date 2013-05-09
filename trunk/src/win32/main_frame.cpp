@@ -757,11 +757,20 @@ bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
 {
 	HMENU hPopupMenu = ::CreatePopupMenu();
 
+	// auto
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_AUTO, L"Auto");
+	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+	// regular things
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437, L"CP437");
-	::AppendMenu(hPopupMenu, MF_STRING, NFOC_WINDOWS_1252, L"Windows-1252");
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_UTF8, L"UTF-8");
+	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+	// more exotic things:
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_UTF16, L"UTF-16");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_WINDOWS_1252, L"Windows-1252");
+	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+	// crazy shit:
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_IN_UTF8, L"CP437 in UTF-8");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_IN_UTF16, L"CP437 in UTF-16");
 	
 	POINT pt = a_pnmm->pt;
 	::ClientToScreen(GetStatusbar().GetHwnd(), &pt);

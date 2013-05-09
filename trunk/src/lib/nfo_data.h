@@ -108,17 +108,24 @@ protected:
 	ENfoCharset m_sourceCharset;
 	bool m_lineWrap;
 
+	typedef enum _approach_t
+	{
+		EA_FALSE = 0,
+		EA_TRY,
+		EA_FORCE
+	} EApproach;
+
 	bool LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen);
 
-	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix);
+	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix);
 	bool TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen);
-	bool TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix);
+	bool TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix);
 	bool TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen);
 
 	std::wstring GetWithBoxedWhitespace();
-
+	
 	// following: static cache stuff for link detection regex.
 
 	class CLinkRegEx

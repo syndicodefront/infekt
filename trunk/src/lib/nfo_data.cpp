@@ -435,26 +435,32 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 	case NFOC_AUTO:
 		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, true);
+		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_TRY);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen, true);
+		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_TRY);
 		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen);
 		break;
 	case NFOC_UTF16:
-		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, false);
+		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_FALSE);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
 		break;
 	case NFOC_UTF8_SIG:
 		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
 		break;
 	case NFOC_UTF8:
-		l_loaded = TryLoad_UTF8(a_data, a_dataLen, false);
+		l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_FALSE);
 		break;
 	case NFOC_CP437:
 		l_loaded = TryLoad_CP437(a_data, a_dataLen);
 		break;
 	case NFOC_WINDOWS_1252:
 		l_loaded = TryLoad_CP252(a_data, a_dataLen);
+		break;
+	case NFOC_CP437_IN_UTF8:
+		l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_FORCE);
+		break;
+	case NFOC_CP437_IN_UTF16:
+		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_FORCE);
 		break;
 	}
 
@@ -606,7 +612,7 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 #include "nfo_data_cp437.inc"
 
 
-bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix)
+bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
 	if(utf8_validate((const char*)a_data, a_dataLen, NULL))
 	{
@@ -615,17 +621,17 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, bool 
 		// the following is a typical collection of characters that indicate
 		// a CP437 representation that has been (very badly) UTF-8 encoded
 		// using an "ISO-8559-1 to UTF-8" or similar routine.
-		if(a_tryToFix && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
+		if(a_fix == EA_FORCE || (a_fix == EA_TRY && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
 			/* one "Eszett" or LATIN CAPITAL LETTER I WITH ACUTE (horizontal double line in 437) */ &&
 			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos)
 			/* two consecutive 'LATIN CAPITAL LETTER U WITH DIAERESIS' or 'LATIN CAPITAL LETTER U WITH CIRCUMFLEX' */ &&
 			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos)
-			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */)
+			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */))
 		{
 			const wstring l_unicode = CUtil::ToWideStr(l_utf, CP_UTF8);
 			const string l_cp437 = CUtil::FromWideStr(l_unicode, CP_ACP);
 
-			if(TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
+			if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
 			{
 				m_sourceCharset = NFOC_CP437_IN_UTF8;
 
@@ -711,7 +717,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen)
 }
 
 
-bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, bool a_tryToFix)
+bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
 	if(a_dataLen < 2 || a_data[0] != 0xFF || a_data[1] != 0xFE)
 	{
@@ -732,13 +738,13 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, bo
 	}
 
 	// see comments in TryLoad_UTF8...
-	if(a_tryToFix && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
+	if(a_fix == EA_FORCE || (a_fix == EA_TRY && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
 		(m_textContent.find(L"\u00DC\u00DC") != wstring::npos || m_textContent.find(L"\u00DB\u00DB") != wstring::npos) &&
-		(m_textContent.find(L"\u00B1") != wstring::npos || m_textContent.find(L"\u00B2") != wstring::npos))
+		(m_textContent.find(L"\u00B1") != wstring::npos || m_textContent.find(L"\u00B2") != wstring::npos)))
 	{
 		const string l_cp437 = CUtil::FromWideStr(m_textContent, CP_ACP);
 
-		if(TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
+		if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size()))
 		{
 			m_sourceCharset = NFOC_CP437_IN_UTF16;
 
