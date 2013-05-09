@@ -771,6 +771,7 @@ bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
 	// crazy shit:
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_IN_UTF8, L"CP437 in UTF-8");
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_IN_UTF16, L"CP437 in UTF-16");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_IN_CP437, L"double encoded CP437");
 	
 	POINT pt = a_pnmm->pt;
 	::ClientToScreen(GetStatusbar().GetHwnd(), &pt);
