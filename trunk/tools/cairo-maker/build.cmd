@@ -24,7 +24,7 @@ curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.2.tar.gz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.28.2.tar.gz -o pixman.tgz
+curl http://cgit.freedesktop.org/pixman/snapshot/pixman-cb5d131ff4172a9bb455970cc15d93d8c1d14c4e.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tar.xz GOTO CZOK
