@@ -5,6 +5,13 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.8 (May 14 2013) ==
+  * Fixes and improvements to hyperlink detection
+  * New: Support + detect yet another way of broken encodings that NFOs out there have. It's double-encoded, partly-transliterated CP437.
+  * New: It's possible to try force-loading an NFO with one of the broken encoding workarounds from the charset right-click menu.
+  * Fixed an issue where the last character was missing from a wrapped line in text view
+  * zlib (1.2.8), libpng (1.6.2) and pixman (0.30.0) update
+
 == v0.8.7 (April 14 2013) ==
   * Attention: Due to a bug in all previous versions' auto updater, it's not possible to auto-update to this version. Please download & install the new version manually.
   * New feature: iNFekt automatically reloads the currently viewed file if it changes on disk
