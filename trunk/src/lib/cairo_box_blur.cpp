@@ -189,8 +189,6 @@ static void ComputeLobes(PRInt32 aRadius, PRInt32 aLobes[3][2])
 
 bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 {
-	bool l_ok = false;
-
 	cairo_surface_flush(m_imgSurface);
 
 	unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
@@ -205,6 +203,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 	if(!m_useFallback && cairo_image_surface_get_format(m_imgSurface) == CAIRO_FORMAT_ARGB32)
 	{
 		typedef int (__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
+		bool l_ok = false;
 
 		if(fnc gb = (fnc)GetProcAddress(m_hAmpDll, "GaussianBlurARGB32"))
 		{
