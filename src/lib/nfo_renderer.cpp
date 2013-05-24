@@ -35,6 +35,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	m_numStripes = 0;
 	m_fontSize = -1;
 	m_zoomFactor = 1.0f;
+	m_hasBlocks = true;
 
 	// default settings:
 	if(!m_classic)

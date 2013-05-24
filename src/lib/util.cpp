@@ -248,13 +248,11 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 	int ovector[OVECTOR_SIZE];
 
 	pcre* re;
-	pcre_extra *pe;
 
 	if((re = pcre_compile(a_pattern.c_str(), PCRE_UTF8 | PCRE_NEWLINE_ANYCRLF | a_flags, &szErrDescr, &iErrOffset, NULL)) != NULL)
 	{
 		int l_prevEndPos = 0; // the index of the character that follows the last character of the previous match.
-
-		pe = pcre_study(re, 0, &szErrDescr); // this could be NULL but it wouldn't matter.
+		pcre_extra *pe = pcre_study(re, 0, &szErrDescr); // this could be NULL but it wouldn't matter.
 
 		while(1)
 		{
@@ -735,7 +733,7 @@ HMODULE CUtil::SilentLoadLibrary(const std::wstring& a_path)
 {
 	_ASSERT(!PathIsRelative(a_path.c_str()));
 
-	HMODULE l_hResult;
+	HMODULE l_hResult = NULL;
 	DWORD dwErrorMode = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS;
 
 	if(CUtil::IsWin7(true))
