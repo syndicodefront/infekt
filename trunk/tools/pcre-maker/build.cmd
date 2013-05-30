@@ -16,7 +16,7 @@ SETLOCAL
 PUSHD
 
 IF EXIST pcre.tgz GOTO PCREOK
-curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.32.tar.gz -o pcre.tgz
+curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.33.tar.gz -o pcre.tgz
 :PCREOK
 
 set ROOTDIR=%cd%\work
@@ -72,7 +72,7 @@ sed "s/@pcre_have_bits_type_traits@/0/" .temp > %BDIR%\pcre_stringpiece.h
 
 sed "s/@pcre_have_u\?long_long@/1/" pcrecpparg.h.in > %BDIR%\pcrecpparg.h
 
-cat %BDIR%\config-win32-head.inc %PDIR%\config.h.generic %BDIR%\config-win32-tail.inc > %BDIR%\config.h
+cat %BDIR%\config-win32-head.inc %PDIR%\config.h.generic > %BDIR%\config.h
 
 REM Build dftables
 cd %BDIR%
