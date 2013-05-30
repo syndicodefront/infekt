@@ -1092,14 +1092,18 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 		return;
 	}
 
-	ms_linkTriggers.push_back(TRGR("http://", false));
-	ms_linkTriggers.push_back(TRGR("https://", false));
+	ms_linkTriggers.push_back(TRGR("h(?:tt|xx|\\*\\*)p://", false));
+	ms_linkTriggers.push_back(TRGR("h(?:tt|xx|\\*\\*)ps://", false));
 	ms_linkTriggers.push_back(TRGR("www\\.", false));
 	ms_linkTriggers.push_back(TRGR("\\w+\\.imdb\\.com", false));
 	ms_linkTriggers.push_back(TRGR("imdb\\.com", false));
 	ms_linkTriggers.push_back(TRGR("(imdb|ofdb|cinefacts|zelluloid|kino)\\.de", false));
 	ms_linkTriggers.push_back(TRGR("(tinyurl|twitter|facebook|imgur|youtube)\\.com", false));
 	ms_linkTriggers.push_back(TRGR("(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)", false));
+
+	ms_linkTriggers.push_back(PLinkRegEx(new CLinkRegEx("[a-zA-Z0-9._=-]+@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-z]+", false, true)));
+
+	// all link continuations must appear *after* non-continuations in the list:
 
 	ms_linkTriggers.push_back(TRGR("^\\s*(/)", true));
 	ms_linkTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?|jpe?g|png|gif)\\S*)", true));
@@ -1108,8 +1112,8 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 	ms_linkTriggers.push_back(TRGR("(\\S+[&?]\\w+=\\S*)", true));
 
 	/*if(sPrevLineLink[sPrevLineLink.size() - 1] == '-') originally */
-	ms_linkTriggers.push_back(TRGR("(\\S+/\\S*)", true));
-
+	ms_linkTriggers.push_back(TRGR("(\\S{4,}/\\S*)", true));
+	// use at least 4 chars so "4.4/10" in a line following an imdb link does not trigger.
 #undef TRGR
 }
 std::vector<CNFOData::PLinkRegEx> CNFOData::ms_linkTriggers;
@@ -1141,6 +1145,7 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 
 	// find link starting point:
 	bool bMatchContinuesLink = false;
+	bool bMailto = false;
 	for(vector<PLinkRegEx>::const_iterator it = ms_linkTriggers.begin(); it != ms_linkTriggers.end(); it++)
 	{
 		if(sPrevLineLink.empty() && (*it)->IsCont())
@@ -1156,13 +1161,27 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 				int idx = (iCaptures == 1 ? 1 : 0) * 2;
 				_ASSERT(ovector[idx] >= 0 && ovector[idx + 1] > 0);
 
+				// never match continuations when an actual link start or earlier continuation has been found:
+				if(uBytePos != (size_t)-1 && (*it)->IsCont())
+				{
+					break;
+				}
+
+				// find the earliest link start:
 				if((size_t)ovector[idx] < uBytePos)
 				{
 					uBytePos = (size_t)ovector[idx];
 
 					bMatchContinuesLink = (*it)->IsCont();
+					bMailto = (*it)->IsMailto();
 
-					break;
+					if(bMailto)
+					{
+						uByteLen = (size_t)ovector[idx + 1] - uBytePos;
+					}
+
+					if((*it)->IsCont()) // purely an optimization
+						break;
 				}
 			}
 		}
@@ -1170,35 +1189,64 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 
 	if(uBytePos == (size_t)-1)
 	{
+		// no link found:
 		return false;
 	}
 
-	// get the rest of the link:
-	const string sLineRemainder = sLine.substr(uBytePos);
+	// get the full link:
+	string sWorkUrl;
+
+	if(!bMailto)
+	{
+		string sLineRemainder = sLine.substr(uBytePos);
+
+		if(sLineRemainder.find("hxxp://") == 0 || sLineRemainder.find("h**p://") == 0)
+		{
+			sLineRemainder.replace(0, 7, "http://");
+		}
 
 #define REMPAT "^[\\w,/.!#:%;?&=~+-]"
 
-	pcre* reUrlRemainder = pcre_compile(bMatchContinuesLink ? REMPAT "{4,}" : REMPAT "{9,}",
-		PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_UCP, &szErrDescr, &iErrOffset, NULL);
+		pcre* reUrlRemainder = pcre_compile(bMatchContinuesLink ? REMPAT "{4,}" : REMPAT "{9,}",
+			PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_UCP, &szErrDescr, &iErrOffset, NULL);
 
 #undef REMPAT
 
-	if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+		if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+		{
+			_ASSERT(ovector[0] == 0);
+			uByteLen = (size_t)ovector[1] - (size_t)ovector[0];
+
+			sWorkUrl = sLineRemainder.substr((size_t)ovector[0], uByteLen);
+
+			// strip trailing dots and colons. gross code.
+			while(sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == '.' || sWorkUrl[sWorkUrl.size() - 1] == ':')) sWorkUrl.erase(sWorkUrl.size() - 1);
+		}
+
+		pcre_free(reUrlRemainder);
+	}
+	else
 	{
-		_ASSERT(ovector[0] == 0);
-		uByteLen = (size_t)ovector[1] - (size_t)ovector[0];
+		// uByteLen has been set above.
+		sWorkUrl = sLine.substr(uBytePos, uByteLen);
+	}
 
-		string sWorkUrl = sLineRemainder.substr((size_t)ovector[0], uByteLen);
-
-		// strip trailing dots and colons. gross code.
-		while(sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == '.' || sWorkUrl[sWorkUrl.size() - 1] == ':')) sWorkUrl.erase(sWorkUrl.size() - 1);
-
+	if(!sWorkUrl.empty())
+	{
 		urLinkPos = utf8_strlen(sLine.c_str(), uBytePos);
 		urLinkLen = utf8_strlen(sWorkUrl.c_str(), -1); // IN CHARACTERS, NOT BYTES!
 
 		uirOffset = uBytePos + uByteLen;
 
-		pcre_free(reUrlRemainder);
+		if(bMailto)
+		{
+			// early exit for mailto links:
+
+			srUrl = "mailto:" + sWorkUrl;
+			brLinkContinued = false;
+
+			return true;
+		}
 
 		if(sWorkUrl.find("http://http://") == 0)
 		{
@@ -1211,7 +1259,7 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 			string sPrevLineLinkCopy(sPrevLineLink);
 			if(sPrevLineLink[sPrevLineLink.size() - 1] != '.')
 			{
-				pcre* re = pcre_compile("^(php|htm|asp)", PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+				pcre* re = pcre_compile("^(html?|php|aspx?|jpe?g|png|gif)", PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
 				if(pcre_exec(re, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
 				{
 					sPrevLineLinkCopy += '.';
@@ -1244,8 +1292,6 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 
 		return (!srUrl.empty());
 	}
-
-	pcre_free(reUrlRemainder);
 
 	return false;
 }

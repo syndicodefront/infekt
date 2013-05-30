@@ -132,7 +132,7 @@ protected:
 	class CLinkRegEx
 	{
 	public:
-		CLinkRegEx(const char* regex_str, bool a_cont)
+		CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto = false)
 		{
 			const char *szErrDescr = NULL;
 			int iErrOffset;
@@ -144,10 +144,12 @@ protected:
 			// no further error handling because all the regex are hardcoded
 
 			m_cont = a_cont;
+			m_mailto = a_mailto;
 		}
 
 		pcre *GetRE() const { return m_re; }
 		bool IsCont() const { return m_cont; }
+		bool IsMailto() const { return m_mailto; }
 
 		virtual ~CLinkRegEx()
 		{
@@ -159,6 +161,7 @@ protected:
 	protected:
 		pcre *m_re;
 		bool m_cont;
+		bool m_mailto;
 	};
 #ifndef DONT_USE_SHARED_PTR
 	typedef shared_ptr<CLinkRegEx> PLinkRegEx;
