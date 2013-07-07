@@ -5,6 +5,12 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.9 (July 8th 2013) ==
+  * More fixes & improvements to hyperlink detection
+  * New: Turn email addresses into clickable links
+  * PCRE update to 8.33
+  * boost lib update to 1.54, VS2012 update to 2012.U3, minor stuff
+
 == v0.8.8 (May 14 2013) ==
   * Fixes and improvements to hyperlink detection
   * New: Support + detect yet another way of broken encodings that NFOs out there have. It's double-encoded, partly-transliterated CP437.
