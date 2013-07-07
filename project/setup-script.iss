@@ -7,8 +7,8 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.8.8
-AppVersion=0.8.8
+AppVerName=iNFekt 0.8.9
+AppVersion=0.8.9
 AppPublisher=cxxjoe & Contributors
 AppPublisherURL=http://infekt.googlecode.com/
 DefaultDirName={pf}\iNFekt
@@ -168,8 +168,8 @@ var
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU1/vcredist_x64.exe';
-	MSVC_X86_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU1/vcredist_x86.exe';
+	MSVC_X64_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU3/vcredist_x64.exe';
+	MSVC_X86_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU3/vcredist_x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
@@ -179,6 +179,8 @@ end;
 
 
 procedure InitializeWizard();
+var
+	U1Installed, U3Installed: Boolean;
 begin
 	ITD_Init();
 	ITD_SetOption('UI_AllowContinue', '1');
@@ -186,19 +188,27 @@ begin
 	if Is64BitInstallMode() then
 	begin
 		ITD_AddFile(MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
-		ITD_AddMirror('http://infekt.googlecode.com/files/vcredist_x64_2012u1.exe', expandconstant('{tmp}\vcredist_x64.exe'));
+		ITD_AddMirror('http://infekt.googlecode.com/files/vcredist_x64_2012u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 
-		cppRuntimeInstalled := (MsiQueryProductState('{5AF4E09F-5C9B-3AAF-B731-544D3DC821DD}') = INSTALLSTATE_DEFAULT)
+		U1Installed := (MsiQueryProductState('{5AF4E09F-5C9B-3AAF-B731-544D3DC821DD}') = INSTALLSTATE_DEFAULT)
 		  and (MsiQueryProductState('{3C28BFD4-90C7-3138-87EF-418DC16E9598}') = INSTALLSTATE_DEFAULT);
+
+		U3Installed := (MsiQueryProductState('{2EDC2FA3-1F34-34E5-9085-588C9EFD1CC6}') = INSTALLSTATE_DEFAULT)
+		  and (MsiQueryProductState('{764384C5-BCA9-307C-9AAC-FD443662686A}') = INSTALLSTATE_DEFAULT);
 	end
 	else
 	begin
 		ITD_AddFile(MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
-		ITD_AddMirror('http://infekt.googlecode.com/files/vcredist_x86_2012u1.exe', expandconstant('{tmp}\vcredist_x86.exe'));
+		ITD_AddMirror('http://infekt.googlecode.com/files/vcredist_x86_2012u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 
-		cppRuntimeInstalled := (MsiQueryProductState('{E824E81C-80A4-3DFF-B5F9-4842A9FF5F7F}') = INSTALLSTATE_DEFAULT)
+		U1Installed := (MsiQueryProductState('{E824E81C-80A4-3DFF-B5F9-4842A9FF5F7F}') = INSTALLSTATE_DEFAULT)
 		  and (MsiQueryProductState('{6C772996-BFF3-3C8C-860B-B3D48FF05D65}') = INSTALLSTATE_DEFAULT);
+
+		U3Installed := (MsiQueryProductState('{E7D4E834-93EB-351F-B8FB-82CDAE623003}') = INSTALLSTATE_DEFAULT)
+		  and (MsiQueryProductState('{3D6AD258-61EA-35F5-812C-B7A02152996E}') = INSTALLSTATE_DEFAULT);
 	end;
+
+	cppRuntimeInstalled := U1Installed or U3Installed;
 
 	if InstallCppRuntime() then
 	begin
