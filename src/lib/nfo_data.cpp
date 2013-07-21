@@ -876,7 +876,10 @@ const std::_tstring CNFOData::GetFileName() const
 	const wchar_t* l_name = ::PathFindFileName(m_filePath.c_str());
 	return l_name;
 #else
-	return basename(m_filePath.c_str());
+	char *l_tmp = strdup(m_filePath.c_str());
+	std::string l_result = basename(l_tmp);
+	free(l_tmp);
+	return l_result;
 #endif
 }
 
