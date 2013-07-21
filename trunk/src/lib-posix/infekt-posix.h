@@ -20,6 +20,7 @@
 #include <limits.h>
 #include <omp.h>
 #include <libgen.h>
+#include <inttypes.h>
 
 #include "iconv_string.h"
 

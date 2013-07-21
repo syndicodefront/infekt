@@ -372,10 +372,8 @@ int main(int argc, char* argv[])
 		if(l_file = fopen(l_outFileName.c_str(), _T("wb")))
 #endif
 		{
-			fwrite(l_utf8.c_str(), l_utf8.size(), 1, l_file);
+			l_exportSuccess = (fwrite(l_utf8.c_str(), 1, l_utf8.size(), l_file) == l_utf8.size());
 			fclose(l_file);
-
-			l_exportSuccess = true;
 		}
 	}
 	else
