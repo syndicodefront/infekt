@@ -1012,7 +1012,7 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 /* Compound Whitespace Code                                             */
 /************************************************************************/
 
-wstring CNFOData::GetWithBoxedWhitespace()
+wstring CNFOData::GetWithBoxedWhitespace() const
 {
 	wstring l_result;
 
@@ -1450,9 +1450,8 @@ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 }
 
 
-bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
+const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace) const
 {
-	FILE *fp = NULL;
 	const std::wstring& l_input = (a_compoundWhitespace ? GetWithBoxedWhitespace() : m_textContent);
 	map<wchar_t, char> l_transl;
 	vector<char> l_converted;
@@ -1465,15 +1464,6 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 	for(int j = 0x80; j <= 0xFF; j++)
 	{
 		l_transl[map_cp437_to_unicode_high_bit[j - 0x80]] = j;
-	}
-
-#ifdef _UNICODE
-	if(_wfopen_s(&fp, a_filePath.c_str(), L"wb") != ERROR_SUCCESS)
-#else
-	if((fp = fopen(a_filePath.c_str(), "wb")) == NULL)
-#endif
-	{
-		return false;
 	}
 
 	ar_charsNotConverted = 0;
@@ -1505,11 +1495,58 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 		}
 	}
 
+	return l_converted;
+}
+
+
+bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
+{
+	FILE *fp = NULL;
+
+#ifdef _UNICODE
+	if(_wfopen_s(&fp, a_filePath.c_str(), L"wb") != ERROR_SUCCESS)
+#else
+	if((fp = fopen(a_filePath.c_str(), "wb")) == NULL)
+#endif
+	{
+#ifdef HAVE_BOOST
+		m_lastErrorDescr = FORMAT(L"Unable to open file '%s' for writing (error %d)", a_filePath % errno);
+#else
+		m_lastErrorDescr = L"Unable to open file for writing. Please check the file name.";
+#endif
+
+		return false;
+	}
+
+	const vector<char> l_converted = GetTextCP437(ar_charsNotConverted, a_compoundWhitespace);
+
 	bool l_success = (fwrite(l_converted.data(), 1, l_converted.size(), fp) == l_converted.size());
 
 	fclose(fp);
 
 	return l_success;
+}
+
+
+size_t CNFOData::GetEstimatedMemoryConsumption() const
+{
+	size_t mem =
+		(m_textContent.size() * sizeof(wchar_t))
+		+ (m_utf8Content.size() * sizeof(char))
+		+ m_hyperLinks.size() * 512
+		+ 2048; // for good measure, objects' overhead and whatnot.
+
+	if(m_grid)
+	{
+		mem += m_grid->GetCols() * m_grid->GetRows() * sizeof(wchar_t);
+	}
+
+	if(m_utf8Grid)
+	{
+		mem += m_grid->GetRows() * m_grid->GetCols() * 7 * sizeof(char);
+	}
+
+	return mem;
 }
 
 

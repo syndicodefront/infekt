@@ -40,7 +40,6 @@ using std::tr1::shared_ptr;
 
 #include <cairo-win32.h>
 #include <pcre.h>
-#include <inttypes.h>
 
 #ifdef _WIN64
 typedef signed __int64 ssize_t;

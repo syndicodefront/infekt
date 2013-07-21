@@ -20,6 +20,7 @@
 #include "targetver.h"
 #include <windows.h>
 #include <shlwapi.h>
+#include <shlobj.h>
 #include <tchar.h>
 #include <io.h>
 #include <conio.h>
@@ -28,7 +29,6 @@
 #endif
 
 /* standard / system headers */
-#include <inttypes.h>
 #include <limits>
 #include <stdio.h>
 #include <string>
