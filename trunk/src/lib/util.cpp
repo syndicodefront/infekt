@@ -581,82 +581,6 @@ void CUtil::PopUpLastWin32Error()
 }
 
 
-std::wstring CUtil::PathRemoveFileSpec(const std::wstring& a_path)
-{
-	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
-	memset(l_buf, 0, a_path.size() + 1);
-
-	_tcscpy_s(l_buf, a_path.size() + 1, a_path.c_str());
-
-	::PathRemoveFileSpec(l_buf);
-	::PathRemoveBackslash(l_buf);
-
-	std::wstring l_result(l_buf);
-	delete[] l_buf;
-
-	return l_result;
-}
-
-
-std::wstring CUtil::PathRemoveExtension(const std::wstring& a_path)
-{
-	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
-	memset(l_buf, 0, a_path.size() + 1);
-
-	_tcscpy_s(l_buf, a_path.size() + 1, a_path.c_str());
-
-	::PathRemoveExtension(l_buf);
-
-	std::wstring l_result(l_buf);
-	delete[] l_buf;
-
-	return l_result;
-}
-
-
-std::wstring CUtil::GetTempDir()
-{
-	wchar_t l_tmpPathBuf[1000] = {0};
-
-	if(::GetTempPath(999, l_tmpPathBuf))
-	{
-		::PathAddBackslash(l_tmpPathBuf);
-
-		return l_tmpPathBuf;
-	}
-
-	return L"";
-}
-
-
-std::wstring CUtil::GetAppDataDir(bool a_local, const std::wstring& a_appName)
-{
-	wchar_t l_tmpPathBuf[1000] = {0};
-
-	if(::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, NULL,
-		SHGFP_TYPE_CURRENT, l_tmpPathBuf) == S_OK)
-	{
-		::PathAddBackslash(l_tmpPathBuf);
-
-		::PathAppend(l_tmpPathBuf, a_appName.c_str());
-
-		if(!::PathIsDirectory(l_tmpPathBuf))
-		{
-			::SHCreateDirectoryEx(NULL, l_tmpPathBuf, NULL);
-		}
-
-		if(::PathIsDirectory(l_tmpPathBuf))
-		{
-			::PathAddBackslash(l_tmpPathBuf);
-
-			return l_tmpPathBuf;
-		}
-	}
-
-	return L"";
-}
-
-
 int CUtil::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 {
 	// Credit: Notepad2 by Florian Balmer (BSD License)
@@ -723,10 +647,85 @@ bool CUtil::TextToClipboard(HWND a_hwnd, const wstring& a_text)
 	return l_ok;
 }
 
+
 #endif /* _WIN32_UI */
 
-
 #ifdef _WIN32
+
+std::wstring CUtil::PathRemoveFileSpec(const std::wstring& a_path)
+{
+	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
+	memset(l_buf, 0, a_path.size() + 1);
+
+	wcscpy_s(l_buf, a_path.size() + 1, a_path.c_str());
+
+	::PathRemoveFileSpec(l_buf);
+	::PathRemoveBackslash(l_buf);
+
+	std::wstring l_result(l_buf);
+	delete[] l_buf;
+
+	return l_result;
+}
+
+
+std::wstring CUtil::PathRemoveExtension(const std::wstring& a_path)
+{
+	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
+	memset(l_buf, 0, a_path.size() + 1);
+
+	wcscpy_s(l_buf, a_path.size() + 1, a_path.c_str());
+
+	::PathRemoveExtension(l_buf);
+
+	std::wstring l_result(l_buf);
+	delete[] l_buf;
+
+	return l_result;
+}
+
+
+std::wstring CUtil::GetTempDir()
+{
+	wchar_t l_tmpPathBuf[1000] = {0};
+
+	if(::GetTempPath(999, l_tmpPathBuf))
+	{
+		::PathAddBackslash(l_tmpPathBuf);
+
+		return l_tmpPathBuf;
+	}
+
+	return L"";
+}
+
+
+std::wstring CUtil::GetAppDataDir(bool a_local, const std::wstring& a_appName)
+{
+	wchar_t l_tmpPathBuf[1000] = {0};
+
+	if(::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, NULL,
+		SHGFP_TYPE_CURRENT, l_tmpPathBuf) == S_OK)
+	{
+		::PathAddBackslash(l_tmpPathBuf);
+
+		::PathAppend(l_tmpPathBuf, a_appName.c_str());
+
+		if(!::PathIsDirectory(l_tmpPathBuf))
+		{
+			::SHCreateDirectoryEx(NULL, l_tmpPathBuf, NULL);
+		}
+
+		if(::PathIsDirectory(l_tmpPathBuf))
+		{
+			::PathAddBackslash(l_tmpPathBuf);
+
+			return l_tmpPathBuf;
+		}
+	}
+
+	return L"";
+}
 
 
 HMODULE CUtil::SilentLoadLibrary(const std::wstring& a_path)

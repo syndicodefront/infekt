@@ -79,6 +79,7 @@ public:
 
 	const std::string& GetTextUtf8() const { return m_utf8Content; }
 	const std::wstring& GetTextWide() const { return m_textContent; }
+	const std::vector<char> GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace = false) const;
 
 	bool SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8 = true, bool a_compoundWhitespace = false);
 	bool SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace = false);
@@ -87,8 +88,6 @@ public:
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
 	const std::vector<const CNFOHyperLink*> GetLinksForLine(size_t a_row) const;
 
-	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
-		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
 	static std::string GetStrippedTextUtf8(const std::wstring& a_text);
 
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
@@ -96,6 +95,8 @@ public:
 	static const std::wstring GetCharsetName(ENfoCharset a_charset);
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
+
+	size_t GetEstimatedMemoryConsumption() const;
 
 protected:
 	std::wstring m_lastErrorDescr;
@@ -125,8 +126,11 @@ protected:
 	bool TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix);
 	bool TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen);
 
-	std::wstring GetWithBoxedWhitespace();
+	std::wstring GetWithBoxedWhitespace() const;
 	
+	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
+		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
+
 	// following: static cache stuff for link detection regex.
 
 	class CLinkRegEx
