@@ -40,19 +40,19 @@
 #include <memory>
 #include <omp.h>
 
-#if !defined(DONT_USE_SHARED_PTR) && !defined(HAVE_BOOST) && !(defined(_MSC_VER) && _MSC_VER >= 1600)
-#error No shared_ptr available...
-#endif
-
 #ifdef HAVE_BOOST
 #include <boost/format.hpp>
-#include <boost/shared_ptr.hpp>
 #endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1600
 using std::shared_ptr;
+#elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
+using std::shared_ptr;
 #elif defined(HAVE_BOOST)
+#include <boost/shared_ptr.hpp>
 using boost::shared_ptr;
+#elif !defined(DONT_USE_SHARED_PTR)
+#error No shared_ptr available...
 #endif
 
 /* cairo and other lib headers */

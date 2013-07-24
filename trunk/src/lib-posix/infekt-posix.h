@@ -21,6 +21,7 @@
 #include <omp.h>
 #include <libgen.h>
 #include <inttypes.h>
+#include <sys/stat.h>
 
 #include "iconv_string.h"
 
@@ -43,6 +44,7 @@
 #define _tcsncpy_s(d, e, s, n) strncpy(d, s, n)
 #define _tcscmp strcmp
 #define _stricmp strcasecmp
+#define _snprintf snprintf
 
 #define wcscpy_s(d, e, s) wcscpy(d, s)
 #define wcsncpy_s(d, e, s, n) wcsncpy(d, s, n)
