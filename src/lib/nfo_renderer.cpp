@@ -19,10 +19,6 @@
 
 CNFORenderer::CNFORenderer(bool a_classicMode)
 {
-#ifdef DONT_USE_SHARED_PTR
-	m_nfo = NULL;
-#endif
-
 	m_classic = a_classicMode;
 	m_partial = NRP_RENDER_EVERYTHING;
 	m_forceGPUOff = false;
@@ -91,12 +87,7 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 
 void CNFORenderer::UnAssignNFO()
 {
-#ifndef DONT_USE_SHARED_PTR
 	m_nfo.reset();
-#else
-	// we don't own m_nfo
-	m_nfo = NULL;
-#endif
 
 	m_rendered = false;
 	m_fontSize = -1;
@@ -448,11 +439,7 @@ cairo_surface_t *CNFORenderer::GetStripeSurface(size_t a_stripe) const
 	{
 		// the actual surface is not really const, but that's safe because
 		// we are parallelizing per stripe, so one surface can never be used by more than one thread.
-#ifndef DONT_USE_SHARED_PTR
 		return *it->second.get();
-#else
-		return *it->second;
-#endif
 	}
 
 	return NULL;
@@ -1436,15 +1423,7 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 
 void CNFORenderer::ClearStripes()
 {
-#ifndef DONT_USE_SHARED_PTR
 	m_stripes.clear();
-#else
-	while(m_stripes.size() > 0)
-	{
-		delete m_stripes[m_stripes.size() - 1];
-		m_stripes.erase(m_stripes.size() - 1);
-	}
-#endif
 }
 
 

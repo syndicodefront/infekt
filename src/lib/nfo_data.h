@@ -168,21 +168,12 @@ protected:
 		bool m_cont;
 		bool m_mailto;
 	};
-#ifndef DONT_USE_SHARED_PTR
 	typedef shared_ptr<CLinkRegEx> PLinkRegEx;
-#else
-	typedef CLinkRegEx* PLinkRegEx;
-#endif
 
 	static std::vector<PLinkRegEx> ms_linkTriggers;
 	static void PopulateLinkTriggers();
 };
 
-#ifndef DONT_USE_SHARED_PTR
 typedef shared_ptr<CNFOData> PNFOData;
-#else
-typedef CNFOData* PNFOData;
-#endif
-
 
 #endif /* !_NFO_DATA_H */
