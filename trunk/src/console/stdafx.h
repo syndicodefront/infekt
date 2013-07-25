@@ -51,7 +51,7 @@ using std::shared_ptr;
 #elif defined(HAVE_BOOST)
 #include <boost/shared_ptr.hpp>
 using boost::shared_ptr;
-#elif !defined(DONT_USE_SHARED_PTR)
+#elif
 #error No shared_ptr available...
 #endif
 

@@ -274,11 +274,11 @@ int main(int argc, char* argv[])
 	}
 
 	// open+load the NFO file:
-	CNFOData l_nfoData;
+	PNFOData l_nfoData(new CNFOData());
 
-	if(!l_nfoData.LoadFromFile(l_nfoFileName))
+	if(!l_nfoData->LoadFromFile(l_nfoFileName))
 	{
-		fwprintf(stderr, L"ERROR: Unable to load NFO file: %s\n", l_nfoData.GetLastErrorDescription().c_str());
+		fwprintf(stderr, L"ERROR: Unable to load NFO file: %s\n", l_nfoData->GetLastErrorDescription().c_str());
 		return 1;
 	}
 
@@ -341,7 +341,7 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		l_exporter.AssignNFO(&l_nfoData);
+		l_exporter.AssignNFO(l_nfoData);
 
 		l_exportSuccess = l_exporter.SavePNG(l_outFileName);
 	}
@@ -350,7 +350,7 @@ int main(int argc, char* argv[])
 #ifdef CAIRO_HAS_PDF_SURFACE
 		CNFOToPDF l_exporter(l_classic);
 		l_exporter.SetUseDINSizes(l_pdfDin);
-		l_exporter.AssignNFO(&l_nfoData);
+		l_exporter.AssignNFO(l_nfoData);
 		l_exporter.InjectSettings(l_pngSettings);
 
 		l_exportSuccess = l_exporter.SavePDF(l_outFileName);
@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
 	{
 		// html export
 
-		CNFOToHTML l_exporter(&l_nfoData);
+		CNFOToHTML l_exporter(l_nfoData);
 		l_exporter.SetSettings(l_pngSettings);
 
 		const std::string l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
 		{
 			size_t l_inconvertible;
 
-			l_exportSuccess = l_nfoData.SaveToCP437File(l_outFileName, l_inconvertible, l_compoundWhitespace);
+			l_exportSuccess = l_nfoData->SaveToCP437File(l_outFileName, l_inconvertible, l_compoundWhitespace);
 
 			if(l_inconvertible > 0)
 			{
@@ -393,7 +393,7 @@ int main(int argc, char* argv[])
 		}
 		else
 		{
-			l_exportSuccess = l_nfoData.SaveToUnicodeFile(l_outFileName, l_textUtf8, l_compoundWhitespace);
+			l_exportSuccess = l_nfoData->SaveToUnicodeFile(l_outFileName, l_textUtf8, l_compoundWhitespace);
 		}
 	}
 
