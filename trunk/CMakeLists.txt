@@ -8,8 +8,7 @@ option (OPTION_GTK "Building iNFEKT-GTK")
 
 set (CMAKE_BUILD_TYPE "Release")
 
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -fshort-wchar")
-set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fshort-wchar")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 
 add_subdirectory (src)
 
