@@ -17,7 +17,6 @@
 
 #include "util.h"
 
-static_assert(sizeof(wchar_t) == 2, "wchar_t must be able to represent UTF-16");
 
 class CNFOHyperLink
 {
