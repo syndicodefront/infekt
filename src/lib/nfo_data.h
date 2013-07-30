@@ -98,6 +98,9 @@ public:
 
 	size_t GetEstimatedMemoryConsumption() const;
 
+	bool SerializeToFile(const std::_tstring& a_filePath);
+	bool UnserializeUnsafe(const std::_tstring& a_filePath);
+
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;
@@ -128,6 +131,8 @@ protected:
 
 	std::wstring GetWithBoxedWhitespace() const;
 	
+	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
+
 	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
 		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
 

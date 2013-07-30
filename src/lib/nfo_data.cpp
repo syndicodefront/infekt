@@ -154,13 +154,16 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		m_filePath = a_filePath;
 	}
 
-	return l_loaded;
+	return m_loaded;
 }
 
 
 bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 {
+	m_filePath = _T("");
+
 	m_loaded = LoadFromMemoryInternal(a_data, a_dataLen);
+
 	return m_loaded;
 }
 
@@ -429,8 +432,6 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 {
 	bool l_loaded = false;
 
-	m_loaded = false;
-
 	switch(m_sourceCharset)
 	{
 	case NFOC_AUTO:
@@ -471,8 +472,6 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 		size_t l_maxLineLen;
 		TLineContainer l_lines;
-
-		m_filePath = _T("");
 
 		_InternalLoad_NormalizeWhitespace(m_textContent);
 		_InternalLoad_FixAnsiEscapeCodes(m_textContent);
@@ -884,7 +883,7 @@ const std::_tstring CNFOData::GetFileName() const
 }
 
 
-bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, bool a_compoundWhitespace)
+FILE *CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath)
 {
 	FILE *l_file = NULL;
 
@@ -900,6 +899,19 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 		m_lastErrorDescr = L"Unable to open file for writing. Please check the file name.";
 #endif
 
+		return NULL;
+	}
+
+	return l_file;
+}
+
+
+bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, bool a_compoundWhitespace)
+{
+	FILE *l_file = OpenFileForWritingWithErrorMessage(a_filePath);
+
+	if(!l_file)
+	{
 		return false;
 	}
 
@@ -1501,20 +1513,10 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 
 bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
 {
-	FILE *fp = NULL;
+	FILE *fp = OpenFileForWritingWithErrorMessage(a_filePath);
 
-#ifdef _UNICODE
-	if(_wfopen_s(&fp, a_filePath.c_str(), L"wb") != ERROR_SUCCESS)
-#else
-	if((fp = fopen(a_filePath.c_str(), "wb")) == NULL)
-#endif
+	if(!fp)
 	{
-#ifdef HAVE_BOOST
-		m_lastErrorDescr = FORMAT(L"Unable to open file '%s' for writing (error %d)", a_filePath % errno);
-#else
-		m_lastErrorDescr = L"Unable to open file for writing. Please check the file name.";
-#endif
-
 		return false;
 	}
 
@@ -1547,6 +1549,202 @@ size_t CNFOData::GetEstimatedMemoryConsumption() const
 	}
 
 	return mem;
+}
+
+
+bool CNFOData::SerializeToFile(const std::_tstring& a_filePath)
+{
+	if(!m_loaded)
+		return false;
+
+	FILE *fp = OpenFileForWritingWithErrorMessage(a_filePath);
+
+	if(!fp)
+		return false;
+
+	// file structure:
+	// "\x1FNFODATA"[uint32_t number of wchar_ts][uint32_t utf8 data length][uint32_t cols][uint32_t rows][uint32_t org_charset][uint32_t num_links]
+	// [wchar_t data][utf8 data]
+	// [uint32_t link_id][uint32_t href_length][uint32_t row][uint32_t col_start][uint32_t col_end][wchar_ts href] FOR EACH LINK
+
+	if(!fwrite("\x1F""NFODATA", 8, 1, fp))
+		goto BAIL;
+
+	uint32_t uint;
+
+#define WRITE_UINT32(WAT) uint = WAT; if(fwrite(&uint, sizeof(uint32_t), 1, fp) != 1) goto BAIL;
+
+	WRITE_UINT32(m_textContent.length());
+	WRITE_UINT32(m_utf8Content.length());
+	WRITE_UINT32(m_grid->GetCols());
+	WRITE_UINT32(m_grid->GetRows());
+	WRITE_UINT32(m_sourceCharset);
+	WRITE_UINT32(m_hyperLinks.size());
+
+	if(fwrite(m_textContent.c_str(), sizeof(wchar_t), m_textContent.length(), fp) != m_textContent.length())
+		goto BAIL;
+
+	if(fwrite(m_utf8Content.c_str(), sizeof(char), m_utf8Content.length(), fp) != m_utf8Content.length())
+		goto BAIL;
+
+	for(auto it = m_hyperLinks.begin(); it != m_hyperLinks.end(); it++)
+	{
+		const CNFOHyperLink& l_link = it->second;
+		
+		int id = l_link.GetLinkID();
+		if(fwrite(&id, sizeof(int), 1, fp) != 1)
+			goto BAIL;
+
+		WRITE_UINT32(l_link.GetHref().size());
+		WRITE_UINT32(l_link.GetRow());
+		WRITE_UINT32(l_link.GetColStart());
+		WRITE_UINT32(l_link.GetColEnd());
+		if(fwrite(l_link.GetHref().c_str(), sizeof(wchar_t), l_link.GetHref().size(), fp) != l_link.GetHref().size())
+			goto BAIL;
+	}
+
+#undef WRITE_UINT32
+
+	fclose(fp);
+
+	if(m_filePath.empty())
+	{
+		m_filePath = a_filePath;
+	}
+
+	return true;
+
+BAIL:
+	fclose(fp);
+	return false;
+}
+
+
+bool CNFOData::UnserializeUnsafe(const std::_tstring& a_filePath)
+{
+	if(m_loaded)
+		return false;
+
+	FILE *fp = NULL;
+	wchar_t *l_bufw = NULL;
+	char *l_bufu = NULL;
+
+#ifdef _WIN32
+	if(_tfopen_s(&fp, a_filePath.c_str(), _T("rb")) != 0)
+		fp = NULL;
+#else
+	fp = fopen(a_filePath.c_str(), "rb");
+#endif
+
+	if(!fp)
+		return false;
+
+	char l_magic[8] = {0};
+	if(fread(l_magic, sizeof(char), 8, fp) != 8)
+		goto BAIL;
+
+	if(memcmp(l_magic, "\x1F""NFODATA", 8) != 0)
+		goto BAIL;
+
+	struct {
+		uint32_t wchars;
+		uint32_t utf8_chars;
+		uint32_t cols;
+		uint32_t rows;
+		uint32_t org_charset;
+		uint32_t num_links;
+	} l_header;
+
+	if(fread(&l_header, sizeof(l_header), 1, fp) != 1)
+		goto BAIL;
+
+	// super unsafe!
+	l_bufw = new wchar_t[l_header.wchars + 1];
+	l_bufw[l_header.wchars] = 0;
+	if(fread(l_bufw, sizeof(wchar_t), l_header.wchars, fp) != l_header.wchars)
+		goto BAIL;
+	m_textContent = std::wstring(l_bufw, l_header.wchars);
+	delete[] l_bufw;
+	l_bufw = NULL;
+
+	// super unsafe!
+	l_bufu = new char[l_header.utf8_chars + 1];
+	l_bufu[l_header.utf8_chars] = 0;
+	if(fread(l_bufu, sizeof(char), l_header.utf8_chars, fp) != l_header.utf8_chars)
+		goto BAIL;
+	m_utf8Content = std::string(l_bufu, l_header.utf8_chars);
+	delete[] l_bufu;
+	l_bufu = NULL;
+
+	m_sourceCharset = (ENfoCharset)l_header.org_charset;
+
+	for(uint32_t i = 0; i < l_header.num_links; i++)
+	{
+		struct {
+			int id;
+			uint32_t href_length;
+			uint32_t row;
+			uint32_t col_start;
+			uint32_t col_end;
+		} l_link;
+
+		if(fread(&l_link, sizeof(l_link), 1, fp) != 1)
+			goto BAIL;
+		
+		wchar_t *l_href = new wchar_t[l_link.href_length + 1];
+		l_href[l_link.href_length] = 0;
+		if(fread(l_href, sizeof(wchar_t), l_link.href_length, fp) != l_link.href_length)
+		{
+			delete[] l_href;
+			goto BAIL;
+		}
+
+		m_hyperLinks.insert(
+			std::pair<size_t, CNFOHyperLink>(i, CNFOHyperLink(l_link.id, l_href, l_link.row, l_link.col_start, l_link.col_end - l_link.col_start + 1))
+			);
+
+		delete[] l_href;
+	}
+
+	fclose(fp);
+
+	delete m_grid; m_grid = NULL;
+	delete m_utf8Grid; m_utf8Grid = NULL;
+
+	m_grid = new TwoDimVector<wchar_t>(l_header.rows, l_header.cols, 0);
+	m_utf8Grid = new char[l_header.rows * m_grid->GetCols() * 7];
+	memset(m_utf8Grid, 0, l_header.rows * m_grid->GetCols() * 7);
+
+	for(size_t p = 0, row = 0, col = 0; p < m_textContent.length(); p++)
+	{
+		(*m_grid)[row][col] = m_textContent[p];
+
+		CUtil::OneCharWideToUtf8(m_textContent[p], &m_utf8Grid[row * m_grid->GetCols() * 7 + col * 7]);
+
+		if(m_textContent[p] == L'\n')
+		{
+			row++;
+			col = 0;
+		}
+		else
+		{
+			col++;
+		}
+	}
+
+	m_filePath = a_filePath;
+
+	return true;
+
+BAIL:
+	m_textContent.clear();
+	m_utf8Content.clear();
+	m_hyperLinks.clear();
+	m_sourceCharset = NFOC_AUTO;
+	delete[] l_bufw;
+	delete[] l_bufu;
+	fclose(fp);
+	return false;
 }
 
 
