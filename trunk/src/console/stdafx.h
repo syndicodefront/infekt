@@ -36,6 +36,8 @@
 #include <map>
 #include <vector>
 #include <deque>
+#include <algorithm>
+#include <iomanip>
 #include <math.h>
 #include <memory>
 #include <omp.h>
