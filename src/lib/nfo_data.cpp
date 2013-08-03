@@ -1708,18 +1708,17 @@ bool CNFOData::UnserializeUnsafe(const std::_tstring& a_filePath)
 
 	fclose(fp);
 
-	delete m_grid; m_grid = NULL;
-	delete m_utf8Grid; m_utf8Grid = NULL;
+	delete m_grid;
+	delete m_utf8Grid;
 
 	m_grid = new TwoDimVector<wchar_t>(l_header.rows, l_header.cols, 0);
-	m_utf8Grid = new char[l_header.rows * m_grid->GetCols() * 7];
-	memset(m_utf8Grid, 0, l_header.rows * m_grid->GetCols() * 7);
+	m_utf8Grid = new char[l_header.rows * l_header.cols * 7];
+	memset(m_utf8Grid, 0, l_header.rows * l_header.cols * 7);
 
 	for(size_t p = 0, row = 0, col = 0; p < m_textContent.length(); p++)
 	{
-		(*m_grid)[row][col] = m_textContent[p];
-
-		CUtil::OneCharWideToUtf8(m_textContent[p], &m_utf8Grid[row * m_grid->GetCols() * 7 + col * 7]);
+		_ASSERT(col < m_grid->GetCols());
+		_ASSERT(row < m_grid->GetRows());
 
 		if(m_textContent[p] == L'\n')
 		{
@@ -1728,6 +1727,10 @@ bool CNFOData::UnserializeUnsafe(const std::_tstring& a_filePath)
 		}
 		else
 		{
+			(*m_grid)[row][col] = m_textContent[p];
+
+			CUtil::OneCharWideToUtf8(m_textContent[p], &m_utf8Grid[row * m_grid->GetCols() * 7 + col * 7]);
+
 			col++;
 		}
 	}
