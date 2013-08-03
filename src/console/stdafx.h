@@ -20,6 +20,7 @@
 #include "targetver.h"
 #include <windows.h>
 #include <shlwapi.h>
+#include <process.h>
 #include <shlobj.h>
 #include <tchar.h>
 #include <io.h>
