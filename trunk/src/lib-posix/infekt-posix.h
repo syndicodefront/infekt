@@ -15,13 +15,17 @@
 #ifndef _INFEKT_POSIX_H
 #define _INFEKT_POSIX_H
 
+#include <unistd.h>
 #include <string.h>
+#include <time.h>
 #include <wctype.h>
 #include <limits.h>
 #include <omp.h>
 #include <libgen.h>
 #include <inttypes.h>
 #include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
 #include "iconv_string.h"
 
