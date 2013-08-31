@@ -619,7 +619,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDM_ZOOM_RESET:
 		if(m_view.GetNfoData() && m_view.GetNfoData()->HasData())
+		{
 			m_view.GetActiveCtrl()->ZoomReset();
+			AdjustWindowToNFOWidth(true, true);
+		}
 		break;
 
 	case IDM_TOOLS_NEXTNFO:
