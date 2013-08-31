@@ -602,12 +602,34 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 		return false;
 	}
 
-	m_textContent = CUtil::ToWideStr(
-		string().append((char*)(a_data + 3), a_dataLen - 3), CP_UTF8);
+	a_data += 3;
+	a_dataLen -= 3;
 
-	m_sourceCharset = NFOC_UTF8_SIG;
+	int l_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, a_dataLen, NULL, NULL);
 
-	return true;
+	if(l_size && ::GetLastError() != ERROR_NO_UNICODE_TRANSLATION)
+	{
+		wchar_t *l_buf = new wchar_t[l_size];
+
+		if(l_buf)
+		{
+			*l_buf = 0;
+
+			::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, a_dataLen, l_buf, l_size);
+
+			m_textContent = l_buf;
+
+			delete[] l_buf;
+
+			m_sourceCharset = NFOC_UTF8_SIG;
+
+			return true;
+		}
+	}
+
+	// if we got here, there was a valid signature, but invalid UTF-8
+
+	return false;
 }
 
 
@@ -677,6 +699,13 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	// kill trailing NULL chars that some NFOs have so our
 	// binary file check doesn't trigger.
 	while(a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
+
+	// kill UTF-8 signature, if we got here, the NFO was not valid UTF-8:
+	if(a_fix == EA_TRY && a_data[0] == 0xEF && a_data[1] == 0xBB && a_data[2] == 0xBF)
+	{
+		a_data += 3;
+		a_dataLen -= 3;
+	}
 
 	m_textContent.resize(a_dataLen);
 
