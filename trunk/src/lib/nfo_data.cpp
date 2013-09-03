@@ -698,7 +698,11 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 }
 
 
+#define CP437_MAP_LOW 0x7F
+
 #include "nfo_data_cp437.inc"
+#include "nfo_data_cp437_strict.inc"
+
 
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
@@ -808,8 +812,6 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	}
 }
 
-
-#include "nfo_data_cp437_strict.inc"
 
 bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLen)
 {
@@ -1678,7 +1680,7 @@ bool CNFOData::SerializeToFile(const std::_tstring& a_filePath)
 
 	uint32_t uint;
 
-#define WRITE_UINT32(WAT) uint = WAT; if(fwrite(&uint, sizeof(uint32_t), 1, fp) != 1) goto BAIL;
+#define WRITE_UINT32(WAT) uint = static_cast<uint32_t>(WAT); if(fwrite(&uint, sizeof(uint32_t), 1, fp) != 1) goto BAIL;
 
 	WRITE_UINT32(m_textContent.length());
 	WRITE_UINT32(m_utf8Content.length());
