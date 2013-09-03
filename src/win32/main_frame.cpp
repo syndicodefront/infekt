@@ -765,6 +765,7 @@ bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
 	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
 	// regular things
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437, L"CP437");
+	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_STRICT, L"CP437 (strict)");
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_UTF8, L"UTF-8");
 	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
 	// more exotic things:

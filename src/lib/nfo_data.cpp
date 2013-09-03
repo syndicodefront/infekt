@@ -345,6 +345,11 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 
 				l_pos = p;
 			}
+			else if(a_text[l_pos] == 0xA2)
+			{
+				// dont' strip \xA2 if it's not actually an escape sequence indicator
+				l_newText += a_text[l_pos];
+			}
 		}
 		else
 			l_newText += a_text[l_pos];
@@ -466,6 +471,9 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	case NFOC_CP437_IN_CP437:
 		l_loaded = TryLoad_CP437(a_data, a_dataLen, EA_FORCE);
 		break;
+	case NFOC_CP437_STRICT:
+		l_loaded = TryLoad_CP437_Strict(a_data, a_dataLen);
+		break;
 	}
 
 	if(l_loaded)
@@ -473,10 +481,16 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		size_t l_maxLineLen;
 		TLineContainer l_lines;
 
-		_InternalLoad_NormalizeWhitespace(m_textContent);
-		_InternalLoad_FixAnsiEscapeCodes(m_textContent);
+		if(m_sourceCharset != NFOC_CP437_STRICT)
+		{
+			_InternalLoad_NormalizeWhitespace(m_textContent);
+			_InternalLoad_FixAnsiEscapeCodes(m_textContent);
+		}
 		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
-		_InternalLoad_FixLfLf(m_textContent, l_lines);
+		if(m_sourceCharset != NFOC_CP437_STRICT)
+		{
+			_InternalLoad_FixLfLf(m_textContent, l_lines);
+		}
 		if(m_lineWrap) _InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
 
 		// copy lines to grid(s):
@@ -605,7 +619,16 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 	a_data += 3;
 	a_dataLen -= 3;
 
-	int l_size = ::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, a_dataLen, NULL, NULL);
+	if(a_dataLen > std::numeric_limits<int>::max())
+	{
+		// VERY UNLIKELY.
+		return false;
+	}
+
+	int l_dataLen = static_cast<int>(a_dataLen);
+
+	int l_size = static_cast<int>(
+		::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, l_dataLen, NULL, NULL));
 
 	if(l_size && ::GetLastError() != ERROR_NO_UNICODE_TRANSLATION)
 	{
@@ -615,7 +638,7 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 		{
 			*l_buf = 0;
 
-			::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, a_dataLen, l_buf, l_size);
+			::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, l_dataLen, l_buf, l_size);
 
 			m_textContent = l_buf;
 
@@ -631,9 +654,6 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 
 	return false;
 }
-
-
-#include "nfo_data_cp437.inc"
 
 
 bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
@@ -678,6 +698,8 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 }
 
 
+#include "nfo_data_cp437.inc"
+
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
 	bool l_error = false;
@@ -714,23 +736,18 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	{
 		unsigned char p = a_data[i];
 		
-		if(p == 0x7F)
-		{
-			// Code 127 (7F), DEL, shows as a graphic (a house).
-			m_textContent[i] = (wchar_t)0x2302;
-		}
-		else if(p >= 0x80)
+		if(p >= CP437_MAP_LOW)
 		{
 			if(a_fix != EA_FORCE)
 			{
-				m_textContent[i] = map_cp437_to_unicode_high_bit[p - 0x80];
+				m_textContent[i] = map_cp437_to_unicode_high_bit[p - CP437_MAP_LOW];
 			}
 			else
 			{
-				wchar_t l_temp = map_cp437_to_unicode_high_bit[p - 0x80];
+				wchar_t l_temp = map_cp437_to_unicode_high_bit[p - CP437_MAP_LOW];
 
-				m_textContent[i] = (l_temp >= 0x80 ?
-					map_cp437_to_unicode_high_bit[l_temp & 0xFF - 0x80] : l_temp);
+				m_textContent[i] = (l_temp >= CP437_MAP_LOW ?
+					map_cp437_to_unicode_high_bit[l_temp & 0xFF - CP437_MAP_LOW] : l_temp);
 			}
 		}
 		else if(p <= 0x1F)
@@ -750,7 +767,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		}
 		else
 		{
-			_ASSERT(p > 0x1F && p < 0x80);
+			_ASSERT(p > 0x1F && p < CP437_MAP_LOW);
 
 			m_textContent[i] = (wchar_t)p;
 
@@ -786,6 +803,68 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	else
 	{
 		m_sourceCharset = (a_fix == EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
+
+		return true;
+	}
+}
+
+
+#include "nfo_data_cp437_strict.inc"
+
+bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLen)
+{
+	// no fuzz here, be compliant!
+	// https://code.google.com/p/infekt/issues/detail?id=83
+
+	bool l_error = false;
+
+	m_textContent.resize(a_dataLen);
+
+	#pragma omp parallel for
+	for(int i = 0; i < static_cast<int>(a_dataLen); i++)
+	{
+		unsigned char p = a_data[i];
+		
+		if(p >= CP437_MAP_LOW)
+		{
+			m_textContent[i] = map_cp437_strict_to_unicode_high_bit[p - CP437_MAP_LOW];
+		}
+		else if(p <= 0x1F)
+		{
+			if(p == 0)
+			{
+				l_error = true;
+			}
+			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
+			{
+				m_textContent[i] = L'\r';
+			}
+			else if(p == 0x0A && i > 0 && a_data[i - 1] == 0x0D)
+			{
+				m_textContent[i] = L'\n';
+			}
+			else
+			{
+				m_textContent[i] = map_cp437_strict_to_unicode_control_range[p];
+			}
+		}
+		else
+		{
+			_ASSERT(p > 0x1F && p < CP437_MAP_LOW);
+
+			m_textContent[i] = (wchar_t)p;		
+		}
+	}
+
+	if(l_error)
+	{
+		m_textContent.clear();
+		m_lastErrorDescr = L"Binary files can not be loaded.";
+		return false;
+	}
+	else
+	{
+		m_sourceCharset = NFOC_CP437_STRICT;
 
 		return true;
 	}
@@ -1044,6 +1123,8 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 		return L"CP 437 (in broken UTF-16)";
 	case NFOC_CP437_IN_CP437:
 		return L"CP 437 (double encoded)";
+	case NFOC_CP437_STRICT:
+		return L"CP 437 (strict mode)";
 	case NFOC_WINDOWS_1252:
 		return L"Windows-1252";
 	}
@@ -1502,9 +1583,9 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 		l_transl[map_cp437_to_unicode_control_range[j]] = j;
 	}
 
-	for(int j = 0x80; j <= 0xFF; j++)
+	for(int j = CP437_MAP_LOW; j <= 0xFF; j++)
 	{
-		l_transl[map_cp437_to_unicode_high_bit[j - 0x80]] = j;
+		l_transl[map_cp437_to_unicode_high_bit[j - CP437_MAP_LOW]] = j;
 	}
 
 	ar_charsNotConverted = 0;
@@ -1517,13 +1598,9 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 		wchar_t wc = l_input[i];
 		map<wchar_t, char>::const_iterator it;
 
-		if((wc > 0x1F && wc < 0x80) || wc == L'\n' || wc == L'\r')
+		if((wc > 0x1F && wc < CP437_MAP_LOW) || wc == L'\n' || wc == L'\r')
 		{
 			l_converted[i] = (char)wc;
-		}
-		else if(wc == (wchar_t)0x2302)
-		{
-			l_converted[i] = 0x7F;
 		}
 		else if((it = l_transl.find(wc)) != l_transl.end())
 		{
