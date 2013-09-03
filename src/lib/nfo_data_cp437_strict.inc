@@ -4,8 +4,6 @@
 	and the NFO file from https://code.google.com/p/infekt/issues/detail?id=83 for testing
 */
 
-#define CP437_MAP_LOW 0x7F
-
 static const wchar_t map_cp437_strict_to_unicode_high_bit[] = {
 /* 0x7F = */ 0x2302,
 /* 0x80 = */ 0x00c7,

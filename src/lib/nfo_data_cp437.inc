@@ -7,8 +7,6 @@
 	The high-bit range, 128 to 255 (80 to FF), is mapped to various symbols
 */
 
-#define CP437_MAP_LOW 0x7F
-
 static const wchar_t map_cp437_to_unicode_high_bit[] = {
 /* 0x7F = */ 0x2302,
 /* 0x80 = */ 0x00c7,
