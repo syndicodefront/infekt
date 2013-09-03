@@ -1,15 +1,12 @@
 /*
 	based on http://en.wikipedia.org/wiki/Code_page_437
-*/
-
-
-/*
-	The high-bit range, 128 to 255 (80 to FF), is mapped to various symbols
+	and http://www-01.ibm.com/software/globalization/cp/cp00437.html
+	and the NFO file from https://code.google.com/p/infekt/issues/detail?id=83 for testing
 */
 
 #define CP437_MAP_LOW 0x7F
 
-static const wchar_t map_cp437_to_unicode_high_bit[] = {
+static const wchar_t map_cp437_strict_to_unicode_high_bit[] = {
 /* 0x7F = */ 0x2302,
 /* 0x80 = */ 0x00c7,
 /* 0x81 = */ 0x00fc,
@@ -29,7 +26,7 @@ static const wchar_t map_cp437_to_unicode_high_bit[] = {
 /* 0x8f = */ 0x00c5,
 /* 0x90 = */ 0x00c9,
 /* 0x91 = */ 0x00e6,
-/* 0x92 = */ 0x0027, /* originally 0x00c6, changed following this request: http://www.xrel.to/forum/thread/1903.html?page=15#cpost153331 */
+/* 0x92 = */ 0x00c6,
 /* 0x93 = */ 0x00f4,
 /* 0x94 = */ 0x00f6,
 /* 0x95 = */ 0x00f2,
@@ -141,16 +138,13 @@ static const wchar_t map_cp437_to_unicode_high_bit[] = {
 /* 0xff = */ 0x00a0
 };
 
+// newline interpretation is done in calling code.
 
 /*
-	The C0 control range (00 to 1F) is mapped to graphics characters.
-	The codes can assume their original function as controls, but when
-	placed in display RAM and then viewed in text mode, for example in
-	a screen editor like MS-DOS edit, they show as graphics. The graphics
-	are various, such as smiling faces, card suits and musical notes.
+	Code points X'01' through X'1F' and X'7F' may be controls or graphics depending on context.
 */
 
-static const wchar_t map_cp437_to_unicode_control_range[] = {
+static const wchar_t map_cp437_strict_to_unicode_control_range[] = {
 0x00,
 /* 0x01 = */ 0x263A,
 /* 0x02 = */ 0x263B,
@@ -160,11 +154,11 @@ static const wchar_t map_cp437_to_unicode_control_range[] = {
 /* 0x06 = */ 0x2660,
 /* 0x07 = */ 0x2022,
 /* 0x08 = */ 0x25D8,
-/* 0x09 = */ 0x09, //0x25CB, // Tab
-/* 0x0A = */ 0x0A, //0x25D9, // LF
+/* 0x09 = */ 0x25CB,
+/* 0x0A = */ 0x25D9,
 /* 0x0B = */ 0x2642,
 /* 0x0C = */ 0x2640,
-/* 0x0D = */ 0x266A, // checked for following \n in nfo_data.cpp
+/* 0x0D = */ 0x266A,
 /* 0x0E = */ 0x266B,
 /* 0x0F = */ 0x263C,
 /* 0x10 = */ 0x25BA,
