@@ -625,6 +625,8 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 		return false;
 	}
 
+#ifdef _WIN32
+	// use optimized calls to MultiByteToWideChar instead of generic stuff from CUtil.
 	int l_dataLen = static_cast<int>(a_dataLen);
 
 	int l_size = static_cast<int>(
@@ -653,6 +655,15 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 	// if we got here, there was a valid signature, but invalid UTF-8
 
 	return false;
+#else
+	// for Linux... TryLoad_UTF8 does some validation, so this should be roughly equal.
+	if(TryLoad_UTF8(a_data, a_dataLen, EA_FALSE))
+	{
+		m_sourceCharset = NFOC_UTF8_SIG;
+		return true;
+	}
+	return false;
+#endif
 }
 
 
