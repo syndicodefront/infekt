@@ -732,7 +732,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 			a_fix = EA_FORCE;
 		}
 	}
-	
+
 	// kill trailing NULL chars that some NFOs have so our
 	// binary file check doesn't trigger.
 	while(a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
@@ -762,7 +762,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 				wchar_t l_temp = map_cp437_to_unicode_high_bit[p - CP437_MAP_LOW];
 
 				m_textContent[i] = (l_temp >= CP437_MAP_LOW ?
-					map_cp437_to_unicode_high_bit[l_temp & 0xFF - CP437_MAP_LOW] : l_temp);
+					map_cp437_to_unicode_high_bit[(l_temp & 0xFF) - CP437_MAP_LOW] : l_temp);
 			}
 		}
 		else if(p <= 0x1F)
