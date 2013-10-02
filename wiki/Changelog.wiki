@@ -5,6 +5,16 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.10 (October 2nd 2013) ==
+  * PDF export is working again (issue 84)
+  * Added CP437 strict mode (issue 83)
+  * Fixed 0x9B character not showing up (issue 83)
+  * Auto-resize window (if enabled) when resetting zoom
+  * Only load NFOs with UTF-8 signature if they are actually valid UTF-8, else try other encodings
+  * Some internal fixes and changes to NFO loading & decoding code
+  * libpng update (1.6.6)
+  * cairo and pixman updates (1.12.16 and 0.30.2 respectively)
+
 == v0.8.9 (July 8th 2013) ==
   * More fixes & improvements to hyperlink detection
   * New: Turn email addresses into clickable links
