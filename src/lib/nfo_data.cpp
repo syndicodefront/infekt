@@ -619,12 +619,6 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 	a_data += 3;
 	a_dataLen -= 3;
 
-	if(a_dataLen > std::numeric_limits<int>::max())
-	{
-		// VERY UNLIKELY.
-		return false;
-	}
-
 #ifdef _WIN32
 	// use optimized calls to MultiByteToWideChar instead of generic stuff from CUtil.
 	int l_dataLen = static_cast<int>(a_dataLen);
@@ -638,17 +632,22 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 
 		if(l_buf)
 		{
+			bool l_success = false;
+
 			*l_buf = 0;
 
-			::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, l_dataLen, l_buf, l_size);
+			if(::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, l_dataLen, l_buf, l_size) == l_size)
+			{
+				m_textContent = std::wstring(l_buf, l_size);
 
-			m_textContent = l_buf;
+				m_sourceCharset = NFOC_UTF8_SIG;
+
+				l_success = true;
+			}
 
 			delete[] l_buf;
 
-			m_sourceCharset = NFOC_UTF8_SIG;
-
-			return true;
+			return l_success;
 		}
 	}
 
