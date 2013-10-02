@@ -30,7 +30,9 @@ static const struct ::option g_longOpts[] = {
 	{ _T("png"),			no_argument,		0,	'P' },
 	{ _T("png-classic"),	no_argument,		0,	'p' },
 	{ _T("utf-8"),			no_argument,		0,	'f' },
+#ifdef _WIN32
 	{ _T("utf-16"),			no_argument,		0,	't' },
+#endif
 	{ _T("html"),			no_argument,		0,	'm' },
 	{ _T("pdf"),			no_argument,		0,	'd' },
 	{ _T("pdf-din"),		no_argument,		0,	'D' },
@@ -70,7 +72,9 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("  -P, --png                   Renders a PNG (default).\n");
 	printf("  -p, --png-classic           Prints the NFO file into a PNG file as text.\n");
 	printf("  -f, --utf-8                 Converts the NFO file into UTF-8.\n");
+#ifdef _WIN32
 	printf("  -t, --utf-16                Converts the NFO file into UTF-16.\n");
+#endif
 	printf("  -e, --cp-437                Save the NFO file as CP 437.\n");
 	printf("  -m, --html                  Makes a nice HTML document.\n");
 #ifdef CAIRO_HAS_PDF_SURFACE
@@ -224,9 +228,11 @@ int main(int argc, char* argv[])
 		case 'f':
 			l_makePng = false; l_textUtf8 = true;
 			break;
+#ifdef _WIN32
 		case 't':
 			l_makePng = false; l_textUtf8 = false;
 			break;
+#endif
 		case 'e':
 			l_makePng = false; l_textCp437 = true;
 			break;
