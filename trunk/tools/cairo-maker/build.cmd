@@ -20,15 +20,15 @@ curl http://zlib.net/zlib-1.2.8.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.2.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.6.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://cgit.freedesktop.org/pixman/snapshot/pixman-cb5d131ff4172a9bb455970cc15d93d8c1d14c4e.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.30.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tar.xz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.12.14.tar.xz -o cairo.tar.xz
+curl http://www.cairographics.org/releases/cairo-1.12.16.tar.xz -o cairo.tar.xz
 :CZOK
 
 set ROOTDIR=%cd%\work
@@ -125,6 +125,9 @@ sed "s/^\s*gz.*$/;\0/m" %ROOTDIR%\zlib\win32\zlib.def > zlib\zlib.def
 sed "s/<SubSystem>/<ModuleDefinitionFile>zlib.def<\/ModuleDefinitionFile><SubSystem>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
+sed "s/;Z_SOLO//" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
+
 IF %CONFIG%==debug GOTO LIBPNGPDBOK
 sed "s/<GenerateDebugInformation>true</<GenerateDebugInformation>false</" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
@@ -181,11 +184,6 @@ set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\boilerplate
 set INCLUDE=%INCLUDE%;%ROOTDIR%\cairo\src
 
 cd %ROOTDIR%\cairo
-
-cd src
-rem source = http://cgit.freedesktop.org/cairo/commit/?id=e66e9ac12e3e11af76f14e8de3cfee72d4299864
-patch -i %ROOTDIR%\..\cairo-src_height.patch -p0
-cd ..
 
 sed s/libpng\.lib/libpng16.lib/ build\Makefile.win32.common > build\Makefile.fixed
 move /Y build\Makefile.fixed build\Makefile.win32.common
