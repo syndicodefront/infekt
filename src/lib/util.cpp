@@ -916,6 +916,18 @@ bool CUtil::IsWin81()
 	return is;
 }
 
+bool CUtil::IsWinServerOS()
+{
+	OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX), 0 };
+	DWORDLONG dwlConditionMask = 0;
+	
+	osvi.wProductType = VER_NT_SERVER;
+	
+	VER_SET_CONDITION(dwlConditionMask, VER_PRODUCT_TYPE, VER_EQUAL);
+	
+	return ::VerifyVersionInfo(&osvi, VER_PRODUCT_TYPE, dwlConditionMask) == TRUE;
+}
+
 bool CUtil::IsWow64()
 {
 	typedef BOOL (WINAPI *fiw6p)(HANDLE, PBOOL);
