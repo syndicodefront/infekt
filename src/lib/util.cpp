@@ -763,11 +763,19 @@ HMODULE CUtil::SilentLoadLibrary(const std::wstring& a_path)
 
 bool CUtil::RemoveCwdFromDllSearchPath()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-
-	// requirements for SetDllDirectory availability:
-	if(ms_osver.dwMajorVersion > 5 ||
-		(ms_osver.dwMajorVersion == 5 && ms_osver.wServicePackMajor >= 1))
+	OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX), 0 };
+	DWORDLONG dwlConditionMask = 0;
+	
+	osvi.dwMajorVersion = 5;
+	osvi.dwMinorVersion = 1;
+	osvi.wServicePackMajor = 1;
+	
+	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+	
+	// check requirements for SetDllDirectory availability:
+	if(::VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask))
 	{
 		typedef BOOL (WINAPI *fsdd)(LPCTSTR);
 
@@ -851,43 +859,61 @@ bool CUtil::EnforceDEP()
 /* Windows OS Version Helper Functions                                  */
 /************************************************************************/
 
+static bool IS_WIN_XX(DWORD MAJ, DWORD MIN, bool OR_HIGHER)
+{
+	OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX), 0 };
+	DWORDLONG dwlConditionMask = 0;
+	
+	osvi.dwMajorVersion = MAJ;
+	osvi.dwMinorVersion = MIN;
+	
+	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, OR_HIGHER ? VER_GREATER_EQUAL : VER_EQUAL);
+	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, OR_HIGHER ? VER_GREATER_EQUAL : VER_EQUAL);
+	
+	return ::VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) == TRUE;
+}
+
 bool CUtil::IsWinXP()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 1) ||
-		(ms_osver.dwMajorVersion == 5 && ms_osver.dwMinorVersion == 2); // Server 2003!
+	static bool is = IS_WIN_XX(5, 1, false)
+		|| IS_WIN_XX(5, 2, false); // Server 2003
+
+	return is;
 }
 
 bool CUtil::IsWin6x(bool a_orHigher)
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 6 || (ms_osver.dwMajorVersion > 6 && a_orHigher));
+	static bool is = IS_WIN_XX(6, 0, true);
+
+	return is;
 }
 
 bool CUtil::IsWinVista()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 0);
+	static bool is = IS_WIN_XX(6, 0, false);
+
+	return is;
 }
 
 bool CUtil::IsWin7(bool a_orHigher)
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
+	static bool is = IS_WIN_XX(6, 1, a_orHigher);
 
-	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 1) ||
-		(a_orHigher && (ms_osver.dwMajorVersion > 6 || (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion > 1)));
+	return is;
 }
 
 bool CUtil::IsWin8()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 2);
+	static bool is = IS_WIN_XX(6, 2, false);
+
+	return is;
 }
 
 bool CUtil::IsWin81()
 {
-	if(!ms_osver.dwMajorVersion) { ::GetVersionEx((LPOSVERSIONINFO)&ms_osver); }
-	return (ms_osver.dwMajorVersion == 6 && ms_osver.dwMinorVersion == 3);
+	static bool is = IS_WIN_XX(6, 3, false);
+
+	return is;
 }
 
 bool CUtil::IsWow64()
@@ -908,8 +934,6 @@ bool CUtil::IsWow64()
 
 	return false;
 }
-
-OSVERSIONINFOEX CUtil::ms_osver = {sizeof(OSVERSIONINFOEX), 0};
 
 
 /************************************************************************/

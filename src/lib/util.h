@@ -82,8 +82,6 @@ public:
 	static bool RemoveCwdFromDllSearchPath();
 	static bool HardenHeap();
 	static bool EnforceDEP();
-protected:
-	static OSVERSIONINFOEX ms_osver;
 #endif /* _WIN32 */
 };
 
