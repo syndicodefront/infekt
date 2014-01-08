@@ -68,7 +68,9 @@ BOOL CAboutDialog::OnInitDialog()
 		l_verStr += _T(" (32 bit)");
 #endif
 #endif
-	if(CUtil::IsWinXP())
+	if (CUtil::IsWinServerOS())
+		l_verStr += _T(" on Windows Server OS");
+	else if(CUtil::IsWinXP())
 		l_verStr += _T(" on Windows XP");
 	else if(CUtil::IsWinVista())
 		l_verStr += _T(" on Windows Vista");
@@ -78,7 +80,6 @@ BOOL CAboutDialog::OnInitDialog()
 		l_verStr += _T(" on Windows 8");
 	else if(CUtil::IsWin81())
 		l_verStr += _T(" on Windows 8.1");
-	// ignore server OSes (they'll show their desktop equivalent version)
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
