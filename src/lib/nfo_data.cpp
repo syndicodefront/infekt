@@ -1338,6 +1338,10 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 		{
 			sLineRemainder.replace(0, 7, "http://");
 		}
+		else if(sLineRemainder.find("hxxps://") == 0 || sLineRemainder.find("h**ps://") == 0)
+		{
+			sLineRemainder.replace(0, 8, "https://");
+		}
 
 #define REMPAT "^[\\w,/.!#:%;?&=~+-]"
 
@@ -1354,7 +1358,10 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 			sWorkUrl = sLineRemainder.substr((size_t)ovector[0], uByteLen);
 
 			// strip trailing dots and colons. gross code.
-			while(sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == '.' || sWorkUrl[sWorkUrl.size() - 1] == ':')) sWorkUrl.erase(sWorkUrl.size() - 1);
+			while(sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == '.' || sWorkUrl[sWorkUrl.size() - 1] == ':'))
+			{
+				sWorkUrl.erase(sWorkUrl.size() - 1);
+			}
 		}
 
 		pcre_free(reUrlRemainder);
@@ -1408,7 +1415,7 @@ bool CNFOData::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urL
 			brLinkContinued = false;
 		}
 
-		pcre* reProtocol = pcre_compile("^(http://|https://|ftp://|ftps://)",
+		pcre* reProtocol = pcre_compile("^(http|ftp)s?://",
 			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
 		if(pcre_exec(reProtocol, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) < 0)
 		{
