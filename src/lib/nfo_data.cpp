@@ -34,13 +34,11 @@ typedef deque<wstring> TLineContainer;
 #endif /* else _WIN32 */
 
 
-CNFOData::CNFOData()
+CNFOData::CNFOData() :
+	m_grid(NULL), m_utf8Grid(NULL),
+	m_loaded(false), m_sourceCharset(NFOC_AUTO),
+	m_lineWrap(false), m_isAnsi(false)
 {
-	m_grid = NULL;
-	m_loaded = false;
-	m_utf8Grid = NULL;
-	m_sourceCharset = NFOC_AUTO;
-	m_lineWrap = false;
 }
 
 
@@ -133,24 +131,25 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		}
 	}
 
-	bool l_loaded = false;
+	// it's not defined what exactly happens if Load... is used a second time
+	// on the same instance but the second load fails.
 
 	if(!l_error)
 	{
-		l_loaded = LoadFromMemoryInternal(l_buf, l_fileBytes);
+		m_loaded = LoadFromMemoryInternal(l_buf, l_fileBytes);
 	}
 	else
 	{
 		m_lastErrorDescr = L"An error occured while reading from the NFO file.";
+
+		m_loaded = false;
 	}
 
 	delete[] l_buf;
 
 	fclose(l_file);
 
-	m_loaded = l_loaded;
-
-	if(l_loaded)
+	if(m_loaded)
 	{
 		m_filePath = a_filePath;
 	}
@@ -346,6 +345,12 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 
 				l_pos = p;
 			}
+			else if(l_numBuf.empty() && ((l_finalChar >= L'A' && l_finalChar <= L'G') || l_finalChar == L'J'
+				|| l_finalChar == L'K' || l_finalChar == L'S' || l_finalChar == L'T' || l_finalChar == L's' || l_finalChar == L'u'))
+			{
+				// skip some known, but unsupported codes
+				l_pos = p;
+			}
 			else if(a_text[l_pos] == 0xA2)
 			{
 				// dont' strip \xA2 if it's not actually an escape sequence indicator
@@ -440,6 +445,8 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	size_t l_dataLen = a_dataLen;
 
 	m_lastErrorDescr.clear();
+
+	m_isAnsi = false; // modifying this state here (and in ReadSAUCE) is not nice
 
 	if(ReadSAUCE(a_data, l_dataLen))
 	{
@@ -1041,6 +1048,8 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 	{
 		--ar_dataLen;
 	}
+
+	m_isAnsi = (l_record.FileType == SAUCEFT_CHAR_ANSI);
 
 	return true;
 }

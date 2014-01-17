@@ -113,6 +113,7 @@ protected:
 	std::_tstring m_filePath;
 	ENfoCharset m_sourceCharset;
 	bool m_lineWrap;
+	bool m_isAnsi;
 
 	typedef enum _approach_t
 	{
