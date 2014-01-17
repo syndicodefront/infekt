@@ -47,6 +47,7 @@
 #define _tcscpy_s(d, e, s) strcpy(d, s)
 #define _tcsncpy_s(d, e, s, n) strncpy(d, s, n)
 #define _tcscmp strcmp
+#define _tcsicmp strcasecmp
 #define _stricmp strcasecmp
 #define _snprintf snprintf
 
