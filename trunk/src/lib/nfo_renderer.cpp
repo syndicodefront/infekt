@@ -662,6 +662,8 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 			if(l_block->alpha != l_oldAlpha) // R,G,B never change during the loop.
 			{
+				cairo_fill(cr); // complete previous drawing operation(s)
+
 				if(GetEnableGaussShadow() && a_gaussStep)
 				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(GetGaussColor()), (l_block->alpha / 255.0) * (GetGaussColor().A / 255.0));
@@ -703,9 +705,10 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 			}
 
 			cairo_rectangle(cr, l_off_x + l_pos_x, l_off_y + l_pos_y, l_width, l_height);
-			cairo_fill(cr);
 		}
 	}
+
+	cairo_fill(cr); // complete pending drawing operation(s)
 
 	cairo_restore(cr);
 }
