@@ -1,21 +1,21 @@
 #summary Frequently Asked Questions
 #labels Featured,Phase-Support
 
+===Using the auto update says "_The program can't start because MSVCP110.dll is missing from your computer._" on Windows 7 or 8 64-bit===
+
+Please download and install `vcredist_x86.exe` (not x64) from [http://www.microsoft.com/en-us/download/details.aspx?id=30679 here].
+
 ===I get an error message "_Side-by-side configuration is incorrect_" or "_MSVCR110.DLL is missing_" when I try to start the application. ===
 
 You need to download and install the [http://www.microsoft.com/en-us/download/details.aspx?id=30679 Visual C++ Redistributable for Visual Studio 2012 Update 1] from Microsoft.
 Alternatively, you can get the iNFekt setup file which will download and install the required files automatically. The DLLs are also shipped with the portable versions.
 
-Up to and including version 0.8.5 the Visual C++ 2010 runtime was required:
+Earlier Versions: up to and including version 0.8.5 the Visual C++ *2010* runtime was required:
   * [http://www.microsoft.com/download/en/details.aspx?id=8328 Microsoft Visual C++ 2010 SP1 Redistributable Package (x86)]
   * [http://www.microsoft.com/download/en/details.aspx?id=13523 Microsoft Visual C++ 2010 SP1 Redistributable Package (x64)]
 
-===Using the auto update says "_The program can't start because MSVCP110.dll is missing from your computer._" on Windows 7 or 8 64-bit===
-
-Please download and install `vcredist_x86.exe` (not x64) from [http://www.microsoft.com/en-us/download/details.aspx?id=30679 here].
-
 ===Where can I get a Windows 2000 compatible version?===
-You can use [http://code.google.com/p/infekt/downloads/list?can=1&q=0.7.9 iNFekt 0.7.9].
+You can use [http://code.google.com/p/infekt/downloads/list?can=1&q=0.7.9 iNFekt 0.7.9] (32-bit).
 
 ===Where can I get a Windows XP 64-bit compatible version?===
-You can use [http://code.google.com/p/infekt/downloads/list?can=1&q=0.8.5 iNFekt 0.8.5].
+You can use [http://code.google.com/p/infekt/downloads/list?can=1&q=0.8.5 iNFekt 0.8.5] or any 32-bit version.
