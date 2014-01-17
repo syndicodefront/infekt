@@ -122,6 +122,7 @@ protected:
 	} EApproach;
 
 	bool LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen);
+	bool ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen);
 
 	bool TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix);
 	bool TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen);
@@ -132,7 +133,7 @@ protected:
 	bool TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen);
 
 	std::wstring GetWithBoxedWhitespace() const;
-	
+
 	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
 
 	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,

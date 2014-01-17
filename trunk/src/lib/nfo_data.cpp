@@ -15,6 +15,7 @@
 #include "stdafx.h"
 #include "nfo_data.h"
 #include "util.h"
+#include "sauce.h"
 
 using namespace std;
 
@@ -436,44 +437,50 @@ static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMa
 bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen)
 {
 	bool l_loaded = false;
+	size_t l_dataLen = a_dataLen;
 
-	switch(m_sourceCharset)
+	m_lastErrorDescr.clear();
+
+	if(ReadSAUCE(a_data, l_dataLen))
 	{
-	case NFOC_AUTO:
-		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_TRY);
-		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_TRY);
-		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, a_dataLen, EA_TRY);
-		break;
-	case NFOC_UTF16:
-		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_FALSE);
-		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, a_dataLen);
-		break;
-	case NFOC_UTF8_SIG:
-		l_loaded = TryLoad_UTF8Signature(a_data, a_dataLen);
-		break;
-	case NFOC_UTF8:
-		l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_FALSE);
-		break;
-	case NFOC_CP437:
-		l_loaded = TryLoad_CP437(a_data, a_dataLen, EA_FALSE);
-		break;
-	case NFOC_WINDOWS_1252:
-		l_loaded = TryLoad_CP252(a_data, a_dataLen);
-		break;
-	case NFOC_CP437_IN_UTF8:
-		l_loaded = TryLoad_UTF8(a_data, a_dataLen, EA_FORCE);
-		break;
-	case NFOC_CP437_IN_UTF16:
-		l_loaded = TryLoad_UTF16LE(a_data, a_dataLen, EA_FORCE);
-		break;
-	case NFOC_CP437_IN_CP437:
-		l_loaded = TryLoad_CP437(a_data, a_dataLen, EA_FORCE);
-		break;
-	case NFOC_CP437_STRICT:
-		l_loaded = TryLoad_CP437_Strict(a_data, a_dataLen);
-		break;
+		switch(m_sourceCharset)
+		{
+		case NFOC_AUTO:
+			l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
+			if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_TRY);
+			if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
+			if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
+			if(!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_TRY);
+			break;
+		case NFOC_UTF16:
+			l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FALSE);
+			if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
+			break;
+		case NFOC_UTF8_SIG:
+			l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
+			break;
+		case NFOC_UTF8:
+			l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FALSE);
+			break;
+		case NFOC_CP437:
+			l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FALSE);
+			break;
+		case NFOC_WINDOWS_1252:
+			l_loaded = TryLoad_CP252(a_data, l_dataLen);
+			break;
+		case NFOC_CP437_IN_UTF8:
+			l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FORCE);
+			break;
+		case NFOC_CP437_IN_UTF16:
+			l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FORCE);
+			break;
+		case NFOC_CP437_IN_CP437:
+			l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FORCE);
+			break;
+		case NFOC_CP437_STRICT:
+			l_loaded = TryLoad_CP437_Strict(a_data, l_dataLen);
+			break;
+		}
 	}
 
 	if(l_loaded)
@@ -599,7 +606,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		} // end of foreach line loop.
 
 	}
-	else
+	else if(m_lastErrorDescr.empty())
 	{
 		m_lastErrorDescr = L"There appears to be a charset/encoding problem.";
 	}
@@ -980,6 +987,62 @@ bool CNFOData::TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen)
 	m_textContent = CUtil::ToWideStr(std::string().append((const char*)a_data, a_dataLen), CP_ACP);
 
 	return (!m_textContent.empty());
+}
+
+
+bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
+{
+	if(ar_dataLen <= SAUCE_RECORD_SIZE)
+	{
+		// no SAUCE record, no error.
+		return true;
+	}
+
+	SAUCE l_record = {0};
+
+	memcpy_s(&l_record, sizeof(l_record), a_data + ar_dataLen - SAUCE_RECORD_SIZE, SAUCE_RECORD_SIZE);
+
+	// validate SAUCE header + supported features:
+
+	if(memcmp(l_record.ID, "SAUCE", 5) != 0)
+	{
+		// no SAUCE record, no error.
+		return true;
+	}
+
+	if(memcmp(l_record.Version, "00", 2) != 0)
+	{
+		m_lastErrorDescr = L"SAUCE: Unsupported file version.";
+
+		return false;
+	}
+
+	if(l_record.DataType != SAUCEDT_CHARACTER || (l_record.FileType != SAUCEFT_CHAR_ANSI && l_record.FileType != SAUCEFT_CHAR_ASCII))
+	{
+		m_lastErrorDescr = L"SAUCE: Unsupported file format type.";
+
+		return false;
+	}
+
+	// skip record + comments:
+
+	size_t l_bytesToTrim = SAUCE_RECORD_SIZE + l_record.Comments * SAUCE_COMMENT_LINE_SIZE + SAUCE_HEADER_ID_SIZE;
+
+	if(l_record.Comments > SAUCE_MAX_COMMENTS || ar_dataLen < l_bytesToTrim)
+	{
+		m_lastErrorDescr = L"SAUCE: Bad comments definition.";
+
+		return false;
+	}
+
+	ar_dataLen = ar_dataLen - l_bytesToTrim;
+
+	while(ar_dataLen > 0 && a_data[ar_dataLen - 1] == SAUCE_EOF)
+	{
+		--ar_dataLen;
+	}
+
+	return true;
 }
 
 
