@@ -134,6 +134,8 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	// it's not defined what exactly happens if Load... is used a second time
 	// on the same instance but the second load fails.
 
+	m_filePath = a_filePath;
+
 	if(!l_error)
 	{
 		m_loaded = LoadFromMemoryInternal(l_buf, l_fileBytes);
@@ -149,9 +151,9 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	fclose(l_file);
 
-	if(m_loaded)
+	if(!m_loaded)
 	{
-		m_filePath = a_filePath;
+		m_filePath = _T("");
 	}
 
 	return m_loaded;
@@ -439,6 +441,13 @@ static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMa
 }
 
 
+// combined processing for ANSI files
+static void _InternalLoad_AnsiSysTransform(const wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
+{
+
+}
+
+
 bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen)
 {
 	bool l_loaded = false;
@@ -494,24 +503,52 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 		size_t l_maxLineLen;
 		TLineContainer l_lines;
+		bool l_ansiError = false;
 
-		if(m_sourceCharset != NFOC_CP437_STRICT)
+		if(!m_isAnsi)
 		{
-			_InternalLoad_NormalizeWhitespace(m_textContent);
-			_InternalLoad_FixAnsiEscapeCodes(m_textContent);
+			if(m_sourceCharset != NFOC_CP437_STRICT)
+			{
+				_InternalLoad_NormalizeWhitespace(m_textContent);
+				_InternalLoad_FixAnsiEscapeCodes(m_textContent);
+			}
+
+			_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
+
+			if(m_sourceCharset != NFOC_CP437_STRICT)
+			{
+				_InternalLoad_FixLfLf(m_textContent, l_lines);
+			}
+
+			if(m_lineWrap)
+			{
+				_InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
+			}
 		}
-		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
-		if(m_sourceCharset != NFOC_CP437_STRICT)
+		else
 		{
-			_InternalLoad_FixLfLf(m_textContent, l_lines);
+			try
+			{
+				_InternalLoad_AnsiSysTransform(m_textContent, l_maxLineLen, l_lines);
+			}
+			catch(const std::exception& ex)
+			{
+				l_ansiError = true;
+				(void)ex;
+			}
 		}
-		if(m_lineWrap) _InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
 
 		// copy lines to grid(s):
 		delete m_grid; m_grid = NULL;
 		delete m_utf8Grid; m_utf8Grid = NULL;
 		m_hyperLinks.clear();
 		m_utf8Content.clear();
+
+		if(l_ansiError)
+		{
+			m_lastErrorDescr = L"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.";
+			return false;
+		}
 
 		if(l_lines.size() == 0 || l_maxLineLen == 0)
 		{
@@ -831,6 +868,14 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	else
 	{
 		m_sourceCharset = (a_fix == EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
+
+		// try to detect ANSI art files without SAUCE records:
+
+		if(!m_isAnsi && m_textContent.find(L"\x2190[") != std::wstring::npos && m_filePath.length() > 4
+			&& _tcsicmp(m_filePath.substr(m_filePath.length() - 4).c_str(), _T(".ans")) == 0)
+		{
+			m_isAnsi = true;
+		}
 
 		return true;
 	}
