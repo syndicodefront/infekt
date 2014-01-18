@@ -97,11 +97,6 @@ public:
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
 
-	size_t GetEstimatedMemoryConsumption() const;
-
-	bool SerializeToFile(const std::_tstring& a_filePath);
-	bool UnserializeUnsafe(const std::_tstring& a_filePath);
-
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;
