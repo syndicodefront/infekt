@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013´-2014 cxxjoe
+ * Copyright (C) 2013-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -123,7 +123,7 @@ void CWinFileWatcher::WatchEventThread()
 
 		switch(dwEvent)
 		{
-		case WAIT_OBJECT_0: // file may have changed
+		case WAIT_OBJECT_0: { // file may have changed
 			uint64_t l_newTime = GetFileModificationTime();
 
 			if(l_lastModTime != l_newTime && m_callback)
@@ -134,7 +134,7 @@ void CWinFileWatcher::WatchEventThread()
 			l_lastModTime = l_newTime;
 
 			::FindNextChangeNotification(l_hEvents[0]);
-			break;
+			break; }
 		case WAIT_OBJECT_0 + 1: // stop has been requested
 			bStop = true;
 			break;
