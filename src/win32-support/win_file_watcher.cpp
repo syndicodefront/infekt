@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2013 cxxjoe
+ * Copyright (C) 2013´-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -108,11 +108,11 @@ void CWinFileWatcher::WatchEventThread()
 {
 	HANDLE l_hEvents[2];
 	bool bStop = false;
-	std::wstring l_FolderPath = CUtil::PathRemoveFileSpec(m_filePath);;
+	std::wstring l_FolderPath = CUtil::PathRemoveFileSpec(m_filePath);
 	uint64_t l_lastModTime = GetFileModificationTime();
 	
 	::SetEvent(m_hThreadEvent); // thread has started.
-	// placing this call here ensures that accessing m_filePatj is locked.
+	// placing this call here ensures that accessing m_filePath is locked.
 
 	l_hEvents[0] = ::FindFirstChangeNotification(l_FolderPath.c_str(), FALSE, FILE_NOTIFY_CHANGE_LAST_WRITE);
 	l_hEvents[1] = m_hStopEvent;
@@ -124,15 +124,15 @@ void CWinFileWatcher::WatchEventThread()
 		switch(dwEvent)
 		{
 		case WAIT_OBJECT_0: // file may have changed
-			if(l_lastModTime != GetFileModificationTime())
-			{
-				if(m_callback)
-				{
-					m_callback();
-				}
+			uint64_t l_newTime = GetFileModificationTime();
 
-				l_lastModTime = GetFileModificationTime();
+			if(l_lastModTime != l_newTime && m_callback)
+			{
+				m_callback();
 			}
+
+			l_lastModTime = l_newTime;
+
 			::FindNextChangeNotification(l_hEvents[0]);
 			break;
 		case WAIT_OBJECT_0 + 1: // stop has been requested
