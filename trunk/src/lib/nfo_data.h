@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -59,7 +59,7 @@ typedef enum _nfo_charsets
 } ENfoCharset;
 
 
-class CNFOData
+class CNFOData // this could use some refactoring :P
 {
 public:
 	CNFOData();
@@ -97,6 +97,8 @@ public:
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
 
+	typedef std::deque<std::wstring> TLineContainer;
+
 protected:
 	std::wstring m_lastErrorDescr;
 	std::wstring m_textContent;
@@ -109,6 +111,11 @@ protected:
 	ENfoCharset m_sourceCharset;
 	bool m_lineWrap;
 	bool m_isAnsi;
+	size_t m_ansiHintWidth;
+	size_t m_ansiHintHeight;
+
+	static const int LINES_LIMIT = 10000;
+	static const int WIDTH_LIMIT = 2000;
 
 	typedef enum _approach_t
 	{
@@ -127,6 +134,8 @@ protected:
 	bool TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix);
 	bool TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen);
+
+	bool AnsiSysTransform(const std::wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines);
 
 	std::wstring GetWithBoxedWhitespace() const;
 

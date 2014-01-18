@@ -52,6 +52,7 @@
 #include <vector>
 #include <deque>
 #include <set>
+#include <queue>
 #include <memory>
 #include <omp.h>
 #define _USE_MATH_DEFINES

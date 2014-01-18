@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,28 +16,23 @@
 #include "nfo_data.h"
 #include "util.h"
 #include "sauce.h"
+#include <queue> // !?!?!
 
 using namespace std;
 
 
 #ifdef _WIN32
-
-typedef deque<const wstring> TLineContainer;
 #define HAVE_FILELENGTH
-
-#else /* _WIN32 */
-
-/* GCC, what the fuck? */
-typedef deque<wstring> TLineContainer;
+#else
 #include <sys/stat.h>
-
-#endif /* else _WIN32 */
+#endif
 
 
 CNFOData::CNFOData() :
 	m_grid(NULL), m_utf8Grid(NULL),
 	m_loaded(false), m_sourceCharset(NFOC_AUTO),
-	m_lineWrap(false), m_isAnsi(false)
+	m_lineWrap(false), m_isAnsi(false),
+	m_ansiHintWidth(0), m_ansiHintHeight(0)
 {
 }
 
@@ -208,7 +203,7 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 }
 
 
-static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
+static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLineLen, CNFOData::TLineContainer& a_lines)
 {
 	size_t l_prevPos = 0, l_pos = a_text.find(L'\n');
 
@@ -243,7 +238,7 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 }
 
 
-static void _InternalLoad_FixLfLf(wstring& a_text, TLineContainer& a_lines)
+static void _InternalLoad_FixLfLf(wstring& a_text, CNFOData::TLineContainer& a_lines)
 {
 	// fix NFOs like Crime.is.King.German.SUB5.5.DVDRiP.DivX-GWL
 	// they use \n\n instead of \r\n
@@ -251,8 +246,7 @@ static void _InternalLoad_FixLfLf(wstring& a_text, TLineContainer& a_lines)
 	int l_evenEmpty = 0, l_oddEmpty = 0;
 
 	size_t i = 0;
-	for(TLineContainer::const_iterator it = a_lines.begin();
-		it != a_lines.end(); it++, i++)
+	for(auto it = a_lines.begin(); it != a_lines.end(); it++, i++)
 	{
 		if(it->empty())
 		{
@@ -273,10 +267,9 @@ static void _InternalLoad_FixLfLf(wstring& a_text, TLineContainer& a_lines)
 	if(l_kill >= 0)
 	{
 		wstring l_newContent; l_newContent.reserve(a_text.size());
-		TLineContainer l_newLines;
+		CNFOData::TLineContainer l_newLines;
 		i = 0;
-		for(TLineContainer::const_iterator it = a_lines.begin();
-			it != a_lines.end(); it++, i++)
+		for(auto it = a_lines.begin(); it != a_lines.end(); it++, i++)
 		{
 			if(!it->empty() || i % 2 != l_kill)
 			{
@@ -378,7 +371,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 }
 
 
-static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMaxLineLen)
+static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
 	const int l_maxLen = 80;
 
@@ -386,9 +379,9 @@ static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMa
 	// when it comes to taking into account leading whitespace or not.
 	// The results are good however.
 
-	TLineContainer l_newLines;
+	CNFOData::TLineContainer l_newLines;
 
-	for(TLineContainer::const_iterator it = a_lines.begin(); it != a_lines.end(); it++)
+	for(auto it = a_lines.begin(); it != a_lines.end(); it++)
 	{
 		if(it->size() <= l_maxLen)
 		{
@@ -431,7 +424,7 @@ static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMa
 	{
 		a_newMaxLineLen = 0;
 
-		for(TLineContainer::const_iterator it = l_newLines.begin(); it != l_newLines.end(); it++)
+		for(auto it = l_newLines.begin(); it != l_newLines.end(); it++)
 		{
 			a_newMaxLineLen = std::max(it->size(), a_newMaxLineLen);
 		}
@@ -442,9 +435,176 @@ static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMa
 
 
 // combined processing for ANSI files
-static void _InternalLoad_AnsiSysTransform(const wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
+// reference: http://en.wikipedia.org/wiki/ANSI_escape_code
+bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
 {
+	// this is filled by the parser:
 
+	typedef struct {
+		wchar_t cmd; // \0 = regular text
+		std::wstring data;
+	} ansi_command_t;
+
+	std::queue<const ansi_command_t> commands;
+
+	// the parser:
+
+	typedef enum {
+		PARSERERROR = -1,
+		ANYTEXT = 1,
+		ESC_CHAR,
+		ESC_BRACKET,
+		ESC_DATA,
+		ESC_COMMAND,
+	} parser_state_e;
+
+	parser_state_e parser_state = ANYTEXT;
+	std::wstring data;
+
+	for(wchar_t c : a_text)
+	{
+		if(c == L'\x2190')
+		{
+			if(parser_state != ANYTEXT)
+			{
+				parser_state = PARSERERROR;
+				break;
+			}
+
+			if(!data.empty())
+			{
+				ansi_command_t tmp = { 0, data };
+				commands.push(tmp);
+				data.clear();
+			}
+
+			parser_state = ESC_BRACKET;
+		}
+		else if(c == L'[' && parser_state == ESC_BRACKET)
+		{
+			parser_state = ESC_DATA;
+		}
+		else if(parser_state == ESC_DATA)
+		{
+			if(iswdigit(c) || c == L';')
+			{
+				data += c;
+			}
+			else if(iswalpha(c))
+			{
+				ansi_command_t tmp = { c, data };
+				commands.push(tmp);
+				data.clear();
+
+				parser_state = ANYTEXT;
+			}
+			else
+			{
+				parser_state = PARSERERROR;
+				break;
+			}
+		}
+		else if(parser_state == ANYTEXT)
+		{
+			data += c;
+		}
+		else
+		{
+			parser_state = PARSERERROR;
+			break;
+		}
+	}
+
+	if(parser_state == ANYTEXT)
+	{
+		if(!data.empty())
+		{
+			ansi_command_t tmp = { 0, data };
+			commands.push(tmp);
+		}
+	}
+	else
+	{
+		parser_state = PARSERERROR;
+	}
+
+	if(parser_state == PARSERERROR)
+	{
+		return false;
+	}
+
+	// now draw from the queue to the "screen":
+
+	TwoDimVector<wchar_t> screen(m_ansiHintHeight + 1, m_ansiHintWidth + 1, L' ');
+	size_t x = 0, y = 0;
+
+	while(commands.size() > 0)
+	{
+		const ansi_command_t cmd = commands.front();
+
+		switch(cmd.cmd)
+		{
+			case 0: { // put text to current position
+				
+				break;
+			}
+			case L'A': { // cursor up
+				break;
+			}
+			case L'B': { // cursor down
+				break;
+			}
+			case L'C': { // cursor forward
+				break;
+			}
+			case L'D': { // cursor back
+				break;
+			}
+			case L'E': { // cursor to beginning of next line
+				break;
+			}
+			case L'F': { // cursor to beginning of previous line
+				break;
+			}
+			case L'G': { // move to given column
+				break;
+			}
+			case L'H':
+			case L'f': { // moves the cursor to row n, column m
+				break;
+			}
+			case L'J': { // erase display
+				break;
+			}
+			case L'K': { // erase in line
+				break;
+			}
+			case L's': { // save cursor pos
+				break;
+			}
+			case L'u': { // restore cursor pos
+				break;
+			}
+			case L'm': { // rainbows and stuff!
+				break;
+			}
+			case 'S': // scroll up
+			case 'T': // scroll down
+			case 'n': // report cursor position
+			default:
+				// unsupported, ignore
+				;
+		}
+		
+
+		commands.pop();
+	}
+
+	// and finally read lines from "screen" into internal structures:
+
+	// :TODO:
+
+	return true;
 }
 
 
@@ -529,7 +689,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		{
 			try
 			{
-				_InternalLoad_AnsiSysTransform(m_textContent, l_maxLineLen, l_lines);
+				l_ansiError = !AnsiSysTransform(m_textContent, l_maxLineLen, l_lines);
 			}
 			catch(const std::exception& ex)
 			{
@@ -556,15 +716,23 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			return false;
 		}
 
-		if(l_maxLineLen > 2000)
+		if(l_maxLineLen > WIDTH_LIMIT)
 		{
-			m_lastErrorDescr = L"This file contains a line longer than 2000 chars. To prevent damage and lock-ups, we do not load it.";
+#ifdef HAVE_BOOST
+			m_lastErrorDescr = FORMAT(L"This file contains a line longer than %d chars. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
+#else
+			L"This file contains a line that exceeds the internal maximum length limit.";
+#endif
 			return false;
 		}
 
-		if(l_lines.size() > 10000)
+		if(l_lines.size() > LINES_LIMIT)
 		{
-			m_lastErrorDescr = L"This file contains more than 10000 lines. To prevent damage and lock-ups, we do not load it.";
+#ifdef HAVE_BOOST
+			m_lastErrorDescr = FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
+#else
+			L"This file contains more lines than the internal limit.";
+#endif
 			return false;
 		}
 
@@ -875,6 +1043,8 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 			&& _tcsicmp(m_filePath.substr(m_filePath.length() - 4).c_str(), _T(".ans")) == 0)
 		{
 			m_isAnsi = true;
+
+			m_ansiHintWidth = m_ansiHintHeight = 0;
 		}
 
 		return true;
@@ -1095,6 +1265,16 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 	}
 
 	m_isAnsi = (l_record.FileType == SAUCEFT_CHAR_ANSI);
+
+	if(l_record.TInfo1 > 0 && l_record.TInfo1 < WIDTH_LIMIT * 2) // width in characters
+	{
+		m_ansiHintWidth = l_record.TInfo1;
+	}
+
+	if(l_record.TInfo2 > 0 && l_record.TInfo2 < LINES_LIMIT * 2) // height in lines
+	{
+		m_ansiHintHeight = l_record.TInfo2;
+	}
 
 	return true;
 }
