@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,6 +15,7 @@
 #include "stdafx.h"
 #include "nfo_renderer.h"
 #include "cairo_box_blur.h"
+#include <set> // !?!?!
 
 
 CNFORenderer::CNFORenderer(bool a_classicMode)
@@ -799,7 +800,7 @@ void CNFORenderer::PreRenderText()
 		double l_fontSize = static_cast<double>(GetBlockWidth());
 		bool l_broken = false, l_foundText = false;
 
-		std::deque<const char*> l_checkChars;
+		std::set<wchar_t> l_checkChars;
 
 		for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
 		{
@@ -809,22 +810,22 @@ void CNFORenderer::PreRenderText()
 
 				if(l_block->shape == RGS_NO_BLOCK)
 				{
-					l_checkChars.push_back(m_nfo->GetGridCharUtf8(row, col));
+					l_checkChars.insert(m_nfo->GetGridChar(row, col));
 				}
 			}
 		}
 
 		// add some generic "big" chars for NFOs that e.g.
 		// contain nothing but dots or middots:
-		l_checkChars.push_back("W");
-		l_checkChars.push_back("M");
+		l_checkChars.insert(L'W');
+		l_checkChars.insert(L'M');
 
 		// calculate font size that fits into blocks of the given size:
 		do
 		{
 			cairo_set_font_size(cr, l_fontSize + 1);
 
-			for(std::deque<const char*>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
+			for(std::set<wchar_t>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
 			{
 				cairo_text_extents_t l_extents = {0};
 
@@ -833,7 +834,10 @@ void CNFORenderer::PreRenderText()
 				cairo_glyph_t *l_glyphs = NULL;
 				int l_numGlyphs = 0;
 
-				if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, *it, -1,
+				char utf8[8] = {0};
+				CUtil::OneCharWideToUtf8(*it, utf8); // does not zero-terminate buffer
+
+				if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, utf8, -1,
 					&l_glyphs, &l_numGlyphs, NULL, NULL, NULL) == CAIRO_STATUS_SUCCESS)
 				{
 					cairo_scaled_font_glyph_extents(l_csf, l_glyphs, l_numGlyphs, &l_extents);
