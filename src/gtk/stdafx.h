@@ -21,6 +21,9 @@
 #include <vector>
 #include <map>
 #include <deque>
+#include <set>
+#include <queue>
+#include <stack>
 #include <list>
 #include <string>
 #include <sstream>
@@ -30,4 +33,3 @@
 
 #include <cairo.h>
 #include <pcre.h>
-

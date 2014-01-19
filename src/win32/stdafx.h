@@ -53,6 +53,7 @@
 #include <deque>
 #include <set>
 #include <queue>
+#include <stack>
 #include <memory>
 #include <omp.h>
 #define _USE_MATH_DEFINES
