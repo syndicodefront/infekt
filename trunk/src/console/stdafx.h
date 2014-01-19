@@ -12,7 +12,6 @@
  * GNU General Public License for more details.
  **/
 
-
 #ifndef _STDAFX_H
 #define _STDAFX_H
 
@@ -37,6 +36,9 @@
 #include <map>
 #include <vector>
 #include <deque>
+#include <set>
+#include <queue>
+#include <stack>
 #include <algorithm>
 #include <iomanip>
 #include <math.h>

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "imdb-plugin.h"
 
 #include <Shlwapi.h>
@@ -9,9 +11,11 @@
 #include <vector>
 #include <map>
 #include <limits>
+#include <set>
+#include <queue>
 #include <stack>
 #include <memory>
-using std::tr1::shared_ptr;
+using std::shared_ptr;
 
 #include <pcre.h>
 #pragma warning (push)

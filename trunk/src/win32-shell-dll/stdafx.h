@@ -30,6 +30,9 @@
 #include <sstream>
 #include <vector>
 #include <deque>
+#include <set>
+#include <queue>
+#include <stack>
 #include <limits>
 #include <map>
 #include <io.h>
