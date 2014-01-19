@@ -15,7 +15,6 @@
 #include "stdafx.h"
 #include "nfo_renderer.h"
 #include "cairo_box_blur.h"
-#include <set> // !?!?!
 
 
 CNFORenderer::CNFORenderer(bool a_classicMode)
