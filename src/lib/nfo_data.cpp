@@ -546,15 +546,12 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TL
 
 		if(cmd.cmd != 0) {
 			// this could be done somewhat nicer, but okay for now:
-			wstring::size_type pos = cmd.data.find(L';');
+			wstring::size_type pos;
 
-			if(pos == wstring::npos)
+			n = std::max(_wtoi(cmd.data.c_str()), 1);
+
+			if((pos = cmd.data.find(L';')) != wstring::npos)
 			{
-				n = std::max(_wtoi(cmd.data.c_str()), 1);
-			}
-			else
-			{
-				n = std::max(_wtoi(cmd.data.c_str()), 1);
 				m = std::max(_wtoi(cmd.data.substr(pos + 1).c_str()), 1);
 			}
 		}
