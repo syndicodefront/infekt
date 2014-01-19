@@ -16,7 +16,6 @@
 #include "nfo_data.h"
 #include "util.h"
 #include "sauce.h"
-#include <queue> // !?!?!
 
 using namespace std;
 
@@ -436,7 +435,7 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 
 // combined processing for ANSI files
 // reference: http://en.wikipedia.org/wiki/ANSI_escape_code
-bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
+bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TLineContainer& ar_lines)
 {
 	// this is filled by the parser:
 
@@ -486,7 +485,7 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& a_maxLineLen, TLi
 		}
 		else if(parser_state == ESC_DATA)
 		{
-			if(iswdigit(c) || c == L';')
+			if(iswdigit(c) || c == L';' || c == L'?')
 			{
 				data += c;
 			}
@@ -535,57 +534,123 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& a_maxLineLen, TLi
 
 	// now draw from the queue to the "screen":
 
-	TwoDimVector<wchar_t> screen(m_ansiHintHeight + 1, m_ansiHintWidth + 1, L' ');
+	TwoDimVector<wchar_t> screen((m_ansiHintHeight ? m_ansiHintHeight : 1000) + 10, (m_ansiHintWidth ? m_ansiHintWidth : 80) + 10, L' ');
+	std::stack<std::pair<size_t, size_t> > saved_positions;
 	size_t x = 0, y = 0;
 
 	while(commands.size() > 0)
 	{
 		const ansi_command_t cmd = commands.front();
+		int x_delta = 0, y_delta = 0;
+		int n = 0, m = 0;
+
+		if(cmd.cmd != 0) {
+			// this could be done somewhat nicer, but okay for now:
+			wstring::size_type pos = cmd.data.find(L';');
+
+			if(pos == wstring::npos)
+			{
+				n = std::max(_wtoi(cmd.data.c_str()), 1);
+			}
+			else
+			{
+				n = std::max(_wtoi(cmd.data.c_str()), 1);
+				m = std::max(_wtoi(cmd.data.substr(pos + 1).c_str()), 1);
+			}
+		}
 
 		switch(cmd.cmd)
 		{
 			case 0: { // put text to current position
-				
+				for(wchar_t c : cmd.data)
+				{
+					if(c == L'\r')
+					{
+						// ignore CR
+					}
+					else if(c == L'\n')
+					{
+						if(y >= screen.GetRows() - 1)
+						{
+							// screen too small, *TODO* extend
+							return false;
+						}
+
+						++y;
+						x = 0;
+					}
+					else
+					{
+						if(x >= screen.GetCols() - 1)
+						{
+							// screen too small, *TODO* extend
+							return false;
+						}
+
+						++x;
+						screen[y][x] = c;
+					}
+				}
 				break;
 			}
 			case L'A': { // cursor up
+				y_delta = -n;
 				break;
 			}
 			case L'B': { // cursor down
+				y_delta = n;
 				break;
 			}
 			case L'C': { // cursor forward
+				x_delta = n;
 				break;
 			}
 			case L'D': { // cursor back
+				x_delta = -n;
 				break;
 			}
 			case L'E': { // cursor to beginning of next line
+				y_delta = n;
+				x = 0;
 				break;
 			}
 			case L'F': { // cursor to beginning of previous line
+				y_delta = -n;
+				x = 0;
 				break;
 			}
 			case L'G': { // move to given column
+				x = n - 1;
 				break;
 			}
 			case L'H':
 			case L'f': { // moves the cursor to row n, column m
+				y = n - 1;
+				x = m - 1;
 				break;
 			}
 			case L'J': { // erase display
+				// *TODO*
+				if(n == 2)
+				{
+					x = y = 0;
+				}
 				break;
 			}
 			case L'K': { // erase in line
+				// *TODO*
 				break;
 			}
 			case L's': { // save cursor pos
+				// *TODO*
 				break;
 			}
 			case L'u': { // restore cursor pos
+				// *TODO*
 				break;
 			}
 			case L'm': { // rainbows and stuff!
+				// *TODO*
 				break;
 			}
 			case 'S': // scroll up
@@ -596,13 +661,80 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& a_maxLineLen, TLi
 				;
 		}
 		
+		if(y_delta < 0 && std::abs(y_delta) <= y)
+		{
+			y += y_delta;
+		}
+		else if(y_delta > 0)
+		{
+			y += y_delta;
+		}
+		else if(y_delta != 0)
+		{
+			// out of bounds
+			return false; // *TODO*
+		}
+
+		if(x_delta < 0 && std::abs(x_delta) <= x)
+		{
+			x += x_delta;
+		}
+		else if(x_delta > 0)
+		{
+			x += x_delta;
+		}
+		else if(x_delta != 0)
+		{
+			// out of bounds
+			return false; // *TODO*
+		}
+
+		if(x >= screen.GetCols() || y >= screen.GetRows())
+		{
+			// out of bounds
+			return false; // *TODO*
+		}
 
 		commands.pop();
 	}
 
 	// and finally read lines from "screen" into internal structures:
 
-	// :TODO:
+	ar_maxLineLen = 0;
+	ar_lines.clear();
+
+	for(size_t row = 0; row < screen.GetRows(); ++row)
+	{
+		size_t line_used = 0;
+
+		for(size_t col = screen.GetCols() - 1; col >= 0 && col < screen.GetCols(); col--)
+		{
+			if(screen[row][col] != L' ')
+			{
+				line_used = col + 1;
+				break;
+			}
+		}
+
+		ar_lines.push_back(wstring(screen[row].begin(), screen[row].begin() + line_used));
+
+		if(line_used > ar_maxLineLen)
+		{
+			ar_maxLineLen = line_used;
+		}
+	}
+
+	// kill empty trailing lines:
+
+	while(!ar_lines.empty())
+	{
+		if(ar_lines[ar_lines.size() - 1].find_first_not_of(L" ") != wstring::npos)
+		{
+			break;
+		}
+
+		ar_lines.pop_back();
+	}
 
 	return true;
 }
