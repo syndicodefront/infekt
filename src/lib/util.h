@@ -90,19 +90,11 @@ public:
 template <typename T> class TwoDimVector
 {
 public:
-	TwoDimVector(size_t a_rows, size_t a_cols, T a_initial) :
-	  m_data(a_rows, std::vector<T>(a_cols))
+	TwoDimVector(size_t a_rows, size_t a_cols, const T a_initial) :
+		m_rows(a_rows),
+		m_cols(a_cols),
+		m_data(a_rows, std::vector<T>(a_cols, a_initial))
 	{
-		m_rows = a_rows;
-		m_cols = a_cols;
-
-		for(size_t r = 0; r < m_rows; r++)
-		{
-			for(size_t c = 0; c < m_cols; c++)
-			{
-				(*this)[r][c] = a_initial;
-			}
-		}
 	}
 
 	std::vector<T> & operator[](size_t i) 
@@ -115,8 +107,27 @@ public:
 		return m_data[i];
 	}
 
-	const size_t GetRows() const { return m_rows; }
-	const size_t GetCols() const { return m_cols; }
+	size_t GetRows() const { return m_rows; }
+	size_t GetCols() const { return m_cols; }
+
+	void Extend(size_t a_newRows, size_t a_newCols, const T a_initial)
+	{
+		if(a_newRows != m_rows)
+		{
+			m_data.resize(m_rows = a_newCols, std::vector<T>(a_newCols, a_initial));
+		}
+
+		if(a_newCols != m_cols)
+		{
+			for(auto it = m_data.begin(); it != m_data.end(); ++it)
+			{
+				it->resize(a_newCols, a_initial);
+			}
+
+			m_cols = a_newCols;
+		}
+	}
+
 private:
 	std::vector<std::vector<T> > m_data;
 	size_t m_rows, m_cols;
