@@ -534,7 +534,10 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TL
 
 	// now draw from the queue to the "screen":
 
-	TwoDimVector<wchar_t> screen((m_ansiHintHeight ? m_ansiHintHeight : 1000) + 10, (m_ansiHintWidth ? m_ansiHintWidth : 80) + 10, L' ');
+	TwoDimVector<wchar_t> screen(
+		(m_ansiHintHeight ? m_ansiHintHeight : 1000) + 10,
+		(m_ansiHintWidth ? m_ansiHintWidth : 100) + 10,
+		L' ');
 	std::stack<std::pair<size_t, size_t> > saved_positions;
 	size_t x = 0, y = 0;
 
@@ -569,8 +572,14 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TL
 					{
 						if(y >= screen.GetRows() - 1)
 						{
-							// screen too small, *TODO* extend
-							return false;
+							size_t new_rows = screen.GetRows() + std::max(size_t(50), y - (screen.GetRows() - 1));
+
+							if(new_rows > LINES_LIMIT || new_rows < screen.GetRows() /* overflow safeguard */)
+							{
+								return false;
+							}
+
+							screen.Extend(new_rows, screen.GetCols(), L' ');
 						}
 
 						++y;
@@ -580,8 +589,14 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TL
 					{
 						if(x >= screen.GetCols() - 1)
 						{
-							// screen too small, *TODO* extend
-							return false;
+							size_t new_cols = screen.GetCols() + std::max(size_t(50), x - (screen.GetCols() - 1));
+
+							if(new_cols > WIDTH_LIMIT || new_cols < screen.GetCols() /* overflow safeguard */)
+							{
+								return false;
+							}
+
+							screen.Extend(screen.GetRows(), new_cols, L' ');
 						}
 
 						++x;
@@ -1377,7 +1392,8 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	// skip record + comments:
 
-	size_t l_bytesToTrim = SAUCE_RECORD_SIZE + l_record.Comments * SAUCE_COMMENT_LINE_SIZE + SAUCE_HEADER_ID_SIZE;
+	size_t l_bytesToTrim = SAUCE_RECORD_SIZE + (l_record.Comments > 0
+		? l_record.Comments * SAUCE_COMMENT_LINE_SIZE + SAUCE_HEADER_ID_SIZE : 0);
 
 	if(l_record.Comments > SAUCE_MAX_COMMENTS || ar_dataLen < l_bytesToTrim)
 	{
