@@ -28,6 +28,7 @@ add_executable (infekt-gtk
 	${INFEKT_SOURCE_DIR}/src/lib/gutf8.c
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_data.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_hyperlink.cpp
+	${INFEKT_SOURCE_DIR}/src/lib/ansi_art.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_renderer.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/util.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/cairo_box_blur.cpp
