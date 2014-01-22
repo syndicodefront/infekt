@@ -195,6 +195,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\src\lib\nfo_hyperlink.cpp" />
     <ClCompile Include="..\..\src\lib\nfo_to_png.cpp" />
     <ClCompile Include="..\..\src\win32-support\getopt.cpp" />
     <ClCompile Include="..\..\src\lib\gutf8.c" />

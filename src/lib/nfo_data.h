@@ -16,33 +16,9 @@
 #define _NFO_DATA_H
 
 #include "util.h"
+#include "nfo_hyperlink.h"
 
-
-class CNFOHyperLink
-{
-public:
-	CNFOHyperLink(int a_linkID, const std::wstring& a_href, size_t a_row,
-		size_t a_col, size_t a_len);
-	virtual ~CNFOHyperLink();
-
-	void SetHref(const std::wstring& a_href);
-	const int GetLinkID() const { return m_linkID; }
-	const std::wstring& GetHref() const { return m_href; }
-	const size_t GetRow() const { return m_row; }
-	const size_t GetColStart() const { return m_colStart; }
-	const size_t GetColEnd() const { return m_colEnd; }
-	const size_t GetLength() const { return m_colEnd - m_colStart + 1; }
-protected:
-	int m_linkID;
-	std::wstring m_href;
-	size_t m_row;
-	size_t m_colStart, m_colEnd;
-private:
-	CNFOHyperLink() {};
-};
-
-
-typedef enum _nfo_charsets
+typedef enum
 {
 	NFOC_AUTO = 1,
 	NFOC_UTF16,
@@ -141,50 +117,6 @@ protected:
 	std::wstring GetWithBoxedWhitespace() const;
 
 	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
-
-	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
-		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
-
-	// following: static cache stuff for link detection regex.
-
-	class CLinkRegEx
-	{
-	public:
-		CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto = false)
-		{
-			const char *szErrDescr = NULL;
-			int iErrOffset;
-
-			m_re = pcre_compile(regex_str,
-				PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK,
-				&szErrDescr, &iErrOffset, NULL);
-			_ASSERT(m_re != NULL);
-			// no further error handling because all the regex are hardcoded
-
-			m_cont = a_cont;
-			m_mailto = a_mailto;
-		}
-
-		pcre *GetRE() const { return m_re; }
-		bool IsCont() const { return m_cont; }
-		bool IsMailto() const { return m_mailto; }
-
-		virtual ~CLinkRegEx()
-		{
-			if(m_re)
-			{
-				pcre_free(m_re);
-			}
-		}
-	protected:
-		pcre *m_re;
-		bool m_cont;
-		bool m_mailto;
-	};
-	typedef shared_ptr<CLinkRegEx> PLinkRegEx;
-
-	static std::vector<PLinkRegEx> ms_linkTriggers;
-	static void PopulateLinkTriggers();
 };
 
 typedef shared_ptr<CNFOData> PNFOData;
