@@ -114,7 +114,7 @@ public:
 	{
 		if(a_newRows != m_rows)
 		{
-			m_data.resize(m_rows = a_newCols, std::vector<T>(a_newCols, a_initial));
+			m_data.resize(m_rows = a_newRows, std::vector<T>(a_newCols, a_initial));
 		}
 
 		if(a_newCols != m_cols)

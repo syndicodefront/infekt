@@ -568,7 +568,7 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TL
 					{
 						// ignore CR
 					}
-					else if(c == L'\n')
+					else if(c == L'\n' || (m_ansiHintWidth != 0 && x == m_ansiHintWidth - 1))
 					{
 						if(y >= screen.GetRows() - 1)
 						{
@@ -703,8 +703,12 @@ bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TL
 
 		if(x >= screen.GetCols() || y >= screen.GetRows())
 		{
-			// out of bounds
-			return false; // *TODO*
+			if(x >= WIDTH_LIMIT || y >= LINES_LIMIT)
+			{
+				return false;
+			}
+
+			screen.Extend(y + 1, x + 1, L' ');
 		}
 
 		commands.pop();
@@ -1584,6 +1588,15 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 	}
 
 	return L"(huh?)";
+}
+
+
+const std::wstring CNFOData::GetCharsetName()
+{
+	if(m_isAnsi)
+		return GetCharsetName(m_sourceCharset) + L" (ANSI ART)";
+	else
+		return GetCharsetName(m_sourceCharset);
 }
 
 

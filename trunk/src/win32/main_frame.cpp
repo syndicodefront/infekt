@@ -991,7 +991,7 @@ void CMainFrame::UpdateStatusbar()
 		LONG l_width = l_rc.right - l_rc.left;
 
 		const _tstring l_fileName = m_view.GetNfoData()->GetFileName();
-		const _tstring l_charset = CNFOData::GetCharsetName(m_view.GetNfoData()->GetCharset());
+		const _tstring l_charset = m_view.GetNfoData()->GetCharsetName();
 
 		_tstring l_timeInfo, l_sizeInfo;
 		if(!m_view.GetNfoData()->GetFilePath().empty())
