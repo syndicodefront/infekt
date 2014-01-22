@@ -8,6 +8,7 @@ add_executable (infekt-cli
 	${INFEKT_SOURCE_DIR}/src/lib/gutf8.c
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_data.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_hyperlink.cpp
+	${INFEKT_SOURCE_DIR}/src/lib/ansi_art.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_renderer.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_to_html.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_to_pdf.cpp
