@@ -16,6 +16,7 @@
 #include "nfo_data.h"
 #include "util.h"
 #include "sauce.h"
+#include "ansi_art.h"
 
 using namespace std;
 
@@ -426,329 +427,6 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 }
 
 
-// combined processing for ANSI files
-// reference: http://en.wikipedia.org/wiki/ANSI_escape_code
-bool CNFOData::AnsiSysTransform(const wstring& a_text, size_t& ar_maxLineLen, TLineContainer& ar_lines)
-{
-	// this is filled by the parser:
-
-	typedef struct {
-		wchar_t cmd; // \0 = regular text
-		std::wstring data;
-	} ansi_command_t;
-
-	std::queue<const ansi_command_t> commands;
-
-	// the parser:
-
-	typedef enum {
-		PARSERERROR = -1,
-		ANYTEXT = 1,
-		ESC_CHAR,
-		ESC_BRACKET,
-		ESC_DATA,
-		ESC_COMMAND,
-	} parser_state_e;
-
-	parser_state_e parser_state = ANYTEXT;
-	std::wstring data;
-
-	for(wchar_t c : a_text)
-	{
-		if(c == L'\x2190')
-		{
-			if(parser_state != ANYTEXT)
-			{
-				parser_state = PARSERERROR;
-				break;
-			}
-
-			if(!data.empty())
-			{
-				ansi_command_t tmp = { 0, data };
-				commands.push(tmp);
-				data.clear();
-			}
-
-			parser_state = ESC_BRACKET;
-		}
-		else if(c == L'[' && parser_state == ESC_BRACKET)
-		{
-			parser_state = ESC_DATA;
-		}
-		else if(parser_state == ESC_DATA)
-		{
-			if(iswdigit(c) || c == L';' || c == L'?')
-			{
-				data += c;
-			}
-			else if(iswalpha(c))
-			{
-				ansi_command_t tmp = { c, data };
-				commands.push(tmp);
-				data.clear();
-
-				parser_state = ANYTEXT;
-			}
-			else
-			{
-				parser_state = PARSERERROR;
-				break;
-			}
-		}
-		else if(parser_state == ANYTEXT)
-		{
-			data += c;
-		}
-		else
-		{
-			parser_state = PARSERERROR;
-			break;
-		}
-	}
-
-	if(parser_state == ANYTEXT)
-	{
-		if(!data.empty())
-		{
-			ansi_command_t tmp = { 0, data };
-			commands.push(tmp);
-		}
-	}
-	else
-	{
-		parser_state = PARSERERROR;
-	}
-
-	if(parser_state == PARSERERROR)
-	{
-		return false;
-	}
-
-	// now draw from the queue to the "screen":
-
-	TwoDimVector<wchar_t> screen(
-		(m_ansiHintHeight ? m_ansiHintHeight : 1000) + 10,
-		(m_ansiHintWidth ? m_ansiHintWidth : 100) + 10,
-		L' ');
-	std::stack<std::pair<size_t, size_t> > saved_positions;
-	size_t x = 0, y = 0;
-
-	while(commands.size() > 0)
-	{
-		const ansi_command_t cmd = commands.front();
-		int x_delta = 0, y_delta = 0;
-		int n = 0, m = 0;
-
-		if(cmd.cmd != 0) {
-			// this could be done somewhat nicer, but okay for now:
-			wstring::size_type pos;
-
-			n = std::max(_wtoi(cmd.data.c_str()), 1);
-
-			if((pos = cmd.data.find(L';')) != wstring::npos)
-			{
-				m = std::max(_wtoi(cmd.data.substr(pos + 1).c_str()), 1);
-			}
-		}
-
-		switch(cmd.cmd)
-		{
-			case 0: { // put text to current position
-				for(wchar_t c : cmd.data)
-				{
-					if(c == L'\r')
-					{
-						// ignore CR
-					}
-					else if(c == L'\n' || (m_ansiHintWidth != 0 && x == m_ansiHintWidth - 1))
-					{
-						if(y >= screen.GetRows() - 1)
-						{
-							size_t new_rows = screen.GetRows() + std::max(size_t(50), y - (screen.GetRows() - 1));
-
-							if(new_rows > LINES_LIMIT || new_rows < screen.GetRows() /* overflow safeguard */)
-							{
-								return false;
-							}
-
-							screen.Extend(new_rows, screen.GetCols(), L' ');
-						}
-
-						++y;
-						x = 0;
-					}
-					else
-					{
-						if(x >= screen.GetCols() - 1)
-						{
-							size_t new_cols = screen.GetCols() + std::max(size_t(50), x - (screen.GetCols() - 1));
-
-							if(new_cols > WIDTH_LIMIT || new_cols < screen.GetCols() /* overflow safeguard */)
-							{
-								return false;
-							}
-
-							screen.Extend(screen.GetRows(), new_cols, L' ');
-						}
-
-						++x;
-						screen[y][x] = c;
-					}
-				}
-				break;
-			}
-			case L'A': { // cursor up
-				y_delta = -n;
-				break;
-			}
-			case L'B': { // cursor down
-				y_delta = n;
-				break;
-			}
-			case L'C': { // cursor forward
-				x_delta = n;
-				break;
-			}
-			case L'D': { // cursor back
-				x_delta = -n;
-				break;
-			}
-			case L'E': { // cursor to beginning of next line
-				y_delta = n;
-				x = 0;
-				break;
-			}
-			case L'F': { // cursor to beginning of previous line
-				y_delta = -n;
-				x = 0;
-				break;
-			}
-			case L'G': { // move to given column
-				x = n - 1;
-				break;
-			}
-			case L'H':
-			case L'f': { // moves the cursor to row n, column m
-				y = n - 1;
-				x = m - 1;
-				break;
-			}
-			case L'J': { // erase display
-				// *TODO*
-				if(n == 2)
-				{
-					x = y = 0;
-				}
-				break;
-			}
-			case L'K': { // erase in line
-				// *TODO*
-				break;
-			}
-			case L's': { // save cursor pos
-				// *TODO*
-				break;
-			}
-			case L'u': { // restore cursor pos
-				// *TODO*
-				break;
-			}
-			case L'm': { // rainbows and stuff!
-				// *TODO*
-				break;
-			}
-			case 'S': // scroll up
-			case 'T': // scroll down
-			case 'n': // report cursor position
-			default:
-				// unsupported, ignore
-				;
-		}
-		
-		if(y_delta < 0 && std::abs(y_delta) <= y)
-		{
-			y += y_delta;
-		}
-		else if(y_delta > 0)
-		{
-			y += y_delta;
-		}
-		else if(y_delta != 0)
-		{
-			// out of bounds
-			return false; // *TODO*
-		}
-
-		if(x_delta < 0 && std::abs(x_delta) <= x)
-		{
-			x += x_delta;
-		}
-		else if(x_delta > 0)
-		{
-			x += x_delta;
-		}
-		else if(x_delta != 0)
-		{
-			// out of bounds
-			return false; // *TODO*
-		}
-
-		if(x >= screen.GetCols() || y >= screen.GetRows())
-		{
-			if(x >= WIDTH_LIMIT || y >= LINES_LIMIT)
-			{
-				return false;
-			}
-
-			screen.Extend(y + 1, x + 1, L' ');
-		}
-
-		commands.pop();
-	}
-
-	// and finally read lines from "screen" into internal structures:
-
-	ar_maxLineLen = 0;
-	ar_lines.clear();
-
-	for(size_t row = 0; row < screen.GetRows(); ++row)
-	{
-		size_t line_used = 0;
-
-		for(size_t col = screen.GetCols() - 1; col >= 0 && col < screen.GetCols(); col--)
-		{
-			if(screen[row][col] != L' ')
-			{
-				line_used = col + 1;
-				break;
-			}
-		}
-
-		ar_lines.push_back(wstring(screen[row].begin(), screen[row].begin() + line_used));
-
-		if(line_used > ar_maxLineLen)
-		{
-			ar_maxLineLen = line_used;
-		}
-	}
-
-	// kill empty trailing lines:
-
-	while(!ar_lines.empty())
-	{
-		if(ar_lines[ar_lines.size() - 1].find_first_not_of(L" ") != wstring::npos)
-		{
-			break;
-		}
-
-		ar_lines.pop_back();
-	}
-
-	return true;
-}
-
-
 bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen)
 {
 	bool l_loaded = false;
@@ -830,14 +508,30 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		{
 			try
 			{
-				l_ansiError = !AnsiSysTransform(m_textContent, l_maxLineLen, l_lines);
-				
-				/*if(l_ansiError && m_ansiHintWidth == 0)
-				{
-					m_ansiHintWidth = 80;
+				CAnsiArt l_ansiArtProcessor(WIDTH_LIMIT, LINES_LIMIT, m_ansiHintWidth, m_ansiHintHeight);
 
-					l_ansiError = !AnsiSysTransform(m_textContent, l_maxLineLen, l_lines);
-				}*/
+				if(!l_ansiArtProcessor.Parse(m_textContent))
+				{
+					l_ansiError = true;
+				}
+				else
+				{
+					l_ansiError = !l_ansiArtProcessor.Process();
+
+					if(l_ansiError && m_ansiHintWidth == 0)
+					{
+						// retry with a default with + enforced line break after col 80:
+						l_ansiArtProcessor.SetHints(80, m_ansiHintHeight);
+						l_ansiError = !l_ansiArtProcessor.Process();
+					}
+				}
+
+				if(!l_ansiError)
+				{
+					l_lines = l_ansiArtProcessor.GetLines();
+					l_maxLineLen = l_ansiArtProcessor.GetMaxLineLength();
+					m_textContent = l_ansiArtProcessor.GetAsClassicText();
+				}
 			}
 			catch(const std::exception& ex)
 			{

@@ -93,6 +93,9 @@
     <ClCompile Include="..\..\src\lib\nfo_hyperlink.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\lib\ansi_art.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\win32\about_dlg.h">
@@ -156,6 +159,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\lib\nfo_hyperlink.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\lib\ansi_art.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
