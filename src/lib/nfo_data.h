@@ -112,8 +112,6 @@ protected:
 	bool TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen);
 
-	bool AnsiSysTransform(const std::wstring& a_text, size_t& ar_maxLineLen, TLineContainer& ar_lines);
-
 	std::wstring GetWithBoxedWhitespace() const;
 
 	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
