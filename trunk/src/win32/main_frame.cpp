@@ -1650,21 +1650,15 @@ bool CMainFrame::LoadFolderNfoList()
 		const std::wstring l_nfoPath = l_folderPath + l_ffd.cFileName;
 		const std::wstring l_extension = ::PathFindExtension(l_nfoPath.c_str());
 
-		if(_wcsicmp(l_extension.c_str(), L".nfo") && _wcsicmp(l_extension.c_str(), L".asc") && _wcsicmp(l_extension.c_str(), L".ans"))
+		if(_wcsicmp(l_extension.c_str(), L".nfo") == 0 || _wcsicmp(l_extension.c_str(), L".asc") == 0
+			|| _wcsicmp(l_extension.c_str(), L".ans") == 0)
 		{
-			continue;
-		}
+			wchar_t l_buf[1000] = {0};
 
-		wchar_t l_buf[1000] = {0};
-
-		if(::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, NULL) < 1000)
-		{
-			if(wcscmp(l_nfoPathFull, l_buf) == 0)
+			if(::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, NULL) < 1000)
 			{
-				m_nfoInFolderIndex = m_nfoPathsInFolder.size();
+				m_nfoPathsInFolder.push_back(l_buf);
 			}
-
-			m_nfoPathsInFolder.push_back(l_buf);
 		}
 	} while(::FindNextFile(l_fh, &l_ffd));
 
@@ -1673,6 +1667,15 @@ bool CMainFrame::LoadFolderNfoList()
 	std::sort(m_nfoPathsInFolder.begin(), m_nfoPathsInFolder.end(), [](std::wstring a, std::wstring b) {
 		return StrCmpLogicalW(a.c_str(), b.c_str()) < 0;
 	});
+
+	size_t l_index = 0;
+	for(const std::wstring l_nfoPath : m_nfoPathsInFolder)
+	{
+		if(wcscmp(l_nfoPathFull, l_nfoPath.c_str()) == 0)
+		{
+			m_nfoInFolderIndex = l_index++;
+		}
+	}
 
 	return (m_nfoInFolderIndex != (size_t)-1);
 }
