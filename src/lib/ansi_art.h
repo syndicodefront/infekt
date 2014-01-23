@@ -53,10 +53,7 @@ protected:
 	size_t m_widthLimit;
 	size_t m_heightLimit;
 
-	TLineContainer m_lines;
-	size_t m_maxLineLength;
-
-	// this is filled by the parser:
+	// this is filled by Parse():
 
 	typedef struct {
 		wchar_t cmd; // \0 = regular text
@@ -64,6 +61,11 @@ protected:
 	} ansi_command_t;
 
 	std::deque<const ansi_command_t> m_commands;
+
+	// this is filled by Process():
+
+	TLineContainer m_lines;
+	size_t m_maxLineLength;
 };
 
 #endif /* !_ANSI_ART_H */

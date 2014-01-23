@@ -128,6 +128,7 @@ bool CAnsiArt::Process()
 		(m_hintHeight ? m_hintHeight : 1000) + 10,
 		(m_hintWidth ? m_hintWidth : 100) + 1,
 		L' ');
+
 	std::stack<std::pair<size_t, size_t> > saved_positions;
 	size_t x = 0, y = 0;
 
@@ -243,11 +244,16 @@ bool CAnsiArt::Process()
 				break;
 			}
 			case L's': { // save cursor pos
-				// *TODO*
+				saved_positions.push(std::pair<size_t, size_t>(x, y));
 				break;
 			}
 			case L'u': { // restore cursor pos
-				// *TODO*
+				if(!saved_positions.empty()) {
+					const std::pair<size_t, size_t> pos = saved_positions.top();
+					x = pos.first;
+					y = pos.second;
+					saved_positions.pop();
+				}
 				break;
 			}
 			case L'm': { // rainbows and stuff!
@@ -262,7 +268,7 @@ bool CAnsiArt::Process()
 				;
 		}
 		
-		if(y_delta < 0 && std::abs(y_delta) <= y)
+		if(y_delta < 0 && static_cast<size_t>(std::abs(y_delta)) <= y)
 		{
 			y += y_delta;
 		}
@@ -273,10 +279,10 @@ bool CAnsiArt::Process()
 		else if(y_delta != 0)
 		{
 			// out of bounds
-			return false; // *TODO*
+			return false;
 		}
 
-		if(x_delta < 0 && std::abs(x_delta) <= x)
+		if(x_delta < 0 && static_cast<size_t>(std::abs(x_delta)) <= x)
 		{
 			x += x_delta;
 		}
@@ -287,7 +293,7 @@ bool CAnsiArt::Process()
 		else if(x_delta != 0)
 		{
 			// out of bounds
-			return false; // *TODO*
+			return false;
 		}
 
 		if(x >= screen.GetCols() || y >= screen.GetRows())

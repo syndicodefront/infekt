@@ -1674,6 +1674,7 @@ bool CMainFrame::LoadFolderNfoList()
 		if(wcscmp(l_nfoPathFull, l_nfoPath.c_str()) == 0)
 		{
 			m_nfoInFolderIndex = l_index++;
+			break;
 		}
 	}
 
