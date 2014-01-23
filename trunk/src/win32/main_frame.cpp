@@ -1628,7 +1628,7 @@ bool CMainFrame::LoadFolderNfoList()
 	wchar_t l_nfoPathFull[1000] = {0};
 
 	const std::wstring l_folderPath = CUtil::PathRemoveFileSpec(l_nfoPath.c_str()) + L"\\",
-		l_filePattern = l_folderPath + L"*.nfo";
+		l_filePattern = l_folderPath + L"*.*";
 
 	if(!::PathIsDirectory(l_folderPath.c_str()) ||
 		::GetFullPathName(l_nfoPath.c_str(), 999, l_nfoPathFull, NULL) > 999)
@@ -1648,7 +1648,13 @@ bool CMainFrame::LoadFolderNfoList()
 	do
 	{
 		const std::wstring l_nfoPath = l_folderPath + l_ffd.cFileName;
-		
+		const std::wstring l_extension = ::PathFindExtension(l_nfoPath.c_str());
+
+		if(_wcsicmp(l_extension.c_str(), L".nfo") && _wcsicmp(l_extension.c_str(), L".asc") && _wcsicmp(l_extension.c_str(), L".ans"))
+		{
+			continue;
+		}
+
 		wchar_t l_buf[1000] = {0};
 
 		if(::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, NULL) < 1000)
