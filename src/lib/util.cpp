@@ -485,7 +485,28 @@ wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpe
 	const LPCWSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath);
 
 
-wstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
+#if _WIN32_WINNT < 0x600
+typedef const std::vector<wchar_t> TLegacyFilterSpec;
+static TLegacyFilterSpec ComDlgFilterSpecToLegacy(const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
+{
+	std::vector<wchar_t> l_filter;
+
+	for(UINT i = 0; i < a_nFilterSpec; i++)
+	{
+		const COMDLG_FILTERSPEC& l_spec = a_filterSpec[i];
+
+		l_filter.insert(l_filter.end(), l_spec.pszName, l_spec.pszName + lstrlenW(l_spec.pszName) + 1);
+		l_filter.insert(l_filter.end(), l_spec.pszSpec, l_spec.pszSpec + lstrlenW(l_spec.pszSpec) + 1);
+	}
+
+	l_filter.push_back(L'\0');
+
+	return l_filter;
+}
+#endif
+
+
+wstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
 {
 #if _WIN32_WINNT < 0x600
 	if(!CUtil::IsWin6x())
@@ -493,10 +514,12 @@ wstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR
 		OPENFILENAME ofn = {0};
 		TCHAR szBuf[1000] = {0};
 
+		TLegacyFilterSpec l_filter = ComDlgFilterSpecToLegacy(a_filterSpec, a_nFilterSpec);
+
 		ofn.lStructSize = sizeof(OPENFILENAME);
 		ofn.hInstance = a_instance;
 		ofn.hwndOwner = a_parent;
-		ofn.lpstrFilter = a_filter;
+		ofn.lpstrFilter = l_filter.data();
 		ofn.nFilterIndex = 1;
 		ofn.lpstrFile = szBuf;
 		ofn.nMaxFile = 999;
@@ -517,7 +540,7 @@ wstring CUtil::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR
 }
 
 
-wstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR a_filter, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
+wstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
 	const LPCTSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath)
 {
 #if _WIN32_WINNT < 0x600
@@ -525,6 +548,8 @@ wstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR
 	{
 		OPENFILENAME ofn = {0};
 		TCHAR szBuf[1000] = {0};
+
+		TLegacyFilterSpec l_filter = ComDlgFilterSpecToLegacy(a_filterSpec, a_nFilterSpec);
 
 		if(!a_currentFileName.empty())
 		{
@@ -539,7 +564,7 @@ wstring CUtil::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const LPCTSTR
 		ofn.lStructSize = sizeof(OPENFILENAME);
 		ofn.hInstance = a_instance;
 		ofn.hwndOwner = a_parent;
-		ofn.lpstrFilter = a_filter;
+		ofn.lpstrFilter = l_filter.data();
 		ofn.nFilterIndex = 1;
 		ofn.lpstrDefExt = a_defaultExt;
 		ofn.lpstrFile = szBuf;
