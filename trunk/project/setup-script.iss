@@ -37,7 +37,9 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "nfoassoc"; Description: "Make iNFekt the default viewer for .nfo files"; GroupDescription: "Shell integration"; Check: not WizardSilent
 Name: "dizassoc"; Description: "Make iNFekt the default viewer for .diz files"; GroupDescription: "Shell integration"; Flags: unchecked
-Name: "shellpreview"; Description: "Install Explorer preview pane and thumbnail integration for .nfo files"; GroupDescription: "Shell integration"; MinVersion: 0,6.0
+Name: "ansiassoc"; Description: "Make iNFekt the default viewer for .ans and .asc files"; GroupDescription: "Shell integration"; Flags: unchecked
+Name: "shellpreview"; Description: "Install Explorer preview pane and thumbnail integration for associated files"; GroupDescription: "Shell integration"; MinVersion: 0,6.0
+Name: "cppredist"; Description: "Download and install Microsoft C++ runtime if necessary"; GroupDescription: "Advanced"; Flags: checkedonce
 
 [Files]
 Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
@@ -104,19 +106,27 @@ Root: HKLM; Subkey: "SOFTWARE\Classes\{#NfoProgId}\shell\open\command"; ValueTyp
 ; Claim machine-level file associations:
 Root: HKLM; Subkey: "SOFTWARE\Classes\.nfo"; ValueType: string; ValueName: ""; ValueData: "{#NfoProgId}"; Flags: uninsclearvalue; Tasks: "nfoassoc"
 Root: HKLM; Subkey: "SOFTWARE\Classes\.diz"; ValueType: string; ValueName: ""; ValueData: "{#NfoProgId}"; Flags: uninsclearvalue; Tasks: "dizassoc"
+Root: HKLM; Subkey: "SOFTWARE\Classes\.ans"; ValueType: string; ValueName: ""; ValueData: "{#NfoProgId}"; Flags: uninsclearvalue; Tasks: "ansiassoc"
+Root: HKLM; Subkey: "SOFTWARE\Classes\.asc"; ValueType: string; ValueName: ""; ValueData: "{#NfoProgId}"; Flags: uninsclearvalue; Tasks: "ansiassoc"
 ; Register the application with Default Programs
 Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT"; ValueType: string; ValueName: ""; ValueData: ""; Flags: uninsdeletekey; MinVersion: 0,6.0
 Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; ValueType: string; ValueName: "ApplicationName"; ValueData: "iNFekt NFO Viewer"; MinVersion: 0,6.0
 Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "iNFekt NFO Viewer is the next generation NFO Viewer Application!"; MinVersion: 0,6.0
 Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".nfo"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
 Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".diz"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".ans"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".asc"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
 Root: HKLM; Subkey: "SOFTWARE\RegisteredApplications"; ValueType: string; ValueName: "iNFekt NFO Viewer"; ValueData: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; Flags: uninsdeletevalue; MinVersion: 0,6.0
 ; Clear user-overridden stuff on 5.x:
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.nfo"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "nfoassoc"
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.diz"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "dizassoc"
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ans"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "ansiassoc"
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.asc"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "ansiassoc"
 ; Clear user-overridden stuff on Vista/7:
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.nfo\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "nfoassoc"; MinVersion: 0,6.0
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.diz\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "dizassoc"; MinVersion: 0,6.0
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ans\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "ansiassoc"; MinVersion: 0,6.0
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.asc\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "ansiassoc"; MinVersion: 0,6.0
 
 ; Uninstall-only stuff:
 
@@ -164,23 +174,24 @@ function MsiQueryProductState(ProductCode: String): Integer; external 'MsiQueryP
 
 var
 	cppRuntimeInstalled: Boolean;
+	allowCppRuntimeInstall: Boolean;
 
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU3/vcredist_x64.exe';
-	MSVC_X86_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU3/vcredist_x86.exe';
+	MSVC_X64_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x64.exe';
+	MSVC_X86_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
 begin
-  Result := not cppRuntimeInstalled;
+  Result := allowCppRuntimeInstall and not cppRuntimeInstalled;
 end;
 
 
 procedure InitializeWizard();
 var
-	U1Installed, U3Installed: Boolean;
+	U1Installed, U3Installed, U4Installed: Boolean;
 begin
 	ITD_Init();
 	ITD_SetOption('UI_AllowContinue', '1');
@@ -188,32 +199,54 @@ begin
 	if Is64BitInstallMode() then
 	begin
 		ITD_AddFile(MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
-		ITD_AddMirror('http://infekt.googlecode.com/files/vcredist_x64_2012u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
+		ITD_AddMirror('http://syndicode.org/infekt/mirror/vcredist_x64_2012u4.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 
 		U1Installed := (MsiQueryProductState('{5AF4E09F-5C9B-3AAF-B731-544D3DC821DD}') = INSTALLSTATE_DEFAULT)
 		  and (MsiQueryProductState('{3C28BFD4-90C7-3138-87EF-418DC16E9598}') = INSTALLSTATE_DEFAULT);
 
 		U3Installed := (MsiQueryProductState('{2EDC2FA3-1F34-34E5-9085-588C9EFD1CC6}') = INSTALLSTATE_DEFAULT)
 		  and (MsiQueryProductState('{764384C5-BCA9-307C-9AAC-FD443662686A}') = INSTALLSTATE_DEFAULT);
+
+		U4Installed := (MsiQueryProductState('{CF2BEA3C-26EA-32F8-AA9B-331F7E34BA97}') = INSTALLSTATE_DEFAULT)
+		  and (MsiQueryProductState('{37B8F9C7-03FB-3253-8781-2517C99D7C00}') = INSTALLSTATE_DEFAULT);
 	end
 	else
 	begin
 		ITD_AddFile(MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
-		ITD_AddMirror('http://infekt.googlecode.com/files/vcredist_x86_2012u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
+		ITD_AddMirror('http://syndicode.org/infekt/mirror/vcredist_x86_2012u4.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 
 		U1Installed := (MsiQueryProductState('{E824E81C-80A4-3DFF-B5F9-4842A9FF5F7F}') = INSTALLSTATE_DEFAULT)
 		  and (MsiQueryProductState('{6C772996-BFF3-3C8C-860B-B3D48FF05D65}') = INSTALLSTATE_DEFAULT);
 
 		U3Installed := (MsiQueryProductState('{E7D4E834-93EB-351F-B8FB-82CDAE623003}') = INSTALLSTATE_DEFAULT)
 		  and (MsiQueryProductState('{3D6AD258-61EA-35F5-812C-B7A02152996E}') = INSTALLSTATE_DEFAULT);
+
+		U4Installed := (MsiQueryProductState('{BD95A8CD-1D9F-35AD-981A-3E7925026EBB}') = INSTALLSTATE_DEFAULT)
+		  and (MsiQueryProductState('{B175520C-86A2-35A7-8619-86DC379688B9}') = INSTALLSTATE_DEFAULT);
 	end;
 
-	cppRuntimeInstalled := U1Installed or U3Installed;
+	allowCppRuntimeInstall := true; // default
+	cppRuntimeInstalled := U1Installed or U3Installed or U4Installed;
 
 	if InstallCppRuntime() then
 	begin
 		ITD_DownloadAfter(wpReady);
 	end;
+end;
+
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  Index: Integer;
+begin
+  Result := True;
+  if CurPageID = wpSelectTasks then
+  begin
+    Index := WizardForm.TasksList.Items.IndexOf('Download and install Microsoft C++ runtime if necessary');
+    if Index <> -1 then
+    begin
+			allowCppRuntimeInstall := WizardForm.TasksList.Checked[Index];
+  end;
 end;
 
 
@@ -246,6 +279,7 @@ begin
 		end;
 	end;
 end;
+
 
 procedure CurPageChanged(CurPageID: Integer);
 var
