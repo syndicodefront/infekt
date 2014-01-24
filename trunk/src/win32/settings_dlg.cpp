@@ -718,8 +718,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"Theme Info", L"*.ini" }, { L"All Files", L"*" } };
 
-		std::_tstring l_filePath = CUtil::OpenFileDialog(g_hInstance,
-			m_hWnd, _T("Theme Info (.ini)\0*.ini\0All Files\0*\0\0"), l_filter, 2);
+		const std::wstring l_filePath = CUtil::OpenFileDialog(g_hInstance, m_hWnd, l_filter, 2);
 
 		if(l_filePath.empty())
 		{
@@ -805,16 +804,15 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 	}
 	else
 	{
-		TCHAR l_userName[UNLEN + 1] = {0};
+		wchar_t l_userName[UNLEN + 1] = {0};
 		DWORD l_dummy = UNLEN;
 		::GetUserName(l_userName, &l_dummy);
 		::CharLower(l_userName);
 
 		COMDLG_FILTERSPEC l_filter[] = { { L"Theme Info", L"*.ini" } };
 
-		std::_tstring l_filePath = CUtil::SaveFileDialog(g_hInstance,
-			m_hWnd, _T("Theme Info (.ini)\0*.ini\0\0"), l_filter, 1, _T("ini"),
-			std::_tstring(l_userName) + _T("-nfo-settings.ini"));
+		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance,
+			m_hWnd, l_filter, 1, _T("ini"), std::wstring(l_userName) + _T("-nfo-settings.ini"));
 
 		if(l_filePath.empty())
 		{

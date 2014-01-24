@@ -1320,12 +1320,15 @@ void CMainFrame::UpdateAlwaysOnTop()
 
 void CMainFrame::OpenChooseFileName()
 {
-	COMDLG_FILTERSPEC l_filter[] = { { L"NFO Files", L"*.nfo;*.diz;*.asc" },
-		{ L"Text Files", L"*.txt;*.nfo;*.diz;*.sfv" }, { L"All Files", L"*" } };
+	COMDLG_FILTERSPEC l_filter[] = {
+		{ L"All Supported File Types", L"*.nfo;*.diz;*.asc;*.ans" },
+		{ L"NFO Files", L"*.nfo;*.diz" },
+		{ L"ANSI Art Files", L"*.asc;*.ans" },
+		{ L"Text Files", L"*.txt;*.nfo;*.diz;*.sfv" },
+		{ L"All Files", L"*" }
+	};
 
-	_tstring l_filePath = CUtil::OpenFileDialog(g_hInstance, GetHwnd(),
-		_T("NFO Files\0*.nfo;*.diz;*.asc\0Text Files\0*.txt;*.nfo;*.diz;*.sfv\0All Files\0*\0\0"),
-		l_filter, 3);
+	const std::wstring l_filePath = CUtil::OpenFileDialog(g_hInstance, GetHwnd(), l_filter, 5);
 
 	if(!l_filePath.empty())
 	{
@@ -1354,8 +1357,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"PNG File", L"*.png" } };
 
-		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("PNG File\0*.png\0\0"), l_filter, 1, _T("png"), l_baseFileName + _T(".png"), l_defaultPath);
+		const wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			l_filter, 1, _T("png"), l_baseFileName + _T(".png"), l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
@@ -1390,9 +1393,9 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		COMDLG_FILTERSPEC l_filter[] = { { L"NFO File", L"*.nfo" }, { L"Text File", L"*.txt" } };
 
-		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("NFO File\0*.nfo;\0Text File\0*.txt\0\0"), l_filter, 2, _T("nfo"),
-			l_baseFileName + (l_utf8 ? _T("-utf8.nfo") : _T("-utf16.nfo")), l_defaultPath);
+		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			l_filter, 2, _T("nfo"), l_baseFileName + (l_utf8 ? _T("-utf8.nfo") : _T("-utf16.nfo")),
+			l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
@@ -1421,9 +1424,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		COMDLG_FILTERSPEC l_filter[] = { { L"NFO File", L"*.nfo" }, { L"Text File", L"*.txt" } };
 
-		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			L"NFO File\0*.nfo;\0Text File\0*.txt\0\0", l_filter, 2, L"nfo",
-			l_baseFileName + L"-msdos.nfo", l_defaultPath);
+		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			l_filter, 2, L"nfo", l_baseFileName + L"-msdos.nfo", l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
@@ -1461,15 +1463,14 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"HTML File", L"*.html" } };
 
-		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("HTML File\0*.html\0\0"), l_filter, 1, _T("html"),
-			l_baseFileName + _T(".html"), l_defaultPath);
+		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			l_filter, 1, _T("html"), l_baseFileName + _T(".html"), l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
 			CNFOToHTML l_exporter(m_view.GetActiveCtrl()->GetNfoData());
 			l_exporter.SetSettings(m_view.GetActiveCtrl()->GetSettings());
-			l_exporter.SetTitle(l_baseFileName + _T(".nfo"));
+			l_exporter.SetTitle(m_view.GetNfoData()->GetFileName());
 
 			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
@@ -1493,9 +1494,8 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"PDF File", L"*.pdf" } };
 
-		const _tstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
-			_T("PDF File\0*.pdf\0\0"), l_filter, 1, _T("pdf"),
-			l_baseFileName + _T(".pdf"), l_defaultPath);
+		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+			l_filter, 1, _T("pdf"), l_baseFileName + _T(".pdf"), l_defaultPath);
 
 		if(!l_filePath.empty())
 		{
