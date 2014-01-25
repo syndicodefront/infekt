@@ -63,7 +63,7 @@ BOOL CAboutDialog::OnInitDialog()
 	l_verStr += _T(" (64 bit)");
 #else
 	if(CUtil::IsWow64())
-		l_verStr += _T(" (32 bit emulation)");
+		l_verStr += _T(" (WoW64)");
 	else
 		l_verStr += _T(" (32 bit)");
 #endif
