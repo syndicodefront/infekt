@@ -4,6 +4,7 @@ REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
 REM * Visual Studio 2012
 REM * curl in PATH
+REM * http://tukaani.org/xz/
 
 IF NOT "%CONFIG%x"=="x" GOTO PRECONFIGURED
 rem set CONFIG=release
@@ -20,11 +21,11 @@ curl http://zlib.net/zlib-1.2.8.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.6.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.8.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.30.2.tar.gz -o pixman.tgz
+curl http://www.cairographics.org/releases/pixman-0.32.4.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tar.xz GOTO CZOK
@@ -61,7 +62,6 @@ cd %ROOTDIR%
 tar xzf ../zlib.tgz
 tar xzf ../libpng.tgz
 tar xzf ../pixman.tgz
-REM oh god why :(
 xz -dkf ../cairo.tar.xz
 tar xf ../cairo.tar
 
@@ -120,7 +120,7 @@ move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
 :ZLIBNOX64
 
 rem zlib does not always export the gz* calls for some reason
-sed "s/^\s*gz.*$/;\0/m" %ROOTDIR%\zlib\win32\zlib.def > zlib\zlib.def
+grep -vE " +gz[a-z]+" %ROOTDIR%\zlib\win32\zlib.def > zlib\zlib.def
 
 sed "s/<SubSystem>/<ModuleDefinitionFile>zlib.def<\/ModuleDefinitionFile><SubSystem>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
@@ -160,8 +160,8 @@ rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit
 
 IF EXIST pixman\pixman-version.h GOTO PIXMANVERSIONHOK
 sed "s/@PIXMAN_VERSION_MAJOR@/0/" pixman\pixman-version.h.in > v1
-sed "s/@PIXMAN_VERSION_MINOR@/28/" v1 > v2
-sed "s/@PIXMAN_VERSION_MICRO@/2/" v2 > pixman\pixman-version.h
+sed "s/@PIXMAN_VERSION_MINOR@/32/" v1 > v2
+sed "s/@PIXMAN_VERSION_MICRO@/4/" v2 > pixman\pixman-version.h
 :PIXMANVERSIONHOK
 
 IF %STATIC%==n GOTO PIXMANSKIPSTATICFIX
