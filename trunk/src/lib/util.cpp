@@ -233,30 +233,31 @@ std::wstring CUtil::StrReplace(const std::wstring& a_find, const std::wstring& a
 /************************************************************************/
 
 #define OVECTOR_SIZE 60
-string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern, const string& a_replacement,
-	int a_flags)
+wstring CUtil::RegExReplaceUtf16(const wstring& a_subject, const wstring& a_pattern, const wstring& a_replacement, int a_flags)
 {
-	string l_result;
+	wstring l_result;
 
 	if(a_subject.size() > (uint64_t)std::numeric_limits<int>::max())
 	{
-		return "";
+		return L"";
 	}
 
 	const char *szErrDescr;
 	int iErrOffset;
 	int ovector[OVECTOR_SIZE];
 
-	pcre* re;
+	pcre16* re = pcre16_compile(reinterpret_cast<PCRE_SPTR16>(a_pattern.c_str()),
+		PCRE_UTF16 | PCRE_NEWLINE_ANYCRLF | a_flags,
+		&szErrDescr, &iErrOffset, NULL);
 
-	if((re = pcre_compile(a_pattern.c_str(), PCRE_UTF8 | PCRE_NEWLINE_ANYCRLF | a_flags, &szErrDescr, &iErrOffset, NULL)) != NULL)
+	if(re)
 	{
 		int l_prevEndPos = 0; // the index of the character that follows the last character of the previous match.
-		pcre_extra *pe = pcre_study(re, 0, &szErrDescr); // this could be NULL but it wouldn't matter.
+		pcre16_extra *pe = pcre16_study(re, 0, &szErrDescr); // this could be NULL but it wouldn't matter.
 
 		while(1)
 		{
-			int l_execResult = pcre_exec(re, pe, a_subject.c_str(), (int)a_subject.size(), l_prevEndPos, 0, ovector, OVECTOR_SIZE);
+			int l_execResult = pcre16_exec(re, pe, reinterpret_cast<PCRE_SPTR16>(a_subject.c_str()), (int)a_subject.size(), l_prevEndPos, 0, ovector, OVECTOR_SIZE);
 
 			if(l_execResult == PCRE_ERROR_NOMATCH)
 			{
@@ -277,23 +278,23 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 			if(!a_replacement.empty())
 			{
 				// insert back references of form $1 $2 $3 ...
-				string l_replacement;
-				string::size_type l_pos = a_replacement.find('$'), l_prevPos = 0;
+				wstring l_replacement;
+				wstring::size_type l_pos = a_replacement.find(L'$'), l_prevPos = 0;
 
-				while(l_pos != string::npos)
+				while(l_pos != wstring::npos)
 				{
 					l_replacement += a_replacement.substr(l_prevPos, l_pos - l_prevPos);
 
-					string l_numBuf;
+					wstring l_numBuf;
 					while(l_pos + 1 < a_replacement.size() &&
-						(a_replacement[l_pos + 1] >= '0' && a_replacement[l_pos + 1] <= '9'))
+						(a_replacement[l_pos + 1] >= L'0' && a_replacement[l_pos + 1] <= L'9'))
 					{
 						l_pos++;
 						l_numBuf += a_replacement[l_pos];
 					}
 					// maybe make "$14" insert $1 + "4" here if there is no $14.
 
-					int l_group = atoi(l_numBuf.c_str());
+					int l_group = _wtoi(l_numBuf.c_str());
 					if(l_group >= 0 && l_group < l_execResult)
 					{
 						int l_len = ovector[l_group * 2 + 1] - ovector[l_group * 2];
@@ -301,7 +302,7 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 					}
 
 					l_prevPos = l_pos + 1;
-					l_pos = a_replacement.find('$', l_prevPos);
+					l_pos = a_replacement.find(L'$', l_prevPos);
 				}
 
 				if(l_prevPos < a_replacement.size() - 1)
@@ -316,8 +317,8 @@ string CUtil::RegExReplaceUtf8(const string& a_subject, const string& a_pattern,
 			l_prevEndPos = ovector[1];
 		}
 
-		if(pe) pcre_free(pe);
-		pcre_free(re);
+		if(pe) pcre16_free(pe);
+		pcre16_free(re);
 	}
 	else
 	{

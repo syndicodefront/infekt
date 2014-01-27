@@ -413,11 +413,10 @@ bool CViewContainer::CurAssignNfo()
 	}
 	else
 	{
-		const std::string l_stripped = CNFOData::GetStrippedTextUtf8(m_nfoData->GetTextWide());
 		PNFOData l_data(new CNFOData());
 		l_data->SetWrapLines(m_curViewCtrl->GetWrapLines());
-		l_data->SetCharsetToTry(NFOC_UTF8);
-		if(l_data->LoadFromMemory((const unsigned char*)l_stripped.c_str(), l_stripped.size()))
+		
+		if(l_data->LoadStripped(*m_nfoData))
 		{
 			return m_curViewCtrl->AssignNFO(l_data);
 		}
