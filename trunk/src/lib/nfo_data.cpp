@@ -22,7 +22,7 @@ using namespace std;
 
 
 CNFOData::CNFOData() :
-	m_grid(NULL), m_utf8Grid(NULL),
+	m_grid(NULL),
 	m_loaded(false), m_sourceCharset(NFOC_AUTO),
 	m_lineWrap(false), m_isAnsi(false),
 	m_ansiHintWidth(0), m_ansiHintHeight(0)
@@ -542,7 +542,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 		// copy lines to grid(s):
 		delete m_grid; m_grid = NULL;
-		delete m_utf8Grid; m_utf8Grid = NULL;
+		m_utf8Map.clear();
 		m_hyperLinks.clear();
 		m_utf8Content.clear();
 
@@ -582,8 +582,6 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 		// allocate mem:
 		m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen + 1, 0);
-		m_utf8Grid = new char[l_lines.size() * m_grid->GetCols() * 7];
-		memset(m_utf8Grid, 0, l_lines.size() * m_grid->GetCols() * 7);
 
 		// vars for hyperlink detection:
 		string l_prevLinkUrl; // UTF-8
@@ -592,8 +590,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 		// go through line by line:
 		size_t i = 0; // line (row) index
-		for(TLineContainer::const_iterator it = l_lines.begin();
-			it != l_lines.end(); it++, i++)
+		for(TLineContainer::const_iterator it = l_lines.begin(); it != l_lines.end(); it++, i++)
 		{
 			int l_lineLen = static_cast<int>(it->length());
 
@@ -601,13 +598,28 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			for(int j = 0; j < l_lineLen; j++)
 			{
 				(*m_grid)[i][j] = (*it)[j];
-
-				CUtil::OneCharWideToUtf8((*it)[j], &m_utf8Grid[i * m_grid->GetCols() * 7 + j * 7]);
 			}
 
 			const string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
 			m_utf8Content += l_utf8Line;
 			m_utf8Content += "\n"; // don't change this into \r\n, other code relies on it being \n
+
+			const char* const p_start = l_utf8Line.c_str();
+			const char* p = p_start;
+			size_t char_index = 0;
+			while(*p)
+			{
+				wchar_t w_at = (*m_grid)[i][char_index++];
+				const char *p_char = p;
+				const char *p_next = utf8_find_next_char(p);
+
+				if(m_utf8Map.find(w_at) == m_utf8Map.end())
+				{
+					m_utf8Map[w_at] = (p_next != NULL ? std::string(p_char, static_cast<size_t>(p_next - p)) : std::string(p_char));
+				}
+
+				p = p_next;
+			}
 
 			// find hyperlinks:
 			if(/* m_bFindHyperlinks == */true)
@@ -1225,33 +1237,41 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 }
 
 
-size_t CNFOData::GetGridWidth()
+size_t CNFOData::GetGridWidth() const
 {
 	return (m_grid ? m_grid->GetCols() : -1);
 }
 
 
-size_t CNFOData::GetGridHeight()
+size_t CNFOData::GetGridHeight() const
 {
 	return (m_grid ? m_grid->GetRows() : -1);
 }
 
 
-wchar_t CNFOData::GetGridChar(size_t a_row, size_t a_col)
+wchar_t CNFOData::GetGridChar(size_t a_row, size_t a_col) const
 {
-	return (m_grid &&
-		a_row >= 0 && a_row < m_grid->GetRows() &&
-		a_col >= 0 && a_col < m_grid->GetCols() ?
-		(*m_grid)[a_row][a_col] : 0);
+	return (m_grid
+		&& a_row < m_grid->GetRows()
+		&& a_col < m_grid->GetCols()
+		? (*m_grid)[a_row][a_col]
+		: 0);
 }
 
 
-char* CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col)
+const std::string CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col) const
 {
-	return (m_utf8Grid &&
-		a_row >= 0 && a_row < m_grid->GetRows() &&
-		a_col >= 0 && a_col < m_grid->GetCols() ?
-		&m_utf8Grid[a_row * m_grid->GetCols() * 7 + a_col * 7] : NULL);
+	wchar_t grid_char = GetGridChar(a_row, a_col);
+
+	return (grid_char > 0 ? GetGridCharUtf8(grid_char) : "");
+}
+
+
+const std::string CNFOData::GetGridCharUtf8(wchar_t a_wideChar) const
+{
+	auto it = m_utf8Map.find(a_wideChar);
+
+	return (it != m_utf8Map.end() ? it->second : "");
 }
 
 
@@ -1285,7 +1305,7 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 }
 
 
-const std::wstring CNFOData::GetCharsetName()
+const std::wstring CNFOData::GetCharsetName() const
 {
 	if(m_isAnsi)
 		return GetCharsetName(m_sourceCharset) + L" (ANSI ART)";
@@ -1586,5 +1606,4 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 CNFOData::~CNFOData()
 {
 	delete m_grid;
-	delete m_utf8Grid;
 }
