@@ -160,6 +160,13 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 bool CNFOData::LoadStripped(const CNFOData& a_source)
 {
+	if(!a_source.HasData())
+	{
+		return false;
+	}
+
+	m_lastErrorDescr.clear();
+
 	m_filePath = a_source.GetFilePath();
 
 	m_textContent = a_source.GetStrippedText();
@@ -448,46 +455,48 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 	m_isAnsi = false; // modifying this state here (and in ReadSAUCE) is not nice
 
-	if(ReadSAUCE(a_data, l_dataLen))
+	if(!ReadSAUCE(a_data, l_dataLen))
 	{
-		switch(m_sourceCharset)
-		{
-		case NFOC_AUTO:
-			l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
-			if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_TRY);
-			if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
-			if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
-			if(!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_TRY);
-			break;
-		case NFOC_UTF16:
-			l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FALSE);
-			if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
-			break;
-		case NFOC_UTF8_SIG:
-			l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
-			break;
-		case NFOC_UTF8:
-			l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FALSE);
-			break;
-		case NFOC_CP437:
-			l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FALSE);
-			break;
-		case NFOC_WINDOWS_1252:
-			l_loaded = TryLoad_CP252(a_data, l_dataLen);
-			break;
-		case NFOC_CP437_IN_UTF8:
-			l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FORCE);
-			break;
-		case NFOC_CP437_IN_UTF16:
-			l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FORCE);
-			break;
-		case NFOC_CP437_IN_CP437:
-			l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FORCE);
-			break;
-		case NFOC_CP437_STRICT:
-			l_loaded = TryLoad_CP437_Strict(a_data, l_dataLen);
-			break;
-		}
+		return false;
+	}
+
+	switch(m_sourceCharset)
+	{
+	case NFOC_AUTO:
+		l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_TRY);
+		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
+		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
+		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_TRY);
+		break;
+	case NFOC_UTF16:
+		l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FALSE);
+		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
+		break;
+	case NFOC_UTF8_SIG:
+		l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
+		break;
+	case NFOC_UTF8:
+		l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FALSE);
+		break;
+	case NFOC_CP437:
+		l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FALSE);
+		break;
+	case NFOC_WINDOWS_1252:
+		l_loaded = TryLoad_CP252(a_data, l_dataLen);
+		break;
+	case NFOC_CP437_IN_UTF8:
+		l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FORCE);
+		break;
+	case NFOC_CP437_IN_UTF16:
+		l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FORCE);
+		break;
+	case NFOC_CP437_IN_CP437:
+		l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FORCE);
+		break;
+	case NFOC_CP437_STRICT:
+		l_loaded = TryLoad_CP437_Strict(a_data, l_dataLen);
+		break;
 	}
 
 	if(l_loaded)
@@ -565,7 +574,7 @@ bool CNFOData::PostProcessLoadedContent()
 		}
 	}
 
-	// copy lines to grid(s):
+	// copy lines to grid:
 	delete m_grid; m_grid = NULL;
 	m_utf8Map.clear();
 	m_hyperLinks.clear();
@@ -691,7 +700,6 @@ bool CNFOData::PostProcessLoadedContent()
 			}
 		}
 	} // end of foreach line loop.
-
 
 	return true;
 }
