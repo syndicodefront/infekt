@@ -627,7 +627,6 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 		::EnableMenuItem(l_popup, IDMC_COPY, (m_selStartRow == (size_t)-1 ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 		::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, (!m_linkUnderMenu ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
-		::EnableMenuItem(l_popup, IDMC_SELECTALL, (!IsTextChar(l_row, l_col, true) ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 
 		if(::GetWindowLong(m_contextMenuCommandTarget, GWL_EXSTYLE) & WS_EX_TOPMOST)
 		{
