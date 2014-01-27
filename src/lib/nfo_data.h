@@ -43,6 +43,7 @@ public:
 
 	bool LoadFromFile(const std::_tstring& a_filePath);
 	bool LoadFromMemory(const unsigned char* a_data, size_t a_dataLen);
+	bool LoadStripped(const CNFOData& a_source);
 
 	bool HasData() const { return m_loaded; }
 	const std::_tstring GetFilePath() const { return m_filePath; }
@@ -65,8 +66,6 @@ public:
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
 	const std::vector<const CNFOHyperLink*> GetLinksForLine(size_t a_row) const;
-
-	static std::string GetStrippedTextUtf8(const std::wstring& a_text);
 
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
 	ENfoCharset GetCharset() const { return m_sourceCharset; }
@@ -113,7 +112,10 @@ protected:
 	bool TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLen);
 	bool TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen);
 
+	bool PostProcessLoadedContent();
+
 	std::wstring GetWithBoxedWhitespace() const;
+	std::wstring GetStrippedText() const;
 
 	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
 };

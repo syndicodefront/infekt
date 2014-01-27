@@ -158,6 +158,18 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 }
 
 
+bool CNFOData::LoadStripped(const CNFOData& a_source)
+{
+	m_filePath = a_source.GetFilePath();
+
+	m_textContent = a_source.GetStrippedText();
+
+	m_loaded = PostProcessLoadedContent();
+
+	return m_loaded;
+}
+
+
 static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 {
 	wstring l_text;
@@ -480,200 +492,208 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 	if(l_loaded)
 	{
-		size_t l_maxLineLen;
-		TLineContainer l_lines;
-		bool l_ansiError = false;
-
-		if(!m_isAnsi)
-		{
-			if(m_sourceCharset != NFOC_CP437_STRICT)
-			{
-				_InternalLoad_NormalizeWhitespace(m_textContent);
-				_InternalLoad_FixAnsiEscapeCodes(m_textContent);
-			}
-
-			_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
-
-			if(m_sourceCharset != NFOC_CP437_STRICT)
-			{
-				_InternalLoad_FixLfLf(m_textContent, l_lines);
-			}
-
-			if(m_lineWrap)
-			{
-				_InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
-			}
-		}
-		else
-		{
-			try
-			{
-				CAnsiArt l_ansiArtProcessor(WIDTH_LIMIT, LINES_LIMIT, m_ansiHintWidth, m_ansiHintHeight);
-
-				if(!l_ansiArtProcessor.Parse(m_textContent))
-				{
-					l_ansiError = true;
-				}
-				else
-				{
-					l_ansiError = !l_ansiArtProcessor.Process();
-
-					if(l_ansiError && m_ansiHintWidth == 0)
-					{
-						// retry with a default with + enforced line break after col 80:
-						l_ansiArtProcessor.SetHints(80, m_ansiHintHeight);
-						l_ansiError = !l_ansiArtProcessor.Process();
-					}
-				}
-
-				if(!l_ansiError)
-				{
-					l_lines = l_ansiArtProcessor.GetLines();
-					l_maxLineLen = l_ansiArtProcessor.GetMaxLineLength();
-					m_textContent = l_ansiArtProcessor.GetAsClassicText();
-				}
-			}
-			catch(const std::exception& ex)
-			{
-				l_ansiError = true;
-				(void)ex;
-			}
-		}
-
-		// copy lines to grid(s):
-		delete m_grid; m_grid = NULL;
-		m_utf8Map.clear();
-		m_hyperLinks.clear();
-		m_utf8Content.clear();
-
-		if(l_ansiError)
-		{
-			m_lastErrorDescr = L"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.";
-			return false;
-		}
-
-		if(l_lines.size() == 0 || l_maxLineLen == 0)
-		{
-			m_lastErrorDescr = L"Unable to find any lines in this file.";
-			return false;
-		}
-
-		if(l_maxLineLen > WIDTH_LIMIT)
-		{
-#ifdef HAVE_BOOST
-			m_lastErrorDescr = FORMAT(L"This file contains a line longer than %d chars. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
-#else
-			L"This file contains a line that exceeds the internal maximum length limit.";
-#endif
-			return false;
-		}
-
-		if(l_lines.size() > LINES_LIMIT)
-		{
-#ifdef HAVE_BOOST
-			m_lastErrorDescr = FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
-#else
-			L"This file contains more lines than the internal limit.";
-#endif
-			return false;
-		}
-
-		// allocate mem:
-		m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen + 1, 0);
-
-		// vars for hyperlink detection:
-		string l_prevLinkUrl; // UTF-8
-		int l_maxLinkId = 1;
-		std::multimap<size_t, CNFOHyperLink>::iterator l_prevLinkIt = m_hyperLinks.end();
-
-		// go through line by line:
-		size_t i = 0; // line (row) index
-		for(TLineContainer::const_iterator it = l_lines.begin(); it != l_lines.end(); it++, i++)
-		{
-			int l_lineLen = static_cast<int>(it->length());
-
-			#pragma omp parallel for
-			for(int j = 0; j < l_lineLen; j++)
-			{
-				(*m_grid)[i][j] = (*it)[j];
-			}
-
-			const string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
-
-			const char* const p_start = l_utf8Line.c_str();
-			const char* p = p_start;
-			size_t char_index = 0;
-			while(*p)
-			{
-				wchar_t w_at = (*m_grid)[i][char_index++];
-				const char *p_char = p;
-				const char *p_next = utf8_find_next_char(p);
-
-				if(m_utf8Map.find(w_at) == m_utf8Map.end())
-				{
-					m_utf8Map[w_at] = (p_next != NULL ? std::string(p_char, static_cast<size_t>(p_next - p)) : std::string(p_char));
-				}
-
-				p = p_next;
-			}
-
-			// find hyperlinks:
-			if(/* m_bFindHyperlinks == */true)
-			{
-				size_t l_linkPos = (size_t)-1, l_linkLen;
-				bool l_linkContinued;
-				string l_url, l_prevUrlCopy = l_prevLinkUrl;
-				size_t l_offset = 0;
-
-				while(CNFOHyperLink::FindLink(l_utf8Line, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
-				{
-					const wstring wsUrl = CUtil::ToWideStr(l_url, CP_UTF8);
-					int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
-
-					std::multimap<size_t, CNFOHyperLink>::iterator l_newItem =
-						m_hyperLinks.insert(
-						std::pair<size_t, CNFOHyperLink>
-							(i, CNFOHyperLink(l_linkID, wsUrl, i, l_linkPos, l_linkLen))
-						);
-
-					if(!l_linkContinued)
-					{
-						l_maxLinkId++;
-						l_prevLinkUrl = l_url;
-						l_prevLinkIt = l_newItem;
-					}
-					else
-					{
-						(*l_newItem).second.SetHref(wsUrl);
-
-						if(l_prevLinkIt != m_hyperLinks.end())
-						{
-							_ASSERT((*l_prevLinkIt).second.GetLinkID() == l_linkID);
-							// update href of link's first line:
-							(*l_prevLinkIt).second.SetHref(wsUrl);
-						}
-
-						l_prevLinkUrl = "";
-					}
-
-					l_prevUrlCopy = "";
-				}
-
-				if(l_linkPos == (size_t)-1)
-				{
-					// do not try to continue links when a line without any link on it is met.
-					l_prevLinkUrl = "";
-				}
-			}
-		} // end of foreach line loop.
-
+		return PostProcessLoadedContent();
 	}
 	else if(m_lastErrorDescr.empty())
 	{
 		m_lastErrorDescr = L"There appears to be a charset/encoding problem.";
 	}
 
-	return l_loaded;
+	return false;
+}
+
+
+bool CNFOData::PostProcessLoadedContent()
+{
+	size_t l_maxLineLen;
+	TLineContainer l_lines;
+	bool l_ansiError = false;
+
+	if(!m_isAnsi)
+	{
+		if(m_sourceCharset != NFOC_CP437_STRICT)
+		{
+			_InternalLoad_NormalizeWhitespace(m_textContent);
+			_InternalLoad_FixAnsiEscapeCodes(m_textContent);
+		}
+
+		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
+
+		if(m_sourceCharset != NFOC_CP437_STRICT)
+		{
+			_InternalLoad_FixLfLf(m_textContent, l_lines);
+		}
+
+		if(m_lineWrap)
+		{
+			_InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
+		}
+	}
+	else
+	{
+		try
+		{
+			CAnsiArt l_ansiArtProcessor(WIDTH_LIMIT, LINES_LIMIT, m_ansiHintWidth, m_ansiHintHeight);
+
+			if(!l_ansiArtProcessor.Parse(m_textContent))
+			{
+				l_ansiError = true;
+			}
+			else
+			{
+				l_ansiError = !l_ansiArtProcessor.Process();
+
+				if(l_ansiError && m_ansiHintWidth == 0)
+				{
+					// retry with a default with + enforced line break after col 80:
+					l_ansiArtProcessor.SetHints(80, m_ansiHintHeight);
+					l_ansiError = !l_ansiArtProcessor.Process();
+				}
+			}
+
+			if(!l_ansiError)
+			{
+				l_lines = l_ansiArtProcessor.GetLines();
+				l_maxLineLen = l_ansiArtProcessor.GetMaxLineLength();
+				m_textContent = l_ansiArtProcessor.GetAsClassicText();
+			}
+		}
+		catch(const std::exception& ex)
+		{
+			l_ansiError = true;
+			(void)ex;
+		}
+	}
+
+	// copy lines to grid(s):
+	delete m_grid; m_grid = NULL;
+	m_utf8Map.clear();
+	m_hyperLinks.clear();
+	m_utf8Content.clear();
+
+	if(l_ansiError)
+	{
+		m_lastErrorDescr = L"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.";
+		return false;
+	}
+
+	if(l_lines.size() == 0 || l_maxLineLen == 0)
+	{
+		m_lastErrorDescr = L"Unable to find any lines in this file.";
+		return false;
+	}
+
+	if(l_maxLineLen > WIDTH_LIMIT)
+	{
+#ifdef HAVE_BOOST
+		m_lastErrorDescr = FORMAT(L"This file contains a line longer than %d chars. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
+#else
+		L"This file contains a line that exceeds the internal maximum length limit.";
+#endif
+		return false;
+	}
+
+	if(l_lines.size() > LINES_LIMIT)
+	{
+#ifdef HAVE_BOOST
+		m_lastErrorDescr = FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
+#else
+		L"This file contains more lines than the internal limit.";
+#endif
+		return false;
+	}
+
+	// allocate mem:
+	m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen + 1, 0);
+
+	// vars for hyperlink detection:
+	string l_prevLinkUrl; // UTF-8
+	int l_maxLinkId = 1;
+	std::multimap<size_t, CNFOHyperLink>::iterator l_prevLinkIt = m_hyperLinks.end();
+
+	// go through line by line:
+	size_t i = 0; // line (row) index
+	for(TLineContainer::const_iterator it = l_lines.begin(); it != l_lines.end(); it++, i++)
+	{
+		int l_lineLen = static_cast<int>(it->length());
+
+		#pragma omp parallel for
+		for(int j = 0; j < l_lineLen; j++)
+		{
+			(*m_grid)[i][j] = (*it)[j];
+		}
+
+		const string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
+
+		const char* const p_start = l_utf8Line.c_str();
+		const char* p = p_start;
+		size_t char_index = 0;
+		while(*p)
+		{
+			wchar_t w_at = (*m_grid)[i][char_index++];
+			const char *p_char = p;
+			const char *p_next = utf8_find_next_char(p);
+
+			if(m_utf8Map.find(w_at) == m_utf8Map.end())
+			{
+				m_utf8Map[w_at] = (p_next != NULL ? std::string(p_char, static_cast<size_t>(p_next - p)) : std::string(p_char));
+			}
+
+			p = p_next;
+		}
+
+		// find hyperlinks:
+		if(/* m_bFindHyperlinks == */true)
+		{
+			size_t l_linkPos = (size_t)-1, l_linkLen;
+			bool l_linkContinued;
+			string l_url, l_prevUrlCopy = l_prevLinkUrl;
+			size_t l_offset = 0;
+
+			while(CNFOHyperLink::FindLink(l_utf8Line, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
+			{
+				const wstring wsUrl = CUtil::ToWideStr(l_url, CP_UTF8);
+				int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
+
+				std::multimap<size_t, CNFOHyperLink>::iterator l_newItem =
+					m_hyperLinks.insert(
+					std::pair<size_t, CNFOHyperLink>
+						(i, CNFOHyperLink(l_linkID, wsUrl, i, l_linkPos, l_linkLen))
+					);
+
+				if(!l_linkContinued)
+				{
+					l_maxLinkId++;
+					l_prevLinkUrl = l_url;
+					l_prevLinkIt = l_newItem;
+				}
+				else
+				{
+					(*l_newItem).second.SetHref(wsUrl);
+
+					if(l_prevLinkIt != m_hyperLinks.end())
+					{
+						_ASSERT((*l_prevLinkIt).second.GetLinkID() == l_linkID);
+						// update href of link's first line:
+						(*l_prevLinkIt).second.SetHref(wsUrl);
+					}
+
+					l_prevLinkUrl = "";
+				}
+
+				l_prevUrlCopy = "";
+			}
+
+			if(l_linkPos == (size_t)-1)
+			{
+				// do not try to continue links when a line without any link on it is met.
+				l_prevLinkUrl = "";
+			}
+		}
+	} // end of foreach line loop.
+
+
+	return true;
 }
 
 
@@ -1398,22 +1418,22 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 /* Raw Stripper Code                                                    */
 /************************************************************************/
 
-static string _TrimParagraph(const string& a_text)
+static wstring _TrimParagraph(const wstring& a_text)
 {
-	vector<string> l_lines;
+	vector<wstring> l_lines;
 
 	// split text into lines:
-	string::size_type l_pos = a_text.find('\n'), l_prevPos = 0;
-	string::size_type l_minWhite = numeric_limits<string::size_type>::max();
+	wstring::size_type l_pos = a_text.find(L'\n'), l_prevPos = 0;
+	wstring::size_type l_minWhite = numeric_limits<wstring::size_type>::max();
 
-	while(l_pos != string::npos)
+	while(l_pos != wstring::npos)
 	{
-		const string l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
+		const wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
 
 		l_lines.push_back(l_line);
 
 		l_prevPos = l_pos + 1;
-		l_pos = a_text.find('\n', l_prevPos);
+		l_pos = a_text.find(L'\n', l_prevPos);
 	}
 
 	if(l_prevPos < a_text.size() - 1)
@@ -1423,10 +1443,10 @@ static string _TrimParagraph(const string& a_text)
 
 	// find out the minimum number of leading whitespace characters.
 	// all other lines will be reduced to this number.
-	for(vector<string>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
+	for(vector<wstring>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
 	{
-		string::size_type p = 0;
-		while(p < it->size() && (*it)[p] == ' ') p++;
+		wstring::size_type p = 0;
+		while(p < it->size() && (*it)[p] == L' ') p++;
 
 		if(p < l_minWhite)
 		{
@@ -1435,108 +1455,112 @@ static string _TrimParagraph(const string& a_text)
 	}
 
 	// kill whitespace and put lines back together:
-	string l_result;
+	wstring l_result;
 	l_result.reserve(a_text.size());
 
-	for(vector<string>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
+	for(vector<wstring>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
 	{
 		l_result += (*it).substr(l_minWhite);
-		l_result += '\n';
+		l_result += L'\n';
 	}
 
-	CUtil::StrTrimRight(l_result, "\n");
+	CUtil::StrTrimRight(l_result, L"\n");
 
 	return l_result;
 }
 
 
-/*static*/ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
+wstring CNFOData::GetStrippedText() const
 {
-	string l_text;
-	wstring l_tmpw;
-	l_text.reserve(a_text.size() / 2);
+	wstring l_text;
+	l_text.reserve(m_textContent.size() / 2);
 
-	for(size_t p = 0; p < a_text.size(); p++)
+	for(size_t p = 0; p < m_textContent.size(); p++)
 	{
 #if defined(_WIN32) || defined(MACOSX)
-		if(iswascii(a_text[p]) || iswalnum(a_text[p]) || iswspace(a_text[p]))
+		if(iswascii(m_textContent[p]) || iswalnum(m_textContent[p]) || iswspace(m_textContent[p]))
 #else
-		if(iswalnum(a_text[p]) || iswspace(a_text[p]))
+		if(iswalnum(m_textContent[p]) || iswspace(m_textContent[p]))
 #endif
 		{
-			if(a_text[p] == L'\n') CUtil::StrTrimRight(l_tmpw, L" ");
-			l_tmpw += a_text[p];
+			if(m_textContent[p] == L'\n')
+			{
+				CUtil::StrTrimRight(l_text, L" ");
+			}
+
+			l_text += m_textContent[p];
 		}
 		else
 		{
-			l_tmpw += L' ';
+			l_text += L' ';
 			 // we do this to make it easier to nicely retain paragraphs later on
 		}
 	}
 
 	// collapse newlines between paragraphs:
-	for(size_t p = 0; p < l_tmpw.size(); p++)
+	for(size_t p = 0; p < l_text.size(); p++)
 	{
-		if(l_tmpw[p] == L'\n' && p < l_tmpw.size() - 2 && l_tmpw[p + 1] == L'\n')
+		if(l_text[p] == L'\n' && p < l_text.size() - 2 && l_text[p + 1] == L'\n')
 		{
 			p += 2;
-			while(p < l_tmpw.size() && l_tmpw[p] == L'\n') l_tmpw.erase(p, 1);
+
+			while(p < l_text.size() && l_text[p] == L'\n')
+			{
+				l_text.erase(p, 1);
+			}
 		}
 	}
 
-	l_text = CUtil::FromWideStr(l_tmpw, CP_UTF8);
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"^[^a-zA-Z0-9]+$", L"", PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf8(l_text, "^[^a-zA-Z0-9]+$", "",
-		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"^(.)\\1+$", L"",
+		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf8(l_text, "^(.)\\1+$", "",
-		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"^([\\S])\\1+\\s{3,}(.+?)$", L"$2",
+		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf8(l_text, "^([\\S])\\1+\\s{3,}(.+?)$", "$2",
-		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
-
-	l_text = CUtil::RegExReplaceUtf8(l_text, "^(.+?)\\s{3,}([\\S])\\2+$", "$1",
-		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"^(.+?)\\s{3,}([\\S])\\2+$", L"$1",
+		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
 #if 0
 	// this ruins our efforts to keep indention for paragraphs :(
 	// ...but it makes other NFOs look A LOT better...
 	// :TODO: figure out a smart way.
-	l_text = CUtil::RegExReplaceUtf8(l_text, "^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+", "",
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+", L"",
 		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
 #endif
 
-	l_text = CUtil::RegExReplaceUtf8(l_text, "\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$", "",
-		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$", L"",
+		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf8(l_text, "^\\s*.{1,3}\\s*$", "",
-		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"^\\s*.{1,3}\\s*$", L"",
+		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf8(l_text, "\\n{2,}", "\n\n", PCRE_NO_UTF8_CHECK);
+	l_text = CUtil::RegExReplaceUtf16(l_text, L"\\n{2,}", L"\n\n", PCRE_NO_UTF16_CHECK);
 
-	CUtil::StrTrimLeft(l_text, "\n");
+	CUtil::StrTrimLeft(l_text, L"\n");
 
 	// adjust indention for each paragraph:
 	if(true)
 	{
-		string l_newText;
+		wstring l_newText;
 
-		string::size_type l_pos = l_text.find("\n\n"), l_prevPos = 0;
+		wstring::size_type l_pos = l_text.find(L"\n\n"), l_prevPos = 0;
 
-		while(l_pos != string::npos)
+		while(l_pos != wstring::npos)
 		{
-			const string l_paragraph = l_text.substr(l_prevPos, l_pos - l_prevPos);
-			const string l_newPara = _TrimParagraph(l_paragraph);
+			const wstring l_paragraph = l_text.substr(l_prevPos, l_pos - l_prevPos);
+			const wstring l_newPara = _TrimParagraph(l_paragraph);
 
-			l_newText += l_newPara + "\n\n";
+			l_newText += l_newPara + L"\n\n";
 
 			l_prevPos = l_pos + 2;
-			l_pos = l_text.find("\n\n", l_prevPos);
+			l_pos = l_text.find(L"\n\n", l_prevPos);
 		}
 
 		if(l_prevPos < l_text.size())
 		{
-			const string l_paragraph = l_text.substr(l_prevPos);
+			const wstring l_paragraph = l_text.substr(l_prevPos);
 			l_newText += _TrimParagraph(l_paragraph);
 		}
 

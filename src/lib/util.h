@@ -43,8 +43,8 @@ public:
 
 	static int VersionCompare(const std::wstring& a_vA, const std::wstring& a_vB);
 
-	static std::string RegExReplaceUtf8(const std::string& a_subject, const std::string& a_pattern,
-		const std::string& a_replacement, int a_flags = 0);
+	static std::wstring RegExReplaceUtf16(const std::wstring& a_subject, const std::wstring& a_pattern,
+		const std::wstring& a_replacement, int a_flags = 0);
 
 	static std::string StrReplace(const std::string& a_find, const std::string& a_replace, const std::string& a_input);
 	static std::wstring StrReplace(const std::wstring& a_find, const std::wstring& a_replace, const std::wstring& a_input);
