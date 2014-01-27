@@ -1,13 +1,11 @@
 EXPORTS
-	pcre_callout DATA
 	pcre_compile
 	pcre_compile2
 	pcre_config
 	pcre_copy_named_substring
 	pcre_copy_substring
-	pcre_dfa_exec
 	pcre_exec
-	pcre_free DATA
+	pcre_free
 	pcre_free_substring
 	pcre_free_substring_list
 	pcre_fullinfo
@@ -16,11 +14,7 @@ EXPORTS
 	pcre_get_stringtable_entries
 	pcre_get_substring
 	pcre_get_substring_list
-	pcre_maketables
-	pcre_malloc DATA
 	pcre_refcount
-	pcre_stack_free DATA
-	pcre_stack_malloc DATA
 	pcre_study
 	pcre_version
 	pcre16_compile
@@ -28,7 +22,6 @@ EXPORTS
 	pcre16_config
 	pcre16_copy_named_substring
 	pcre16_copy_substring
-	pcre16_dfa_exec
 	pcre16_exec
 	pcre16_free
 	pcre16_free_substring
