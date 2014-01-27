@@ -49,10 +49,11 @@ public:
 	const std::_tstring GetFileName() const;
 
 	const std::wstring& GetLastErrorDescription() const;
-	size_t GetGridWidth();
-	size_t GetGridHeight();
-	wchar_t GetGridChar(size_t a_row, size_t a_col);
-	char* GetGridCharUtf8(size_t a_row, size_t a_col);
+	size_t GetGridWidth() const;
+	size_t GetGridHeight() const;
+	wchar_t GetGridChar(size_t a_row, size_t a_col) const;
+	const std::string GetGridCharUtf8(size_t a_row, size_t a_col) const;
+	const std::string GetGridCharUtf8(wchar_t a_wideChar) const;
 
 	const std::string& GetTextUtf8() const { return m_utf8Content; }
 	const std::wstring& GetTextWide() const { return m_textContent; }
@@ -70,7 +71,7 @@ public:
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
 	ENfoCharset GetCharset() const { return m_sourceCharset; }
 	static const std::wstring GetCharsetName(ENfoCharset a_charset);
-	const std::wstring GetCharsetName();
+	const std::wstring GetCharsetName() const;
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
 
@@ -81,7 +82,7 @@ protected:
 	std::wstring m_textContent;
 	std::string m_utf8Content;
 	TwoDimVector<wchar_t> *m_grid;
-	char *m_utf8Grid;
+	std::map<wchar_t, std::string> m_utf8Map;
 	bool m_loaded;
 	std::multimap<size_t, CNFOHyperLink> m_hyperLinks;
 	std::_tstring m_filePath;

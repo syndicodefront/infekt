@@ -833,10 +833,9 @@ void CNFORenderer::PreRenderText()
 				cairo_glyph_t *l_glyphs = NULL;
 				int l_numGlyphs = 0;
 
-				char utf8[8] = {0};
-				CUtil::OneCharWideToUtf8(*it, utf8); // does not zero-terminate buffer
+				const std::string utf8 = m_nfo->GetGridCharUtf8(*it);
 
-				if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, utf8, -1,
+				if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, utf8.c_str(), -1,
 					&l_glyphs, &l_numGlyphs, NULL, NULL, NULL) == CAIRO_STATUS_SUCCESS)
 				{
 					cairo_scaled_font_glyph_extents(l_csf, l_glyphs, l_numGlyphs, &l_extents);
