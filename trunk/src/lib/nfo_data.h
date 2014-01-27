@@ -55,7 +55,7 @@ public:
 	const std::string GetGridCharUtf8(size_t a_row, size_t a_col) const;
 	const std::string GetGridCharUtf8(wchar_t a_wideChar) const;
 
-	const std::string& GetTextUtf8() const { return m_utf8Content; }
+	const std::string& GetTextUtf8();
 	const std::wstring& GetTextWide() const { return m_textContent; }
 	const std::vector<char> GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace = false) const;
 

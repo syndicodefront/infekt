@@ -578,8 +578,6 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			return false;
 		}
 
-		m_utf8Content.reserve(m_textContent.length());
-
 		// allocate mem:
 		m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen + 1, 0);
 
@@ -601,8 +599,6 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 			}
 
 			const string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
-			m_utf8Content += l_utf8Line;
-			m_utf8Content += "\n"; // don't change this into \r\n, other code relies on it being \n
 
 			const char* const p_start = l_utf8Line.c_str();
 			const char* p = p_start;
@@ -1205,7 +1201,8 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 		}
 		else
 		{
-			l_written += fwrite(m_utf8Content.c_str(), m_utf8Content.size(), 1, l_file);
+			const std::string l_utf8Content = GetTextUtf8();
+			l_written += fwrite(l_utf8Content.c_str(), l_utf8Content.size(), 1, l_file);
 		}
 
 		l_success = (l_written == 4);
@@ -1234,6 +1231,17 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 	fclose(l_file);
 
 	return l_success;
+}
+
+
+const std::string& CNFOData::GetTextUtf8()
+{
+	if(m_utf8Content.empty())
+	{
+		m_utf8Content = CUtil::FromWideStr(m_textContent, CP_UTF8);
+	}
+
+	return m_utf8Content;
 }
 
 
@@ -1442,7 +1450,7 @@ static string _TrimParagraph(const string& a_text)
 }
 
 
-string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
+/*static*/ string CNFOData::GetStrippedTextUtf8(const wstring& a_text)
 {
 	string l_text;
 	wstring l_tmpw;
