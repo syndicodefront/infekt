@@ -136,9 +136,9 @@ int main(int argc, char* argv[])
 		l_textCp437 = false, l_compoundWhitespace = false;
 
 #ifdef _WIN32
-	CUtil::EnforceDEP();
-	CUtil::HardenHeap();
-	CUtil::RemoveCwdFromDllSearchPath();
+	CUtilWin32::EnforceDEP();
+	CUtilWin32::HardenHeap();
+	CUtilWin32::RemoveCwdFromDllSearchPath();
 #endif
 
 	// our defaults:

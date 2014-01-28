@@ -234,7 +234,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		m_infoBarResizing = false;
 		break;
 	case WM_SETCURSOR:
-		return CUtil::GenericOnSetCursor(m_cursor, lParam);
+		return CUtilWin32GUI::GenericOnSetCursor(m_cursor, lParam);
 	}
 
 	return WndProcDefault(uMsg, wParam, lParam);

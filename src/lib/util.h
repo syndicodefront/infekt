@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,15 +15,11 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
-#ifdef _WIN32_UI
-
-#if _WIN32_WINNT < 0x600
-/* just make it compile! */
-typedef struct _COMDLG_FILTERSPEC {
-	LPCWSTR pszName;
-	LPCWSTR pszSpec;
-} COMDLG_FILTERSPEC;
+#ifdef _WIN32
+#include "util_win32.h"
 #endif
+#ifdef _WIN32_UI
+#include "util_win32_gui.h"
 #endif
 
 
@@ -48,42 +44,6 @@ public:
 
 	static std::string StrReplace(const std::string& a_find, const std::string& a_replace, const std::string& a_input);
 	static std::wstring StrReplace(const std::wstring& a_find, const std::wstring& a_replace, const std::wstring& a_input);
-
-#ifdef _WIN32_UI
-	static int AddPngToImageList(HIMAGELIST a_imgList, HINSTANCE a_instance, int a_resourceId, int a_width, int a_height);
-	static std::wstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec);
-	static std::wstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
-		const LPCTSTR a_defaultExt, const std::wstring& a_currentFileName, const std::wstring& a_initialPath = _T(""));
-
-	static void PopUpLastWin32Error();
-
-	static int StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz);
-	static BOOL GenericOnSetCursor(const LPTSTR a_cursor, LPARAM lParam);
-#endif /* _WIN32_UI */
-
-#ifdef _WIN32
-	static bool IsWinXP();
-	static bool IsWin6x(bool a_orHigher = true);
-	static bool IsWinVista();
-	static bool IsWin7(bool a_orHigher = false);
-	static bool IsWin8();
-	static bool IsWin81();
-	static bool IsWow64();
-	static bool IsWinServerOS();
-
-	static std::wstring GetExePath();
-	static std::wstring GetExeDir();
-	static std::wstring PathRemoveFileSpec(const std::wstring& a_path);
-	static std::wstring PathRemoveExtension(const std::wstring& a_path);
-	static std::wstring GetTempDir();
-	static std::wstring GetAppDataDir(bool a_local, const std::wstring& a_appName);
-	static HMODULE SilentLoadLibrary(const std::wstring& a_path);
-	static bool TextToClipboard(HWND a_hwnd, const std::wstring& a_text);
-
-	static bool RemoveCwdFromDllSearchPath();
-	static bool HardenHeap();
-	static bool EnforceDEP();
-#endif /* _WIN32 */
 };
 
 
@@ -153,67 +113,6 @@ extern "C"
 #define FORMAT(FORMAT_FORMAT, FORMAT_DATA) boost::str(boost::wformat(FORMAT_FORMAT) % FORMAT_DATA)
 #endif
 
-
-/* Win32++ helpers */
-#ifdef _WIN32_UI
-
-class CNonThemedTab : public CTab
-{
-protected:
-	virtual inline LRESULT WndProcDefault(UINT uMsg, WPARAM wParam, LPARAM lParam)
-	{
-		if(uMsg != WM_PAINT && uMsg != WM_ERASEBKGND)
-		{
-			return CTab::WndProcDefault(uMsg, wParam, lParam);
-		}
-		else
-		{
-			return CWnd::WndProcDefault(uMsg, wParam, lParam);
-		}
-	}
-
-public:
-	virtual inline int AddTabPage(CWnd* pWnd, LPCTSTR szTitle, HICON hIcon = 0)
-	{
-		int l_newIdx = CTab::AddTabPage(pWnd, szTitle, hIcon);
-
-		LONG_PTR l_style = this->GetWindowLongPtr(GWL_STYLE);
-		if((l_style & TCS_OWNERDRAWFIXED) != 0)
-		{
-			this->SetWindowLongPtr(GWL_STYLE, l_style & ~TCS_OWNERDRAWFIXED);
-		}
-
-		if(this->SendMessage(CCM_GETVERSION, 0, 0) >= 6)
-		{
-			// adjust XP style background...
-			::EnableThemeDialogTexture(GetTabPageInfo(l_newIdx).pWnd->GetHwnd(), ETDT_ENABLETAB);
-		}
-
-		return l_newIdx;
-	}
-};
-
-#endif /* _WIN32_UI */
-
-#ifdef _WIN32
-
-class CBenchmarkTimer
-{
-public:
-	CBenchmarkTimer();
-
-	double GetFrequency();
-	void StartTimer();
-	double StopTimer();
-	double StopDumpTimer(const char* a_name);
-
-protected:
-	LARGE_INTEGER m_start;
-	LARGE_INTEGER m_stop;
-	double m_frequency;
-};
-
-#endif /* _WIN32 */
 
 #ifdef CAIRO_H
 

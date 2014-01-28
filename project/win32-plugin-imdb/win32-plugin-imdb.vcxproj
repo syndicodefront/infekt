@@ -84,7 +84,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\lib-win32;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -111,7 +111,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\lib-win32;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -135,7 +135,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\lib-win32;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -163,7 +163,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\win32-support;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\src\win32-plugin-imdb;..\..\src\lib-win32;..\..\src\plugin;..\..\src\lib;..\..\dependencies\include;Y:\Dev\boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;WIN32PLUGINIMDB_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>

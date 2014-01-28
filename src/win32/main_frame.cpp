@@ -292,13 +292,13 @@ void CMainFrame::AddToolbarButtons()
 	// CToolbar::OnDestroy destroys the image list...
 
 	int l_icoId[_ICOMAX] = {0};
-	l_icoId[ICO_FILEOPEN] =	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_FILEOPEN,	22, 22);
-	l_icoId[ICO_INFO] =		CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_INFO,		22, 22);
-	l_icoId[ICO_SETTINGS] =	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_SETTINGS,	22, 22);
-	l_icoId[ICO_VIEW_RENDERED]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_RENDERED,	22, 22);
-	l_icoId[ICO_VIEW_CLASSIC]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_CLASSIC,		22, 22);
-	l_icoId[ICO_VIEW_TEXTONLY]	= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_TEXTONLY,	22, 22);
-	l_icoId[ICO_SHOWMENU]		= CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_SHOWMENU,			22,	22);
+	l_icoId[ICO_FILEOPEN] =	CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_FILEOPEN,	22, 22);
+	l_icoId[ICO_INFO] =		CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_INFO,		22, 22);
+	l_icoId[ICO_SETTINGS] =	CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_SETTINGS,	22, 22);
+	l_icoId[ICO_VIEW_RENDERED]	= CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_RENDERED,	22, 22);
+	l_icoId[ICO_VIEW_CLASSIC]	= CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_CLASSIC,		22, 22);
+	l_icoId[ICO_VIEW_TEXTONLY]	= CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_VIEW_TEXTONLY,	22, 22);
+	l_icoId[ICO_SHOWMENU]		= CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_SHOWMENU,			22,	22);
 
 	const BYTE defState = TBSTATE_ENABLED;
 	const BYTE defStyle = BTNS_AUTOSIZE;
@@ -342,11 +342,11 @@ void CMainFrame::CreateSearchToolbar()
 
 	HIMAGELIST l_imgLst = ImageList_Create(16, 16, ILC_COLOR32, 1, 0);
 	// we also use this image list for the toolbar, so CToolbar::OnDestroy destroys it.
-	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_FIND16, 16, 16);
-	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_DOWN16, 16, 16);
-	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_UP16, 16, 16);
-	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_CLOSE16, 16, 16);
-	CUtil::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_WARNING16, 16, 16);
+	CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_FIND16, 16, 16);
+	CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_DOWN16, 16, 16);
+	CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_UP16, 16, 16);
+	CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_CLOSE16, 16, 16);
+	CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_WARNING16, 16, 16);
 
 	// add ImageList to rebar (not limited to this band, but currently only used by it):
 	REBARINFO l_rbi;
@@ -1037,9 +1037,9 @@ void CMainFrame::UpdateStatusbar()
 		}
 
 		int l_sbWidths[5] = {0};
-		l_sbWidths[1] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_timeInfo.c_str());
-		l_sbWidths[2] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_sizeInfo.c_str());
-		l_sbWidths[STATUSBAR_PANE_CHARSET] = CUtil::StatusCalcPaneWidth(l_sb.GetHwnd(), l_charset.c_str());
+		l_sbWidths[1] = CUtilWin32GUI::StatusCalcPaneWidth(l_sb.GetHwnd(), l_timeInfo.c_str());
+		l_sbWidths[2] = CUtilWin32GUI::StatusCalcPaneWidth(l_sb.GetHwnd(), l_sizeInfo.c_str());
+		l_sbWidths[STATUSBAR_PANE_CHARSET] = CUtilWin32GUI::StatusCalcPaneWidth(l_sb.GetHwnd(), l_charset.c_str());
 		l_sbWidths[4] = 25;
 
 		int l_sbParts[5] = { l_width, 0 };
@@ -1328,7 +1328,7 @@ void CMainFrame::OpenChooseFileName()
 		{ L"All Files", L"*" }
 	};
 
-	const std::wstring l_filePath = CUtil::OpenFileDialog(g_hInstance, GetHwnd(), l_filter, 5);
+	const std::wstring l_filePath = CUtilWin32GUI::OpenFileDialog(g_hInstance, GetHwnd(), l_filter, 5);
 
 	if(!l_filePath.empty())
 	{
@@ -1345,19 +1345,19 @@ void CMainFrame::DoNfoExport(UINT a_id)
 		return;
 	}
 
-	_tstring l_baseFileName = CUtil::PathRemoveExtension(m_view.GetNfoData()->GetFileName());
+	_tstring l_baseFileName = CUtilWin32::PathRemoveExtension(m_view.GetNfoData()->GetFileName());
 
 	_tstring l_defaultPath;
 	if(m_settings->bDefaultExportToNFODir)
 	{
-		l_defaultPath = CUtil::PathRemoveFileSpec(m_view.GetNfoData()->GetFilePath());
+		l_defaultPath = CUtilWin32::PathRemoveFileSpec(m_view.GetNfoData()->GetFilePath());
 	}
 
 	if(a_id == IDM_EXPORT_PNG || a_id == IDM_EXPORT_PNG_TRANSP)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"PNG File", L"*.png" } };
 
-		const wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+		const wstring l_filePath = CUtilWin32GUI::SaveFileDialog(g_hInstance, GetHwnd(),
 			l_filter, 1, _T("png"), l_baseFileName + _T(".png"), l_defaultPath);
 
 		if(!l_filePath.empty())
@@ -1393,7 +1393,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		COMDLG_FILTERSPEC l_filter[] = { { L"NFO File", L"*.nfo" }, { L"Text File", L"*.txt" } };
 
-		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+		const std::wstring l_filePath = CUtilWin32GUI::SaveFileDialog(g_hInstance, GetHwnd(),
 			l_filter, 2, _T("nfo"), l_baseFileName + (l_utf8 ? _T("-utf8.nfo") : _T("-utf16.nfo")),
 			l_defaultPath);
 
@@ -1424,7 +1424,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		COMDLG_FILTERSPEC l_filter[] = { { L"NFO File", L"*.nfo" }, { L"Text File", L"*.txt" } };
 
-		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+		const std::wstring l_filePath = CUtilWin32GUI::SaveFileDialog(g_hInstance, GetHwnd(),
 			l_filter, 2, L"nfo", l_baseFileName + L"-msdos.nfo", l_defaultPath);
 
 		if(!l_filePath.empty())
@@ -1463,7 +1463,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"HTML File", L"*.html" } };
 
-		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+		const std::wstring l_filePath = CUtilWin32GUI::SaveFileDialog(g_hInstance, GetHwnd(),
 			l_filter, 1, _T("html"), l_baseFileName + _T(".html"), l_defaultPath);
 
 		if(!l_filePath.empty())
@@ -1494,7 +1494,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"PDF File", L"*.pdf" } };
 
-		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance, GetHwnd(),
+		const std::wstring l_filePath = CUtilWin32GUI::SaveFileDialog(g_hInstance, GetHwnd(),
 			l_filter, 1, _T("pdf"), l_baseFileName + _T(".pdf"), l_defaultPath);
 
 		if(!l_filePath.empty())
@@ -1627,7 +1627,7 @@ bool CMainFrame::LoadFolderNfoList()
 	const std::wstring l_nfoPath = m_view.GetNfoData()->GetFilePath();
 	wchar_t l_nfoPathFull[1000] = {0};
 
-	const std::wstring l_folderPath = CUtil::PathRemoveFileSpec(l_nfoPath.c_str()) + L"\\",
+	const std::wstring l_folderPath = CUtilWin32::PathRemoveFileSpec(l_nfoPath.c_str()) + L"\\",
 		l_filePattern = l_folderPath + L"*.*";
 
 	if(!::PathIsDirectory(l_folderPath.c_str()) ||
@@ -1861,7 +1861,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 	else if(l_result < 0)
 	{
 #ifndef COMPACT_RELEASE
-		wstring l_auExePath = CUtil::GetExeDir() + L"\\infekt-win32-updater.exe";
+		wstring l_auExePath = CUtilWin32::GetExeDir() + L"\\infekt-win32-updater.exe";
 		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) &&
 			!l_autoUpdateHash.empty() && !l_autoUpdateUrl.empty();
 #else
@@ -1897,7 +1897,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 		else
 		{
 			// try to perform auto-update.
-			std::wstring l_tmpPath = CUtil::GetTempDir();
+			std::wstring l_tmpPath = CUtilWin32::GetTempDir();
 
 			if(!l_tmpPath.empty())
 			{

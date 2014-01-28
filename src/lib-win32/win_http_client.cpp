@@ -44,7 +44,7 @@ CWinHttpClient::CWinHttpClient(HINSTANCE a_hInstance)
 		l_uas << boost::wformat(L"Mozilla/%d.0 (compatible; MSIE %d.0; Windows NT %d.%d;%s Trident/%d.0)")
 			% (l_osVer.dwMajorVersion > 5 ? 5 : 4) % (l_osVer.dwMajorVersion > 5 ? 9 : 8)
 			% l_osVer.dwMajorVersion % l_osVer.dwMinorVersion
-			% (CUtil::IsWow64() ? L" WOW64;" : L"")
+			% (CUtilWin32::IsWow64() ? L" WOW64;" : L"")
 			% (l_osVer.dwMajorVersion > 5 ? 5 : 4);
 
 		m_userAgent = l_uas.str();

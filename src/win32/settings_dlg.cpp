@@ -302,7 +302,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		SET_DLG_CHECKBOX(IDC_SINGLEINSTANCEMODE, l_global->bSingleInstanceMode);
 		SET_DLG_CHECKBOX(IDC_REMEMBERMRU, l_global->bKeepOpenMRU);
 
-		if(CUtil::IsWin6x())
+		if(CUtilWin32::IsWin6x())
 		{
 			int l_status = dynamic_cast<CNFOApp*>(GetApp())->IsDefaultNfoViewer();
 
@@ -718,7 +718,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"Theme Info", L"*.ini" }, { L"All Files", L"*" } };
 
-		const std::wstring l_filePath = CUtil::OpenFileDialog(g_hInstance, m_hWnd, l_filter, 2);
+		const std::wstring l_filePath = CUtilWin32GUI::OpenFileDialog(g_hInstance, m_hWnd, l_filter, 2);
 
 		if(l_filePath.empty())
 		{
@@ -811,7 +811,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 
 		COMDLG_FILTERSPEC l_filter[] = { { L"Theme Info", L"*.ini" } };
 
-		const std::wstring l_filePath = CUtil::SaveFileDialog(g_hInstance,
+		const std::wstring l_filePath = CUtilWin32GUI::SaveFileDialog(g_hInstance,
 			m_hWnd, l_filter, 1, _T("ini"), std::wstring(l_userName) + _T("-nfo-settings.ini"));
 
 		if(l_filePath.empty())
@@ -1091,7 +1091,7 @@ bool CSettingsTabDialog::SaveSettings()
 	else if(m_pageId == TAB_PAGE_PLUGINS)
 	{
 		CPluginManager* l_plugMgr = CPluginManager::GetInstance();
-		std::_tstring l_pluginDirPath = CUtil::GetExeDir() + _T("\\plugins\\");
+		std::_tstring l_pluginDirPath = CUtilWin32::GetExeDir() + _T("\\plugins\\");
 
 		for(std::map<size_t, std::string>::const_iterator it = m_pluginGuids.begin();
 			it != m_pluginGuids.end(); it++)
@@ -1148,7 +1148,7 @@ void CSettingsTabDialog::PopulatePluginList()
 {
 	m_pluginListView.DeleteAllItems();
 
-	std::_tstring l_pluginDirPath = CUtil::GetExeDir() + _T("\\plugins\\"),
+	std::_tstring l_pluginDirPath = CUtilWin32::GetExeDir() + _T("\\plugins\\"),
 		l_pluginDirPattern = l_pluginDirPath + _T("*.dll");
 
 	CPluginManager* l_plugMgr = CPluginManager::GetInstance();
@@ -1312,7 +1312,7 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_MONITOR_FILE_CHANGES, m_settings->bMonitorFileChanges);
 
 #ifndef COMPACT_RELEASE
-	if(CUtil::IsWin6x())
+	if(CUtilWin32::IsWin6x())
 	{
 		SET_DLG_CHECKBOX(IDC_USE_GPU, m_settings->bUseGPU);
 	}

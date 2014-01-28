@@ -176,7 +176,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_SETCURSOR:
-		return CUtil::GenericOnSetCursor(m_cursor, lParam);
+		return CUtilWin32GUI::GenericOnSetCursor(m_cursor, lParam);
 #endif
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
@@ -196,7 +196,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				if(m_linkUnderMenu)
 				{
-					CUtil::TextToClipboard(m_hwnd, m_linkUnderMenu->GetHref());
+					CUtilWin32GUI::TextToClipboard(m_hwnd, m_linkUnderMenu->GetHref());
 					m_linkUnderMenu = NULL;
 				}
 			}
@@ -875,7 +875,7 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 #ifdef _WIN32_UI
 	const std::wstring l_wstr = GetSelectedText();
 
-	CUtil::TextToClipboard(m_hwnd, l_wstr);
+	CUtilWin32GUI::TextToClipboard(m_hwnd, l_wstr);
 #endif
 }
 

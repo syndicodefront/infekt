@@ -108,7 +108,7 @@ void CWinFileWatcher::WatchEventThread()
 {
 	HANDLE l_hEvents[2];
 	bool bStop = false;
-	std::wstring l_FolderPath = CUtil::PathRemoveFileSpec(m_filePath);
+	std::wstring l_FolderPath = CUtilWin32::PathRemoveFileSpec(m_filePath);
 	uint64_t l_lastModTime = GetFileModificationTime();
 	
 	::SetEvent(m_hThreadEvent); // thread has started.

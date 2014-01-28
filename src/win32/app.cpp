@@ -30,9 +30,9 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	g_hInstance = hInstance;
 
 	// harden this process a bit:
-	CUtil::EnforceDEP();
-	CUtil::HardenHeap();
-	CUtil::RemoveCwdFromDllSearchPath();
+	CUtilWin32::EnforceDEP();
+	CUtilWin32::HardenHeap();
+	CUtilWin32::RemoveCwdFromDllSearchPath();
 
 	_wsetlocale(LC_CTYPE, L"C");
 
@@ -113,7 +113,7 @@ CNFOApp::CNFOApp()
 
 bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
 {
-	std::wstring l_folderIniPath = CUtil::GetExeDir() + L"\\folder.ini",
+	std::wstring l_folderIniPath = CUtilWin32::GetExeDir() + L"\\folder.ini",
 		l_portableIniPath;
 	
 	if(::PathFileExists(l_folderIniPath.c_str()))
@@ -129,7 +129,7 @@ bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
 
 			if(wcsstr(l_buf, L"%") == NULL && ::PathIsRelative(l_buf))
 			{
-				const std::wstring l_dir = CUtil::GetExeDir() + L"\\" + l_buf;
+				const std::wstring l_dir = CUtilWin32::GetExeDir() + L"\\" + l_buf;
 
 				if(::PathCanonicalize(l_buf2, l_dir.c_str()))
 				{
@@ -173,7 +173,7 @@ bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
 	}
 	else
 	{
-		l_portableIniPath = CUtil::GetExeDir() + L"\\portable.ini";
+		l_portableIniPath = CUtilWin32::GetExeDir() + L"\\portable.ini";
 	}
 
 	ar_path = l_portableIniPath;
@@ -346,7 +346,7 @@ int CNFOApp::IsDefaultNfoViewer()
 	int l_result = 0;
 
 #if _WIN32_WINNT < 0x600
-	if(CUtil::IsWinXP())
+	if(CUtilWin32::IsWinXP())
 	{
 		CWin5xDefaultApp l_defApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 
@@ -354,7 +354,7 @@ int CNFOApp::IsDefaultNfoViewer()
 	}
 	else
 #endif
-	if(CUtil::IsWin6x())
+	if(CUtilWin32::IsWin6x())
 	{
 		CWin6xDefaultApp l_defApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 
@@ -384,13 +384,13 @@ bool CNFOApp::MakeDefaultNfoViewer()
 	CWinDefaultApp* l_defApp = NULL;
 
 #if _WIN32_WINNT < 0x600
-	if(CUtil::IsWinXP())
+	if(CUtilWin32::IsWinXP())
 	{
 		l_defApp = new (std::nothrow) CWin5xDefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 	}
 	else 
 #endif
-	if(CUtil::IsWin6x())
+	if(CUtilWin32::IsWin6x())
 	{
 		l_defApp = new (std::nothrow) CWin6xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 	}

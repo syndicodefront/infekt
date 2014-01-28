@@ -68,17 +68,17 @@ BOOL CAboutDialog::OnInitDialog()
 		l_verStr += _T(" (32 bit)");
 #endif
 #endif
-	if (CUtil::IsWinServerOS())
+	if (CUtilWin32::IsWinServerOS())
 		l_verStr += _T(" on Windows Server OS");
-	else if(CUtil::IsWinXP())
+	else if(CUtilWin32::IsWinXP())
 		l_verStr += _T(" on Windows XP");
-	else if(CUtil::IsWinVista())
+	else if(CUtilWin32::IsWinVista())
 		l_verStr += _T(" on Windows Vista");
-	else if(CUtil::IsWin7())
+	else if(CUtilWin32::IsWin7())
 		l_verStr += _T(" on Windows 7");
-	else if(CUtil::IsWin8())
+	else if(CUtilWin32::IsWin8())
 		l_verStr += _T(" on Windows 8");
-	else if(CUtil::IsWin81())
+	else if(CUtilWin32::IsWin81())
 		l_verStr += _T(" on Windows 8.1");
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
@@ -110,9 +110,9 @@ BOOL CAboutDialog::OnInitDialog()
 
 	const char* l_gpuFlag = "no";
 
-	if(CUtil::IsWin6x() && CNFORenderer::GetGlobalUseGPUFlag())
+	if(CUtilWin32::IsWin6x() && CNFORenderer::GetGlobalUseGPUFlag())
 	{
-		HMODULE hGpuDll = CUtil::SilentLoadLibrary(CUtil::GetExeDir() + L"\\infekt-gpu.dll");
+		HMODULE hGpuDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
 
 		typedef int (__cdecl *fnc)();
 
@@ -134,7 +134,7 @@ BOOL CAboutDialog::OnInitDialog()
 	l_top += 60;
 
 #ifndef COMPACT_RELEASE
-	if(CUtil::IsWin6x())
+	if(CUtilWin32::IsWin6x())
 	{
 		_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. \x2764"), l_top, 20);
 	}
