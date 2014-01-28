@@ -82,7 +82,7 @@ bool CWin5xDefaultApp::IsDefault()
 	if(RegQueryValueEx(l_hKey, NULL, 0, &l_dwType, (LPBYTE)l_buf, &l_maxBuf) == ERROR_SUCCESS
 		&& l_dwType == REG_SZ)
 	{
-		std::wstring l_tmpExePath = CUtil::GetExePath();
+		std::wstring l_tmpExePath = CUtilWin32::GetExePath();
 		wchar_t l_regBuf[1002] = {0};
 
 		wchar_t* l_args = wcsstr(l_buf, L" \"%1");
@@ -111,7 +111,7 @@ bool CWin5xDefaultApp::RegisterProgIdData()
 {
 	_tstring l_keyPath = _T("SOFTWARE\\Classes\\") + m_appRegistryName + _T("\\DefaultIcon");
 
-	_tstring l_exePath = CUtil::GetExePath();
+	_tstring l_exePath = CUtilWin32::GetExePath();
 
 	HKEY l_hKey;
 	if(RegCreateKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,

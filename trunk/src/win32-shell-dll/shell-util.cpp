@@ -22,7 +22,8 @@ bool LoadNFOFromStream(IStream* pStream, PNFOData& ar_data)
 	size_t l_contentLength = 0;
 	char l_buf[200] = {0};
 
-	//m_pStream->Seek(0, STREAM_SEEK_SET, NULL);
+	const LARGE_INTEGER l_nullPos = {0};
+	pStream->Seek(l_nullPos, STREAM_SEEK_SET, NULL);
 
 	ULONG l_bytesRead;
 	do
@@ -49,7 +50,7 @@ bool LoadNFOFromStream(IStream* pStream, PNFOData& ar_data)
 	if(l_temp)
 	{
 		// process NFO contents into CNFOData instance:
-		PNFOData l_nfoData(new CNFOData());
+		PNFOData l_nfoData(l_temp);
 
 		if(l_nfoData->LoadFromMemory((const unsigned char*)l_contents.data(), l_contentLength))
 		{

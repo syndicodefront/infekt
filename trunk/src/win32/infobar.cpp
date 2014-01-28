@@ -124,7 +124,7 @@ LRESULT CInfektInfoBar::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_ERASEBKGND:
 		return 0;
 	case WM_SETCURSOR:
-		return CUtil::GenericOnSetCursor(m_cursor, lParam);
+		return CUtilWin32GUI::GenericOnSetCursor(m_cursor, lParam);
 	case WM_THEMECHANGED:
 		if(::IsThemeActive())
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);

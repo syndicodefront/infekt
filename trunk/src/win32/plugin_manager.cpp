@@ -43,7 +43,7 @@ CPluginManager* CPluginManager::GetInstance()
 
 bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
 {
-	HMODULE l_hModule = CUtil::SilentLoadLibrary(a_dllPath);
+	HMODULE l_hModule = CUtilWin32::SilentLoadLibrary(a_dllPath);
 
 	if(!l_hModule)
 	{
@@ -254,7 +254,7 @@ bool CLoadedPlugin::_DoLoad()
 		l_loadInfo.pluginToCore = CPluginManager::_pluginToCoreCallback;
 		l_loadInfo.hMainWindow = l_app->GetMainFrame().GetHwnd();
 
-		const std::_tstring l_pluginDir = CUtil::PathRemoveFileSpec(m_dllPath);
+		const std::_tstring l_pluginDir = CUtilWin32::PathRemoveFileSpec(m_dllPath);
 		l_loadInfo.pluginDir = l_pluginDir.c_str();
 
 		// send the load event to the plugin:

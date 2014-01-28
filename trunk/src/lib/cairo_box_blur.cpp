@@ -42,11 +42,11 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a
 	m_useFallback = true;
 
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
-	if(CUtil::IsWin6x() && a_useGPU)
+	if(CUtilWin32::IsWin6x() && a_useGPU)
 	{
 		if(!m_hAmpDll)
 		{
-			m_hAmpDll = CUtil::SilentLoadLibrary(CUtil::GetExeDir() + L"\\infekt-gpu.dll");
+			m_hAmpDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
 		}
 
 		typedef int (__cdecl *fnc)();

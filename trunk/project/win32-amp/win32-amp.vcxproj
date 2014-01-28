@@ -107,7 +107,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_TARGETVER_VISTA;_DEBUG;_WINDOWS;_USRDLL;WIN32AMP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\src\win32-support</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -121,7 +121,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_TARGETVER_VISTA;_DEBUG;_WINDOWS;_USRDLL;WIN32AMP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\..\src\win32-support</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -138,7 +138,7 @@
       <PreprocessorDefinitions>WIN32;_TARGETVER_VISTA;NDEBUG;_WINDOWS;_USRDLL;WIN32AMP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>..\..\src\win32-support</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
@@ -158,7 +158,7 @@
       <PreprocessorDefinitions>WIN32;_TARGETVER_VISTA;NDEBUG;_WINDOWS;_USRDLL;WIN32AMP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>..\..\src\win32-support</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
