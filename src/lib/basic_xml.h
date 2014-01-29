@@ -31,7 +31,7 @@ public:
 
 class CXMLParser;
 class CXMLTag;
-typedef std::tr1::shared_ptr<CXMLTag> PXMLTag;
+typedef std::shared_ptr<CXMLTag> PXMLTag;
 
 class CXMLTag
 {
