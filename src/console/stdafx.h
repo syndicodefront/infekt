@@ -43,6 +43,9 @@
 #include <iomanip>
 #include <math.h>
 #include <memory>
+#include <thread>
+#include <atomic>
+#include <mutex>
 #include <omp.h>
 
 #ifdef HAVE_BOOST

@@ -17,22 +17,23 @@
 #include "cairo_box_blur.h"
 
 
-CNFORenderer::CNFORenderer(bool a_classicMode)
+CNFORenderer::CNFORenderer(bool a_classicMode) :
+	m_classic(a_classicMode),
+	m_partial(NRP_RENDER_EVERYTHING),
+	m_forceGPUOff(false),
+	m_onDemandRendering(false),
+	m_preRenderThread(NULL),
+	m_gridData(NULL),
+	m_rendered(false),
+	m_linesPerStripe(0),
+	m_stripeHeight(0),
+	m_numStripes(0),
+	m_fontSize(-1),
+	m_zoomFactor(1.0f),
+	m_hasBlocks(false),
+	m_stopPreRendering(true),
+	m_preRenderingStripe((size_t)-1)
 {
-	m_classic = a_classicMode;
-	m_partial = NRP_RENDER_EVERYTHING;
-	m_forceGPUOff = false;
-
-	// reset internal flags:
-	m_gridData = NULL;
-	m_rendered = false;
-	m_linesPerStripe = 0;
-	m_stripeHeight = 0;
-	m_numStripes = 0;
-	m_fontSize = -1;
-	m_zoomFactor = 1.0f;
-	m_hasBlocks = true;
-
 	// default settings:
 	if(!m_classic)
 	{
@@ -62,9 +63,6 @@ CNFORenderer::CNFORenderer(bool a_classicMode)
 	SetHilightHyperLinks(true);
 	SetHyperLinkColor(_S_COLOR_RGB(0, 0, 0xFF));
 	SetUnderlineHyperLinks(true);
-
-	// other stuff:
-	m_onDemandRendering = false;
 }
 
 
@@ -349,6 +347,8 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 
 	if(!m_rendered)
 	{
+		ClearStripes();
+
 		if(m_classic)
 		{
 			// we need the block size to check the minimum maximum (no typo) stripe height:
@@ -359,8 +359,6 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 			// init font size:
 			PreRenderText();
 		}
-
-		ClearStripes();
 
 		// recalculate stripe dimensions:
 
@@ -399,6 +397,14 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 	a_stripeTo = std::min(a_stripeTo, m_numStripes - 1);
 	for(size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
 	{
+		if(l_stripe == m_preRenderingStripe)
+		{
+			// risky business! not entirely sure if this is safe!
+			StopPreRendering();
+		}
+
+		std::lock_guard<std::mutex> threadlock(m_stripesLock);
+
 		if(!m_stripes[l_stripe])
 		{
 			m_stripes[l_stripe] = PCairoSurface(new _CCairoSurface(
@@ -508,6 +514,8 @@ size_t CNFORenderer::GetStripeExtraLinesBottom(size_t a_stripe) const
 void CNFORenderer::RenderStripe(size_t a_stripe) const
 {
 	cairo_surface_t * const l_surface = GetStripeSurface(a_stripe);
+
+	_ASSERT(l_surface != NULL);
 
 	if(!m_hasBlocks || m_classic && (GetBackColor().A > 0))
 	{
@@ -1428,15 +1436,17 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 
 void CNFORenderer::ClearStripes()
 {
+	StopPreRendering();
+
 	m_stripes.clear();
 }
 
 
 CNFORenderer::~CNFORenderer()
 {
-	delete m_gridData;
+	ClearStripes();
 
-	m_stripes.clear();
+	delete m_gridData;
 }
 
 
@@ -1593,5 +1603,76 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 
 	return false;
 }
+
+
+void CNFORenderer::WaitForPreRender()
+{
+	shared_ptr<std::thread> l_renderThread(m_preRenderThread);
+
+	if(l_renderThread && l_renderThread->joinable())
+	{
+		l_renderThread->join();
+
+		m_preRenderThread.reset();
+	}
+}
+
+
+void CNFORenderer::StopPreRendering()
+{
+	if(!m_preRenderThread || m_stopPreRendering)
+	{
+		return;
+	}
+
+	m_stopPreRendering = true;
+
+	WaitForPreRender();
+}
+
+
+void CNFORenderer::PreRender()
+{
+	if(m_preRenderThread || m_numStripes < 2)
+	{
+		return;
+	}
+
+	m_stopPreRendering = false;
+
+	m_preRenderThread = shared_ptr<std::thread>(new std::thread(
+		std::bind(&CNFORenderer::PreRenderThreadProc, this)));
+}
+
+
+void CNFORenderer::PreRenderThreadProc()
+{
+	for(size_t l_stripe = 0; l_stripe < m_numStripes && !m_stopPreRendering; ++l_stripe)
+	{
+		m_stripesLock.lock();
+
+		if(!m_stripes[l_stripe])
+		{
+			m_stripes[l_stripe] = PCairoSurface(new _CCairoSurface(
+				cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
+				(int)GetWidth(),
+				GetStripeHeightPhysical(l_stripe))
+			));
+
+			m_stripesLock.unlock();
+
+			m_preRenderingStripe.store(l_stripe);
+
+			RenderStripe(l_stripe);
+		}
+		else
+		{
+			m_stripesLock.unlock();
+		}
+	}
+
+	m_preRenderingStripe.store((size_t)-1);
+}
+
 
 bool CNFORenderer::ms_useGPU = true;

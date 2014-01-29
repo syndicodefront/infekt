@@ -26,6 +26,9 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include <memory>
+#include <thread>
+#include <atomic>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -38,8 +41,7 @@
 #include <io.h>
 #include <omp.h>
 
-#include <memory>
-using std::tr1::shared_ptr;
+using std::shared_ptr;
 
 #include <cairo-win32.h>
 #include <pcre.h>
