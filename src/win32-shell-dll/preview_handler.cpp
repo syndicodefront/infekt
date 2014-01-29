@@ -45,7 +45,7 @@ public:
 
 	virtual ~CNFOPreviewHandler()
 	{
-		// :TODO: destroy window
+		m_view.reset();
 		SafeRelease(&m_pStream);
 		SafeRelease(&m_punkSite);
 	}
@@ -202,23 +202,24 @@ HRESULT CNFOPreviewHandler::DoPreview()
 
 	if(l_temp)
 	{
-		m_view = PNFOViewControl(l_temp);
-
+		PNFOViewControl l_view(l_temp);
 		PNFOData l_nfoData;
 
-		if(!LoadNFOFromStream(m_pStream, l_nfoData) || !m_view->AssignNFO(l_nfoData))
+		if(!LoadNFOFromStream(m_pStream, l_nfoData) || !l_view->AssignNFO(l_nfoData))
 		{
 			return E_FAIL;
 		}
 
-		if(!m_view->CreateControl(m_rcParent.left, m_rcParent.top,
+		if(!l_view->CreateControl(m_rcParent.left, m_rcParent.top,
 			m_rcParent.right - m_rcParent.left,
 			m_rcParent.bottom - m_rcParent.top))
 		{
 			return E_FAIL;
 		}
 
-		m_view->Show();
+		l_view->Show();
+
+		m_view = l_view;
 
 		return S_OK;
 	}
@@ -231,10 +232,7 @@ HRESULT CNFOPreviewHandler::Unload()
 {
 	SafeRelease(&m_pStream);
 
-	if(m_view)
-	{
-		m_view.reset();
-	}
+	m_view.reset();
 
 	return S_OK;
 }
