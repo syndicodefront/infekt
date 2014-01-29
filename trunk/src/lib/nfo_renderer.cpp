@@ -651,7 +651,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 	{
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
-			CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
 			if(l_block->shape == RGS_NO_BLOCK ||
 				l_block->shape == RGS_WHITESPACE ||

@@ -87,7 +87,6 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 	else
 	{
 		this->MessageBox(m_nfoData->GetLastErrorDescription().c_str(), _T("Fail"), MB_ICONEXCLAMATION);
-		// :TODO: better error messages blah blah blah
 
 		m_nfoData = l_nfoDataBackup;
 	}
