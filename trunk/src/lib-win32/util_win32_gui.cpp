@@ -244,6 +244,50 @@ void CUtilWin32GUI::PopUpLastWin32Error()
 }
 
 
+void CUtilWin32GUI::FormatFileTimeSize(const std::wstring& a_filePath, std::wstring& ar_timeInfo, std::wstring& ar_sizeInfo)
+{
+	WIN32_FIND_DATA l_ff = {0};
+
+	if(HANDLE l_hFile = ::FindFirstFile(a_filePath.c_str(), &l_ff))
+	{
+		SYSTEMTIME l_sysTimeUTC = {0}, l_sysTime = {0};
+		if(::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTimeUTC) &&
+			::SystemTimeToTzSpecificLocalTime(NULL, &l_sysTimeUTC, &l_sysTime))
+		{
+			TCHAR l_date[100] = {0};
+
+			if(::GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &l_sysTime,
+				NULL, l_date, 99) != 0)
+			{
+				ar_timeInfo = l_date;
+			}
+
+			memset(l_date, 0, 100);
+
+			if(::GetTimeFormat(LOCALE_USER_DEFAULT, 0, &l_sysTime, NULL,
+				l_date, 99) != 0)
+			{
+				ar_timeInfo += L" ";
+				ar_timeInfo += l_date;
+			}
+		}
+
+		ULARGE_INTEGER l_tmpFileSize;
+		l_tmpFileSize.HighPart = l_ff.nFileSizeHigh;
+		l_tmpFileSize.LowPart = l_ff.nFileSizeLow;
+
+		TCHAR l_sizeBuf[100] = {0};
+
+		if(::StrFormatByteSizeW(l_tmpFileSize.QuadPart, l_sizeBuf, 99))
+		{
+			ar_sizeInfo = l_sizeBuf;
+		}
+
+		::FindClose(l_hFile);
+	}
+}
+
+
 int CUtilWin32GUI::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 {
 	// Credit: Notepad2 by Florian Balmer (BSD License)
