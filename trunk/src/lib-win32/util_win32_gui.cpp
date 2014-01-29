@@ -13,6 +13,7 @@
  **/
 
 #include "stdafx.h"
+#include "util_win32.h"
 #include "util_win32_gui.h"
 
 using std::string;

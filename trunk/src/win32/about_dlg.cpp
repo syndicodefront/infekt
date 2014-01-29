@@ -62,7 +62,7 @@ BOOL CAboutDialog::OnInitDialog()
 #ifdef _WIN64
 	l_verStr += _T(" (64 bit)");
 #else
-	if(CUtil::IsWow64())
+	if(CUtilWin32::IsWow64())
 		l_verStr += _T(" (WoW64)");
 	else
 		l_verStr += _T(" (32 bit)");
