@@ -316,7 +316,6 @@ bool CUtilWin32::IsWow64()
 /* WINDOWS BENCHMARK/HIGH RESOLUTION TIMER                              */
 /************************************************************************/
 
-#if 0
 CBenchmarkTimer::CBenchmarkTimer()
 {
 	memset(&m_start, 0, sizeof(LARGE_INTEGER));
@@ -364,4 +363,3 @@ double CBenchmarkTimer::StopDumpTimer(const char* a_name)
 
 	return l_secs;
 }
-#endif

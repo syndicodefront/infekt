@@ -40,7 +40,6 @@ public:
 	static bool EnforceDEP();
 };
 
-#if 0
 class CBenchmarkTimer
 {
 public:
@@ -56,6 +55,5 @@ protected:
 	LARGE_INTEGER m_stop;
 	double m_frequency;
 };
-#endif
 
 #endif /* !_UTIL_WIN32_H */
