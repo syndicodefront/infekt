@@ -30,6 +30,7 @@ public:
 	static std::wstring OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec);
 	static std::wstring SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
 		const LPCTSTR a_defaultExt, const std::wstring& a_currentFileName, const std::wstring& a_initialPath = _T(""));
+	static void FormatFileTimeSize(const std::wstring& a_filePath, std::wstring& ar_timeInfo, std::wstring& ar_sizeInfo);
 
 	static void PopUpLastWin32Error();
 	static bool TextToClipboard(HWND a_hwnd, const std::wstring& a_text);

@@ -996,50 +996,13 @@ void CMainFrame::UpdateStatusbar()
 		
 		if(m_nfoInFolderIndex != (size_t)-1)
 		{
-			l_fileNameInfo += FORMAT(L" (%d/%d in folder)", (m_nfoInFolderIndex + 1) % m_nfoPathsInFolder.size());
+			l_fileNameInfo += FORMAT(L" (%d / %d in folder)", (m_nfoInFolderIndex + 1) % m_nfoPathsInFolder.size());
 		}
 
 		wstring l_timeInfo, l_sizeInfo;
 		if(!m_view.GetNfoData()->GetFilePath().empty())
 		{
-			WIN32_FIND_DATA l_ff = {0};
-			if(HANDLE l_hFile = ::FindFirstFile(m_view.GetNfoData()->GetFilePath().c_str(), &l_ff))
-			{
-				SYSTEMTIME l_sysTimeUTC = {0}, l_sysTime = {0};
-				if(::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTimeUTC) &&
-					::SystemTimeToTzSpecificLocalTime(NULL, &l_sysTimeUTC, &l_sysTime))
-				{
-					TCHAR l_date[100] = {0};
-
-					if(::GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &l_sysTime,
-						NULL, l_date, 99) != 0)
-					{
-						l_timeInfo = l_date;
-					}
-
-					memset(l_date, 0, 100);
-
-					if(::GetTimeFormat(LOCALE_USER_DEFAULT, 0, &l_sysTime, NULL,
-						l_date, 99) != 0)
-					{
-						l_timeInfo += _T(" ");
-						l_timeInfo += l_date;
-					}
-				}
-
-				ULARGE_INTEGER l_tmpFileSize;
-				l_tmpFileSize.HighPart = l_ff.nFileSizeHigh;
-				l_tmpFileSize.LowPart = l_ff.nFileSizeLow;
-
-				TCHAR l_sizeBuf[100] = {0};
-
-				if(::StrFormatByteSizeW(l_tmpFileSize.QuadPart, l_sizeBuf, 99))
-				{
-					l_sizeInfo = l_sizeBuf;
-				}
-
-				::FindClose(l_hFile);
-			}
+			CUtilWin32GUI::FormatFileTimeSize(m_view.GetNfoData()->GetFilePath(), l_timeInfo, l_sizeInfo);
 		}
 
 		int l_sbWidths[5] = {0};
