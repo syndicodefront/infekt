@@ -29,7 +29,6 @@ protected:
 	static std::wstring XMLEscape(const std::wstring& s);
 public:
 	CNFOToHTML(const PNFOData& a_nfoData);
-	virtual ~CNFOToHTML();
 
 	const std::wstring GetHTML(bool a_includeHeaderAndFooter = true);
 
@@ -45,7 +44,6 @@ class CNFOToPDF : public CNFORenderer
 {
 public:
 	CNFOToPDF(bool a_classicMode = false);
-	virtual ~CNFOToPDF();
 
 	bool GetUseDINSizes() const { return m_dinSizes; }
 	void SetUseDINSizes(bool nb) { m_dinSizes = nb; }
@@ -66,7 +64,6 @@ class CNFOToPNG : public CNFORenderer
 {
 public:
 	CNFOToPNG(bool a_classicMode = false);
-	virtual ~CNFOToPNG();
 
 	bool SavePNG(const std::_tstring& a_filePath);
 protected:

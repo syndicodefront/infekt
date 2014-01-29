@@ -129,19 +129,12 @@ typedef enum _nfo_render_partial_t
 
 class CNFORenderer
 {
-protected:
+private:
 	CNFORenderSettings m_settings;
 	bool m_classic;
 	float m_zoomFactor;
-	bool m_onDemandRendering;
-	bool m_forceGPUOff;
 
 	ENFORenderPartial m_partial;
-
-	// NFO data:
-	PNFOData m_nfo;
-	TwoDimVector<CRenderGridBlock> *m_gridData;
-	bool m_hasBlocks;
 
 	// internal state data:
 	// don't mess with these, they are NOT settings:
@@ -151,10 +144,21 @@ protected:
 
 	size_t m_linesPerStripe; // in no. of lines
 	int m_stripeHeight; // in pixels
+
+protected:
+	bool m_forceGPUOff;
+	bool m_onDemandRendering;
+
+	PNFOData m_nfo;
+	TwoDimVector<CRenderGridBlock> *m_gridData;
+	bool m_hasBlocks;
+
 	size_t m_numStripes;
 	std::map<size_t, PCairoSurface> m_stripes; // stripe no. -> surface
 
 	// internal calls:
+	bool IsRendered() const { return m_rendered; }
+	int GetPadding() const { return m_padding; }
 	bool CalculateGrid();
 	cairo_surface_t *GetStripeSurface(size_t a_stripe) const;
 	int GetStripeHeight(size_t a_stripe) const;
@@ -187,6 +191,7 @@ protected:
 
 	static const size_t ms_defaultClassicFontSize = 12;
 	static bool ms_useGPU;
+
 public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();

@@ -215,8 +215,3 @@ wstring CNFOToHTML::XMLEscape(const std::wstring& s)
 
 	return r;
 }
-
-
-CNFOToHTML::~CNFOToHTML()
-{
-}
