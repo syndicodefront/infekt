@@ -422,6 +422,8 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 	ClearSelection(false);
 
+	StopPreRendering(true);
+
 	if(CNFORenderer::AssignNFO(a_nfo))
 	{
 		if(!GetOnDemandRendering())
