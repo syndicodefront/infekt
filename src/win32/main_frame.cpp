@@ -855,6 +855,10 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 	{
 		WatchFileStop();
 
+		m_nfoPreloadData.reset();
+		m_nfoInFolderIndex = (size_t)-1;
+		m_nfoPathsInFolder.clear();
+
 		UpdateCaption();
 		
 		UpdateStatusbar();
@@ -882,10 +886,6 @@ bool CMainFrame::OpenFile(const std::_tstring a_filePath)
 		}
 
 		AdjustWindowToNFOWidth(true);
-
-		m_nfoPreloadData.reset();
-		m_nfoInFolderIndex = (size_t)-1;
-		m_nfoPathsInFolder.clear();
 
 		m_lastSearchTerm = L"";
 
@@ -991,10 +991,15 @@ void CMainFrame::UpdateStatusbar()
 		RECT l_rc = l_sb.GetWindowRect();
 		LONG l_width = l_rc.right - l_rc.left;
 
-		const _tstring l_fileName = m_view.GetNfoData()->GetFileName();
-		const _tstring l_charset = m_view.GetNfoData()->GetCharsetName();
+		const wstring l_charset = m_view.GetNfoData()->GetCharsetName();
+		wstring l_fileNameInfo = m_view.GetNfoData()->GetFileName();
+		
+		if(m_nfoInFolderIndex != (size_t)-1)
+		{
+			l_fileNameInfo += FORMAT(L" (%d/%d in folder)", (m_nfoInFolderIndex + 1) % m_nfoPathsInFolder.size());
+		}
 
-		_tstring l_timeInfo, l_sizeInfo;
+		wstring l_timeInfo, l_sizeInfo;
 		if(!m_view.GetNfoData()->GetFilePath().empty())
 		{
 			WIN32_FIND_DATA l_ff = {0};
@@ -1048,7 +1053,7 @@ void CMainFrame::UpdateStatusbar()
 		for(int i = 1; i < 5; i++) l_sbParts[i] = l_sbParts[i - 1] + l_sbWidths[i];
 
 		l_sb.CreateParts(5, l_sbParts);
-		l_sb.SetPartText(0, l_fileName.c_str());
+		l_sb.SetPartText(0, l_fileNameInfo.c_str());
 		l_sb.SetPartText(1, l_timeInfo.c_str());
 		l_sb.SetPartText(2, l_sizeInfo.c_str());
 		l_sb.SetPartText(STATUSBAR_PANE_CHARSET, l_charset.c_str());
@@ -1674,9 +1679,11 @@ bool CMainFrame::LoadFolderNfoList()
 	{
 		if(wcscmp(l_nfoPathFull, l_nfoPath.c_str()) == 0)
 		{
-			m_nfoInFolderIndex = l_index++;
+			m_nfoInFolderIndex = l_index;
 			break;
 		}
+
+		++l_index;
 	}
 
 	return (m_nfoInFolderIndex != (size_t)-1);

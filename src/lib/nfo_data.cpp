@@ -544,21 +544,7 @@ bool CNFOData::PostProcessLoadedContent()
 		{
 			CAnsiArt l_ansiArtProcessor(WIDTH_LIMIT, LINES_LIMIT, m_ansiHintWidth, m_ansiHintHeight);
 
-			if(!l_ansiArtProcessor.Parse(m_textContent))
-			{
-				l_ansiError = true;
-			}
-			else
-			{
-				l_ansiError = !l_ansiArtProcessor.Process();
-
-				if(l_ansiError && m_ansiHintWidth == 0)
-				{
-					// retry with a default with + enforced line break after col 80:
-					l_ansiArtProcessor.SetHints(80, m_ansiHintHeight);
-					l_ansiError = !l_ansiArtProcessor.Process();
-				}
-			}
+			l_ansiError = !l_ansiArtProcessor.Parse(m_textContent) || !l_ansiArtProcessor.Process();
 
 			if(!l_ansiError)
 			{

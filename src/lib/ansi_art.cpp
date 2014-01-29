@@ -123,10 +123,12 @@ bool CAnsiArt::Parse(const wstring& a_text)
 
 bool CAnsiArt::Process()
 {
+	size_t l_hintWidth = m_hintWidth ? m_hintWidth : 80;
+
 	TwoDimVector<wchar_t> screen(
-		// plus x just for good measure:
-		(m_hintHeight ? m_hintHeight : 1000) + 10,
-		(m_hintWidth ? m_hintWidth : 100) + 1,
+		// plus 1 just for good measure:
+		(m_hintHeight ? m_hintHeight : 999) + 1,
+		l_hintWidth + 1,
 		L' ');
 
 	std::stack<std::pair<size_t, size_t> > saved_positions;
@@ -158,7 +160,7 @@ bool CAnsiArt::Process()
 					{
 						// ignore CR
 					}
-					else if(c == L'\n' || (m_hintWidth != 0 && x == m_hintWidth - 1))
+					else if(c == L'\n' || (l_hintWidth != 0 && x == l_hintWidth - 1))
 					{
 						if(y >= screen.GetRows() - 1)
 						{
