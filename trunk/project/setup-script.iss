@@ -239,14 +239,15 @@ function NextButtonClick(CurPageID: Integer): Boolean;
 var
   Index: Integer;
 begin
-  Result := True;
-  if CurPageID = wpSelectTasks then
-  begin
-    Index := WizardForm.TasksList.Items.IndexOf('Download and install Microsoft C++ runtime if necessary');
-    if Index <> -1 then
-    begin
+	Result := True;
+	if CurPageID = wpSelectTasks then
+	begin
+		Index := WizardForm.TasksList.Items.IndexOf('Download and install Microsoft C++ runtime if necessary');
+		if Index <> -1 then
+		begin
 			allowCppRuntimeInstall := WizardForm.TasksList.Checked[Index];
-  end;
+		end;
+	end;
 end;
 
 
