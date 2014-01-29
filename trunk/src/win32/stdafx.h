@@ -55,6 +55,9 @@
 #include <queue>
 #include <stack>
 #include <memory>
+#include <thread>
+#include <atomic>
+#include <mutex>
 #include <omp.h>
 #define _USE_MATH_DEFINES
 #include <math.h>

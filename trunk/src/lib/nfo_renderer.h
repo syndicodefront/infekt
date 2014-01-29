@@ -145,6 +145,14 @@ private:
 	size_t m_linesPerStripe; // in no. of lines
 	int m_stripeHeight; // in pixels
 
+	// for background pre-rendering:
+	shared_ptr<std::thread> m_preRenderThread;
+	std::atomic<size_t> m_preRenderingStripe;
+	std::mutex m_stripesLock;
+	bool m_stopPreRendering;
+
+	void PreRenderThreadProc();
+
 protected:
 	bool m_forceGPUOff;
 	bool m_onDemandRendering;
@@ -188,6 +196,9 @@ protected:
 	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);
 
 	void ClearStripes();
+	void WaitForPreRender();
+	void StopPreRendering();
+	void PreRender();
 
 	static const size_t ms_defaultClassicFontSize = 12;
 	static bool ms_useGPU;

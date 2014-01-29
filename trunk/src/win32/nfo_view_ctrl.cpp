@@ -437,6 +437,11 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 
+		if(GetOnDemandRendering())
+		{
+			PreRender();
+		}
+
 		return true;
 	}
 
