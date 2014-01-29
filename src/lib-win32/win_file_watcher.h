@@ -16,11 +16,11 @@
 #define _WINFILEWATCHER_H
 
 #include <Windows.h>
-#include <boost/function.hpp>
+#include <functional>
 
 // note: calling into this class from multiple threads is NOT safe!
 
-typedef boost::function<void ()> WinFileChangedCallback;
+typedef std::function<void ()> WinFileChangedCallback;
 
 class CWinFileWatcher
 {
