@@ -1573,7 +1573,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 
 		m_lastSearchTerm = L"";
 
-		::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+		RedrawWindow();
 
 		WatchFileStart();
 	}
