@@ -66,7 +66,7 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 		cairo_destroy(cr);
 	}
 
-	if(m_classic)
+	if(IsClassicMode())
 	{
 		RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(), false,
 			(size_t)-1, 0, 0, 0, l_pdfSurface, 0, 0);
@@ -134,11 +134,6 @@ bool CNFOToPDF::CalcPageDimensions(double& a_width, double& a_height)
 
 		return true;
 	}
-}
-
-
-CNFOToPDF::~CNFOToPDF()
-{
 }
 
 #endif /* CAIRO_HAS_PDF_SURFACE */

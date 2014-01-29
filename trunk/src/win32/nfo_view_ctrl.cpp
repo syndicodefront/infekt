@@ -225,7 +225,7 @@ void CNFOViewControl::SetZoom(unsigned int a_percent)
 
 	CNFORenderer::SetZoom(a_percent);
 
-	if(m_classic)
+	if(IsClassicMode())
 	{
 		CalcClassicModeBlockSizes(true);
 	}
@@ -352,7 +352,7 @@ void CNFOViewControl::OnPaint()
 		const S_COLOR_T l_back = GetBackColor().Invert();
 		double l_bw = (double)GetBlockWidth(), l_bh = (double)GetBlockHeight();
 
-		if(!m_classic)
+		if(!IsClassicMode())
 		{
 			RenderText(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(),
 				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
@@ -449,7 +449,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 	ssize_t l_row, l_col;
 
 	// area where moving the mouse while selecting text scrolls:
-	int l_scrollPadding = m_padding;
+	int l_scrollPadding = GetPadding();
 	const int l_scrollSpeedDiv = 2; // slow down selection scrolling a bit
 
 	if(!HasNfoData())
@@ -663,8 +663,8 @@ void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, ssize_t& ar_row, ssi
 			l_centerx = (m_width - (int)GetWidth()) / 2;
 
 		// calc real positions:
-		ar_row = l_y + ((a_y - m_padding) / (ssize_t)GetBlockHeight());
-		ar_col = l_x + ((a_x - m_padding - l_centerx) / (ssize_t)GetBlockWidth());
+		ar_row = l_y + ((a_y - GetPadding()) / (ssize_t)GetBlockHeight());
+		ar_col = l_x + ((a_x - GetPadding() - l_centerx) / (ssize_t)GetBlockWidth());
 	}
 	else
 	{
@@ -1136,11 +1136,11 @@ void CNFOViewControl::InjectSettings(const CNFORenderSettings& ns)
 {
 	CNFORenderer::InjectSettings(ns);
 
-	if(!m_rendered)
+	if(!IsRendered())
 	{
 		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
 
-		if(m_classic)
+		if(IsClassicMode())
 		{
 			CalcClassicModeBlockSizes();
 		}

@@ -224,8 +224,3 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 
 	return l_result;
 }
-
-
-CNFOToPNG::~CNFOToPNG()
-{
-}
