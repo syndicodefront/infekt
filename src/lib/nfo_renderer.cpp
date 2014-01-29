@@ -801,33 +801,38 @@ static inline void _FinalizeDrawingTools(cairo_t** pcr, cairo_font_options_t** p
 
 void CNFORenderer::PreRenderText()
 {
-	if(!m_classic && m_fontSize < 1)
+	if(m_classic || m_fontSize > 0)
 	{
-		// create a dummy surface so we can measure things:
-		cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 30);
-		cairo_t* cr;
-		cairo_font_options_t* l_fontOptions;
+		return;
+	}
 
-		_SetUpDrawingTools(this, l_surface, &cr, &l_fontOptions);
+	// create a dummy surface so we can measure things:
+	cairo_surface_t *l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 30);
+	cairo_t* cr;
+	cairo_font_options_t* l_fontOptions;
 
-		double l_fontSize = static_cast<double>(GetBlockWidth());
-		bool l_broken = false, l_foundText = false;
+	_SetUpDrawingTools(this, l_surface, &cr, &l_fontOptions);
 
-		std::set<wchar_t> l_checkChars;
+	double l_fontSize = static_cast<double>(GetBlockWidth());
+	bool l_broken = false, l_foundText = false;
 
-		for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
+	std::set<wchar_t> l_checkChars;
+
+	for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
+	{
+		for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
 		{
-			for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
-			{
-				CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+			CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-				if(l_block->shape == RGS_NO_BLOCK)
-				{
-					l_checkChars.insert(m_nfo->GetGridChar(row, col));
-				}
+			if(l_block->shape == RGS_NO_BLOCK)
+			{
+				l_checkChars.insert(m_nfo->GetGridChar(row, col));
 			}
 		}
+	}
 
+	if(l_checkChars.size() > 0)
+	{
 		// add some generic "big" chars for NFOs that e.g.
 		// contain nothing but dots or middots:
 		l_checkChars.insert(L'W');
@@ -870,11 +875,11 @@ void CNFORenderer::PreRenderText()
 				l_fontSize++;
 			}
 		} while(!l_broken && l_foundText);
-
-		m_fontSize = l_fontSize + 1;
-
-		_FinalizeDrawingTools(&cr, &l_fontOptions);
 	}
+
+	m_fontSize = l_fontSize + 1;
+
+	_FinalizeDrawingTools(&cr, &l_fontOptions);
 }
 
 void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
