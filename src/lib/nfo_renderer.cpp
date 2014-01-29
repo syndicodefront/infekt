@@ -32,7 +32,8 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 	m_zoomFactor(1.0f),
 	m_hasBlocks(false),
 	m_stopPreRendering(true),
-	m_preRenderingStripe((size_t)-1)
+	m_preRenderingStripe((size_t)-1),
+	m_cancelRenderingImmediately(false)
 {
 	// default settings:
 	if(!m_classic)
@@ -558,7 +559,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				}
 
 				// shadow effect:
-				if(p_blur)
+				if(p_blur && !m_cancelRenderingImmediately)
 				{
 					RenderStripeBlocks(a_stripe, false, true, p_blur->GetContext());
 
@@ -583,23 +584,23 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				delete p_blur;
 			}
 
-			if((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0)
+			if((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0 && !m_cancelRenderingImmediately)
 			{
 				// render blocks in gaussian color
 				RenderStripeBlocks(a_stripe, false, true);
 			}
-			else if((m_partial & NRP_RENDER_BLOCKS) != 0)
+			else if((m_partial & NRP_RENDER_BLOCKS) != 0 && !m_cancelRenderingImmediately)
 			{
 				// normal mode
 				RenderStripeBlocks(a_stripe, false, false);
 			}
 		}
-		else if(m_hasBlocks && (m_partial & NRP_RENDER_BLOCKS) != 0)
+		else if(m_hasBlocks && (m_partial & NRP_RENDER_BLOCKS) != 0 && !m_cancelRenderingImmediately)
 		{
 			RenderStripeBlocks(a_stripe, true, false);
 		}
 
-		if((m_partial & NRP_RENDER_TEXT) != 0)
+		if((m_partial & NRP_RENDER_TEXT) != 0 && !m_cancelRenderingImmediately)
 		{
 			RenderText(GetTextColor(), NULL, GetHyperLinkColor(),
 				l_rowStart, 0, l_rowEnd, m_nfo->GetGridWidth() - 1,
@@ -657,6 +658,11 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
+		if(m_cancelRenderingImmediately)
+		{
+			break;
+		}
+
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
@@ -922,6 +928,11 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	{
 		size_t l_firstCol = (size_t)-1;
 
+		if(m_cancelRenderingImmediately)
+		{
+			break;
+		}
+
 		// collect an UTF-8 buffer of each line:
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
@@ -1181,6 +1192,11 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 	{
 		_block_color_type l_curType = _BT_UNDEF;
 		size_t l_bufStart = (size_t)-1;
+
+		if(m_cancelRenderingImmediately)
+		{
+			break;
+		}
 
 		for(size_t col = 0; col <= m_gridData->GetCols(); col++)
 		{
@@ -1615,10 +1631,12 @@ void CNFORenderer::WaitForPreRender()
 
 		m_preRenderThread.reset();
 	}
+
+	m_cancelRenderingImmediately = false;
 }
 
 
-void CNFORenderer::StopPreRendering()
+void CNFORenderer::StopPreRendering(bool a_cancel)
 {
 	if(!m_preRenderThread || m_stopPreRendering)
 	{
@@ -1626,6 +1644,7 @@ void CNFORenderer::StopPreRendering()
 	}
 
 	m_stopPreRendering = true;
+	m_cancelRenderingImmediately = a_cancel;
 
 	WaitForPreRender();
 }
@@ -1663,6 +1682,7 @@ void CNFORenderer::PreRenderThreadProc()
 
 			m_preRenderingStripe.store(l_stripe);
 
+			m_cancelRenderingImmediately = false;
 			RenderStripe(l_stripe);
 		}
 		else

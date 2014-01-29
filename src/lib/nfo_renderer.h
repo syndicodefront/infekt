@@ -150,6 +150,7 @@ private:
 	std::atomic<size_t> m_preRenderingStripe;
 	std::mutex m_stripesLock;
 	bool m_stopPreRendering;
+	bool m_cancelRenderingImmediately;
 
 	void PreRenderThreadProc();
 
@@ -197,7 +198,7 @@ protected:
 
 	void ClearStripes();
 	void WaitForPreRender();
-	void StopPreRendering();
+	void StopPreRendering(bool a_cancel = false);
 	void PreRender();
 
 	static const size_t ms_defaultClassicFontSize = 12;
