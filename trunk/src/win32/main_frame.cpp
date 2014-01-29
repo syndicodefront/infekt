@@ -23,6 +23,7 @@
 
 
 using namespace std;
+using namespace std::placeholders;
 
 
 enum _toolbar_button_ids {
@@ -908,7 +909,7 @@ void CMainFrame::WatchFileStart()
 	if(!m_fileChangeWatcher)
 	{
 		m_fileChangeWatcher = PWinFileWatcher(new CWinFileWatcher(
-			boost::bind(&CMainFrame::OnFileChanged, this)));
+			std::bind(&CMainFrame::OnFileChanged, this)));
 	}
 
 	if(PNFOData l_nfo = m_view.GetActiveCtrl()->GetNfoData())
@@ -1779,7 +1780,7 @@ void CMainFrame::CheckForUpdates()
 	PWinHttpClient l_client(new CWinHttpClient(GetApp()->GetInstanceHandle()));
 
 	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(L"https://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki",
-		boost::bind(&CMainFrame::CheckForUpdates_Callback, this, _1));
+		std::bind(&CMainFrame::CheckForUpdates_Callback, this, _1));
 
 	l_req->SetBypassCache(true);
 	l_client->StartRequest(l_req);

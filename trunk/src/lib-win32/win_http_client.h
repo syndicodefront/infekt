@@ -17,13 +17,13 @@
 
 #include <Windows.h>
 #include <winhttp.h>
-#include <boost/function.hpp>
+#include <functional>
 
 
 // forward decl for the callback arguments:
 class CWinHttpRequest;
 typedef shared_ptr<CWinHttpRequest> PWinHttpRequest;
-typedef boost::function<void (PWinHttpRequest)> WinHttpRequestCallback;
+typedef std::function<void (PWinHttpRequest)> WinHttpRequestCallback;
 
 // forward decl for owner member:
 class CWinHttpClient;

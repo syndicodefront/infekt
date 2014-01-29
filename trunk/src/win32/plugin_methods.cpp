@@ -17,6 +17,7 @@
 #include "app.h"
 
 using namespace std;
+using namespace std::placeholders;
 
 
 long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long long lParam, void* pParam, void* pUser)
@@ -250,7 +251,7 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 
 	l_req->SetBypassCache((a_pReq->flags & INFEKT_HTTP_REQ_BYPASS_CACHE) != 0);
 
-	l_req->SetCallback(boost::bind(&_DoHttpRequest_Callback, _1, a_pReq->callback, a_pUser));
+	l_req->SetCallback(std::bind(&_DoHttpRequest_Callback, _1, a_pReq->callback, a_pUser));
 
 	if(l_plugin->GetHttpClient()->StartRequest(l_req))
 	{
