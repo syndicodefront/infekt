@@ -331,6 +331,14 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Compact|x64'">Use</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\..\src\lib\nfo_colormap.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Compact|Win32'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Compact|x64'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\src\lib\nfo_hyperlink.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
@@ -525,13 +533,14 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\lib-win32\util_win32.h" />
     <ClInclude Include="..\..\src\lib-win32\util_win32_gui.h" />
+    <ClInclude Include="..\..\src\lib-win32\win_file_watcher.h" />
+    <ClInclude Include="..\..\src\lib-win32\win_http_client.h" />
     <ClInclude Include="..\..\src\lib\ansi_art.h" />
+    <ClInclude Include="..\..\src\lib\nfo_colormap.h" />
     <ClInclude Include="..\..\src\lib\nfo_hyperlink.h" />
-    <ClInclude Include="..\..\src\win32-support\win_file_watcher.h" />
     <ClInclude Include="..\..\src\win32\about_dlg.h" />
     <ClInclude Include="..\..\src\win32\app.h" />
     <ClInclude Include="..\..\src\lib\cairo_box_blur.h" />
-    <ClInclude Include="..\..\src\win32-default-app\default_app.h" />
     <ClInclude Include="..\..\src\win32\infobar.h" />
     <ClInclude Include="..\..\src\win32\main_frame.h" />
     <ClInclude Include="..\..\src\win32\main_view.h" />
@@ -543,9 +552,7 @@
     <ClInclude Include="..\..\src\lib\settings_backend.h" />
     <ClInclude Include="..\..\src\win32\settings_dlg.h" />
     <ClInclude Include="..\..\src\win32\stdafx.h" />
-    <ClInclude Include="..\..\src\win32-support\theme_api.h" />
     <ClInclude Include="..\..\src\lib\util.h" />
-    <ClInclude Include="..\..\src\win32-support\win_http_client.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
