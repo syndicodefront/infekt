@@ -127,7 +127,7 @@ bool CAnsiArt::Process()
 
 	TwoDimVector<wchar_t> screen(
 		// plus 1 just for good measure:
-		(m_hintHeight ? m_hintHeight : 999) + 1,
+		(m_hintHeight ? m_hintHeight : 100),
 		l_hintWidth + 1,
 		L' ');
 
@@ -339,7 +339,7 @@ bool CAnsiArt::Process()
 
 	while(!m_lines.empty())
 	{
-		if(m_lines[m_lines.size() - 1].find_first_not_of(L" ") != wstring::npos)
+		if(m_lines.back().find_first_not_of(L" ") != wstring::npos)
 		{
 			break;
 		}
