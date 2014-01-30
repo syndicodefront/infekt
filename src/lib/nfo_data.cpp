@@ -902,13 +902,43 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		m_sourceCharset = (a_fix == EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
 
 		// try to detect ANSI art files without SAUCE records:
+		bool l_detectedAnsi = false;
 
 		if(!m_isAnsi && m_textContent.find(L"\x2190[") != std::wstring::npos && m_filePath.length() > 4
 			&& _tcsicmp(m_filePath.substr(m_filePath.length() - 4).c_str(), _T(".ans")) == 0)
 		{
-			m_isAnsi = true;
+			l_detectedAnsi = true;
+		}
 
-			m_ansiHintWidth = m_ansiHintHeight = 0;
+		if(!m_isAnsi && !l_detectedAnsi && m_textContent.find(L"\x2190[") != std::wstring::npos &&
+			m_filePath.length() > 4 && _tcsicmp(m_filePath.substr(m_filePath.length() - 4).c_str(), _T(".nfo")) != 0)
+		{
+			const char *szErrDescr;
+			int iErrOffset;
+
+			pcre16* re = pcre16_compile((unsigned short*)(L"\x2190\\[[0-9;]+m"),
+				PCRE_UTF16 | PCRE_NEWLINE_ANYCRLF,
+				&szErrDescr, &iErrOffset, NULL);
+
+			if(re)
+			{
+				int match = pcre16_exec(re, NULL, reinterpret_cast<PCRE_SPTR16>(m_textContent.c_str()),
+					(int)m_textContent.size(), 0, 0, NULL, 0);
+
+				if(match != PCRE_ERROR_NOMATCH)
+				{
+					l_detectedAnsi = true;
+				}
+
+				pcre16_free(re);
+			}
+		}
+
+		if(l_detectedAnsi)
+		{
+			m_isAnsi = true;
+			m_ansiHintWidth = 80;
+			m_ansiHintHeight = 0;
 		}
 
 		return true;
