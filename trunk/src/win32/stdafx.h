@@ -50,7 +50,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include <deque>
+#include <list>
 #include <set>
 #include <queue>
 #include <stack>

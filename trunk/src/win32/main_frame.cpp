@@ -1548,6 +1548,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	}
 
 	// pre-load next:
+	// :TODO: this could be in a separate thread!
 	size_t l_preLoadIndex = BrowseFolderNfoGetNext(a_direction);
 
 	if(l_preLoadIndex != m_nfoInFolderIndex)

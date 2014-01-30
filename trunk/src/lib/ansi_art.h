@@ -16,14 +16,14 @@
 #define _ANSI_ART_H
 
 #include <string>
-#include <deque>
+#include <list>
 
 // combined processing for ANSI files
 // reference: http://en.wikipedia.org/wiki/ANSI_escape_code
 class CAnsiArt
 {
 public:
-	typedef std::deque<std::wstring> TLineContainer;
+	typedef std::list<const std::wstring> TLineContainer;
 
 public:
 	CAnsiArt(size_t a_widthLimit, size_t a_heightLimit, size_t a_hintWidth, size_t a_hintHeight);
@@ -60,7 +60,7 @@ protected:
 		std::wstring data;
 	} ansi_command_t;
 
-	std::deque<const ansi_command_t> m_commands;
+	std::list<const ansi_command_t> m_commands;
 
 	// this is filled by Process():
 

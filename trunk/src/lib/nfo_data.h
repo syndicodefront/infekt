@@ -74,7 +74,7 @@ public:
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
 
-	typedef std::deque<std::wstring> TLineContainer;
+	typedef std::list<const std::wstring> TLineContainer;
 
 protected:
 	std::wstring m_lastErrorDescr;
