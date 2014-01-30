@@ -280,8 +280,8 @@ bool CAnsiArt::Process()
 		}
 		else if(y_delta != 0)
 		{
-			// out of bounds
-			return false;
+			// out of bounds, confine to screen
+			y = 0;
 		}
 
 		if(x_delta < 0 && static_cast<size_t>(std::abs(x_delta)) <= x)
@@ -294,8 +294,8 @@ bool CAnsiArt::Process()
 		}
 		else if(x_delta != 0)
 		{
-			// out of bounds
-			return false;
+			// out of bounds, confine to screen
+			x = 0;
 		}
 
 		if(x >= screen.GetCols() || y >= screen.GetRows())
