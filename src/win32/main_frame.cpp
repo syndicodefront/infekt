@@ -1594,18 +1594,20 @@ bool CMainFrame::LoadFolderNfoList()
 	m_nfoInFolderIndex = (size_t)-1;
 	m_nfoPathsInFolder.clear();
 
-	const std::wstring l_nfoPath = m_view.GetNfoData()->GetFilePath();
+	const std::wstring l_currentNfoPath = m_view.GetNfoData()->GetFilePath();
 	wchar_t l_nfoPathFull[1000] = {0};
 
-	const std::wstring l_folderPath = CUtilWin32::PathRemoveFileSpec(l_nfoPath.c_str()) + L"\\",
+	const std::wstring l_folderPath = CUtilWin32::PathRemoveFileSpec(l_currentNfoPath.c_str()) + L"\\",
 		l_filePattern = l_folderPath + L"*.*";
 
 	if(!::PathIsDirectory(l_folderPath.c_str()) ||
-		::GetFullPathName(l_nfoPath.c_str(), 999, l_nfoPathFull, NULL) > 999)
+		::GetFullPathName(l_currentNfoPath.c_str(), 999, l_nfoPathFull, NULL) > 999)
 	{
 		// what happened?!
 		return false;
 	}
+
+	const std::wstring l_extraExtension = ::PathFindExtension(l_currentNfoPath.c_str());
 
 	WIN32_FIND_DATA l_ffd = {0};
 	HANDLE l_fh;
@@ -1621,7 +1623,7 @@ bool CMainFrame::LoadFolderNfoList()
 		const std::wstring l_extension = ::PathFindExtension(l_nfoPath.c_str());
 
 		if(_wcsicmp(l_extension.c_str(), L".nfo") == 0 || _wcsicmp(l_extension.c_str(), L".asc") == 0
-			|| _wcsicmp(l_extension.c_str(), L".ans") == 0)
+			|| _wcsicmp(l_extension.c_str(), L".ans") == 0 || _wcsicmp(l_extension.c_str(), l_extraExtension.c_str()) == 0)
 		{
 			wchar_t l_buf[1000] = {0};
 
