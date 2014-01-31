@@ -15,6 +15,7 @@
 #ifndef _ANSI_ART_H
 #define _ANSI_ART_H
 
+#include "nfo_colormap.h"
 #include <string>
 #include <list>
 
@@ -45,6 +46,7 @@ public:
 	}
 
 	std::wstring GetAsClassicText() const;
+	PNFOColorMap GetColorMap() const { return m_colorMap; }
 
 protected:
 	size_t m_hintWidth;
@@ -66,6 +68,7 @@ protected:
 
 	TLineContainer m_lines;
 	size_t m_maxLineLength;
+	PNFOColorMap m_colorMap;
 };
 
 #endif /* !_ANSI_ART_H */
