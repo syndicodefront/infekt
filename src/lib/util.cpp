@@ -187,7 +187,7 @@ void CUtil::StrTrim(wstring& a_str, const wstring a_chars) { StrTrimLeft(a_str, 
 
 
 /************************************************************************/
-/* Str Replace                                                          */
+/* Other Str Tools                                                      */
 /************************************************************************/
 
 template<typename T> static T _StrReplace(const T& a_find, const T& a_replace, const T& a_input)
@@ -227,6 +227,33 @@ std::wstring CUtil::StrReplace(const std::wstring& a_find, const std::wstring& a
 	return _StrReplace(a_find, a_replace, a_input);
 }
 
+template<typename T> static std::vector<const T> _StrSplit(const T& a_str, const T& a_separator)
+{
+	std::vector<const T> result;
+	typename T::size_type prev_pos = 0, pos = a_str.find(a_separator);
+
+	while(pos != T::npos)
+	{
+		result.push_back(a_str.substr(prev_pos, pos - prev_pos));
+
+		prev_pos = pos + a_separator.size();
+		pos = a_str.find(a_separator, prev_pos);
+	}
+
+	result.push_back(a_str.substr(prev_pos));
+
+	return result;
+}
+
+std::vector<const std::string> CUtil::StrSplit(const std::string& a_str, const std::string& a_separator)
+{
+	return _StrSplit(a_str, a_separator);
+}
+
+std::vector<const std::wstring> CUtil::StrSplit(const std::wstring& a_str, const std::wstring& a_separator)
+{
+	return _StrSplit(a_str, a_separator);
+}
 
 /************************************************************************/
 /* Reg Ex Utils                                                         */

@@ -44,6 +44,9 @@ public:
 
 	static std::string StrReplace(const std::string& a_find, const std::string& a_replace, const std::string& a_input);
 	static std::wstring StrReplace(const std::wstring& a_find, const std::wstring& a_replace, const std::wstring& a_input);
+
+	static std::vector<const std::string> StrSplit(const std::string& a_str, const std::string& a_separator);
+	static std::vector<const std::wstring> StrSplit(const std::wstring& a_str, const std::wstring& a_separator);
 };
 
 

@@ -14,3 +14,18 @@
 
 #include "stdafx.h"
 #include "nfo_colormap.h"
+
+
+CNFOColorMap::CNFOColorMap()
+{
+}
+
+
+void CNFOColorMap::Clear()
+{
+}
+
+
+void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, std::vector<uint8_t> a_params)
+{
+}

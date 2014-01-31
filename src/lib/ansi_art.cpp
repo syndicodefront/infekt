@@ -123,6 +123,14 @@ bool CAnsiArt::Parse(const wstring& a_text)
 
 bool CAnsiArt::Process()
 {
+	if(m_commands.empty())
+	{
+		// handle empty files...? naaah
+		return false;
+	}
+
+	m_colorMap = PNFOColorMap(new CNFOColorMap());
+
 	size_t l_hintWidth = m_hintWidth ? m_hintWidth : 80;
 
 	TwoDimVector<wchar_t> screen(
@@ -139,7 +147,8 @@ bool CAnsiArt::Process()
 		int x_delta = 0, y_delta = 0;
 		int n = 0, m = 0;
 
-		if(cmd.cmd != 0) {
+		if(cmd.cmd != 0)
+		{
 			// this could be done somewhat nicer, but okay for now:
 			wstring::size_type pos;
 
@@ -234,7 +243,7 @@ bool CAnsiArt::Process()
 				break;
 			}
 			case L'J': { // erase display
-				// *TODO*
+				// only cursor pos change is supported, ignoring erase command:
 				if(n == 2)
 				{
 					x = y = 0;
@@ -242,7 +251,7 @@ bool CAnsiArt::Process()
 				break;
 			}
 			case L'K': { // erase in line
-				// *TODO*
+				// unsupported
 				break;
 			}
 			case L's': { // save cursor pos
@@ -259,7 +268,22 @@ bool CAnsiArt::Process()
 				break;
 			}
 			case L'm': { // rainbows and stuff!
-				// *TODO*
+				std::vector<uint8_t> params;
+
+				for(const wstring s : CUtil::StrSplit(cmd.data, L";"))
+				{
+					int n = _wtoi(s.c_str());
+
+					if(n >= 0 && n <= 255)
+					{
+						params.push_back(static_cast<uint8_t>(n));
+					}
+				}
+
+				if(!params.empty())
+				{
+					m_colorMap->PushGraphicRendition(y, x, params);
+				}
 				break;
 			}
 			case 'S': // scroll up
