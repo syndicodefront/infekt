@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,77 +16,10 @@
 #define _MAIN_FRAME_H
 
 #include "main_view.h"
+#include "main_settings.h"
 #include "win_http_client.h"
 #include "win_file_watcher.h"
-
-
-class CMainSettings
-{
-public:
-	CMainSettings(bool bFromRegistry) {
-		iDefaultView = -1;
-		iLastView = MAIN_VIEW_RENDERED;
-		bCopyOnSelect = bAlwaysOnTop = bAlwaysShowMenubar = false;
-		bCheckDefaultOnStartup = false;
-		bSingleInstanceMode = false;
-		bKeepOpenMRU = true;
-		bCenterWindow = true;
-		bAutoWidth = true;
-		bCenterNFO = true;
-		bDefaultExportToNFODir = false;
-		bCloseOnEsc = false;
-		bOnDemandRendering = true;
-		bMonitorFileChanges = true;
-		bUseGPU = true;
-		if(bFromRegistry) LoadFromRegistry();
-	}
-	bool LoadFromRegistry();
-	bool SaveToRegistry();
-
-	int32_t iDefaultView, iLastView;
-	bool bCopyOnSelect;
-	bool bAlwaysOnTop;
-	bool bAlwaysShowMenubar;
-	bool bCheckDefaultOnStartup;
-	bool bSingleInstanceMode;
-	bool bKeepOpenMRU;
-
-	bool bCenterWindow;
-	bool bAutoWidth;
-	bool bCenterNFO;
-	bool bDefaultExportToNFODir;
-	bool bCloseOnEsc;
-	bool bOnDemandRendering;
-	bool bMonitorFileChanges;
-	bool bUseGPU;
-};
-
-typedef shared_ptr<CMainSettings> PMainSettings;
-
-
-class CMainDropTargetHelper : public IDropTarget
-{
-public:
-	CMainDropTargetHelper(HWND a_hwnd);
-	virtual ~CMainDropTargetHelper();
-
-	// IUnknown implementation
-	HRESULT _stdcall QueryInterface(REFIID iid, void** ppvObject);
-	ULONG _stdcall AddRef();
-	ULONG _stdcall Release();
-
-	// IDropTarget implementation
-	HRESULT _stdcall DragEnter(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-	HRESULT _stdcall DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-	HRESULT _stdcall DragLeave();
-	HRESULT _stdcall Drop(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-protected:
-	LONG m_refCount;
-	HWND m_hwnd;
-
-	bool m_allowDrop;
-};
-
+#include "drop_target_helper.h"
 
 class CMainFrame : public CFrame
 {
@@ -115,7 +48,7 @@ protected:
 	std::wstring m_lastSearchTerm;
 	bool m_showingAbout;
 	PMainSettings m_settings;
-	CMainDropTargetHelper *m_dropHelper;
+	CMainDropTargetHelper* m_dropHelper;
 	std::vector<std::wstring> m_mruPaths;
 
 	std::vector<std::wstring> m_nfoPathsInFolder;

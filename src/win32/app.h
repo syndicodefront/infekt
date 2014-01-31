@@ -17,17 +17,12 @@
 
 #include "settings_backend.h"
 #include "main_frame.h"
-
-#define WM_LOAD_NFO (WM_APP + 30)
-#define WM_RELOAD_NFO (WM_APP + 31)
-#define WM_SYNC_PLUGIN_TO_CORE (WM_APP + 32)
-#define INFEKT_MAIN_WINDOW_CLASS_NAME _T("iNFektMainWindow")
+#include "infekt_global.h"
 
 class CNFOApp : public CWinApp
 {
 public:
 	CNFOApp(); 
-	virtual ~CNFOApp();
 	virtual BOOL InitInstance();
 
 	CMainFrame& GetMainFrame() { return m_frame; }
