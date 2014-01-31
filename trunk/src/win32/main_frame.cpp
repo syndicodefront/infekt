@@ -70,25 +70,13 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 
 	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
 	{
-#if 0
-		if(!::GetAsyncKeyState(VK_SHIFT))
-		{
-			// holding down SHIFT during startup causes the
-			// saved position to be discarded
-#else
-		if(true)
-		{
-			// GetAsyncKeyState and GetKeyState randomly return true... wtf.
-#endif
+		cs.x = l_sect->ReadDword(L"Left");
+		cs.y = l_sect->ReadDword(L"Top");
+		cs.cx = l_sect->ReadDword(L"Width");
+		cs.cy = l_sect->ReadDword(L"Height");
 
-			cs.x = l_sect->ReadDword(L"Left");
-			cs.y = l_sect->ReadDword(L"Top");
-			cs.cx = l_sect->ReadDword(L"Width");
-			cs.cy = l_sect->ReadDword(L"Height");
-
-			m_bShowStatusbar = l_sect->ReadBool(L"Statusbar", true);
-			m_bShowToolbar = l_sect->ReadBool(L"Toolbar", true);
-		}
+		m_bShowStatusbar = l_sect->ReadBool(L"Statusbar", true);
+		m_bShowToolbar = l_sect->ReadBool(L"Toolbar", true);
 	}
 
 	if(cs.cx == 0 && cs.cy == 0)
@@ -208,10 +196,10 @@ void CMainFrame::OnInitialUpdate()
 	}
 
 	m_dropHelper = new (std::nothrow) CMainDropTargetHelper(m_hWnd);
+
 	if(m_dropHelper)
 	{
-		::CoLockObjectExternal(m_dropHelper, TRUE, FALSE);
-		::RegisterDragDrop(m_hWnd, m_dropHelper);
+		m_dropHelper->Register();
 	}
 
 	PSettingsSection l_sect;
@@ -1254,10 +1242,9 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		RB.ShowGripper(RB.IDToIndex(IDW_TOOLBAR), !::IsThemeActive());
 		break; }
 	case WM_DESTROY:
-		::RevokeDragDrop(m_hWnd);
 		if(m_dropHelper)
 		{
-			::CoLockObjectExternal(m_dropHelper, FALSE, TRUE);
+			m_dropHelper->Unregister();
 			m_dropHelper->Release();
 		}
 		break; // also invoke default
@@ -1998,204 +1985,4 @@ void CMainFrame::OnClose()
 CMainFrame::~CMainFrame()
 {
 	delete m_searchToolbar;
-}
-
-
-/************************************************************************/
-/* CMAINSETTINGS                                                        */
-/************************************************************************/
-
-bool CMainSettings::SaveToRegistry()
-{
-	PSettingsSection l_sect;
-
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"MainSettings", l_sect))
-	{
-		return false;
-	}
-
-	l_sect->WriteDword(L"DefaultView", this->iDefaultView);
-	l_sect->WriteDword(L"LastView", this->iLastView);
-	l_sect->WriteBool(L"CopyOnSelect", this->bCopyOnSelect);
-	l_sect->WriteBool(L"AlwaysOnTop", this->bAlwaysOnTop);
-	l_sect->WriteBool(L"AlwaysShowMenubar", this->bAlwaysShowMenubar);
-	l_sect->WriteBool(L"CheckDefViewOnStart", this->bCheckDefaultOnStartup);
-	l_sect->WriteBool(L"KeepOpenMRU", this->bKeepOpenMRU);
-
-	l_sect->WriteBool(L"CenterWindow", this->bCenterWindow);
-	l_sect->WriteBool(L"AutoWidth", this->bAutoWidth);
-	l_sect->WriteBool(L"CenterNFO", this->bCenterNFO);
-	l_sect->WriteBool(L"DefaultExportToNFODir", this->bDefaultExportToNFODir);
-	l_sect->WriteBool(L"CloseOnEsc", this->bCloseOnEsc);
-	l_sect->WriteBool(L"OnDemandRendering", this->bOnDemandRendering);
-	l_sect->WriteBool(L"MonitorFileChanges", this->bMonitorFileChanges);
-	l_sect->WriteBool(L"UseGPU", this->bUseGPU);
-
-	// "deputy" return value:
-	return l_sect->WriteBool(L"SingleInstanceMode", this->bSingleInstanceMode);
-}
-
-
-bool CMainSettings::LoadFromRegistry()
-{
-	PSettingsSection l_sect;
-
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
-	{
-		return false;
-	}
-
-	DWORD dwDefaultView = l_sect->ReadDword(L"DefaultView"),
-		dwLastView = l_sect->ReadDword(L"LastView");
-
-	if(dwDefaultView == -1 || (dwDefaultView >= MAIN_VIEW_RENDERED && dwDefaultView < _MAIN_VIEW_MAX))
-	{
-		this->iDefaultView = dwDefaultView;
-	}
-
-	if(dwLastView >= MAIN_VIEW_RENDERED && dwLastView < _MAIN_VIEW_MAX)
-	{
-		this->iLastView = dwLastView;
-	}
-
-	this->bCopyOnSelect = l_sect->ReadBool(L"CopyOnSelect", false);
-	this->bAlwaysOnTop = l_sect->ReadBool(L"AlwaysOnTop", false);
-	this->bAlwaysShowMenubar = l_sect->ReadBool(L"AlwaysShowMenubar", false);
-	this->bCheckDefaultOnStartup = l_sect->ReadBool(L"CheckDefViewOnStart", true);
-	this->bSingleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
-	this->bKeepOpenMRU = l_sect->ReadBool(L"KeepOpenMRU", true);
-
-	this->bCenterWindow = l_sect->ReadBool(L"CenterWindow", true);
-	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", true);
-	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", true);
-	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
-	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", false);
-	this->bOnDemandRendering = l_sect->ReadBool(L"OnDemandRendering", true);
-	this->bMonitorFileChanges = l_sect->ReadBool(L"MonitorFileChanges", true);
-	this->bUseGPU = l_sect->ReadBool(L"UseGPU", true);
-
-	return true;
-}
-
-
-/************************************************************************/
-/* Drop Target Helper                                                   */
-/************************************************************************/
-
-CMainDropTargetHelper::CMainDropTargetHelper(HWND a_hwnd)
-{
-	m_hwnd = a_hwnd;
-	m_refCount = 1;
-	m_allowDrop = false;
-}
-
-
-HRESULT _stdcall CMainDropTargetHelper::QueryInterface(REFIID iid, void** ppvObject)
-{
-	if(iid == IID_IDropTarget || iid == IID_IUnknown)
-	{
-		AddRef();
-		*ppvObject = this;
-		return S_OK;
-	}
-	else
-	{
-		*ppvObject = NULL;
-		return E_NOINTERFACE;
-	}
-}
-
-ULONG _stdcall CMainDropTargetHelper::AddRef()
-{
-	return ::InterlockedIncrement(&m_refCount);
-}
-
-ULONG _stdcall CMainDropTargetHelper::Release()
-{
-	LONG l_new = ::InterlockedDecrement(&m_refCount);
-
-	if(l_new == 0)
-	{
-		delete this;
-	}
-
-	return l_new;
-}
-
-
-HRESULT _stdcall CMainDropTargetHelper::DragEnter(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
-{
-	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-
-	if(pDataObject->QueryGetData(&fmtetc) == S_OK)
-	{
-		*pdwEffect = DROPEFFECT_MOVE;
-
-		m_allowDrop = true;
-	}
-	else
-	{
-		*pdwEffect = DROPEFFECT_NONE;
-
-		m_allowDrop = false;
-	}
-
-	return S_OK;
-}
-
-HRESULT _stdcall CMainDropTargetHelper::DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
-{
-	*pdwEffect = (m_allowDrop ? DROPEFFECT_MOVE : DROPEFFECT_NONE);
-
-	return S_OK;
-}
-
-HRESULT _stdcall CMainDropTargetHelper::DragLeave()
-{
-	return S_OK;
-}
-
-HRESULT _stdcall CMainDropTargetHelper::Drop(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
-{
-	if(!m_allowDrop)
-	{
-		return E_UNEXPECTED;
-	}
-
-	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-	STGMEDIUM stgmed;
-
-	if(pDataObject->GetData(&fmtetc, &stgmed) == S_OK)
-	{
-		HDROP l_hDrop = (HDROP)::GlobalLock(stgmed.hGlobal);
-
-		if(l_hDrop)
-		{
-			UINT l_numFiles = ::DragQueryFile(l_hDrop, 0xFFFFFFFF, NULL, 0);
-
-			if(l_numFiles > 0)
-			{
-				wchar_t l_fileNameBuf[1000] = {0};
-				UINT l_charsCopied = ::DragQueryFile(l_hDrop, 0, l_fileNameBuf, 999); // get the first file.
-
-				if(l_charsCopied > 0 && l_charsCopied < 1000)
-				{
-					::SendMessage(m_hwnd, WM_LOAD_NFO, (WPARAM)l_fileNameBuf, l_charsCopied);
-				}
-			}
-		}
-
-		::GlobalUnlock(stgmed.hGlobal);
-
-		// release the data using the COM API
-		::ReleaseStgMedium(&stgmed);
-	}
-
-	return S_OK;
-}
-
-
-
-CMainDropTargetHelper::~CMainDropTargetHelper()
-{
 }
