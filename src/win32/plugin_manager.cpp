@@ -248,11 +248,9 @@ bool CLoadedPlugin::_DoLoad()
 	{
 		infektDeclareStruct(infekt_plugin_load_t, l_loadInfo);
 
-		CNFOApp* l_app = dynamic_cast<CNFOApp*>(GetApp());
-
 		// fill info for the plugin:
 		l_loadInfo.pluginToCore = CPluginManager::_pluginToCoreCallback;
-		l_loadInfo.hMainWindow = l_app->GetMainFrame().GetHwnd();
+		l_loadInfo.hMainWindow = CNFOApp::GetInstance()->GetMainFrame().GetHwnd();
 
 		const std::_tstring l_pluginDir = CUtilWin32::PathRemoveFileSpec(m_dllPath);
 		l_loadInfo.pluginDir = l_pluginDir.c_str();
