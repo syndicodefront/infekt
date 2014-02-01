@@ -26,7 +26,7 @@ bool CMainSettings::SaveToRegistry()
 {
 	PSettingsSection l_sect;
 
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"MainSettings", l_sect))
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForWriting(L"MainSettings", l_sect))
 	{
 		return false;
 	}
@@ -57,7 +57,7 @@ bool CMainSettings::LoadFromRegistry()
 {
 	PSettingsSection l_sect;
 
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
 	{
 		return false;
 	}

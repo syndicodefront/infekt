@@ -68,7 +68,7 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 	// read saved positions and dimensions:
 	PSettingsSection l_sect;
 
-	if(dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
+	if(CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForReading(L"Frame Settings", l_sect))
 	{
 		cs.x = l_sect->ReadDword(L"Left");
 		cs.y = l_sect->ReadDword(L"Top");
@@ -151,7 +151,7 @@ void CMainFrame::OnCreate()
 
 void CMainFrame::OnInitialUpdate()
 {
-	CNFOApp *l_app = dynamic_cast<CNFOApp*>(GetApp());
+	CNFOApp *l_app = CNFOApp::GetInstance();
 	std::wstring l_path, l_viewMode;
 	bool l_wrap, l_noGpu;
 
@@ -956,7 +956,7 @@ void CMainFrame::UpdateCaption()
 	l_caption += L"-compact";
 #endif
 
-	if(dynamic_cast<CNFOApp*>(GetApp())->InPortableMode())
+	if(CNFOApp::GetInstance()->InPortableMode())
 	{
 		l_caption += L" (portable)";
 	}
@@ -1648,7 +1648,7 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 {
 	PSettingsSection l_sect;
 
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(a_key, l_sect))
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForWriting(a_key, l_sect))
 	{
 		return false;
 	}
@@ -1686,7 +1686,7 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 {
 	PSettingsSection l_sect;
 
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(a_key, l_sect))
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForReading(a_key, l_sect))
 	{
 		return false;
 	}
@@ -1891,7 +1891,7 @@ void CMainFrame::LoadOpenMruList()
 {
 	PSettingsSection l_sect;
 
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForReading(L"OpenMRU", l_sect))
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForReading(L"OpenMRU", l_sect))
 	{
 		return;
 	}
@@ -1918,7 +1918,7 @@ void CMainFrame::SaveOpenMruList()
 {
 	PSettingsSection l_sect;
 
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"OpenMRU", l_sect))
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForWriting(L"OpenMRU", l_sect))
 	{
 		return;
 	}
@@ -1945,7 +1945,7 @@ void CMainFrame::SavePositionSettings()
 {
 	PSettingsSection l_sect;
 
-	if(!dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->OpenSectionForWriting(L"Frame Settings", l_sect))
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForWriting(L"Frame Settings", l_sect))
 	{
 		return;
 	}

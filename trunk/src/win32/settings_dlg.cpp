@@ -103,7 +103,7 @@ void CSettingsWindowDialog::OnOK()
 		MessageBox(L"An error occurred while saving settings. Some settings may not have been saved.", L"Error", MB_ICONEXCLAMATION);
 	}
 
-	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+	CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
 
 	l_view->GetRenderCtrl()->InjectSettings(*m_tabPageRendered->GetViewSettings());
 	l_view->GetClassicCtrl()->InjectSettings(*m_tabPageClassic->GetViewSettings());
@@ -269,7 +269,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 			DLG_SHOW_CTRL_IF(IDC_FONT_SIZE_SPIN2, false);
 		}
 
-		CViewContainer* l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+		CViewContainer* l_view = CNFOApp::GetViewContainerInstance();
 		m_viewSettings = new CNFORenderSettings();
 
 		switch(m_pageId)
@@ -304,7 +304,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		if(CUtilWin32::IsWin6x())
 		{
-			int l_status = dynamic_cast<CNFOApp*>(GetApp())->IsDefaultNfoViewer();
+			int l_status = CNFOApp::GetInstance()->IsDefaultNfoViewer();
 
 			::EnableWindow(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER), (l_status == -1 ? FALSE : TRUE));
 		}
@@ -312,7 +312,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		SET_DLG_CHECKBOX(IDC_CHECK_DEFAULT_VIEWER, l_global->bCheckDefaultOnStartup && ::IsWindowEnabled(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER)));
 
 		const std::wstring l_info = L"Active settings backend: " +
-			dynamic_cast<CNFOApp*>(GetApp())->GetSettingsBackend()->GetName();
+			CNFOApp::GetInstance()->GetSettingsBackend()->GetName();
 		SetDlgItemText(IDC_SETTINGS_BACKEND_STATUS, l_info.c_str());
 	}
 #ifdef INFEKT_PLUGIN_HOST
@@ -568,7 +568,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		switch(LOWORD(wParam))
 		{
 		case IDC_BUTTON_DEFAULT_VIEWER:
-			dynamic_cast<CNFOApp*>(GetApp())->CheckDefaultNfoViewer(m_hWnd);
+			CNFOApp::GetInstance()->CheckDefaultNfoViewer(m_hWnd);
 			break;
 		case IDC_THEME_EXPORT:
 			m_dlgWin->DoThemeExImport(false);
@@ -581,7 +581,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			l_dlg.SetMainSettings(m_mainWin->GetSettings());
 			l_dlg.DoModal();
 
-			CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+			CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
 			l_view->SetCenterNfo(m_mainWin->GetSettings()->bCenterNFO);
 			l_view->SetOnDemandRendering(m_mainWin->GetSettings()->bOnDemandRendering);
 			break; }
@@ -660,7 +660,7 @@ void CSettingsTabDialog::UpdateFontSizesCombo(size_t a_selSize)
 
 void CSettingsTabDialog::DoPreview()
 {
-	CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+	CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
 
 	if(!l_view->GetNfoData() || !l_view->GetNfoData()->HasData())
 	{
@@ -854,7 +854,7 @@ void CSettingsTabDialog::OnCancelled()
 {
 	if(m_beforePreviewViewType != _MAIN_VIEW_MAX)
 	{
-		CViewContainer *l_view = dynamic_cast<CViewContainer*>(m_mainWin->GetView());
+		CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
 
 		PNFOViewControl l_ctrl;
 
@@ -1079,7 +1079,7 @@ bool CSettingsTabDialog::SaveSettings()
 		if(l_set->bAlwaysShowMenubar != l_oldAsm) m_mainWin->ShowMenuBar(l_set->bAlwaysShowMenubar);
 
 		l_set->bCopyOnSelect = (::IsDlgButtonChecked(GetHwnd(), IDC_COPY_ON_SELECT) != FALSE);
-		dynamic_cast<CViewContainer*>(m_mainWin->GetView())->SetCopyOnSelect(l_set->bCopyOnSelect);
+		CNFOApp::GetViewContainerInstance()->SetCopyOnSelect(l_set->bCopyOnSelect);
 
 		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
 		l_set->bSingleInstanceMode = (::IsDlgButtonChecked(GetHwnd(), IDC_SINGLEINSTANCEMODE) != FALSE);

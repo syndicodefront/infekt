@@ -106,8 +106,8 @@ protected:
 	std::wstring m_probedName, m_probedVer, m_probedDescr;
 	std::string m_probedGuid;
 
-	CNFOApp* GetApp() { return dynamic_cast<CNFOApp*>(::Win32xx::GetApp()); }
-	CViewContainer* GetAppView() { return dynamic_cast<CViewContainer*>(GetApp()->GetMainFrame().GetView()); }
+	CNFOApp* GetApp() { return CNFOApp::GetInstance(); }
+	CViewContainer* GetAppView() { return CNFOApp::GetViewContainerInstance(); }
 
 	// plugin -> core implementation things:
 	long PluginToCoreCallback(const char*, long, long long, void*, void*);

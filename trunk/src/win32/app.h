@@ -43,6 +43,9 @@ public:
 	int IsDefaultNfoViewer();
 	bool MakeDefaultNfoViewer();
 	void CheckDefaultNfoViewer(HWND a_hwnd = 0, bool a_confirmation = true);
+
+	static CNFOApp* GetInstance() { return reinterpret_cast<CNFOApp*>(::Win32xx::GetApp()); }
+	static CViewContainer* GetViewContainerInstance() { return reinterpret_cast<CViewContainer*>(GetInstance()->GetMainFrame().GetView()); }
 protected:
 	CMainFrame m_frame;
 	std::wstring m_startupFilePath, m_startupViewMode;
