@@ -20,12 +20,12 @@
 #include "win_http_client.h"
 
 
-enum EPluginReg
+typedef enum
 {
 	REG_NFO_LOAD_EVENTS = 1,
 	REG_NFO_VIEW_EVENTS = 2,
 	REG_SETTINGS_EVENTS = 4
-};
+} EPluginReg;
 
 
 class CLoadedPlugin
@@ -36,10 +36,10 @@ public:
 
 	bool _DoLoad();
 
-	enum EPluginCap
+	typedef enum
 	{
 		CAPAB_INFOBAR = 1
-	};
+	} EPluginCap;
 
 	bool HasCapab(EPluginCap a_cap) const { return (m_capabs & a_cap) != 0; }
 	bool HasRegSet(EPluginReg a_reg) const { return (m_activeRegBits & a_reg) != 0; }
