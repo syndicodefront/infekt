@@ -260,7 +260,7 @@ std::vector<const std::wstring> CUtil::StrSplit(const std::wstring& a_str, const
 /************************************************************************/
 
 #define OVECTOR_SIZE 60
-wstring CUtil::RegExReplaceUtf16(const wstring& a_subject, const wstring& a_pattern, const wstring& a_replacement, int a_flags)
+wstring CRegExUtil::Replace(const wstring& a_subject, const wstring& a_pattern, const wstring& a_replacement, int a_flags)
 {
 	wstring l_result;
 
@@ -355,6 +355,34 @@ wstring CUtil::RegExReplaceUtf16(const wstring& a_subject, const wstring& a_patt
 	return l_result;
 }
 #undef OVECTOR_SIZE
+
+
+bool CRegExUtil::DoesMatch(const std::wstring& a_subject, const std::wstring& a_pattern, int a_flags)
+{
+	const char *szErrDescr;
+	int iErrOffset;
+
+	pcre16* re = pcre16_compile(reinterpret_cast<PCRE_SPTR16>(a_pattern.c_str()),
+		PCRE_UTF16 | a_flags,
+		&szErrDescr, &iErrOffset, NULL);
+
+	_ASSERT(re != NULL);
+
+	if(re)
+	{
+		int match = pcre16_exec(re, NULL, reinterpret_cast<PCRE_SPTR16>(a_subject.c_str()),
+			(int)a_subject.size(), 0, 0, NULL, 0);
+
+		if(match != PCRE_ERROR_NOMATCH)
+		{
+			return true;
+		}
+
+		pcre16_free(re);
+	}
+
+	return false;
+}
 
 
 /************************************************************************/
