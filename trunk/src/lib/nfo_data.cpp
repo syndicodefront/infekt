@@ -540,6 +540,11 @@ bool CNFOData::PostProcessLoadedContent()
 	}
 	else
 	{
+		if(m_ansiHintWidth == 0)
+		{
+			m_ansiHintWidth = 80;
+		}
+
 		try
 		{
 			CAnsiArt l_ansiArtProcessor(WIDTH_LIMIT, LINES_LIMIT, m_ansiHintWidth, m_ansiHintHeight);
@@ -851,7 +856,11 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		{
 			if(p == 0)
 			{
-				l_error = true;
+				// "allow" \0 chars for ANSI files with SAUCE record...
+				if(!m_isAnsi || m_ansiHintWidth == 0)
+					l_error = true;
+				else
+					m_textContent[i] = L'?';
 			}
 			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
 			{
@@ -901,27 +910,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	{
 		m_sourceCharset = (a_fix == EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
 
-		// try to detect ANSI art files without SAUCE records:
-		bool l_detectedAnsi = false;
-
-		if(!m_isAnsi && m_textContent.find(L"\x2190[") != std::wstring::npos && m_filePath.length() > 4
-			&& _tcsicmp(m_filePath.substr(m_filePath.length() - 4).c_str(), _T(".ans")) == 0)
-		{
-			l_detectedAnsi = true;
-		}
-
-		if(!m_isAnsi && !l_detectedAnsi && m_textContent.find(L"\x2190[") != std::wstring::npos &&
-			m_filePath.length() > 4 && _tcsicmp(m_filePath.substr(m_filePath.length() - 4).c_str(), _T(".nfo")) != 0)
-		{
-			l_detectedAnsi = CRegExUtil::DoesMatch(m_textContent, L"\x2190\\[[0-9;]+m");
-		}
-
-		if(l_detectedAnsi)
-		{
-			m_isAnsi = true;
-			m_ansiHintWidth = 80;
-			m_ansiHintHeight = 0;
-		}
+		m_isAnsi = m_isAnsi || DetectAnsi();
 
 		return true;
 	}
@@ -983,8 +972,32 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 	{
 		m_sourceCharset = NFOC_CP437_STRICT;
 
+		m_isAnsi = m_isAnsi || DetectAnsi();
+
 		return true;
 	}
+}
+
+
+bool CNFOData::DetectAnsi() const
+{
+	// try to detect ANSI art files without SAUCE records:
+
+	const std::_tstring l_extension = (m_filePath.length() > 4 ? m_filePath.substr(m_filePath.length() - 4) : _T(""));
+
+	if(!m_isAnsi && _tcsicmp(l_extension.c_str(), _T(".ans")) == 0
+		&& m_textContent.find(L"\x2190[") != std::wstring::npos)
+	{
+		return true;
+	}
+
+	if(!m_isAnsi && _tcsicmp(l_extension.c_str(), _T(".nfo")) != 0 
+		&& m_textContent.find(L"\x2190[") != std::wstring::npos)
+	{
+		return CRegExUtil::DoesMatch(m_textContent, L"\x2190\\[[0-9;]+m");
+	}
+
+	return false;
 }
 
 

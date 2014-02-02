@@ -21,7 +21,15 @@ public:
 	CNFOColorMap();
 
 	void Clear();
-	void PushGraphicRendition(size_t a_row, size_t a_col, std::vector<uint8_t> a_params);
+	void PushGraphicRendition(size_t a_row, size_t a_col, const std::vector<uint8_t>& a_params);
+
+	bool HasColors() const { return !m_stopsFore.empty() || !m_stopsBack.empty(); }
+
+	// returns false for default color, true + set ar_color otherwise.
+	bool GetForegroundColor(size_t a_row, size_t a_col, uint32_t& ar_color);
+
+	// returns false for default color, true + ar_sections with number of columns + ar_colors with colors otherwise
+	bool GetLineBackgrounds(size_t a_row, std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors);
 
 protected:
 	typedef enum {
@@ -51,13 +59,25 @@ protected:
 		NFOCOLOR_RGB,
 	} ENFOColor;
 
-	typedef struct {
+	typedef struct _nfo_color_stop {
 		ENFOColor color;
-		uint32_t color_rgb;
+		uint32_t color_rgba;
 		bool bold;
+
+		_nfo_color_stop()
+			: color(NFOCOLOR_DEFAULT), color_rgba(0), bold(false) {}
 	} SNFOColorStop;
 
-	std::map<size_t, std::map<size_t, SNFOColorStop>> m_stops;
+	std::map<ENFOColor, uint32_t> m_rgbMapping;
+
+	// (row, (col, stop))
+	std::map<size_t, std::map<size_t, SNFOColorStop>> m_stopsFore;
+	std::map<size_t, std::map<size_t, SNFOColorStop>> m_stopsBack;
+
+	SNFOColorStop m_previousFore;
+	SNFOColorStop m_previousBack;
+
+	bool InterpretAdvancedColor(const std::vector<uint8_t>& a_params, ENFOColor& ar_color, uint32_t& ar_rgba);
 };
 
 typedef shared_ptr<CNFOColorMap> PNFOColorMap;
