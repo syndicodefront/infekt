@@ -131,12 +131,10 @@ bool CAnsiArt::Process()
 
 	m_colorMap = PNFOColorMap(new CNFOColorMap());
 
-	size_t l_hintWidth = m_hintWidth ? m_hintWidth : 80;
-
 	TwoDimVector<wchar_t> screen(
 		// plus 1 just for good measure:
 		(m_hintHeight ? m_hintHeight : 100),
-		l_hintWidth + 1,
+		m_hintWidth + 1,
 		L' ');
 
 	std::stack<std::pair<size_t, size_t> > saved_positions;
@@ -169,7 +167,7 @@ bool CAnsiArt::Process()
 					{
 						// ignore CR
 					}
-					else if(c == L'\n' || (l_hintWidth != 0 && x == l_hintWidth - 1))
+					else if(c == L'\n' || (m_hintWidth != 0 && x == m_hintWidth - 1))
 					{
 						if(y >= screen.GetRows() - 1)
 						{
