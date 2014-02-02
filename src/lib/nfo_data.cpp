@@ -913,25 +913,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		if(!m_isAnsi && !l_detectedAnsi && m_textContent.find(L"\x2190[") != std::wstring::npos &&
 			m_filePath.length() > 4 && _tcsicmp(m_filePath.substr(m_filePath.length() - 4).c_str(), _T(".nfo")) != 0)
 		{
-			const char *szErrDescr;
-			int iErrOffset;
-
-			pcre16* re = pcre16_compile((unsigned short*)(L"\x2190\\[[0-9;]+m"),
-				PCRE_UTF16 | PCRE_NEWLINE_ANYCRLF,
-				&szErrDescr, &iErrOffset, NULL);
-
-			if(re)
-			{
-				int match = pcre16_exec(re, NULL, reinterpret_cast<PCRE_SPTR16>(m_textContent.c_str()),
-					(int)m_textContent.size(), 0, 0, NULL, 0);
-
-				if(match != PCRE_ERROR_NOMATCH)
-				{
-					l_detectedAnsi = true;
-				}
-
-				pcre16_free(re);
-			}
+			l_detectedAnsi = CRegExUtil::DoesMatch(m_textContent, L"\x2190\\[[0-9;]+m");
 		}
 
 		if(l_detectedAnsi)
@@ -1535,32 +1517,32 @@ wstring CNFOData::GetStrippedText() const
 		}
 	}
 
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"^[^a-zA-Z0-9]+$", L"", PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, L"^[^a-zA-Z0-9]+$", L"", PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"^(.)\\1+$", L"",
+	l_text = CRegExUtil::Replace(l_text, L"^(.)\\1+$", L"",
 		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"^([\\S])\\1+\\s{3,}(.+?)$", L"$2",
+	l_text = CRegExUtil::Replace(l_text, L"^([\\S])\\1+\\s{3,}(.+?)$", L"$2",
 		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"^(.+?)\\s{3,}([\\S])\\2+$", L"$1",
+	l_text = CRegExUtil::Replace(l_text, L"^(.+?)\\s{3,}([\\S])\\2+$", L"$1",
 		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
 #if 0
 	// this ruins our efforts to keep indention for paragraphs :(
 	// ...but it makes other NFOs look A LOT better...
 	// :TODO: figure out a smart way.
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+", L"",
+	l_text = CRegExUtil::Replace(l_text, L"^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+", L"",
 		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
 #endif
 
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$", L"",
+	l_text = CRegExUtil::Replace(l_text, L"\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$", L"",
 		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"^\\s*.{1,3}\\s*$", L"",
+	l_text = CRegExUtil::Replace(l_text, L"^\\s*.{1,3}\\s*$", L"",
 		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
 
-	l_text = CUtil::RegExReplaceUtf16(l_text, L"\\n{2,}", L"\n\n", PCRE_NO_UTF16_CHECK);
+	l_text = CRegExUtil::Replace(l_text, L"\\n{2,}", L"\n\n", PCRE_NO_UTF16_CHECK);
 
 	CUtil::StrTrimLeft(l_text, L"\n");
 
