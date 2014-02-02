@@ -17,6 +17,7 @@
 
 #include "util.h"
 #include "nfo_hyperlink.h"
+#include "nfo_colormap.h"
 
 typedef enum
 {
@@ -74,6 +75,9 @@ public:
 	void SetWrapLines(bool nb) { m_lineWrap = nb; } /* only effective when calling Load* the next time */
 	bool GetWrapLines() const { return m_lineWrap; }
 
+	bool HasColorMap() const { return m_isAnsi && m_colorMap && m_colorMap->HasColors(); }
+	PNFOColorMap GetColorMap() const { return m_colorMap; } // for laziness reasons, the returned object is not const
+
 	typedef std::list<const std::wstring> TLineContainer;
 
 protected:
@@ -90,6 +94,7 @@ protected:
 	bool m_isAnsi;
 	size_t m_ansiHintWidth;
 	size_t m_ansiHintHeight;
+	PNFOColorMap m_colorMap;
 
 	static const int LINES_LIMIT = 10000;
 	static const int WIDTH_LIMIT = 2000;
