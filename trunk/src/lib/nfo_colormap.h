@@ -26,10 +26,11 @@ public:
 	bool HasColors() const { return !m_stopsFore.empty() || !m_stopsBack.empty(); }
 
 	// returns false for default color, true + set ar_color otherwise.
-	bool GetForegroundColor(size_t a_row, size_t a_col, uint32_t& ar_color);
+	bool GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_defaultColor, uint32_t& ar_color) const;
 
-	// returns false for default color, true + ar_sections with number of columns + ar_colors with colors otherwise
-	bool GetLineBackgrounds(size_t a_row, std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors);
+	// returns false for default color, true + ar_sections with number of columns + ar_colors with colors otherwise.
+	// one (the last) section in ar_sections is always implicit (to EOL).
+	bool GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const;
 
 protected:
 	typedef enum {
@@ -70,14 +71,19 @@ protected:
 
 	std::map<ENFOColor, uint32_t> m_rgbMapping;
 
+	typedef std::map<size_t, std::map<size_t, SNFOColorStop>> TColorStopMap;
+
 	// (row, (col, stop))
-	std::map<size_t, std::map<size_t, SNFOColorStop>> m_stopsFore;
-	std::map<size_t, std::map<size_t, SNFOColorStop>> m_stopsBack;
+	TColorStopMap m_stopsFore;
+	TColorStopMap m_stopsBack;
 
 	SNFOColorStop m_previousFore;
 	SNFOColorStop m_previousBack;
 
-	bool InterpretAdvancedColor(const std::vector<uint8_t>& a_params, ENFOColor& ar_color, uint32_t& ar_rgba);
+	bool InterpretAdvancedColor(const std::vector<uint8_t>& a_params, ENFOColor& ar_color, uint32_t& ar_rgba) const;
+
+	bool FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& ar_row) const;
+	uint32_t GetRGB(const SNFOColorStop& a_stop) const;
 };
 
 typedef shared_ptr<CNFOColorMap> PNFOColorMap;

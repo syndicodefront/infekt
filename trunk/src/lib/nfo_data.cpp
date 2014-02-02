@@ -518,6 +518,8 @@ bool CNFOData::PostProcessLoadedContent()
 	TLineContainer l_lines;
 	bool l_ansiError = false;
 
+	m_colorMap.reset();
+
 	if(!m_isAnsi)
 	{
 		if(m_sourceCharset != NFOC_CP437_STRICT)
@@ -556,6 +558,7 @@ bool CNFOData::PostProcessLoadedContent()
 				l_lines = l_ansiArtProcessor.GetLines();
 				l_maxLineLen = l_ansiArtProcessor.GetMaxLineLength();
 				m_textContent = l_ansiArtProcessor.GetAsClassicText();
+				m_colorMap = l_ansiArtProcessor.GetColorMap();
 			}
 		}
 		catch(const std::exception& ex)

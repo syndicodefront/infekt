@@ -115,7 +115,7 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 		} // end of switch
 	} // end of for loop
 
-	if(fore_color != _NFOCOLOR_MAX || bold != -1)
+	if(fore_color != _NFOCOLOR_MAX)// || bold != -1)
 	{
 		SNFOColorStop fore_stop(m_previousFore);
 
@@ -141,7 +141,7 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 }
 
 
-bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t>& a_params, ENFOColor& ar_color, uint32_t& ar_rgba)
+bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t>& a_params, ENFOColor& ar_color, uint32_t& ar_rgba) const
 {
 	ar_color = NFOCOLOR_RGB; // default
 
@@ -187,58 +187,157 @@ bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t>& a_params, 
 }
 
 
-bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t& ar_color)
+bool CNFOColorMap::FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& ar_row) const
 {
-	if(m_stopsFore.empty())
-	{
-		return false;
-	}
-}
-
-
-bool CNFOColorMap::GetLineBackgrounds(size_t a_row, std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors)
-{
-	if(m_stopsBack.empty())
+	if(a_stops.empty())
 	{
 		return false;
 	}
 
 	bool found = false;
-	size_t row = (size_t)-1;
 
-	for(row = a_row; row >= 0; --row)
+	// :TODO: above if does not fully rule out size_t wrap conditions!
+
+	for(size_t row = a_row; row >= 0; --row)
 	{
-		if(m_stopsBack.find(row) == m_stopsBack.end())
+		if(a_stops.find(row) == a_stops.end())
 		{
 			continue;
 		}
 
+		ar_row = row;
 		found = true;
 		break;
 	}
 
-	if(!found)
+	return found;
+}
+
+
+bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_defaultColor, uint32_t& ar_color) const
+{
+	size_t row;
+
+	if(!FindRow(m_stopsFore, a_row, row))
 	{
+		ar_color = a_defaultColor;
+
 		return false;
 	}
+
+	if(row == a_row)
+	{
+		const auto& row_data = m_stopsFore.find(row)->second;
+		auto walk_it = row_data.begin(), it = walk_it;
+		
+		while(walk_it != row_data.end() && walk_it->first < a_col)
+		{
+			it = walk_it++;
+		}
+
+		if(it->second.color == NFOCOLOR_DEFAULT)
+		{
+			ar_color = a_defaultColor;
+
+			return false;
+		}
+		else
+		{
+			ar_color = GetRGB(it->second);
+		}
+	}
+	else
+	{
+		const SNFOColorStop& last_stop = m_stopsFore.find(row)->second.rbegin()->second;
+
+		if(last_stop.color == NFOCOLOR_DEFAULT)
+		{
+			ar_color = a_defaultColor;
+
+			return false;
+		}
+
+		ar_color = GetRGB(last_stop);
+	}
+
+	return true;
+}
+
+
+bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const
+{
+	size_t row;
 
 	ar_sections.clear();
 	ar_colors.clear();
 
+	if(!FindRow(m_stopsBack, a_row, row))
+	{
+		ar_colors.push_back(a_defaultColor);
+
+		return false;
+	}
+
+	// one (the last) section in ar_sections is always implicit (to EOL).
+
 	if(row == a_row)
 	{
+		const auto& row_data = m_stopsBack.find(row)->second;
+
+		size_t prev_end_col = 0;
+
+		for(const auto& sub : row_data)
+		{
+			uint32_t color;
+
+			if(sub.second.color == NFOCOLOR_DEFAULT)
+				color = a_defaultColor;
+			else
+				color = GetRGB(sub.second);
+
+			ar_colors.push_back(color);
+
+			if(ar_sections.size() + 1 < row_data.size())
+			{
+				ar_sections.push_back(sub.first - prev_end_col);
+
+				prev_end_col = sub.first;
+			}
+		}
 	}
 	else
 	{
-		SNFOColorStop last_stop = m_stopsBack[row].rbegin()->second;
+		const SNFOColorStop& last_stop = m_stopsBack.find(row)->second.rbegin()->second;
 
 		if(last_stop.color == NFOCOLOR_DEFAULT)
 		{
+			ar_colors.push_back(a_defaultColor);
+
 			return false;
 		}
 
-		ar_colors.push_back(last_stop.color == NFOCOLOR_RGB ? last_stop.color_rgba : m_rgbMapping[last_stop.color]);
+		ar_colors.push_back(GetRGB(last_stop));
 	}
 
 	return true;
+}
+
+
+uint32_t CNFOColorMap::GetRGB(const SNFOColorStop& a_stop) const
+{
+	if(a_stop.color == NFOCOLOR_RGB)
+	{
+		return a_stop.color_rgba;
+	}
+	else
+	{
+		auto it = m_rgbMapping.find(a_stop.color);
+
+		if(it != m_rgbMapping.end())
+			return it->second;
+
+		_ASSERT(false);
+
+		return 0;
+	}
 }
