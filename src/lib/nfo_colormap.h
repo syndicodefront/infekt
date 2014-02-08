@@ -28,9 +28,9 @@ public:
 	// returns false for default color, true + set ar_color otherwise.
 	bool GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_defaultColor, uint32_t& ar_color) const;
 
-	// returns false for default color, true + ar_sections with number of columns + ar_colors with colors otherwise.
-	// one (the last) section in ar_sections is always implicit (to EOL).
-	bool GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const;
+	// returns false for entire line = default color, true + ar_sections with number of columns + ar_colors with colors otherwise.
+	bool GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, size_t a_width,
+		std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const;
 
 protected:
 	typedef enum {
