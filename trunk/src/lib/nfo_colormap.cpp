@@ -15,12 +15,30 @@
 #include "stdafx.h"
 #include "nfo_colormap.h"
 
-#define NFORGB(R, G, B) (1 | ((B) << 8) | ((G) << 16) | ((R) << 24))
+#define NFORGB(R, G, B) (255 | ((B) << 8) | ((G) << 16) | ((R) << 24))
 
 
 CNFOColorMap::CNFOColorMap()
 {
-	// default mapping = VGA colors
+	// default mapping = xterm colors
+	m_rgbMapping[NFOCOLOR_BLACK] = NFORGB(0, 0, 0);
+	m_rgbMapping[NFOCOLOR_RED] = NFORGB(205, 0, 0);
+	m_rgbMapping[NFOCOLOR_GREEN] = NFORGB(0, 205, 0);
+	m_rgbMapping[NFOCOLOR_YELLOW] = NFORGB(205, 205, 0);
+	m_rgbMapping[NFOCOLOR_BLUE] = NFORGB(0, 0, 238);
+	m_rgbMapping[NFOCOLOR_MAGENTA] = NFORGB(205, 0, 205);
+	m_rgbMapping[NFOCOLOR_CYAN] = NFORGB(0, 205, 205);
+	m_rgbMapping[NFOCOLOR_GRAY] = NFORGB(229, 229, 229);
+	m_rgbMapping[NFOCOLOR_DARK_GRAY] = NFORGB(127, 127, 127);
+	m_rgbMapping[NFOCOLOR_BRIGHT_RED] = NFORGB(255, 0, 0);
+	m_rgbMapping[NFOCOLOR_BRIGHT_GREEN] = NFORGB(0, 255, 0);
+	m_rgbMapping[NFOCOLOR_BRIGHT_YELLOW] = NFORGB(255, 255, 0);
+	m_rgbMapping[NFOCOLOR_BRIGHT_BLUE] = NFORGB(92, 92, 255);
+	m_rgbMapping[NFOCOLOR_PINK] = NFORGB(255, 0, 255);
+	m_rgbMapping[NFOCOLOR_BRIGHT_CYAN] = NFORGB(0, 255, 255);
+	m_rgbMapping[NFOCOLOR_WHITE] = NFORGB(255, 255, 255);
+
+	/*/ default mapping = VGA colors
 	m_rgbMapping[NFOCOLOR_BLACK] = NFORGB(0, 0, 0);
 	m_rgbMapping[NFOCOLOR_RED] = NFORGB(170, 0, 0);
 	m_rgbMapping[NFOCOLOR_GREEN] = NFORGB(0, 170, 0);
@@ -34,9 +52,9 @@ CNFOColorMap::CNFOColorMap()
 	m_rgbMapping[NFOCOLOR_BRIGHT_GREEN] = NFORGB(85, 255, 85);
 	m_rgbMapping[NFOCOLOR_BRIGHT_YELLOW] = NFORGB(255, 255, 85);
 	m_rgbMapping[NFOCOLOR_BRIGHT_BLUE] = NFORGB(85, 85, 255);
-	m_rgbMapping[NFOCOLOR_PINK] = NFORGB(288, 85, 255);
+	m_rgbMapping[NFOCOLOR_PINK] = NFORGB(255, 85, 255);
 	m_rgbMapping[NFOCOLOR_BRIGHT_CYAN] = NFORGB(85, 255, 255);
-	m_rgbMapping[NFOCOLOR_WHITE] = NFORGB(255, 255, 255);
+	m_rgbMapping[NFOCOLOR_WHITE] = NFORGB(255, 255, 255);*/
 
 	// init m_previous...
 	Clear();
@@ -120,6 +138,7 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 		SNFOColorStop fore_stop(m_previousFore);
 
 		fore_stop.color = fore_color;
+		// fore_stop.color = static_cast<ENFOColor>((int)fore_color + (bold != -1 ? bold * 8 : 0));
 		fore_stop.color_rgba = fore_color_rgba;
 
 		m_stopsFore[a_row][a_col] = fore_stop;
