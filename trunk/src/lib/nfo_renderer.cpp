@@ -625,26 +625,24 @@ void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double 
 			std::vector<size_t> l_columns;
 			std::vector<uint32_t> l_colors;
 
-			if(!m_nfo->GetColorMap()->GetLineBackgrounds(row, GetBackColor().AsWord(), l_columns, l_colors))
+			if(!m_nfo->GetColorMap()->GetLineBackgrounds(row, GetBackColor().AsWord(), m_gridData->GetCols(), l_columns, l_colors))
 				continue;
 
-			_ASSERT(l_colors.size() == l_columns.size() + 1);
+			_ASSERT(l_colors.size() == l_columns.size());
+			_ASSERT(l_columns.size() > 0);
 
 			size_t col = 0;
 
 			for(size_t section = 0; section < l_colors.size(); section++)
 			{
-				size_t col_to = col + (section < l_columns.size() ? l_columns[section] : GetWidth() - col);
+				size_t col_to = col + l_columns[section];
 				double x_from = col * dbw, x_to = col_to * dbw;
 
-				//if(section != 0)
-				{
 				cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(S_COLOR_T(l_colors[section])));
 
 				cairo_rectangle(cr, m_padding + x_from, a_yBase + m_padding + dbh * row, x_to - x_from, dbh);
-							
+
 				cairo_fill(cr);
-				}
 
 				col = col_to;
 			}
@@ -724,8 +722,6 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 			if(l_block->alpha != l_oldAlpha || l_first)  // R,G,B never change during the loop.
 			{
-				cairo_fill(cr); // complete previous drawing operation(s)
-
 				l_setColor = true;
 				l_newColor = a_gaussStep ? GetGaussColor() : GetArtColor();
 
@@ -740,8 +736,6 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 				if(clr != l_oldColor || l_first)
 				{
-					cairo_fill(cr);
-
 					l_setColor = true;
 					l_newColor = S_COLOR_T(clr);
 					// known issue: Alpha from GetGauss/ArtColor is discarded
@@ -752,6 +746,8 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 			if(l_setColor)
 			{
+				cairo_fill(cr); // complete previous drawing operation(s)
+
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_newColor), (l_block->alpha / 255.0) * (l_newColor.A / 255.0));
 			}
 

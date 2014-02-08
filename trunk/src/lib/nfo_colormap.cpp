@@ -137,8 +137,8 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 	{
 		SNFOColorStop fore_stop(m_previousFore);
 
-		fore_stop.color = fore_color;
-		// fore_stop.color = static_cast<ENFOColor>((int)fore_color + (bold != -1 ? bold * 8 : 0));
+		// fore_stop.color = fore_color;
+		fore_stop.color = static_cast<ENFOColor>((int)fore_color + (bold != -1 ? bold * 8 : 0));
 		fore_stop.color_rgba = fore_color_rgba;
 
 		m_stopsFore[a_row][a_col] = fore_stop;
@@ -237,10 +237,10 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 {
 	size_t row;
 
+	ar_color = a_defaultColor;
+
 	if(!FindRow(m_stopsFore, a_row, row))
 	{
-		ar_color = a_defaultColor;
-
 		return false;
 	}
 
@@ -256,8 +256,6 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 
 		if(it->second.color == NFOCOLOR_DEFAULT)
 		{
-			ar_color = a_defaultColor;
-
 			return false;
 		}
 		else
@@ -271,8 +269,6 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 
 		if(last_stop.color == NFOCOLOR_DEFAULT)
 		{
-			ar_color = a_defaultColor;
-
 			return false;
 		}
 
@@ -283,58 +279,74 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 }
 
 
-bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const
+bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, size_t a_width,
+	std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const
 {
 	size_t row;
+
+	if(!FindRow(m_stopsBack, a_row, row))
+	{
+		return false;
+	}
 
 	ar_sections.clear();
 	ar_colors.clear();
 
-	if(!FindRow(m_stopsBack, a_row, row))
-	{
-		ar_colors.push_back(a_defaultColor);
-
-		return false;
-	}
-
-	// one (the last) section in ar_sections is always implicit (to EOL).
+	const auto& row_data = m_stopsBack.find(row)->second;
 
 	if(row == a_row)
 	{
-		const auto& row_data = m_stopsBack.find(row)->second;
+		size_t first_col = row_data.begin()->first;
+
+		if(first_col != 0)
+		{
+			// get color that is valid before this line starts
+			size_t previous_row;
+
+			if(row == 0 || !FindRow(m_stopsBack, row - 1, previous_row))
+			{
+				ar_colors.push_back(a_defaultColor);
+			}
+			else
+			{
+				const SNFOColorStop& last_stop = m_stopsBack.find(previous_row)->second.rbegin()->second;
+
+				ar_colors.push_back(last_stop.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(last_stop));
+			}
+
+			ar_sections.push_back(first_col - 0);
+		}
 
 		size_t prev_end_col = 0;
+		size_t index = 0;
 
 		for(const auto& sub : row_data)
 		{
-			uint32_t color;
+			ar_colors.push_back(sub.second.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(sub.second));
 
-			if(sub.second.color == NFOCOLOR_DEFAULT)
-				color = a_defaultColor;
-			else
-				color = GetRGB(sub.second);
-
-			ar_colors.push_back(color);
-
-			if(ar_sections.size() + 1 < row_data.size())
+			if(index++ > 0)
 			{
+				// width for entry N can only be calculated from (N+1)->first!
 				ar_sections.push_back(sub.first - prev_end_col);
-
-				prev_end_col = sub.first;
 			}
+
+			prev_end_col = sub.first;
 		}
+
+		ar_sections.push_back(a_width - prev_end_col);
 	}
 	else
 	{
-		const SNFOColorStop& last_stop = m_stopsBack.find(row)->second.rbegin()->second;
+		// paint entire row using the color from the previous line.
+
+		const SNFOColorStop& last_stop = row_data.rbegin()->second;
 
 		if(last_stop.color == NFOCOLOR_DEFAULT)
 		{
-			ar_colors.push_back(a_defaultColor);
-
 			return false;
 		}
 
+		ar_sections.push_back(a_width);
 		ar_colors.push_back(GetRGB(last_stop));
 	}
 
