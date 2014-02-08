@@ -518,7 +518,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 
 	_ASSERT(l_surface != NULL);
 
-	if(!m_hasBlocks || m_classic && (GetBackColor().A > 0))
+	if((!m_hasBlocks || m_classic) && GetBackColor().A > 0)
 	{
 		cairo_t* cr = cairo_create(l_surface);
 		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
@@ -551,12 +551,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 
 				cairo_t* cr = cairo_create(l_surface);
 
-				if(GetBackColor().A > 0)
-				{
-					// background:
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
-					cairo_paint(cr);
-				}
+				RenderBackgrounds(l_rowStart, l_rowEnd, l_baseY, cr);
 
 				// shadow effect:
 				if(p_blur && !m_cancelRenderingImmediately)
@@ -610,6 +605,56 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 }
 
 
+void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double a_yBase, cairo_t* cr) const
+{
+	cairo_save(cr);
+
+	if(GetBackColor().A > 0)
+	{
+		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
+		cairo_paint(cr);
+	}
+
+	if(m_nfo->HasColorMap())
+	{
+		double dbw = static_cast<double>(GetBlockWidth());
+		double dbh = static_cast<double>(GetBlockHeight());
+
+		for(size_t row = (a_rowStart == -1 ? 0 : a_rowStart); row <= a_rowEnd; row++)
+		{
+			std::vector<size_t> l_columns;
+			std::vector<uint32_t> l_colors;
+
+			if(!m_nfo->GetColorMap()->GetLineBackgrounds(row, GetBackColor().AsWord(), l_columns, l_colors))
+				continue;
+
+			_ASSERT(l_colors.size() == l_columns.size() + 1);
+
+			size_t col = 0;
+
+			for(size_t section = 0; section < l_colors.size(); section++)
+			{
+				size_t col_to = col + (section < l_columns.size() ? l_columns[section] : GetWidth() - col);
+				double x_from = col * dbw, x_to = col_to * dbw;
+
+				//if(section != 0)
+				{
+				cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(S_COLOR_T(l_colors[section])));
+
+				cairo_rectangle(cr, m_padding + x_from, a_yBase + m_padding + dbh * row, x_to - x_from, dbh);
+							
+				cairo_fill(cr);
+				}
+
+				col = col_to;
+			}
+		}
+	}
+
+	cairo_restore(cr);
+}
+
+
 /************************************************************************/
 /* RENDER BLOCKS                                                        */
 /************************************************************************/
@@ -645,16 +690,17 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 	cairo_t * const cr = a_context;
 	cairo_save(cr);
 
-	if(a_opaqueBg && GetBackColor().A > 0)
+	if(a_opaqueBg)
 	{
-		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
-		cairo_paint(cr);
+		RenderBackgrounds(l_rowStart, l_rowEnd, a_yBase, cr);
 	}
 
 	cairo_set_antialias(cr, CAIRO_ANTIALIAS_SUBPIXEL);
 
+	bool l_hasColorMap = m_nfo->HasColorMap();
 	int l_oldAlpha = 0;
-	cairo_set_source_rgba(cr, 0, 0, 0, l_oldAlpha);
+	uint32_t l_oldColor = 0;
+	bool l_first = true;
 
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
@@ -666,6 +712,8 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+			bool l_setColor = false;
+			S_COLOR_T l_newColor;
 
 			if(l_block->shape == RGS_NO_BLOCK ||
 				l_block->shape == RGS_WHITESPACE ||
@@ -674,20 +722,40 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 				continue;
 			}
 
-			if(l_block->alpha != l_oldAlpha) // R,G,B never change during the loop.
+			if(l_block->alpha != l_oldAlpha || l_first)  // R,G,B never change during the loop.
 			{
 				cairo_fill(cr); // complete previous drawing operation(s)
 
-				if(GetEnableGaussShadow() && a_gaussStep)
-				{
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(GetGaussColor()), (l_block->alpha / 255.0) * (GetGaussColor().A / 255.0));
-				}
-				else
-				{
-					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(GetArtColor()), (l_block->alpha / 255.0) * (GetArtColor().A / 255.0));
-				}
+				l_setColor = true;
+				l_newColor = a_gaussStep ? GetGaussColor() : GetArtColor();
+
 				l_oldAlpha = l_block->alpha;
 			}
+			
+			if(l_hasColorMap)
+			{
+				uint32_t clr;
+
+				m_nfo->GetColorMap()->GetForegroundColor(row, col, (a_gaussStep ? GetGaussColor() : GetArtColor()).AsWord(), clr);
+
+				if(clr != l_oldColor || l_first)
+				{
+					cairo_fill(cr);
+
+					l_setColor = true;
+					l_newColor = S_COLOR_T(clr);
+					// known issue: Alpha from GetGauss/ArtColor is discarded
+
+					l_oldColor = clr;
+				}
+			}
+
+			if(l_setColor)
+			{
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_newColor), (l_block->alpha / 255.0) * (l_newColor.A / 255.0));
+			}
+
+			l_first = false;
 
 			double l_pos_x = static_cast<double>(col * GetBlockWidth()),
 				l_pos_y = static_cast<double>(row * GetBlockHeight()),

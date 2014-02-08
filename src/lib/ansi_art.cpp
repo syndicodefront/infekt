@@ -145,7 +145,7 @@ bool CAnsiArt::Process()
 		int x_delta = 0, y_delta = 0;
 		int n = 0, m = 0;
 
-		if(cmd.cmd != 0)
+		if(cmd.cmd != 0 && cmd.cmd != L'm')
 		{
 			// this could be done somewhat nicer, but okay for now:
 			wstring::size_type pos;

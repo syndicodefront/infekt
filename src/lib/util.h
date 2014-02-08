@@ -39,7 +39,6 @@ public:
 
 	static int VersionCompare(const std::wstring& a_vA, const std::wstring& a_vB);
 
-
 	static std::string StrReplace(const std::string& a_find, const std::string& a_replace, const std::string& a_input);
 	static std::wstring StrReplace(const std::wstring& a_find, const std::wstring& a_replace, const std::wstring& a_input);
 
