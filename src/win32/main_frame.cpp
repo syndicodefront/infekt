@@ -520,6 +520,9 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDMC_COPY:
 		m_view.CopySelectedTextToClipboard();
+		if(!m_settings->bCopyOnSelect) {
+			m_view.GetActiveCtrl()->ClearSelection(true);
+		}
 		return TRUE;
 
 	case IDMC_SELECTALL:
