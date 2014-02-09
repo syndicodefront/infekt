@@ -76,7 +76,7 @@ public:
 	bool GetWrapLines() const { return m_lineWrap; }
 
 	bool HasColorMap() const { return m_isAnsi && m_colorMap && m_colorMap->HasColors(); }
-	PNFOColorMap GetColorMap() const { return m_colorMap; } // for laziness reasons, the returned object is not const
+	const PNFOColorMap GetColorMap() const { return m_colorMap; }
 
 	typedef std::list<const std::wstring> TLineContainer;
 
