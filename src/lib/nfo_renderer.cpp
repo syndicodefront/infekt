@@ -545,9 +545,9 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 		{
 			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
-				CCairoBoxBlur *p_blur = new (std::nothrow) CCairoBoxBlur(
+				shared_ptr<CCairoBoxBlur> p_blur(new CCairoBoxBlur(
 					(int)GetWidth(), GetStripeHeightPhysical(a_stripe),
-					(int)GetGaussBlurRadius(), ms_useGPU && !m_forceGPUOff);
+					(int)GetGaussBlurRadius(), ms_useGPU && !m_forceGPUOff));
 
 				cairo_t* cr = cairo_create(l_surface);
 
@@ -575,8 +575,6 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				}
 
 				cairo_destroy(cr);
-
-				delete p_blur;
 			}
 
 			if((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0 && !m_cancelRenderingImmediately)

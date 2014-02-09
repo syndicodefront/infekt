@@ -127,31 +127,7 @@ HMODULE CUtilWin32::SilentLoadLibrary(const std::wstring& a_path)
 
 bool CUtilWin32::RemoveCwdFromDllSearchPath()
 {
-	OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX), 0 };
-	DWORDLONG dwlConditionMask = 0;
-	
-	osvi.dwMajorVersion = 5;
-	osvi.dwMinorVersion = 1;
-	osvi.wServicePackMajor = 1;
-	
-	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
-	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
-	VER_SET_CONDITION(dwlConditionMask, VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
-	
-	// check requirements for SetDllDirectory availability:
-	if(::VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask))
-	{
-		typedef BOOL (WINAPI *fsdd)(LPCTSTR);
-
-		// remove the current directory from the DLL search path by calling SetDllDirectory:
-		fsdd l_fsdd = (fsdd)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetDllDirectory");
-		if(l_fsdd)
-		{
-			return (l_fsdd(L"") != FALSE);
-		}
-	}
-
-	return false;
+	return (::SetDllDirectory(L"") != FALSE || ::GetLastError() == ERROR_SUCCESS);
 }
 
 

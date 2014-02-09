@@ -27,19 +27,19 @@ CAboutDialog::CAboutDialog(HWND hWndParent) :
 
 
 #define _CREATE_STATIC(A_NAME, A_TEXT, A_TOP, A_HEIGHT) \
-	HWND A_NAME = CreateWindowEx(WS_EX_LEFT | WS_EX_NOPARENTNOTIFY, WC_STATIC, NULL, \
+	HWND A_NAME = ::CreateWindowEx(WS_EX_LEFT | WS_EX_NOPARENTNOTIFY, WC_STATIC, NULL, \
 	WS_CHILDWINDOW | WS_VISIBLE | SS_LEFT, l_left, A_TOP, 270, A_HEIGHT, \
 		m_hWnd, NULL, g_hInstance, NULL); \
-	{ std::_tstring l_tmp = (A_TEXT); \
+	{ const std::wstring l_tmp(A_TEXT); \
 	::SetWindowText(A_NAME, l_tmp.c_str()); \
 	::SendMessage(A_NAME, WM_SETFONT, (WPARAM)l_defaultFont, 1); }
 
 #define _CREATE_SYSLINK(A_NAME, A_TEXT, A_TOP, A_HEIGHT) \
-	HWND A_NAME = CreateWindowEx(0, _T("SysLink"), NULL, \
+	HWND A_NAME = ::CreateWindowEx(0, L"SysLink", NULL, \
 		WS_VISIBLE | WS_CHILD | WS_TABSTOP, \
 		l_left, A_TOP, 280, A_HEIGHT, \
 		m_hWnd, NULL, g_hInstance, NULL); \
-		{ std::_tstring l_tmp = (A_TEXT); \
+		{ const std::_tstring l_tmp(A_TEXT); \
 		::SetWindowText(A_NAME, l_tmp.c_str()); \
 		::SendMessage(A_NAME, WM_SETFONT, (WPARAM)l_defaultFont, 1); }
 
@@ -52,34 +52,34 @@ BOOL CAboutDialog::OnInitDialog()
 	m_icon = (HICON)::LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
 
 	HFONT l_defaultFont = (HFONT)SendMessage(WM_GETFONT);
-	if(!l_defaultFont) l_defaultFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
+	if(!l_defaultFont) l_defaultFont = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
 
 	const int l_left = 70;
 	int l_top = 15;
 
-	std::_tstring l_verStr = _T("iNFekt v") + m_mainWin->InfektVersionAsString();
+	std::wstring l_verStr = L"iNFekt v" + m_mainWin->InfektVersionAsString();
 #ifndef COMPACT_RELEASE
 #ifdef _WIN64
-	l_verStr += _T(" (64 bit)");
+	l_verStr += L" (64 bit)";
 #else
 	if(CUtilWin32::IsWow64())
-		l_verStr += _T(" (WoW64)");
+		l_verStr += L" (WoW64)";
 	else
-		l_verStr += _T(" (32 bit)");
+		l_verStr += L" (32 bit)";
 #endif
 #endif
 	if (CUtilWin32::IsWinServerOS())
-		l_verStr += _T(" on Windows Server OS");
+		l_verStr += L" on Windows Server OS";
 	else if(CUtilWin32::IsWinXP())
-		l_verStr += _T(" on Windows XP");
+		l_verStr += L" on Windows XP";
 	else if(CUtilWin32::IsWinVista())
-		l_verStr += _T(" on Windows Vista");
+		l_verStr += L" on Windows Vista";
 	else if(CUtilWin32::IsWin7())
-		l_verStr += _T(" on Windows 7");
+		l_verStr += L" on Windows 7";
 	else if(CUtilWin32::IsWin8())
-		l_verStr += _T(" on Windows 8");
+		l_verStr += L" on Windows 8";
 	else if(CUtilWin32::IsWin81())
-		l_verStr += _T(" on Windows 8.1");
+		l_verStr += L" on Windows 8.1";
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
@@ -92,25 +92,25 @@ BOOL CAboutDialog::OnInitDialog()
 	if(l_hTitle)
 	{
 		LOGFONT l_tmpFont;
-		GetObject(l_defaultFont, sizeof(LOGFONT), &l_tmpFont);
+		::GetObject(l_defaultFont, sizeof(LOGFONT), &l_tmpFont);
 		l_tmpFont.lfWeight = FW_BOLD;
-		m_boldFont = CreateFontIndirect(&l_tmpFont);
+		m_boldFont = ::CreateFontIndirect(&l_tmpFont);
 		::SendMessage(l_hTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
 #ifdef COMPACT_RELEASE
 		if(l_hSubTitle) ::SendMessage(l_hSubTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
 #endif
 	}
 
-	_CREATE_STATIC(l_hCopyright, _T("\xA9 cxxjoe && Contributors 2010-2013"), l_top, 20);
+	_CREATE_STATIC(l_hCopyright, L"\xA9 cxxjoe && Contributors 2010-2014", l_top, 20);
 	l_top += 20;
 
-	_CREATE_SYSLINK(l_hHomepage, _T("Project Homepage: <A HREF=\"http://infekt.googlecode.com/\">infekt.googlecode.com</A>"), l_top, 20);
+	_CREATE_SYSLINK(l_hHomepage, L"Project Homepage: <A HREF=\"http://infekt.googlecode.com/\">infekt.googlecode.com</A>", l_top, 20);
 	m_linkCtrl = l_hHomepage;
 	l_top += 20;
 
-	const char* l_gpuFlag = "no";
+	const wchar_t* l_gpuFlag = L"no";
 
-	if(CUtilWin32::IsWin6x() && CNFORenderer::GetGlobalUseGPUFlag())
+	if(CUtilWin32::IsWin6x())
 	{
 		HMODULE hGpuDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
 
@@ -119,28 +119,28 @@ BOOL CAboutDialog::OnInitDialog()
 		if(fnc igu = (fnc)::GetProcAddress(hGpuDll, "IsGpuUsable"))
 		{
 			if(igu())
-				l_gpuFlag = "yes";
+				l_gpuFlag = CNFORenderer::GetGlobalUseGPUFlag() ? L"yes" : L"disabled";
 		}
 	}
 
-	_CREATE_STATIC(l_hLibVersions, FORMAT(_T("Using Cairo v%d.%d.%d, PCRE v%d.%02d, GPU: %s"),
+	_CREATE_STATIC(l_hLibVersions, FORMAT(L"Using Cairo v%d.%d.%d, PCRE v%d.%02d, GPU: %s",
 		CAIRO_VERSION_MAJOR % CAIRO_VERSION_MINOR % CAIRO_VERSION_MICRO %
 		PCRE_MAJOR % PCRE_MINOR % l_gpuFlag), l_top, 20);
 	l_top += 20;
 
-	_CREATE_STATIC(l_hGPL, _T("This program is free software; you can redistribute it and/or ")
-		_T("modify it under the terms of the GNU General Public License ")
-		_T("as published by the Free Software Foundation."), l_top, 55);
+	_CREATE_STATIC(l_hGPL, L"This program is free software; you can redistribute it and/or "
+		L"modify it under the terms of the GNU General Public License "
+		L"as published by the Free Software Foundation.", l_top, 55);
 	l_top += 60;
 
 #ifndef COMPACT_RELEASE
 	if(CUtilWin32::IsWin6x())
 	{
-		_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. \x2764"), l_top, 20);
+		_CREATE_STATIC(l_hGreetings, L"Rebecca, you are the love of my life. \x2764", l_top, 20);
 	}
 	else
 	{
-		_CREATE_STATIC(l_hGreetings, _T("Rebecca, you are the love of my life. <3"), l_top, 20);
+		_CREATE_STATIC(l_hGreetings, L"Rebecca, you are the love of my life. <3", l_top, 20);
 	}
 #endif
 
@@ -173,7 +173,7 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 	case NM_RETURN:
 		if(nh->hwndFrom == m_linkCtrl)
 		{
-			::ShellExecute(NULL, _T("open"), _T("http://infekt.googlecode.com/"), NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(NULL, L"open", L"http://infekt.googlecode.com/", NULL, NULL, SW_SHOWNORMAL);
 			return 0;
 		}
 		break;
