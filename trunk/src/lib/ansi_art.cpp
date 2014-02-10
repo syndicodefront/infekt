@@ -132,9 +132,8 @@ bool CAnsiArt::Process()
 	m_colorMap = PNFOColorMap(new CNFOColorMap());
 
 	TwoDimVector<wchar_t> screen(
-		// plus 1 just for good measure:
 		(m_hintHeight ? m_hintHeight : 100),
-		m_hintWidth + 1,
+		m_hintWidth,
 		L' ');
 
 	std::stack<std::pair<size_t, size_t> > saved_positions;
@@ -181,6 +180,12 @@ bool CAnsiArt::Process()
 							screen.Extend(new_rows, screen.GetCols(), L' ');
 						}
 
+						if(c != L'\n')
+						{
+							// if line wrapping, do not forget this character!
+							screen[y][x] = c;
+						}
+
 						++y;
 						x = 0;
 					}
@@ -198,8 +203,8 @@ bool CAnsiArt::Process()
 							screen.Extend(screen.GetRows(), new_cols, L' ');
 						}
 
-						++x;
 						screen[y][x] = c;
+						++x;
 					}
 				}
 				break;
@@ -284,12 +289,20 @@ bool CAnsiArt::Process()
 				}
 				break;
 			}
-			case 'S': // scroll up
-			case 'T': // scroll down
-			case 'n': // report cursor position
-			default:
+			case L'h': // Changes the screen width or type
+				if(n == 7)
+				{
+					// enable line wrapping
+				}
+				break;
+			case L'S': // scroll up
+			case L'T': // scroll down
+			case L'n': // report cursor position
 				// unsupported, ignore
-				;
+				break;
+			default:
+				// unknown
+				_ASSERT(false);
 		}
 		
 		if(y_delta < 0 && static_cast<size_t>(std::abs(y_delta)) <= y)
