@@ -607,7 +607,7 @@ bool CNFOData::PostProcessLoadedContent()
 	}
 
 	// allocate mem:
-	m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen + 1, 0);
+	m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen, 0);
 
 	// vars for hyperlink detection:
 	string l_prevLinkUrl; // UTF-8
