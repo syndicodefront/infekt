@@ -698,6 +698,12 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 	uint32_t l_oldColor = 0;
 	bool l_first = true;
 
+	// micro optimization
+	const double bwd = static_cast<double>(GetBlockWidth());
+	const double bhd = static_cast<double>(GetBlockHeight());
+	const double bwd05 = bwd * 0.5;
+	const double bhd05 = bhd * 0.5;
+
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
 		if(m_cancelRenderingImmediately)
@@ -751,32 +757,29 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 			l_first = false;
 
-			double l_pos_x = static_cast<double>(col * GetBlockWidth()),
-				l_pos_y = static_cast<double>(row * GetBlockHeight()),
-				l_width = static_cast<double>(GetBlockWidth()),
-				l_height = static_cast<double>(GetBlockHeight());
+			double l_pos_x = col * bwd, l_pos_y = row * bhd, l_width = bwd, l_height = bhd;
 
 			switch(l_block->shape)
 			{
 			case RGS_BLOCK_LOWER_HALF:
-				l_pos_y += l_height / 2;
+				l_pos_y += bhd05;
 			case RGS_BLOCK_UPPER_HALF:
-				l_height /= 2;
+				l_height = bhd05;
 				break;
 			case RGS_BLOCK_RIGHT_HALF:
-				l_pos_x += l_width / 2;
+				l_pos_x += bwd05;
 			case RGS_BLOCK_LEFT_HALF:
-				l_width /= 2;
+				l_width = bwd05;
 				break;
 			case RGS_BLACK_SQUARE:
-				l_width = l_height = GetBlockWidth() * 0.75;
-				l_pos_y += GetBlockHeight() / 2.0 - l_height / 2.0;
-				l_pos_x += GetBlockWidth() / 2.0 - l_width / 2.0;
+				l_width = l_height = bwd * 0.75;
+				l_pos_y += bhd05 - l_height * 0.5;
+				l_pos_x += bwd05 - l_width * 0.5;
 				break;
 			case RGS_BLACK_SMALL_SQUARE:
-				l_width = l_height = GetBlockWidth() * 0.5;
-				l_pos_y += GetBlockHeight() / 2.0 - l_height / 2.0;
-				l_pos_x += GetBlockWidth() / 2.0 - l_width / 2.0;
+				l_width = l_height = bwd05;
+				l_pos_y += bhd05 - l_height * 0.5;
+				l_pos_x += bwd05 - l_width * 0.5;
 				break;
 			}
 
