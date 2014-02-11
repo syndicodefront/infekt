@@ -295,6 +295,13 @@ bool CAnsiArt::Process()
 					// enable line wrapping
 				}
 				break;
+			case L'l': // Reset screen width or type
+				if(n == 7)
+				{
+					// disable line wrapping
+				}
+				break;
+			// some more info about h + l: http://ascii-table.com/ansi-escape-sequences.php
 			case L'S': // scroll up
 			case L'T': // scroll down
 			case L'n': // report cursor position
