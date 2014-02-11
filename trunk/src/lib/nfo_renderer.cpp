@@ -714,8 +714,6 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 		for(size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
-			bool l_setColor = false;
-			S_COLOR_T l_newColor;
 
 			if(l_block->shape == RGS_NO_BLOCK ||
 				l_block->shape == RGS_WHITESPACE ||
@@ -724,38 +722,31 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 				continue;
 			}
 
-			if(l_block->alpha != l_oldAlpha || l_first)  // R,G,B never change during the loop.
-			{
-				l_setColor = true;
-				l_newColor = a_gaussStep ? GetGaussColor() : GetArtColor();
+			S_COLOR_T l_drawingColor = a_gaussStep ? GetGaussColor() : GetArtColor();
 
-				l_oldAlpha = l_block->alpha;
-			}
-			
 			if(l_hasColorMap)
 			{
 				uint32_t clr;
 
-				m_nfo->GetColorMap()->GetForegroundColor(row, col, (a_gaussStep ? GetGaussColor() : GetArtColor()).AsWord(), clr);
+				m_nfo->GetColorMap()->GetForegroundColor(row, col, l_drawingColor.AsWord(), clr);
 
-				if(clr != l_oldColor || l_first)
-				{
-					l_setColor = true;
-					l_newColor = S_COLOR_T(clr);
-					// known issue: Alpha from GetGauss/ArtColor is discarded
-
-					l_oldColor = clr;
-				}
+				l_drawingColor = S_COLOR_T(clr);
 			}
 
-			if(l_setColor)
-			{
+			if(l_first 
+				|| (l_block->alpha != l_oldAlpha)  // R,G,B never change during the loop (unless there's a colormap)
+				|| (l_hasColorMap && l_drawingColor != l_oldColor)
+			) {
 				cairo_fill(cr); // complete previous drawing operation(s)
 
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_newColor), (l_block->alpha / 255.0) * (l_newColor.A / 255.0));
-			}
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_drawingColor), (l_block->alpha / 255.0) * (l_drawingColor.A / 255.0));
 
-			l_first = false;
+				// known issue: Alpha from GetGauss/ArtColor is discarded if there's a colormap.
+
+				l_oldAlpha = l_block->alpha;
+				l_oldColor = l_drawingColor.AsWord();
+				l_first = false;
+			}
 
 			double l_pos_x = col * bwd, l_pos_y = row * bhd, l_width = bwd, l_height = bhd;
 
