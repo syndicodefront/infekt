@@ -398,10 +398,9 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 	a_stripeTo = std::min(a_stripeTo, m_numStripes - 1);
 	for(size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
 	{
-		if(l_stripe == m_preRenderingStripe)
+		while(l_stripe == m_preRenderingStripe)
 		{
 			// risky business! not entirely sure if this is safe!
-			StopPreRendering();
 		}
 
 		std::lock_guard<std::mutex> threadlock(m_stripesLock);
