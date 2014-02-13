@@ -248,7 +248,26 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 	{
 		const auto& row_data = m_stopsFore.find(row)->second;
 		auto walk_it = row_data.begin(), it = walk_it;
-		
+	
+		// check if first entry in this row is beyond the request col.
+		// if so, fall back to previous row.
+		if(walk_it->first > a_col)
+		{
+			size_t previous_row;
+
+			if(a_row == 0 || !FindRow(m_stopsFore, a_row - 1, previous_row))
+			{
+				return false;
+			}
+			else
+			{
+				// YES; THIS IS A GOTO STATEMENT! HAAA!
+				row = previous_row;
+				goto take_previous_row;
+			}
+		}
+
+		// find/get matching stop in this line:
 		while(walk_it != row_data.end() && walk_it->first < a_col)
 		{
 			it = walk_it++;
@@ -265,6 +284,7 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 	}
 	else
 	{
+take_previous_row:
 		const SNFOColorStop& last_stop = m_stopsFore.find(row)->second.rbegin()->second;
 
 		if(last_stop.color == NFOCOLOR_DEFAULT)
