@@ -268,7 +268,7 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 		}
 
 		// find/get matching stop in this line:
-		while(walk_it != row_data.end() && walk_it->first < a_col)
+		while(walk_it != row_data.end() && walk_it->first <= a_col)
 		{
 			it = walk_it++;
 		}
