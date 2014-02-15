@@ -5,6 +5,22 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.12 (February 15th 2014) ==
+  * Happy fifth year with iNFekt!
+  * New: First draft version of ANSI art support (colors!) - only in rendered mode so far
+  * New: When displaying an NFO file with "on-demand rendering", render remaining parts of the NFO in background. This avoids some lags that  appeared with slow GPUs. If this crashes for you, please temporarily turn off "on-demand rendering" in the preferences.
+  * Fixed GPU acceleration not being active despite enabled setting
+  * Browse mode (J/K keys): fixed problem where NFOs were not navigated in the correct order
+  * Browse mode: display current NFO index in status bar
+  * Browse mode: avoid some flickering when window size changes
+  * Fixed Windows version display in about dialog (issue 86)
+  * Fixed scrollbar sometimes not being updated when opening an NFO
+  * Always clear text selection after text has been copied to clipboard
+  * Usual round of optimizations, reduced memory usage
+  * PCRE update to 8.34 (now with PCRE16)
+  * VS2012 update to 2012.U4
+  * Over 80 commits in total, most for ANSI colors support
+
 == v0.8.10 (October 2nd 2013) ==
   * PDF export is working again (issue 84)
   * Added CP437 strict mode (issue 83)
