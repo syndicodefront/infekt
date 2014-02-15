@@ -1046,62 +1046,72 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 	l_desiredWidth += 20; // some extra padding
 
 	if(l_desiredWidth < ms_minWidth)
+	{
 		l_desiredWidth = ms_minWidth;
+	}
 
 	RECT l_rc;
-	if(::GetWindowRect(GetHwnd(), &l_rc))
+	if(!::GetWindowRect(GetHwnd(), &l_rc))
 	{
-		if(a_growOnly && l_desiredWidth < (l_rc.right - l_rc.left))
-		{
-			return;
-		}
-
-		int l_mid = l_rc.left + (l_rc.right - l_rc.left) / 2;
-		int l_oldLeft = l_rc.left;
-
-		// center around previous location:
-		l_rc.left = l_mid - l_desiredWidth / 2;
-
-		// make sure windows don't go off-screen to the left:
-		if(l_rc.left < 0 && l_oldLeft >= 0)
-			l_rc.left = 0;
-
-		// set width:
-		l_rc.right = l_rc.left + l_desiredWidth;
-
-		// perform extra checks on the new window size:
-		POINT l_pt = { l_rc.left, l_rc.top };
-		MONITORINFO l_moInfo = { sizeof(MONITORINFO), 0 };
-		HMONITOR l_hMonitor = ::MonitorFromPoint(l_pt, MONITOR_DEFAULTTONEAREST);
-		// use MonitorFromPoint instead of MonitorFromWindow to make the left-top corner count.
-
-		if(::GetMonitorInfo(l_hMonitor, &l_moInfo))
-		{
-			RECT l_wa = l_moInfo.rcWork;
-
-			// don't let the window grow larger than the size of the work area
-			if(l_rc.right - l_rc.left > l_wa.right - l_wa.left)
-			{
-				l_rc.left = l_wa.left;
-				l_rc.right = l_wa.right;
-			}
-			// and don't allow parts of the window to go off-screen to the right:
-			else if(l_rc.right > l_wa.right)
-			{
-				int l_excess = (l_rc.right - l_wa.right); 
-				l_rc.left -= l_excess;
-				l_rc.right -= l_excess;
-			}
-			// also keep window titlebar on-screen at all costs:
-			if(l_rc.top < l_wa.top)
-			{
-				l_rc.bottom -= l_wa.top - l_rc.top;
-				l_rc.top = l_wa.top;
-			}
-		}
-
-		MoveWindow(l_rc);
+		return;
 	}
+
+	if(a_growOnly && l_desiredWidth < (l_rc.right - l_rc.left))
+	{
+		return;
+	}
+
+	if(l_desiredWidth == (l_rc.right - l_rc.left))
+	{
+		::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE);
+		return;
+	}
+
+	int l_mid = l_rc.left + (l_rc.right - l_rc.left) / 2;
+	int l_oldLeft = l_rc.left;
+
+	// center around previous location:
+	l_rc.left = l_mid - l_desiredWidth / 2;
+
+	// make sure windows don't go off-screen to the left:
+	if(l_rc.left < 0 && l_oldLeft >= 0)
+		l_rc.left = 0;
+
+	// set width:
+	l_rc.right = l_rc.left + l_desiredWidth;
+
+	// perform extra checks on the new window size:
+	POINT l_pt = { l_rc.left, l_rc.top };
+	MONITORINFO l_moInfo = { sizeof(MONITORINFO), 0 };
+	HMONITOR l_hMonitor = ::MonitorFromPoint(l_pt, MONITOR_DEFAULTTONEAREST);
+	// use MonitorFromPoint instead of MonitorFromWindow to make the left-top corner count.
+
+	if(::GetMonitorInfo(l_hMonitor, &l_moInfo))
+	{
+		RECT l_wa = l_moInfo.rcWork;
+
+		// don't let the window grow larger than the size of the work area
+		if(l_rc.right - l_rc.left > l_wa.right - l_wa.left)
+		{
+			l_rc.left = l_wa.left;
+			l_rc.right = l_wa.right;
+		}
+		// and don't allow parts of the window to go off-screen to the right:
+		else if(l_rc.right > l_wa.right)
+		{
+			int l_excess = (l_rc.right - l_wa.right); 
+			l_rc.left -= l_excess;
+			l_rc.right -= l_excess;
+		}
+		// also keep window titlebar on-screen at all costs:
+		if(l_rc.top < l_wa.top)
+		{
+			l_rc.bottom -= l_wa.top - l_rc.top;
+			l_rc.top = l_wa.top;
+		}
+	}
+
+	MoveWindow(l_rc);
 }
 
 
