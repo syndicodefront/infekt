@@ -59,8 +59,8 @@ typedef struct _s_color_t
 
 	_s_color_t Invert() const { return _s_color_t(255 - R, 255 - G, 255 - B, A); }
 	uint32_t AsWord() const { return (A) | (B << 8) | (G << 16) | (R << 24); }
-	std::wstring AsHex(bool a_alpha) const { wchar_t l_buf[100] = {0};
-		if(a_alpha) swprintf(l_buf, 99, L"%02x%02x%02x%02x", R, G, B, A); else swprintf(l_buf, 99, L"%02x%02x%02x", R, G, B);
+	std::wstring AsHex(bool a_alpha) const { wchar_t l_buf[10] = {0};
+		if(a_alpha) swprintf(l_buf, 9, L"%02x%02x%02x%02x", R, G, B, A); else swprintf(l_buf, 9, L"%02x%02x%02x", R, G, B);
 		return l_buf; }
 } S_COLOR_T;
 
