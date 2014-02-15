@@ -96,15 +96,15 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 		case 1: // Bold or increased intensity
 			intensity_fore = 1;
 			break;
-		case 5:
-		case 4:
+		case 4: // Used to turn on background intensity (originally underline)
+		case 5: // Used to turn on background intensity (originally blink)
 			intensity_back = 1;
 			break;
 		case 21: // Bold: off or Underline: Double
 		case 22: // Normal color or intensity
 			intensity_fore = 0;
 			break;
-		case 24:
+		case 24: // Used to turn off background intensity (originally underline)
 			intensity_back = 0;
 			break;
 		case 38: // Set xterm-256 text color (foreground)
