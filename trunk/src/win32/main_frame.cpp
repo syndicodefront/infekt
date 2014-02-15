@@ -1056,12 +1056,8 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 		return;
 	}
 
-	if(a_growOnly && l_desiredWidth < (l_rc.right - l_rc.left))
-	{
-		return;
-	}
-
-	if(l_desiredWidth == (l_rc.right - l_rc.left))
+	if(l_desiredWidth == l_rc.right - l_rc.left ||
+		(a_growOnly && l_desiredWidth < l_rc.right - l_rc.left))
 	{
 		::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE);
 		return;
