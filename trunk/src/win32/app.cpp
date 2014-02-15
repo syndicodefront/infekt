@@ -85,7 +85,10 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 /* CNFOApp stuff                                                        */
 /************************************************************************/
 
-CNFOApp::CNFOApp()
+CNFOApp::CNFOApp() :
+	m_startupLineWrap(true),
+	m_startupLineWrapOverride(false),
+	m_startupNoGpu(false)
 {
 	std::wstring l_iniPath;
 
