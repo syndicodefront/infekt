@@ -169,6 +169,7 @@ protected:
 	// internal calls:
 	bool IsRendered() const { return m_rendered; }
 	int GetPadding() const { return m_padding; }
+	bool IsAnsi() const { return m_nfo && m_nfo->HasColorMap(); }
 	bool CalculateGrid();
 	cairo_surface_t *GetStripeSurface(size_t a_stripe) const;
 	int GetStripeHeight(size_t a_stripe) const;
@@ -243,11 +244,19 @@ public:
 	void SetArtColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cArtColor == nc); m_settings.cArtColor = nc; }
 	void SetGaussColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cGaussColor == nc); m_settings.cGaussColor = nc; }
 	void SetHyperLinkColor(const S_COLOR_T& nc) { m_rendered = m_rendered && (m_settings.cHyperlinkColor == nc); m_settings.cHyperlinkColor = nc; }
-	S_COLOR_T GetBackColor() const { return m_settings.cBackColor; }
-	S_COLOR_T GetTextColor() const { return m_settings.cTextColor; }
-	S_COLOR_T GetArtColor() const { return m_settings.cArtColor; }
+	S_COLOR_T GetBackColor() const {
+		return IsAnsi() ? S_COLOR_T(0, 0, 0) : m_settings.cBackColor;
+	}
+	S_COLOR_T GetTextColor() const {
+		return IsAnsi() ? S_COLOR_T(87, 87, 87) : m_settings.cTextColor;
+	}
+	S_COLOR_T GetArtColor() const {
+		return IsAnsi() ? S_COLOR_T(87, 87, 87) /* not really relevant? */ : m_settings.cArtColor;
+	}
 	S_COLOR_T GetGaussColor() const { return m_settings.cGaussColor; }
-	S_COLOR_T GetHyperLinkColor() const { return m_settings.cHyperlinkColor; }
+	S_COLOR_T GetHyperLinkColor() const {
+		return IsAnsi() ? S_COLOR_T(0, 0, 238) : m_settings.cHyperlinkColor;
+	}
 
 	// various other setters & getters:
 	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb; }
