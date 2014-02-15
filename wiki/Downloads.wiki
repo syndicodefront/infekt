@@ -5,8 +5,8 @@ The current release is 0.8.12 from February 15th 2014. [https://code.google.com/
 
   * *[http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.12-setup.exe iNFekt for Windows: Version 0.8.12 - Complete installation package] - recommended download*
   * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.12-SuperCompact.rar iNFekt for Windows: Version 0.8.12 - Super Compact Portable version] - only two files - restrictions: no GPU acceleration
-  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.10-32bit-Portable.rar iNFekt for Windows: Version 0.8.12 - 32 bit portable release]
-  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.10-64bit-Portable.rar iNFekt for Windows: Version 0.8.12 - 64 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.12-32bit-Portable.rar iNFekt for Windows: Version 0.8.12 - 32 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.12-64bit-Portable.rar iNFekt for Windows: Version 0.8.12 - 64 bit portable release]
   * [http://syndicode.org/infekt/downloads/v0.8.12/iNFektPortable_v0.8.12_English.paf.exe iNFekt for Windows: Version 0.8.12 - PortableApps.com edition]
 
 = Previous Version =
