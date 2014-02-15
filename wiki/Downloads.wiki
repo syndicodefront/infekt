@@ -1,0 +1,30 @@
+#labels Phase-Deploy
+= Current Version =
+
+The current release is 0.8.12 from February 15th 2014. [https://code.google.com/p/infekt/wiki/Changelog Changelog]
+
+  * *[http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.12-setup.exe iNFekt for Windows: Version 0.8.12 - Complete installation package] - recommended download*
+  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.12-SuperCompact.rar iNFekt for Windows: Version 0.8.12 - Super Compact Portable version] - only two files - restrictions: no GPU acceleration
+  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.10-32bit-Portable.rar iNFekt for Windows: Version 0.8.12 - 32 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFekt-v0.8.10-64bit-Portable.rar iNFekt for Windows: Version 0.8.12 - 64 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.8.12/iNFektPortable_v0.8.12_English.paf.exe iNFekt for Windows: Version 0.8.12 - PortableApps.com edition]
+
+= Previous Version =
+
+The previous release 0.8.10 from October 2013 can be downloaded here:
+
+  * [https://infekt.googlecode.com/files/iNFekt-v0.8.10-setup.exe iNFekt for Windows: Version 0.8.10 (Complete Installation Package for 32- and 64-bit)]
+  * [https://infekt.googlecode.com/files/iNFekt-v0.8.10-SuperCompact.rar iNFekt for Windows: Version 0.8.10 (Super Compact Portable Version)]
+  * [https://infekt.googlecode.com/files/iNFekt-v0.8.10-32bit-Portable.rar iNFekt for Windows: Version 0.8.10 (32-bit Portable Version)]
+  * [https://infekt.googlecode.com/files/iNFekt-v0.8.10-64bit-Portable.rar iNFekt for Windows: Version 0.8.10 (64-bit Portable Version)]
+  * [https://infekt.googlecode.com/files/iNFektPortable_v0.8.10_English.paf.exe iNFekt for Windows: Version 0.8.10 (PortableApps.com edition)]
+
+= Archive =
+
+[https://code.google.com/p/infekt/downloads/list?can=1&q=iNFEKT&sort=-uploaded&colspec=Filename%20Summary%20Uploaded%20Size Please click here for older versions.]
+
+= Support =
+
+If you run into any trouble, please check the [https://code.google.com/p/infekt/wiki/FAQ FAQ page] first.
+
+Should your issue persist, or if you have any other problem or suggestion, please use the [https://code.google.com/p/infekt/issues/list issue tracker].
