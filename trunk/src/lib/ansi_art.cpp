@@ -182,7 +182,7 @@ bool CAnsiArt::Process()
 
 						if(c != L'\n')
 						{
-							// if line wrapping, do not forget this character!
+							// when line wrapping, do not forget this character!
 							screen[y][x] = c;
 						}
 
