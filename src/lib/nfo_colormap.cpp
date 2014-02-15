@@ -245,13 +245,14 @@ bool CNFOColorMap::FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& a
 
 	bool found = false;
 
-	// :TODO: above if does not fully rule out size_t wrap conditions!
-
 	for(size_t row = a_row; row >= 0; --row)
 	{
 		if(a_stops.find(row) == a_stops.end())
 		{
-			continue;
+			if(row == 0) // make sure the size_t never wraps around
+				break;
+			else
+				continue;
 		}
 
 		ar_row = row;
