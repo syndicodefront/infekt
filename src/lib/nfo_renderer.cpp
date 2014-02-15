@@ -78,6 +78,10 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 
 		CalcClassicModeBlockSizes(true);
 
+		// the CPU fallback for blurring is 8-bit alpha channel only currently,
+		// only the GPU implementation supports more than one color.
+		m_allowCPUFallback = !IsAnsi();
+
 		return true;
 	}
 
