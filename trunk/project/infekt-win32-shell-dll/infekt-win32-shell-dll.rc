@@ -61,8 +61,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,8,10,0
- PRODUCTVERSION 0,8,10,0
+ FILEVERSION 0,8,12,0
+ PRODUCTVERSION 0,8,12,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -80,12 +80,12 @@ BEGIN
             VALUE "Comments", "http://code.google.com/p/infekt/ - This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation."
             VALUE "CompanyName", "cxxjoe Development"
             VALUE "FileDescription", "iNFekt NFO Viewer - Shell Extension"
-            VALUE "FileVersion", "0.8.10.0"
+            VALUE "FileVersion", "0.8.12.0"
             VALUE "InternalName", "infekt-win32-shell-dll"
-            VALUE "LegalCopyright", "Copyright © 2010-2013 cxxjoe & Contributors"
+            VALUE "LegalCopyright", "Copyright © 2010-2014 cxxjoe & Contributors"
             VALUE "OriginalFilename", "infekt-nfo-shell.dll"
             VALUE "ProductName", "iNFekt"
-            VALUE "ProductVersion", "0.8.10.0"
+            VALUE "ProductVersion", "0.8.12.0"
         END
     END
     BLOCK "VarFileInfo"
