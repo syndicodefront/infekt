@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,8 +12,7 @@
  * GNU General Public License for more details.
  **/
 
-#include "stdafx.h" // remove if you don't have one
-/* #include <cairo.h> */
+#include "stdafx.h"
 #include <math.h>
 #include "cairo_box_blur.h"
 #include "util.h"

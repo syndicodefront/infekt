@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010-2014 cxxjoe
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -11,10 +11,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  **/
-
-// based on
-// http://mxr.mozilla.org/mozilla1.9.2/source/gfx/thebes/src/gfxBlur.cpp
-// (GPL v2)
 
 #ifndef _CAIRO_BOX_BLUR_H
 #define _CAIRO_BOX_BLUR_H
