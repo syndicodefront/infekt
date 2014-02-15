@@ -21,6 +21,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 	m_classic(a_classicMode),
 	m_partial(NRP_RENDER_EVERYTHING),
 	m_forceGPUOff(false),
+	m_allowCPUFallback(true),
 	m_onDemandRendering(false),
 	m_preRenderThread(NULL),
 	m_gridData(NULL),
@@ -547,20 +548,21 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				shared_ptr<CCairoBoxBlur> p_blur(new CCairoBoxBlur(
 					(int)GetWidth(), GetStripeHeightPhysical(a_stripe),
 					(int)GetGaussBlurRadius(), ms_useGPU && !m_forceGPUOff));
+				p_blur->SetAllowFallback(m_allowCPUFallback);
 
 				cairo_t* cr = cairo_create(l_surface);
 
 				RenderBackgrounds(l_rowStart, l_rowEnd, l_baseY, cr);
 
 				// shadow effect:
-				if(p_blur && !m_cancelRenderingImmediately)
+				if(!m_cancelRenderingImmediately)
 				{
 					RenderStripeBlocks(a_stripe, false, true, p_blur->GetContext());
 
 					// important when running in CPU fallback mode only:
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
 					
-					if(!p_blur->Paint(cr))
+					if(!p_blur->Paint(cr) && p_blur->IsFallbackAllowed())
 					{
 						// retry once.
 

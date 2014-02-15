@@ -156,6 +156,7 @@ private:
 
 protected:
 	bool m_forceGPUOff;
+	bool m_allowCPUFallback;
 	bool m_onDemandRendering;
 
 	PNFOData m_nfo;
