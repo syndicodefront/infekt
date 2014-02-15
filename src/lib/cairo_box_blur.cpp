@@ -35,10 +35,12 @@ typedef int32_t PRInt32;
 #define NS_ASSERTION(a, b) _ASSERT(a)
 
 
-CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a_useGPU)
+CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a_useGPU) :
+	m_blurRadius(a_blurRadius),
+	m_width(a_width),
+	m_height(a_height),
+	m_allowFallback(true)
 {
-	m_blurRadius = a_blurRadius;
-
 	m_useFallback = true;
 
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
@@ -60,9 +62,6 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a
 
 	m_imgSurface = cairo_image_surface_create(m_useFallback ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32, a_width, a_height);
 	m_context = cairo_create(m_imgSurface);
-
-	m_width = a_width;
-	m_height = a_height;
 }
 
 
@@ -218,7 +217,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		{
 			// must retry!
 
-			m_useFallback = true;
+			m_useFallback = IsFallbackAllowed();
 
 			cairo_destroy(m_context);
 			cairo_surface_destroy(m_imgSurface);
@@ -231,6 +230,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 	}
 	else
 #endif /* !COMPACT_RELEASE */
+	if(IsFallbackAllowed())
 	{
 		// fallback.
 
@@ -251,6 +251,10 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		BoxBlurVertical(l_tmpData, l_boxData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
 
 		delete[] l_tmpData;
+	}
+	else
+	{
+		return false;
 	}
 
 	cairo_surface_mark_dirty(m_imgSurface);

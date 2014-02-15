@@ -30,7 +30,7 @@ public:
 	* blurred. If the returned surface is null, then there was an error in
 	* its creation.
 	**/
-	cairo_t* GetContext() { return m_context; }
+	cairo_t* GetContext() const { return m_context; }
 
 	/**
 	 * Does the actual blurring and mask applying. Users of this object
@@ -38,7 +38,11 @@ public:
 	 * gfxContext returned by GetContext before calling this.
 	 **/
 	bool Paint(cairo_t* a_destination);
+
+	void SetAllowFallback(bool allow) { m_allowFallback = allow; }
+	bool IsFallbackAllowed() const { return m_allowFallback; }
 protected:
+	bool m_allowFallback;
 	bool m_useFallback;
 	int m_width, m_height;
 	// Blur radius in pixels:
