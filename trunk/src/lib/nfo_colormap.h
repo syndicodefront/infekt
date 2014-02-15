@@ -80,6 +80,8 @@ protected:
 	SNFOColorStop m_previousFore;
 	SNFOColorStop m_previousBack;
 
+	void CreateColorStop(TColorStopMap& target_map, size_t a_row, size_t a_col, int intensity,
+		ENFOColor color, uint32_t color_rgba, SNFOColorStop& previous) const;
 	bool InterpretAdvancedColor(const std::vector<uint8_t>& a_params, ENFOColor& ar_color, uint32_t& ar_rgba) const;
 
 	bool FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& ar_row) const;
