@@ -76,9 +76,10 @@ void CNFOColorMap::Clear()
 
 void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::vector<uint8_t>& a_params)
 {
-	int bold = -1;
 	ENFOColor fore_color = _NFOCOLOR_MAX;
 	ENFOColor back_color = _NFOCOLOR_MAX;
+	int intensity_fore = -1;
+	int intensity_back = -1;
 	uint32_t fore_color_rgba = 0, back_color_rgba = 0;
 
 	for(uint8_t p : a_params)
@@ -88,16 +89,23 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 		switch(p)
 		{
 		case 0: // Reset / Normal
-			bold = 0;
+			intensity_fore = intensity_back = 0;
 			fore_color = NFOCOLOR_DEFAULT;
 			back_color = NFOCOLOR_DEFAULT;
 			break;
 		case 1: // Bold or increased intensity
-			bold = 1;
+			intensity_fore = 1;
+			break;
+		case 5:
+		case 4:
+			intensity_back = 1;
 			break;
 		case 21: // Bold: off or Underline: Double
 		case 22: // Normal color or intensity
-			bold = 0;
+			intensity_fore = 0;
+			break;
+		case 24:
+			intensity_back = 0;
 			break;
 		case 38: // Set xterm-256 text color (foreground)
 			if(!InterpretAdvancedColor(a_params, fore_color, fore_color_rgba))
@@ -130,32 +138,54 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 			{
 				back_color = static_cast<ENFOColor>(NFOCOLOR_DARK_GRAY + (p - 100));
 			}
+#if defined(_DEBUG) && defined(_WIN32)
+			else
+			{
+				wchar_t msg[60] = {0};
+				wsprintf(msg, L"unknown SGR: %d\n", p);
+				::OutputDebugStringW(msg);
+			}
+#endif
 		} // end of switch
 	} // end of for loop
 
-	if(fore_color != _NFOCOLOR_MAX)// || bold != -1)
+	CreateColorStop(m_stopsFore, a_row, a_col, intensity_fore, fore_color, fore_color_rgba, m_previousFore);
+	CreateColorStop(m_stopsBack, a_row, a_col, intensity_back, back_color, back_color_rgba, m_previousBack);
+}
+
+
+void CNFOColorMap::CreateColorStop(TColorStopMap& target_map, size_t a_row, size_t a_col, int intensity, ENFOColor color, uint32_t color_rgba, SNFOColorStop& previous) const
+{
+	if(intensity == -1)
 	{
-		SNFOColorStop fore_stop(m_previousFore);
-
-		// fore_stop.color = fore_color;
-		fore_stop.color = static_cast<ENFOColor>((int)fore_color + (bold != -1 ? bold * 8 : 0));
-		fore_stop.color_rgba = fore_color_rgba;
-
-		m_stopsFore[a_row][a_col] = fore_stop;
-
-		m_previousFore = fore_stop;
+		intensity = previous.bold ? 1 : 0;
 	}
 
-	if(back_color != _NFOCOLOR_MAX)
+	// apply intensity, if necessary:
+	ENFOColor work_color(color == _NFOCOLOR_MAX ? previous.color : color);
+
+	if(work_color >= _NFOCOLOR_MAX)
+		; // do nothing
+	else if(work_color > 8 && intensity == 0)
+		color = static_cast<ENFOColor>((int)work_color - 8);
+	else if(work_color < 9 && intensity == 1)
+		color = static_cast<ENFOColor>((int)work_color + 8);
+
+	if(color != _NFOCOLOR_MAX)
 	{
-		SNFOColorStop back_stop(m_previousBack);
+		SNFOColorStop stop(previous);
 
-		back_stop.color = back_color;
-		back_stop.color_rgba = back_color_rgba;
+		stop.color = color;
+		stop.color_rgba = color_rgba;
+		stop.bold = (intensity != 0);
+		
+		target_map[a_row][a_col] = stop;
 
-		m_stopsBack[a_row][a_col] = back_stop;
-
-		m_previousBack = back_stop;
+		previous = stop;
+	}
+	else if(intensity != -1)
+	{
+		previous.bold = (intensity != 0);
 	}
 }
 
