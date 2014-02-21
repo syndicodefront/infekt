@@ -150,6 +150,13 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			if(::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0))
 			{
 				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+
+				// increase scroll speed when zoomed out:
+				if(GetZoom() < 100)
+				{
+					l_lines = l_lines + static_cast<UINT>(l_lines * (100 - GetZoom()) / 50.0);
+				}
+
 				HandleScrollEvent(SB_VERT, INT_MIN, -l_delta * l_lines);
 			}
 		}
