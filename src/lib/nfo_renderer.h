@@ -250,14 +250,16 @@ public:
 		return IsAnsi() ? S_COLOR_T(0, 0, 0) : m_settings.cBackColor;
 	}
 	S_COLOR_T GetTextColor() const {
-		return IsAnsi() ? S_COLOR_T(87, 87, 87) : m_settings.cTextColor;
+		return IsAnsi() ? S_COLOR_T(100, 100, 100) : m_settings.cTextColor;
 	}
 	S_COLOR_T GetArtColor() const {
-		return IsAnsi() ? S_COLOR_T(87, 87, 87) /* not really relevant? */ : m_settings.cArtColor;
+		return IsAnsi() ? S_COLOR_T(100, 100, 100) : m_settings.cArtColor;
 	}
-	S_COLOR_T GetGaussColor() const { return m_settings.cGaussColor; }
+	S_COLOR_T GetGaussColor() const {
+		return IsAnsi() ? S_COLOR_T(100, 100, 100) /* relevant when default color is used */ : m_settings.cGaussColor;
+	}
 	S_COLOR_T GetHyperLinkColor() const {
-		return IsAnsi() ? S_COLOR_T(0, 0, 238) : m_settings.cHyperlinkColor;
+		return IsAnsi() ? S_COLOR_T(92, 92, 255) : m_settings.cHyperlinkColor;
 	}
 
 	// various other setters & getters:
@@ -265,9 +267,12 @@ public:
 	bool GetEnableGaussShadow() const { return m_settings.bGaussShadow; }
 	void SetGaussBlurRadius(unsigned int r) {
 		m_rendered = m_rendered && (m_settings.uGaussBlurRadius == r); m_settings.uGaussBlurRadius = r;
-		if(!m_settings.bGaussShadow) {  m_padding = 8; } else {
-		m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
-		if(m_padding < 8) m_padding = 8;
+		if(!m_settings.bGaussShadow) {
+			m_padding = (IsAnsi() ? 0 : 8);
+		} else {
+			m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
+			if(m_padding < 8)
+				m_padding = 8;
 		}
 	}
 	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
