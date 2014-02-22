@@ -393,19 +393,19 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 
 	CNFOData::TLineContainer l_newLines;
 
-	for(auto it = a_lines.begin(); it != a_lines.end(); it++)
+	for(const std::wstring& line : a_lines)
 	{
-		if(it->size() <= l_maxLen)
+		if(line.size() <= l_maxLen)
 		{
-			l_newLines.push_back(*it);
+			l_newLines.push_back(line);
 			continue;
 		}
 
-		wstring::size_type l_spaces = it->find_first_not_of(L' ');
+		wstring::size_type l_spaces = line.find_first_not_of(L' ');
 		if(l_spaces == wstring::npos)
 			l_spaces = 0;
 
-		wstring l_line = *it;
+		wstring l_line(line);
 		bool l_firstRun = true;
 
 		while(l_line.size() > 0)
@@ -414,15 +414,18 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 			if(l_cut == wstring::npos || l_cut < l_spaces || l_cut == 0 || l_line.size() < l_maxLen)
 				l_cut = l_maxLen;
 
-			wstring l_new;
+			wstring l_new = l_line.substr(0, l_cut);
 			if(!l_firstRun)
 			{
-				l_new.append(l_spaces, ' '); // whitespace level of line being split
-				l_new.append(2, ' '); // some indentation to denote what happened
-			}
-			l_new += l_line.substr(0, l_cut);
-			l_newLines.push_back(l_new);
+				CUtil::StrTrimLeft(l_new);
 
+				l_new.insert(0,
+					l_spaces // whitespace level of line being split
+					+ 2 // some indentation to denote what happened
+					, ' ');
+			}
+			l_newLines.push_back(l_new);
+			
 			if(l_cut != l_maxLen)
 				l_line.erase(0, l_cut + 1);
 			else
