@@ -4,6 +4,9 @@
 ===The rendered mode is slow.===
 Please try to disable "_Hardware (GPU) acceleration_" in the preferences' Advanced section.
 
+===How do I open the menu?===
+Simply press the Alt key on your keyboard. You can also permanently show it using the menu button from iNFekt's toolbar.
+
 ===Using the auto update says "_The program can't start because MSVCP110.dll is missing from your computer._" on Windows 7 or 8 64-bit===
 
 Please download and install `vcredist_x86.exe` (not x64) from [http://www.microsoft.com/en-us/download/details.aspx?id=30679 here].
