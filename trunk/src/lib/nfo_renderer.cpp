@@ -37,14 +37,24 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 	m_cancelRenderingImmediately(false)
 {
 	// default settings:
+	SetFontAntiAlias(true);
+
+	SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
+	SetTextColor(_S_COLOR_RGB(0, 0, 0));
+	SetArtColor(_S_COLOR_RGB(0, 0, 0));
+
+	SetHilightHyperLinks(true);
+	SetHyperLinkColor(_S_COLOR_RGB(0, 0, 0xFF));
+	SetUnderlineHyperLinks(true);
+
 	if(!m_classic)
 	{
 		SetBlockSize(7, 12);
 		m_settings.uFontSize = 0;
 
 		SetEnableGaussShadow(true);
-		SetGaussColor(_S_COLOR_RGB(0, 0, 0));
-		SetGaussBlurRadius(10);
+		SetGaussColor(_S_COLOR_RGB(128, 128, 128));
+		SetGaussBlurRadius(15);
 	}
 	else
 	{
@@ -55,16 +65,6 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 
 		m_padding = 5;
 	}
-
-	SetFontAntiAlias(true);
-
-	SetBackColor(_S_COLOR_RGB(0xFF, 0xFF, 0xFF));
-	SetTextColor(_S_COLOR_RGB(0, 0, 0));
-	SetArtColor(_S_COLOR_RGB(0, 0, 0));
-
-	SetHilightHyperLinks(true);
-	SetHyperLinkColor(_S_COLOR_RGB(0, 0, 0xFF));
-	SetUnderlineHyperLinks(true);
 }
 
 
