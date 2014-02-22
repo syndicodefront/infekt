@@ -392,14 +392,19 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 	// The results are good however.
 
 	CNFOData::TLineContainer l_newLines;
+	size_t lines_processed = 0;
 
 	for(const std::wstring& line : a_lines)
 	{
-		if(line.size() <= l_maxLen)
+		if(line.size() <= l_maxLen
+			// don't touch lines with blockchars:
+			|| line.find_first_of(L"\x2580\x2584\x2588\x258C\x2590\x2591\x2592\x2593") != wstring::npos)
 		{
 			l_newLines.push_back(line);
 			continue;
 		}
+
+		++lines_processed;
 
 		wstring::size_type l_spaces = line.find_first_not_of(L' ');
 		if(l_spaces == wstring::npos)
@@ -435,7 +440,7 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 		}
 	}
 
-	if(l_newLines.size() != a_lines.size())
+	if(lines_processed > 0)
 	{
 		a_newMaxLineLen = 0;
 
