@@ -942,7 +942,10 @@ void CMainFrame::OnAfterSettingsChanged() // meh
 	{
 		m_view.SetWrapLines(m_settings->bWrapLines);
 
-		AdjustWindowToNFOWidth(true, false);
+		if(m_view.GetNfoData())
+		{
+			AdjustWindowToNFOWidth(true, false);
+		}
 	}
 }
 
