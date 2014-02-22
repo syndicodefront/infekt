@@ -81,7 +81,6 @@ public:
 		cBackColor = cTextColor = cArtColor = cGaussColor = cHyperlinkColor = 0;
 		bGaussShadow = false; uGaussBlurRadius = 0;
 		bFontAntiAlias = true;
-		bWrapLines = false;
 		bHilightHyperlinks = bUnderlineHyperlinks = true;
 		memset(sFontFace, 0, LF_FACESIZE + 1);
 #ifdef _WIN32
@@ -97,7 +96,6 @@ public:
 	S_COLOR_T cBackColor, cTextColor, cArtColor;
 	TCHAR sFontFace[LF_FACESIZE + 1];
 	bool bFontAntiAlias;
-	bool bWrapLines;
 
 	// blur effect settings:
 	S_COLOR_T cGaussColor;
@@ -284,8 +282,6 @@ public:
 
 	void SetFontAntiAlias(bool nb) { m_rendered = m_rendered && (m_settings.bFontAntiAlias == nb); m_settings.bFontAntiAlias = nb; }
 	bool GetFontAntiAlias() const { return m_settings.bFontAntiAlias; }
-	void SetWrapLines(bool nb) { m_rendered = m_rendered && (m_settings.bWrapLines == nb); m_settings.bWrapLines = nb; }
-	bool GetWrapLines() const { return m_settings.bWrapLines; }
 
 	void SetFontFace(const std::_tstring& ns) { m_rendered = m_rendered && (_tcscmp(m_settings.sFontFace, ns.c_str()) == 0);
 		_tcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);

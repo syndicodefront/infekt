@@ -21,16 +21,16 @@
 #define INFOBAR_MINIMUM_HEIGHT 50
 
 
-CViewContainer::CViewContainer()
+CViewContainer::CViewContainer() :
+	m_contextMenuHandle(NULL),
+	m_resized(true),
+	m_curViewType(_MAIN_VIEW_MAX),
+	m_wrapLines(false),
+	m_cursor(IDC_ARROW),
+	m_showInfoBar(false),
+	m_infoBarHeight(200),
+	m_infoBarResizing(false)
 {
-	m_contextMenuHandle = NULL;
-	m_resized = true;
-	m_curViewType = _MAIN_VIEW_MAX;
-	m_showInfoBar = false;
-	m_cursor = IDC_ARROW;
-
-	m_infoBarHeight = 200;
-	m_infoBarResizing = false;
 }
 
 
@@ -64,6 +64,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 
 	m_nfoData = PNFOData(new CNFOData());
 	m_nfoData->SetCharsetToTry(a_charset);
+	m_nfoData->SetWrapLines(m_wrapLines);
 
 	CPluginManager::GetInstance()->TriggerNfoLoad(true, a_filePath.c_str());
 
@@ -158,6 +159,18 @@ bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 
 	return false;
 }
+
+
+void CViewContainer::SetWrapLines(bool a_wrap)
+{
+	if(m_wrapLines == a_wrap)
+		return;
+
+	m_wrapLines = a_wrap;
+
+	ReloadFile();
+}
+
 
 
 LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -335,18 +348,7 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 void CViewContainer::SwitchView(EMainView a_view)
 {
-	bool l_force = false;
-
-	if(a_view == MAIN_VIEW_TEXTONLY && m_textOnlyControl && m_textOnlyControl->HasNfoData())
-	{
-		if(m_textOnlyControl->GetNfoData()->GetWrapLines() != m_textOnlyControl->GetWrapLines())
-		{
-			m_textOnlyControl->UnAssignNFO();
-			l_force = true;
-		}
-	}
-
-	if(a_view >= _MAIN_VIEW_MAX || (m_curViewType == a_view && !l_force))
+	if(a_view >= _MAIN_VIEW_MAX || m_curViewType == a_view)
 	{
 		return;
 	}
@@ -413,7 +415,7 @@ bool CViewContainer::CurAssignNfo()
 	else
 	{
 		PNFOData l_data(new CNFOData());
-		l_data->SetWrapLines(m_curViewCtrl->GetWrapLines());
+		l_data->SetWrapLines(m_wrapLines);
 		
 		if(l_data->LoadStripped(*m_nfoData))
 		{
