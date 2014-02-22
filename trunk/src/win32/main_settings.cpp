@@ -38,6 +38,7 @@ bool CMainSettings::SaveToRegistry()
 	l_sect->WriteBool(L"AlwaysShowMenubar", this->bAlwaysShowMenubar);
 	l_sect->WriteBool(L"CheckDefViewOnStart", this->bCheckDefaultOnStartup);
 	l_sect->WriteBool(L"KeepOpenMRU", this->bKeepOpenMRU);
+	l_sect->WriteBool(L"WrapLines", this->bWrapLines);
 
 	l_sect->WriteBool(L"CenterWindow", this->bCenterWindow);
 	l_sect->WriteBool(L"AutoWidth", this->bAutoWidth);
@@ -75,21 +76,24 @@ bool CMainSettings::LoadFromRegistry()
 		this->iLastView = dwLastView;
 	}
 
-	this->bCopyOnSelect = l_sect->ReadBool(L"CopyOnSelect", false);
-	this->bAlwaysOnTop = l_sect->ReadBool(L"AlwaysOnTop", false);
-	this->bAlwaysShowMenubar = l_sect->ReadBool(L"AlwaysShowMenubar", false);
-	this->bCheckDefaultOnStartup = l_sect->ReadBool(L"CheckDefViewOnStart", true);
-	this->bSingleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", false);
-	this->bKeepOpenMRU = l_sect->ReadBool(L"KeepOpenMRU", true);
+	CMainSettings defaults(false);
 
-	this->bCenterWindow = l_sect->ReadBool(L"CenterWindow", true);
-	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", true);
-	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", true);
-	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", false);
-	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", false);
-	this->bOnDemandRendering = l_sect->ReadBool(L"OnDemandRendering", true);
-	this->bMonitorFileChanges = l_sect->ReadBool(L"MonitorFileChanges", true);
-	this->bUseGPU = l_sect->ReadBool(L"UseGPU", true);
+	this->bCopyOnSelect = l_sect->ReadBool(L"CopyOnSelect", defaults.bCopyOnSelect);
+	this->bAlwaysOnTop = l_sect->ReadBool(L"AlwaysOnTop", defaults.bAlwaysOnTop);
+	this->bAlwaysShowMenubar = l_sect->ReadBool(L"AlwaysShowMenubar", defaults.bAlwaysShowMenubar);
+	this->bCheckDefaultOnStartup = l_sect->ReadBool(L"CheckDefViewOnStart", defaults.bCheckDefaultOnStartup);
+	this->bSingleInstanceMode = l_sect->ReadBool(L"SingleInstanceMode", defaults.bSingleInstanceMode);
+	this->bKeepOpenMRU = l_sect->ReadBool(L"KeepOpenMRU", defaults.bKeepOpenMRU);
+	this->bWrapLines = l_sect->ReadBool(L"WrapLines", defaults.bWrapLines);
+
+	this->bCenterWindow = l_sect->ReadBool(L"CenterWindow", defaults.bCenterWindow);
+	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", defaults.bAutoWidth);
+	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", defaults.bCenterNFO);
+	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", defaults.bDefaultExportToNFODir);
+	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", defaults.bCloseOnEsc);
+	this->bOnDemandRendering = l_sect->ReadBool(L"OnDemandRendering", defaults.bOnDemandRendering);
+	this->bMonitorFileChanges = l_sect->ReadBool(L"MonitorFileChanges", defaults.bMonitorFileChanges);
+	this->bUseGPU = l_sect->ReadBool(L"UseGPU", defaults.bUseGPU);
 
 	return true;
 }

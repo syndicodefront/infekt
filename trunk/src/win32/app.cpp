@@ -198,7 +198,7 @@ int CNFOApp::ExtractStartupOptions(const wstring& a_commandLine)
 	l_odesc.add_options()
 		("help,h", "Show available command line options")
 		("view,v", bpo::wvalue<wstring>(&l_viewMode), "One of: default, rendered, classic, text")
-		("wrap,w", bpo::wvalue<wstring>(&l_wrap), "Enables line wrap (text view only)")
+		("wrap,w", bpo::wvalue<wstring>(&l_wrap), "Enables/disables line wrap")
 		("nogpu", "Disable GPU acceleration on startup")
 		("filename", bpo::wvalue<wstring>(&l_filePath), "Path to a file")
 	;

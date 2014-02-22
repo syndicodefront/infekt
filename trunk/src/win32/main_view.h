@@ -35,7 +35,7 @@ public:
 	bool OpenFile(const std::wstring& a_filePath, ENfoCharset a_charset = NFOC_AUTO);
 	bool OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_nfoData);
 	void SwitchView(EMainView a_view);
-	EMainView GetViewType() { return m_curViewType; }
+	EMainView GetViewType() const { return m_curViewType; }
 
 	void SetCopyOnSelect(bool nb) {
 		m_renderControl->SetCopyOnSelect(nb);
@@ -54,6 +54,9 @@ public:
 		m_textOnlyControl->SetOnDemandRendering(nb);
 	}
 
+	bool GetWrapLines() const { return m_wrapLines; }
+	void SetWrapLines(bool);
+
 	const std::wstring GetSelectedText() const;
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
@@ -66,6 +69,7 @@ protected:
 	EMainView m_curViewType;
 	PNFOViewControl m_curViewCtrl;
 	PNFOData m_nfoData;
+	bool m_wrapLines;
 	std::wstring m_nfoFilePath;
 
 	bool m_showInfoBar;

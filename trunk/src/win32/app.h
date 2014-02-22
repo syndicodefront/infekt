@@ -29,7 +29,7 @@ public:
 	void GetStartupOptions(std::wstring& ar_filePath, std::wstring& ar_viewMode, bool& ar_lineWrap, bool& ar_noGpu) const {
 		ar_filePath = m_startupFilePath;
 		ar_viewMode = m_startupViewMode;
-		if(m_startupLineWrapOverride && m_startupViewMode == L"text")
+		if(m_startupLineWrapOverride)
 			ar_lineWrap = m_startupLineWrap;
 		ar_noGpu = m_startupNoGpu;
 	}

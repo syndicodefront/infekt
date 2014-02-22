@@ -246,7 +246,6 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		DLG_SHOW_CTRL_IF(IDC_LABEL_ART, m_pageId != TAB_PAGE_TEXTONLY);
 		DLG_SHOW_CTRL_IF(IDC_CLR_ART, m_pageId != TAB_PAGE_TEXTONLY);
-		DLG_SHOW_CTRL_IF(IDC_FONT_LINEWRAP, m_pageId == TAB_PAGE_TEXTONLY);
 
 		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_LABEL, m_pageId != TAB_PAGE_RENDERED);
 		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_COMBO, m_pageId != TAB_PAGE_RENDERED);
@@ -301,6 +300,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, l_global->bCopyOnSelect);
 		SET_DLG_CHECKBOX(IDC_SINGLEINSTANCEMODE, l_global->bSingleInstanceMode);
 		SET_DLG_CHECKBOX(IDC_REMEMBERMRU, l_global->bKeepOpenMRU);
+		SET_DLG_CHECKBOX(IDC_LINEWRAP, l_global->bWrapLines);
 
 		if(CUtilWin32::IsWin6x())
 		{
@@ -345,7 +345,6 @@ void CSettingsTabDialog::ViewSettingsToGui()
 		SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
 		SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
 		SET_DLG_CHECKBOX(IDC_FONT_ANTIALIAS, m_viewSettings->bFontAntiAlias);
-		SET_DLG_CHECKBOX(IDC_FONT_LINEWRAP, m_viewSettings->bWrapLines);
 
 		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
 		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETPOS, TRUE, m_viewSettings->uGaussBlurRadius);
@@ -518,9 +517,6 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		case IDC_FONT_ANTIALIAS:
 			m_viewSettings->bFontAntiAlias = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_ANTIALIAS) != FALSE);
 			break;
-		case IDC_FONT_LINEWRAP:
-			m_viewSettings->bWrapLines = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_LINEWRAP) != FALSE);
-			break;
 		case IDC_FONTNAME_COMBO:
 			if(HIWORD(wParam) == CBN_SELCHANGE)
 			{
@@ -577,13 +573,16 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			m_dlgWin->DoThemeExImport(true);
 			break;
 		case IDC_BUTTON_ADVANCED: {
+			PMainSettings l_settings = m_mainWin->GetSettings();
+
 			CAdvancedSettingsWindowDialog l_dlg(m_hWnd);
-			l_dlg.SetMainSettings(m_mainWin->GetSettings());
+			l_dlg.SetMainSettings(l_settings);
 			l_dlg.DoModal();
 
 			CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
-			l_view->SetCenterNfo(m_mainWin->GetSettings()->bCenterNFO);
-			l_view->SetOnDemandRendering(m_mainWin->GetSettings()->bOnDemandRendering);
+			l_view->SetCenterNfo(l_settings->bCenterNFO);
+			l_view->SetOnDemandRendering(l_settings->bOnDemandRendering);
+			l_view->SetWrapLines(l_settings->bWrapLines);
 			break; }
 		default:
 			return FALSE;
@@ -1084,6 +1083,7 @@ bool CSettingsTabDialog::SaveSettings()
 		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
 		l_set->bSingleInstanceMode = (::IsDlgButtonChecked(GetHwnd(), IDC_SINGLEINSTANCEMODE) != FALSE);
 		l_set->bKeepOpenMRU = (::IsDlgButtonChecked(GetHwnd(), IDC_REMEMBERMRU) != FALSE);
+		l_set->bWrapLines = (::IsDlgButtonChecked(m_hWnd, IDC_LINEWRAP) != FALSE);
 
 		return l_set->SaveToRegistry();
 	}

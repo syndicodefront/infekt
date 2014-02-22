@@ -153,7 +153,7 @@ void CMainFrame::OnInitialUpdate()
 {
 	CNFOApp *l_app = CNFOApp::GetInstance();
 	std::wstring l_path, l_viewMode;
-	bool l_wrap, l_noGpu;
+	bool l_wrap, l_noGpu = false;
 
 	if(!l_app)
 		abort();
@@ -173,7 +173,7 @@ void CMainFrame::OnInitialUpdate()
 	LoadRenderSettingsFromRegistry(_T("ClassicView"), m_view.GetClassicCtrl().get());
 	LoadRenderSettingsFromRegistry(_T("TextOnlyView"), m_view.GetTextOnlyCtrl().get());
 
-	l_wrap = m_view.GetActiveCtrl()->GetWrapLines();
+	l_wrap = m_settings->bWrapLines;
 	l_app->GetStartupOptions(l_path, l_viewMode, l_wrap, l_noGpu);
 
 	UpdateStatusbar();
@@ -184,12 +184,6 @@ void CMainFrame::OnInitialUpdate()
 		if(l_viewMode == L"rendered") SwitchView(MAIN_VIEW_RENDERED);
 		else if(l_viewMode == L"classic") SwitchView(MAIN_VIEW_CLASSIC);
 		else if(l_viewMode == L"text") SwitchView(MAIN_VIEW_TEXTONLY);
-
-		// must re-fetch WrapLines setting with new mode:
-		l_wrap = m_view.GetActiveCtrl()->GetWrapLines();
-		l_app->GetStartupOptions(l_path, l_viewMode, l_wrap, l_noGpu);
-
-		m_view.GetActiveCtrl()->SetWrapLines(l_wrap);
 	}
 	else if(GetSettings()->iDefaultView == -1)
 	{
@@ -219,6 +213,7 @@ void CMainFrame::OnInitialUpdate()
 	m_view.SetCopyOnSelect(m_settings->bCopyOnSelect);
 	m_view.SetCenterNfo(m_settings->bCenterNFO);
 	m_view.SetOnDemandRendering(m_settings->bOnDemandRendering);
+	m_view.SetWrapLines(l_wrap);
 
 	if(l_noGpu)
 	{
@@ -943,9 +938,12 @@ void CMainFrame::OnAfterSettingsChanged() // meh
 
 	CNFORenderer::SetGlobalUseGPUFlag(m_settings->bUseGPU);
 
-	// update or reset text-only view's word-wrap flag:
-	m_view.SwitchView(m_view.GetViewType());
-	// if that hasn't changed the call won't do anything.
+	if(m_view.GetWrapLines() != m_settings->bWrapLines)
+	{
+		m_view.SetWrapLines(m_settings->bWrapLines);
+
+		AdjustWindowToNFOWidth(true, false);
+	}
 }
 
 
@@ -1516,6 +1514,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	else // load from disk otherwise:
 	{
 		PNFOData l_nfo = PNFOData(new CNFOData());
+		l_nfo->SetWrapLines(m_settings->bWrapLines);
 
 		if(l_nfo->LoadFromFile(m_nfoPathsInFolder[m_nfoInFolderIndex]))
 		{
@@ -1557,6 +1556,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 		m_nfoPreloadData.reset();
 
 		m_nfoPreloadData = PNFOData(new CNFOData());
+		m_nfoPreloadData->SetWrapLines(m_settings->bWrapLines);
 
 		if(!m_nfoPreloadData->LoadFromFile(m_nfoPathsInFolder[l_preLoadIndex]))
 		{
@@ -1691,8 +1691,6 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 		l_sect->WriteDword(L"FontSize", static_cast<DWORD>(a_settings.uFontSize));
 	}
 
-	l_sect->WriteBool(L"WrapLines", a_settings.bWrapLines);
-
 	return l_sect->WriteString(L"FontName", a_settings.sFontFace); /* somewhat representative success check */
 }
 
@@ -1717,7 +1715,6 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 	l_newSets.bHilightHyperlinks = l_sect->ReadBool(L"HilightHyperlinks", l_defaults.bHilightHyperlinks);
 	l_newSets.bUnderlineHyperlinks = l_sect->ReadBool(L"UnderlineHyperlinks", l_defaults.bUnderlineHyperlinks);
 	l_newSets.bFontAntiAlias = l_sect->ReadBool(L"FontAntiAlias", l_defaults.bFontAntiAlias);
-	l_newSets.bWrapLines = l_sect->ReadBool(L"WrapLines", l_defaults.bWrapLines);
 
 	if(!a_target->IsClassicMode())
 	{

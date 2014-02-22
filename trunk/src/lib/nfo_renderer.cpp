@@ -1506,7 +1506,6 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	SetUnderlineHyperLinks(ns.bUnderlineHyperlinks);
 
 	SetFontAntiAlias(ns.bFontAntiAlias);
-	SetWrapLines(ns.bWrapLines);
 	SetFontFace(ns.sFontFace);
 
 	if(!m_rendered) // stuff has changed
@@ -1551,7 +1550,6 @@ std::wstring CNFORenderSettings::Serialize() const
 
 	l_ss << "fof: '" << sFontFace << "';\n\t";
 	l_ss << "foa: " << (bFontAntiAlias ? 1 : 0) << ";\n\t";
-	l_ss << "wll: " << (bWrapLines ? 1 : 0) << ";\n\t";
 
 	l_ss << "cga: " << cGaussColor.AsHex(true) << ";\n\t";
 	l_ss << "gas: " << (bGaussShadow ? 1 : 0) << ";\n\t";
@@ -1651,8 +1649,6 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 		}
 		else if(l_key == L"foa")
 			l_tmpSets.bFontAntiAlias = (wcstol(l_val.c_str(), NULL, 10) != 0);
-		else if(l_key == L"wll")
-			l_tmpSets.bWrapLines = (wcstol(l_val.c_str(), NULL, 10) != 0);
 		else if(l_key == L"cga")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cGaussColor);
 		else if(l_key == L"gas")

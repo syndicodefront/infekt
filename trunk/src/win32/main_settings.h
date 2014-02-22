@@ -29,6 +29,7 @@ public:
 		bCheckDefaultOnStartup(false),
 		bSingleInstanceMode(false),
 		bKeepOpenMRU(true),
+		bWrapLines(true),
 		bCenterWindow(true),
 		bAutoWidth(true),
 		bCenterNFO(true),
@@ -54,6 +55,7 @@ public:
 	bool bCheckDefaultOnStartup;
 	bool bSingleInstanceMode;
 	bool bKeepOpenMRU;
+	bool bWrapLines;
 
 	bool bCenterWindow;
 	bool bAutoWidth;
