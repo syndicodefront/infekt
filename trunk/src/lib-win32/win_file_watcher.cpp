@@ -128,6 +128,17 @@ void CWinFileWatcher::WatchEventThread()
 
 			if(l_lastModTime != l_newTime && m_callback)
 			{
+				FILE *fh = NULL;
+				unsigned int retry_count = 0;
+
+				// wait up to two seconds to avoid access denied errors due to the file still being written:
+				while(retry_count++ < 20 && NULL == (fh = _wfopen(m_filePath.c_str(), L"rb")))
+				{
+					::Sleep(100);
+				}
+
+				fclose(fh);
+
 				m_callback();
 			}
 
