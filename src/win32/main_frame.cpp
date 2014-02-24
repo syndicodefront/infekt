@@ -1573,11 +1573,11 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 
 size_t CMainFrame::BrowseFolderNfoGetNext(int a_direction)
 {
-	if(a_direction < 0 && m_nfoInFolderIndex == 0)
+	if(a_direction <= 0 && m_nfoInFolderIndex == 0)
 	{
 		return m_nfoPathsInFolder.size() - 1;
 	}
-	else if(a_direction > 0 && m_nfoInFolderIndex == m_nfoPathsInFolder.size() - 1)
+	else if(a_direction >= 0 && m_nfoInFolderIndex >= m_nfoPathsInFolder.size() - 1)
 	{
 		return 0;
 	}
