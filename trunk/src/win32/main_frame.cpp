@@ -1509,6 +1509,8 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 
 	bool bSuccess;
 
+	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+
 	// use preloaded NFO if there is one:
 	if(m_nfoPreloadData && m_nfoPreloadData->GetFilePath() == m_nfoPathsInFolder[m_nfoInFolderIndex])
 	{
@@ -1568,6 +1570,8 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 			m_nfoPreloadData.reset();
 		}
 	}
+
+	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 }
 
 
