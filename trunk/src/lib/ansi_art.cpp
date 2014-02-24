@@ -160,6 +160,8 @@ bool CAnsiArt::Process()
 		switch(cmd.cmd)
 		{
 			case 0: { // put text to current position
+				size_t used_x_start = x, used_x = 0;
+
 				for(wchar_t c : cmd.data)
 				{
 					if(c == L'\r')
@@ -184,10 +186,20 @@ bool CAnsiArt::Process()
 						{
 							// when line wrapping, do not forget this character!
 							screen[y][x] = c;
+
+							++used_x;
+						}
+
+						if(used_x > 0)
+						{
+							m_colorMap->PushUsedSection(y, used_x_start, used_x);
 						}
 
 						++y;
 						x = 0;
+
+						used_x_start = 0;
+						used_x = 0;
 					}
 					else
 					{
@@ -205,7 +217,14 @@ bool CAnsiArt::Process()
 
 						screen[y][x] = c;
 						++x;
+
+						++used_x;
 					}
+				}
+
+				if(used_x > 0)
+				{
+					m_colorMap->PushUsedSection(y, used_x_start, used_x);
 				}
 				break;
 			}

@@ -63,14 +63,13 @@ CNFOColorMap::CNFOColorMap()
 
 void CNFOColorMap::Clear()
 {
-	m_previousBack.bold = false;
-	m_previousBack.color = NFOCOLOR_DEFAULT;
-
-	m_previousFore.bold = false;
-	m_previousFore.color = NFOCOLOR_DEFAULT;
-
 	m_stopsFore.clear();
 	m_stopsBack.clear();
+
+	m_previousBack = SNFOColorStop();
+	m_previousFore = SNFOColorStop();
+
+	m_usedSections.clear();
 }
 
 
@@ -236,6 +235,24 @@ bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t>& a_params, 
 }
 
 
+// unfortunately it was only later noticed that backgrounds for unused areas
+// (i.e. where the cursor has never been) shall remain default-colored...
+void CNFOColorMap::PushUsedSection(size_t a_row, size_t a_col_from, size_t a_length)
+{
+	auto& row = m_usedSections[a_row];
+
+	// join adjacent sections:
+	if(a_col_from > 0 && !row.empty() && a_col_from == row.rbegin()->first + row.rbegin()->second)
+	{
+		row.rbegin()->second += a_length;
+	}
+	else
+	{
+		row[a_col_from] = a_length;
+	}
+}
+
+
 bool CNFOColorMap::FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& ar_row) const
 {
 	if(a_stops.empty())
@@ -334,14 +351,20 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 	std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const
 {
 	size_t row;
+	auto& it_row_sections = m_usedSections.find(a_row);
+
+	if(it_row_sections == m_usedSections.end())
+	{
+		return false;
+	}
 
 	if(!FindRow(m_stopsBack, a_row, row))
 	{
 		return false;
 	}
 
-	ar_sections.clear();
-	ar_colors.clear();
+	std::vector<size_t> l_sections;
+	std::vector<uint32_t> l_colors;
 
 	const auto& row_data = m_stopsBack.find(row)->second;
 
@@ -356,16 +379,16 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 
 			if(row == 0 || !FindRow(m_stopsBack, row - 1, previous_row))
 			{
-				ar_colors.push_back(a_defaultColor);
+				l_colors.push_back(a_defaultColor);
 			}
 			else
 			{
 				const SNFOColorStop& last_stop = m_stopsBack.find(previous_row)->second.rbegin()->second;
 
-				ar_colors.push_back(last_stop.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(last_stop));
+				l_colors.push_back(last_stop.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(last_stop));
 			}
 
-			ar_sections.push_back(first_col - 0);
+			l_sections.push_back(first_col - 0);
 		}
 
 		size_t prev_end_col = 0;
@@ -373,18 +396,20 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 
 		for(const auto& sub : row_data)
 		{
-			ar_colors.push_back(sub.second.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(sub.second));
+			l_colors.push_back(sub.second.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(sub.second));
 
 			if(index++ > 0)
 			{
 				// width for entry N can only be calculated from (N+1)->first!
-				ar_sections.push_back(sub.first - prev_end_col);
+				_ASSERT(sub.first > prev_end_col);
+
+				l_sections.push_back(sub.first - prev_end_col);
 			}
 
 			prev_end_col = sub.first;
 		}
 
-		ar_sections.push_back(a_width - prev_end_col);
+		l_sections.push_back(a_width - prev_end_col);
 	}
 	else
 	{
@@ -397,8 +422,92 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 			return false;
 		}
 
-		ar_sections.push_back(a_width);
-		ar_colors.push_back(GetRGB(last_stop));
+		l_sections.push_back(a_width);
+		l_colors.push_back(GetRGB(last_stop));
+	}
+
+	// unused parts (as indicated by m_usedSections) must be default-colored.
+
+	_ASSERT(l_sections.size() > 0 && l_sections.size() == l_colors.size());
+
+	size_t running_cols = 0;
+	uint32_t prev_color;
+
+	for(size_t col = 0; col < a_width; ++col)
+	{
+		// identify used section:
+		size_t used_width = 0;
+		uint32_t new_color;
+
+		for(const auto& used_section : it_row_sections->second)
+		{
+			if(used_section.first <= col && col < used_section.first + used_section.second)
+			{
+				used_width = used_section.second;
+				break;
+			}
+		}
+
+		if(used_width == 0)
+		{
+			new_color = a_defaultColor;
+		}
+		else
+		{
+			// Identify principal section color.
+			// This could be optimized using std::min(used_width, section_width),
+			// but it seems to be okay for now...
+			bool found = false;
+			size_t i = 0, walking_col = 0;
+			while(i < l_sections.size())
+			{
+				size_t section_width = l_sections[i];
+
+				if(col >= walking_col && col < walking_col + section_width)
+				{
+					new_color = l_colors[i];
+					found = true;
+					break;
+				}
+
+				walking_col += section_width;
+				++i;
+			}
+
+			_ASSERT(found);
+
+			if(!found)
+			{
+				// make bug super visible.
+				return false;
+			}
+		}
+
+		if(running_cols == 0)
+		{
+			// init with first color
+			prev_color = new_color;
+			running_cols = 1;
+		}
+		else if(new_color == prev_color)
+		{
+			// color hasn't changed
+			++running_cols;
+		}
+		else
+		{
+			ar_colors.push_back(prev_color);
+			ar_sections.push_back(running_cols);
+
+			running_cols = 1;
+			prev_color = new_color;
+		}
+	}
+
+	if(running_cols > 0)
+	{
+		ar_colors.push_back(prev_color);
+		ar_sections.push_back(running_cols);
 	}
 
 	return true;
