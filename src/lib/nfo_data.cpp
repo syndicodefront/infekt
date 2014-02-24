@@ -815,8 +815,6 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
-	bool l_error = false;
-
 	m_textContent.clear();
 
 	if(a_fix == EA_TRY)
@@ -841,6 +839,8 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		a_data += 3;
 		a_dataLen -= 3;
 	}
+
+	bool l_foundBinary = false;
 
 	m_textContent.resize(a_dataLen);
 
@@ -868,10 +868,8 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 			if(p == 0)
 			{
 				// "allow" \0 chars for ANSI files with SAUCE record...
-				if(!m_isAnsi || m_ansiHintWidth == 0)
-					l_error = true;
-				else
-					m_textContent[i] = L'?';
+				l_foundBinary = true;
+				m_textContent[i] = L'?';
 			}
 			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
 			{
@@ -912,16 +910,19 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		}
 	}
 
-	if(l_error)
+	bool l_ansi = m_isAnsi || DetectAnsi();
+
+	if(l_foundBinary && !l_ansi)
 	{
 		m_lastErrorDescr = L"Binary files can not be loaded.";
+
 		return false;
 	}
 	else
 	{
 		m_sourceCharset = (a_fix == EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
 
-		m_isAnsi = m_isAnsi || DetectAnsi();
+		m_isAnsi = l_ansi;
 
 		return true;
 	}
