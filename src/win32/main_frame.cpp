@@ -619,10 +619,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDM_TOOLS_NEXTNFO:
 		BrowseFolderNfoMove(1);
+		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		break;
 
 	case IDM_TOOLS_PREVIOUSNFO:
 		BrowseFolderNfoMove(-1);
+		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		break;
 
 	case IDM_FINDTEXT:
@@ -1570,8 +1572,6 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 			m_nfoPreloadData.reset();
 		}
 	}
-
-	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 }
 
 
