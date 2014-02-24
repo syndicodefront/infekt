@@ -22,6 +22,7 @@ public:
 
 	void Clear();
 	void PushGraphicRendition(size_t a_row, size_t a_col, const std::vector<uint8_t>& a_params);
+	void PushUsedSection(size_t a_row, size_t a_col_from, size_t a_length);
 
 	bool HasColors() const { return !m_stopsFore.empty() || !m_stopsBack.empty(); }
 
@@ -79,6 +80,11 @@ protected:
 
 	SNFOColorStop m_previousFore;
 	SNFOColorStop m_previousBack;
+
+	typedef std::map<size_t, std::map<size_t, size_t>> TUsedSectionMap;
+
+	// (row, (col, width))
+	TUsedSectionMap m_usedSections;
 
 	void CreateColorStop(TColorStopMap& target_map, size_t a_row, size_t a_col, int intensity,
 		ENFOColor color, uint32_t color_rgba, SNFOColorStop& previous) const;
