@@ -622,13 +622,14 @@ void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double 
 	{
 		double dbw = static_cast<double>(GetBlockWidth());
 		double dbh = static_cast<double>(GetBlockHeight());
+		uint32_t l_defaultColor = GetBackColor().AsWord();
 
 		for(size_t row = (a_rowStart == -1 ? 0 : a_rowStart); row <= a_rowEnd; row++)
 		{
 			std::vector<size_t> l_columns;
 			std::vector<uint32_t> l_colors;
 
-			if(!m_nfo->GetColorMap()->GetLineBackgrounds(row, GetBackColor().AsWord(), m_gridData->GetCols(), l_columns, l_colors))
+			if(!m_nfo->GetColorMap()->GetLineBackgrounds(row, l_defaultColor, m_gridData->GetCols(), l_columns, l_colors))
 				continue;
 
 			_ASSERT(l_colors.size() == l_columns.size());
@@ -638,14 +639,23 @@ void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double 
 
 			for(size_t section = 0; section < l_colors.size(); section++)
 			{
+				_ASSERT(l_columns[section] > 0);
+				_ASSERT(l_columns[section] <= m_gridData->GetCols());
+
 				size_t col_to = col + l_columns[section];
-				double x_from = col * dbw, x_to = col_to * dbw;
 
-				cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(S_COLOR_T(l_colors[section])));
+				_ASSERT(col_to > col);
 
-				cairo_rectangle(cr, m_padding + x_from, a_yBase + m_padding + dbh * row, x_to - x_from, dbh);
+				if(l_colors[section] != l_defaultColor)
+				{
+					double x_from = col * dbw, x_to = col_to * dbw;
 
-				cairo_fill(cr);
+					cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(S_COLOR_T(l_colors[section])));
+
+					cairo_rectangle(cr, m_padding + x_from, a_yBase + m_padding + dbh * row, x_to - x_from, dbh);
+
+					cairo_fill(cr);
+				}
 
 				col = col_to;
 			}
@@ -708,7 +718,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 	const double bhd = static_cast<double>(GetBlockHeight());
 	const double bwd05 = bwd * 0.5;
 	const double bhd05 = bhd * 0.5;
-
+	
 	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
 		if(m_cancelRenderingImmediately)
