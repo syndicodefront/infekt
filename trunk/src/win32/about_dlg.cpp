@@ -110,17 +110,9 @@ BOOL CAboutDialog::OnInitDialog()
 
 	const wchar_t* l_gpuFlag = L"no";
 
-	if(CUtilWin32::IsWin6x())
+	if(CCairoBoxBlur::IsGPUUsable())
 	{
-		HMODULE hGpuDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
-
-		typedef int (__cdecl *fnc)();
-
-		if(fnc igu = (fnc)::GetProcAddress(hGpuDll, "IsGpuUsable"))
-		{
-			if(igu())
-				l_gpuFlag = CNFORenderer::GetGlobalUseGPUFlag() ? L"yes" : L"disabled";
-		}
+		l_gpuFlag = CNFORenderer::GetGlobalUseGPUFlag() ? L"yes" : L"disabled";
 	}
 
 	_CREATE_STATIC(l_hLibVersions, FORMAT(L"Using Cairo v%d.%d.%d, PCRE v%d.%02d, GPU: %s",

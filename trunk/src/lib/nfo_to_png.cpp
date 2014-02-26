@@ -28,6 +28,11 @@ CNFOToPNG::CNFOToPNG(bool a_classicMode)
 
 bool CNFOToPNG::SavePNG(const std::_tstring& a_filePath)
 {
+	if(!GetEnableGaussShadow())
+	{
+		m_padding = 0;
+	}
+
 	if(!Render())
 	{
 		return false;

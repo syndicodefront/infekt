@@ -40,24 +40,7 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a
 	m_height(a_height),
 	m_allowFallback(true)
 {
-	m_useFallback = true;
-
-#if defined(_WIN32) && !defined(COMPACT_RELEASE)
-	if(CUtilWin32::IsWin6x() && a_useGPU)
-	{
-		if(!m_hAmpDll)
-		{
-			m_hAmpDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
-		}
-
-		typedef int (__cdecl *fnc)();
-
-		if(fnc igu = (fnc)::GetProcAddress(m_hAmpDll, "IsGpuUsable"))
-		{
-			m_useFallback = (igu() == 0);
-		}
-	}
-#endif /* !COMPACT_RELEASE */
+	m_useFallback = !a_useGPU || !IsGPUUsable();
 
 	m_imgSurface = cairo_image_surface_create(m_useFallback ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32, a_width, a_height);
 	m_context = cairo_create(m_imgSurface);
@@ -203,6 +186,8 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		typedef int (__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
 		bool l_ok = false;
 
+		_ASSERT(m_hAmpDll != NULL);
+
 		if(fnc gb = (fnc)GetProcAddress(m_hAmpDll, "GaussianBlurARGB32"))
 		{
 			l_ok = (gb(
@@ -281,6 +266,28 @@ CCairoBoxBlur::~CCairoBoxBlur()
 {
 	cairo_destroy(m_context);
 	cairo_surface_destroy(m_imgSurface);
+}
+
+
+/*static*/ bool CCairoBoxBlur::IsGPUUsable()
+{
+#if defined(_WIN32) && !defined(COMPACT_RELEASE)
+	if(CUtilWin32::IsWin6x())
+	{
+		if(!m_hAmpDll)
+		{
+			m_hAmpDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
+		}
+
+		typedef int (__cdecl *fnc)();
+
+		if(fnc igu = (fnc)::GetProcAddress(m_hAmpDll, "IsGpuUsable"))
+		{
+			return (igu() != 0);
+		}
+	}
+#endif
+	return false;
 }
 
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)

@@ -55,6 +55,8 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 		SetEnableGaussShadow(true);
 		SetGaussColor(_S_COLOR_RGB(128, 128, 128));
 		SetGaussBlurRadius(15);
+
+		m_padding = 8;
 	}
 	else
 	{
@@ -236,8 +238,9 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	}
 	else
 	{
-		int l_stripeStart = (source_y - m_padding) / m_stripeHeight, // implicit floor()
-			l_stripeEnd = ((source_y + a_height - m_padding) / m_stripeHeight);
+		int l_padding = GetPadding(),
+			l_stripeStart = (source_y - l_padding) / m_stripeHeight, // implicit floor()
+			l_stripeEnd = ((source_y + a_height - l_padding) / m_stripeHeight);
 
 		// sanity confinement ;)
 		l_stripeStart = std::min(l_stripeStart, (int)m_numStripes - 1);
@@ -259,7 +262,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 			}
 
 			// y pos in complete image:
-			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : l_stripe * m_stripeHeight + m_padding);
+			int l_stripe_virtual_y = (l_stripe == 0 ? 0 : l_stripe * m_stripeHeight + GetPadding());
 			// y pos in stripe:
 			int l_stripe_source_y = (source_y - l_stripe_virtual_y);
 
@@ -395,7 +398,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		m_stripeHeight = static_cast<int>(l_linesPerStripe * GetBlockHeight());
 		m_numStripes = l_numStripes;
 
-		_ASSERT(m_stripeHeight * m_numStripes + m_padding * 2 >= GetHeight());
+		_ASSERT(m_stripeHeight * m_numStripes + GetPadding() * 2 >= GetHeight());
 	}
 
 	std::vector<size_t> l_changedStripes;
@@ -462,10 +465,10 @@ int CNFORenderer::GetStripeHeight(size_t a_stripe) const
 	int l_height = m_stripeHeight;
 
 	if(a_stripe == 0)
-		l_height += m_padding;
+		l_height += GetPadding();
 	
 	if(a_stripe == m_numStripes - 1)
-		l_height += m_padding;
+		l_height += GetPadding();
 
 	return l_height;
 }
@@ -530,9 +533,9 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 		cairo_destroy(cr);
 	}
 
-	// hacke-di-hack (RenderClassic is adding m_padding for historical reasons, so we have to subtract it beforehand.
+	// hacke-di-hack (RenderClassic is adding GetPadding() for historical reasons, so we have to subtract it beforehand.
 	// it's also operating on the full NFO image's coordinates, so we have to subtract those too):
-	double l_baseY = (a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight) + GetStripeHeightExtraTop(a_stripe);
+	double l_baseY = (a_stripe == 0 ? 0 : -GetPadding() - (double)a_stripe * m_stripeHeight) + GetStripeHeightExtraTop(a_stripe);
 	size_t l_rowStart = (m_numStripes > 1 ? a_stripe * m_linesPerStripe - GetStripeExtraLinesTop(a_stripe) : (size_t)-1),
 		l_rowEnd = a_stripe * m_linesPerStripe + m_linesPerStripe + GetStripeExtraLinesBottom(a_stripe);
 
@@ -652,7 +655,7 @@ void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double 
 
 					cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(S_COLOR_T(l_colors[section])));
 
-					cairo_rectangle(cr, m_padding + x_from, a_yBase + m_padding + dbh * row, x_to - x_from, dbh);
+					cairo_rectangle(cr, GetPadding() + x_from, a_yBase + GetPadding() + dbh * row, x_to - x_from, dbh);
 
 					cairo_fill(cr);
 				}
@@ -678,7 +681,7 @@ void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_g
 		(m_numStripes > 1 ? a_stripe * m_linesPerStripe - GetStripeExtraLinesTop(a_stripe) : (size_t)-1),
 		a_stripe * m_linesPerStripe + m_linesPerStripe + GetStripeExtraLinesBottom(a_stripe),
 		// see comment in RenderStripe():
-		0, (a_stripe == 0 ? 0 : -m_padding - (double)a_stripe * m_stripeHeight) + GetStripeHeightExtraTop(a_stripe));
+		0, (a_stripe == 0 ? 0 : -GetPadding() - (double)a_stripe * m_stripeHeight) + GetStripeHeightExtraTop(a_stripe));
 
 	if(!a_context)
 	{
@@ -689,7 +692,7 @@ void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_g
 void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context,
 	size_t a_rowStart, size_t a_rowEnd, double a_xBase, double a_yBase) const
 {
-	double l_off_x = m_padding + a_xBase, l_off_y = m_padding + a_yBase;
+	double l_off_x = GetPadding() + a_xBase, l_off_y = GetPadding() + a_yBase;
 
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
 	if(a_rowStart != (size_t)-1)
@@ -958,7 +961,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 							  size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
 							  cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
 {
-	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
+	double l_off_x = a_xBase + GetPadding(), l_off_y = a_yBase + GetPadding();
 
 	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
 
@@ -1233,7 +1236,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 								 size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
 								 cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
 {
-	double l_off_x = a_xBase + m_padding, l_off_y = a_yBase + m_padding;
+	double l_off_x = a_xBase + GetPadding(), l_off_y = a_yBase + GetPadding();
 
 	_FixUpRowColStartEnd(a_rowStart, a_colStart, a_rowEnd, a_colEnd);
 
@@ -1423,7 +1426,7 @@ size_t CNFORenderer::GetWidth() const
 {
 	if(!m_nfo) return 0;
 
-	return m_nfo->GetGridWidth() * GetBlockWidth() + m_padding * 2;
+	return m_nfo->GetGridWidth() * GetBlockWidth() + GetPadding() * 2;
 }
 
 
@@ -1431,7 +1434,7 @@ size_t CNFORenderer::GetHeight() const
 {
 	if(!m_nfo) return 0;
 
-	return m_nfo->GetGridHeight() * GetBlockHeight() + m_padding * 2;
+	return m_nfo->GetGridHeight() * GetBlockHeight() + GetPadding() * 2;
 }
 
 
@@ -1491,10 +1494,12 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 			SetBlockSize(ns.uBlockWidth, ns.uBlockHeight);
 		}
 
-		SetEnableGaussShadow(ns.bGaussShadow);
+		SetEnableGaussShadow(ns.bGaussShadow, ns.bGaussANSI);
 		SetGaussColor(ns.cGaussColor);
 		if(ns.uGaussBlurRadius <= 100)
 			SetGaussBlurRadius(ns.uGaussBlurRadius);
+		else
+			SetGaussBlurRadius(0);
 	}
 	else 
 	{
@@ -1564,6 +1569,7 @@ std::wstring CNFORenderSettings::Serialize() const
 	l_ss << "cga: " << cGaussColor.AsHex(true) << ";\n\t";
 	l_ss << "gas: " << (bGaussShadow ? 1 : 0) << ";\n\t";
 	l_ss << "gar: " << uGaussBlurRadius << ";\n\t";
+	// no need to serialize bGaussANSI I think.
 
 	l_ss << "hhl: " << (bHilightHyperlinks ? 1 : 0) << ";\n\t";
 	l_ss << "chl: " << cHyperlinkColor.AsHex(true) << ";\n\t";
