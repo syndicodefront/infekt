@@ -79,7 +79,7 @@ public:
 	CNFORenderSettings() {
 		uBlockHeight = uBlockWidth = uFontSize = 0;
 		cBackColor = cTextColor = cArtColor = cGaussColor = cHyperlinkColor = 0;
-		bGaussShadow = false; uGaussBlurRadius = 0;
+		bGaussShadow = false; uGaussBlurRadius = 0; bGaussANSI = true;
 		bFontAntiAlias = true;
 		bHilightHyperlinks = bUnderlineHyperlinks = true;
 		memset(sFontFace, 0, LF_FACESIZE + 1);
@@ -101,6 +101,7 @@ public:
 	S_COLOR_T cGaussColor;
 	bool bGaussShadow;
 	unsigned int uGaussBlurRadius;
+	bool bGaussANSI;
 
 	// hyperlink settings:
 	bool bHilightHyperlinks;
@@ -137,7 +138,6 @@ private:
 	// internal state data:
 	// don't mess with these, they are NOT settings:
 	bool m_rendered;
-	int m_padding;
 	double m_fontSize;
 
 	size_t m_linesPerStripe; // in no. of lines
@@ -157,6 +157,8 @@ protected:
 	bool m_allowCPUFallback;
 	bool m_onDemandRendering;
 
+	int m_padding;
+
 	PNFOData m_nfo;
 	TwoDimVector<CRenderGridBlock> *m_gridData;
 	bool m_hasBlocks;
@@ -166,7 +168,13 @@ protected:
 
 	// internal calls:
 	bool IsRendered() const { return m_rendered; }
-	int GetPadding() const { return m_padding; }
+	int GetPadding() const {
+		if(!GetEnableGaussShadow()) {
+			return m_padding;
+		} else {
+			return std::max(m_settings.uGaussBlurRadius, 8u); // space for blur/shadow effect near the edges
+		}
+	}
 	bool IsAnsi() const { return m_nfo && m_nfo->HasColorMap(); }
 	bool CalculateGrid();
 	cairo_surface_t *GetStripeSurface(size_t a_stripe) const;
@@ -261,17 +269,13 @@ public:
 	}
 
 	// various other setters & getters:
-	void SetEnableGaussShadow(bool nb) { m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb; }
-	bool GetEnableGaussShadow() const { return m_settings.bGaussShadow; }
+	void SetEnableGaussShadow(bool nb, bool nb_ansi = true) {
+		m_rendered = m_rendered && (m_settings.bGaussShadow == nb); m_settings.bGaussShadow = nb;
+		m_rendered = m_rendered && (m_settings.bGaussANSI == nb_ansi); m_settings.bGaussANSI = nb_ansi;
+	}
+	bool GetEnableGaussShadow() const { return (IsAnsi() ? m_settings.bGaussANSI : m_settings.bGaussShadow); }
 	void SetGaussBlurRadius(unsigned int r) {
 		m_rendered = m_rendered && (m_settings.uGaussBlurRadius == r); m_settings.uGaussBlurRadius = r;
-		if(!m_settings.bGaussShadow) {
-			m_padding = (IsAnsi() ? 0 : 8);
-		} else {
-			m_padding = m_settings.uGaussBlurRadius; // space for blur/shadow effect near the edges
-			if(m_padding < 8)
-				m_padding = 8;
-		}
 	}
 	unsigned int GetGaussBlurRadius() const { return m_settings.uGaussBlurRadius; }
 

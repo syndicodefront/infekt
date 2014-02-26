@@ -243,6 +243,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		DLG_SHOW_CTRL_IF(IDC_GLOW_RADIUS_LABEL, m_pageId == TAB_PAGE_RENDERED);
 		DLG_SHOW_CTRL_IF(IDC_GLOW_RADIUS, m_pageId == TAB_PAGE_RENDERED);
 		DLG_SHOW_CTRL_IF(IDC_CLR_GAUSS, m_pageId == TAB_PAGE_RENDERED);
+		DLG_SHOW_CTRL_IF(IDC_GLOW_ANSI, m_pageId == TAB_PAGE_RENDERED);
 
 		DLG_SHOW_CTRL_IF(IDC_LABEL_ART, m_pageId != TAB_PAGE_TEXTONLY);
 		DLG_SHOW_CTRL_IF(IDC_CLR_ART, m_pageId != TAB_PAGE_TEXTONLY);
@@ -257,6 +258,8 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETRANGE32, 3, 200);
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETBUDDY, (WPARAM)GetDlgItem(IDC_FONT_SIZE_EDIT2), 0);
+
+			::EnableWindow(this->GetDlgItem(IDC_GLOW_ANSI), CCairoBoxBlur::IsGPUUsable());
 		}
 		else
 		{
@@ -344,6 +347,7 @@ void CSettingsTabDialog::ViewSettingsToGui()
 		SET_DLG_CHECKBOX(IDC_HILIGHT_LINKS, m_viewSettings->bHilightHyperlinks);
 		SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
 		SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
+		SET_DLG_CHECKBOX(IDC_GLOW_ANSI, m_viewSettings->bGaussANSI);
 		SET_DLG_CHECKBOX(IDC_FONT_ANTIALIAS, m_viewSettings->bFontAntiAlias);
 
 		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
@@ -507,6 +511,9 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		{
 		case IDC_ACTIVATE_GLOW:
 			m_viewSettings->bGaussShadow = (::IsDlgButtonChecked(m_hWnd, IDC_ACTIVATE_GLOW) != FALSE);
+			break;
+		case IDC_GLOW_ANSI:
+			m_viewSettings->bGaussANSI = (::IsDlgButtonChecked(m_hWnd, IDC_GLOW_ANSI) != FALSE);
 			break;
 		case IDC_HILIGHT_LINKS:
 			m_viewSettings->bHilightHyperlinks = (::IsDlgButtonChecked(m_hWnd, IDC_HILIGHT_LINKS) != FALSE);

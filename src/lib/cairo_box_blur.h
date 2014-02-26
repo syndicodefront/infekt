@@ -37,6 +37,8 @@ public:
 
 	void SetAllowFallback(bool allow) { m_allowFallback = allow; }
 	bool IsFallbackAllowed() const { return m_allowFallback; }
+
+	static bool IsGPUUsable();
 protected:
 	bool m_allowFallback;
 	bool m_useFallback;

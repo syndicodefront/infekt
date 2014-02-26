@@ -1690,6 +1690,7 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 
 		l_sect->WriteBool(L"GaussShadow", a_settings.bGaussShadow);
 		l_sect->WriteDword(L"GaussBlurRadius", a_settings.uGaussBlurRadius);
+		l_sect->WriteBool(L"GaussANSI", a_settings.bGaussANSI);
 
 		l_sect->WriteDword(L"ClrGauss", a_settings.cGaussColor.AsWord());
 	}
@@ -1727,6 +1728,7 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 	{
 		l_newSets.cGaussColor = _s_color_t(l_sect->ReadDword(L"ClrGauss", l_defaults.cGaussColor.AsWord()));
 		l_newSets.bGaussShadow = l_sect->ReadBool(L"GaussShadow", l_defaults.bGaussShadow);
+		l_newSets.bGaussANSI = l_sect->ReadBool(L"GaussANSI", l_defaults.bGaussANSI);
 		l_newSets.uBlockHeight = l_sect->ReadDword(L"BlockHeight", (DWORD)l_defaults.uBlockHeight);
 		l_newSets.uBlockWidth = l_sect->ReadDword(L"BlockWidth", (DWORD)l_defaults.uBlockWidth);
 		l_newSets.uGaussBlurRadius = l_sect->ReadDword(L"GaussBlurRadius", (DWORD)l_defaults.uGaussBlurRadius);

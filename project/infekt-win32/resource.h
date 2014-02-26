@@ -71,6 +71,8 @@
 #define IDC_ACTIVATE_GLOW               1021
 #define IDC_LABEL_ART                   1022
 #define IDC_CLR_LINKS                   1023
+#define IDC_ACTIVATE_GLOW2              1024
+#define IDC_GLOW_ANSI                   1024
 #define IDC_HILIGHT_LINKS               1025
 #define IDC_UNDERL_LINKS                1026
 #define IDC_GLOW_RADIUS_LABEL           1027
