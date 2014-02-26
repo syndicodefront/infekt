@@ -155,6 +155,10 @@ bool CAnsiArt::Process()
 			{
 				m = std::max(_wtoi(cmd.data.substr(pos + 1).c_str()), 1);
 			}
+			else
+			{
+				m = 1;
+			}
 		}
 
 		switch(cmd.cmd)
