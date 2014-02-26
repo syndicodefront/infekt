@@ -118,6 +118,7 @@ protected:
 	bool TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen);
 
 	bool DetectAnsi() const;
+	bool HasFileExtension(const TCHAR* a_extension) const;
 	bool PostProcessLoadedContent();
 
 	std::wstring GetWithBoxedWhitespace() const;

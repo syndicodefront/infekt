@@ -474,7 +474,11 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
 		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_TRY);
 		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
+		if(HasFileExtension(_T(".nfo")) || HasFileExtension(_T(".diz")))
+		{
+			// other files are likely ANSI art, so only try non-BOM-UTF-8 for .nfo and .diz
+			if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
+		}
 		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_TRY);
 		break;
 	case NFOC_UTF16:
@@ -991,20 +995,24 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 }
 
 
+bool CNFOData::HasFileExtension(const TCHAR* a_extension) const
+{
+	const std::_tstring l_extension = (m_filePath.length() > 4 ? m_filePath.substr(m_filePath.length() - 4) : _T(""));
+
+	return _tcsicmp(l_extension.c_str(), a_extension) == 0;
+}
+
+
 bool CNFOData::DetectAnsi() const
 {
 	// try to detect ANSI art files without SAUCE records:
 
-	const std::_tstring l_extension = (m_filePath.length() > 4 ? m_filePath.substr(m_filePath.length() - 4) : _T(""));
-
-	if(!m_isAnsi && _tcsicmp(l_extension.c_str(), _T(".ans")) == 0
-		&& m_textContent.find(L"\x2190[") != std::wstring::npos)
+	if(!m_isAnsi && HasFileExtension(_T(".ans")) && m_textContent.find(L"\x2190[") != std::wstring::npos)
 	{
 		return true;
 	}
 
-	if(!m_isAnsi && _tcsicmp(l_extension.c_str(), _T(".nfo")) != 0 
-		&& m_textContent.find(L"\x2190[") != std::wstring::npos)
+	if(!m_isAnsi && !HasFileExtension(_T(".nfo")) && m_textContent.find(L"\x2190[") != std::wstring::npos)
 	{
 		return CRegExUtil::DoesMatch(m_textContent, L"\x2190\\[[0-9;]+m");
 	}
