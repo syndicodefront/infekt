@@ -242,7 +242,7 @@ void CNFOColorMap::PushUsedSection(size_t a_row, size_t a_col_from, size_t a_len
 	auto& row = m_usedSections[a_row];
 
 	// join adjacent sections:
-	if(a_col_from > 0 && !row.empty() && a_col_from == row.rbegin()->first + row.rbegin()->second)
+	if(!row.empty() && a_col_from == row.rbegin()->first + row.rbegin()->second)
 	{
 		row.rbegin()->second += a_length;
 	}
@@ -250,34 +250,31 @@ void CNFOColorMap::PushUsedSection(size_t a_row, size_t a_col_from, size_t a_len
 	{
 		row[a_col_from] = a_length;
 	}
+
+	// update stops for non-linear jumps:
+	m_stopsFore[a_row][a_col_from] = m_previousFore;
+	m_stopsBack[a_row][a_col_from] = m_previousBack;
 }
 
 
 bool CNFOColorMap::FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& ar_row) const
 {
-	if(a_stops.empty())
+	for(size_t row = a_row; !a_stops.empty(); --row)
 	{
-		return false;
-	}
-
-	bool found = false;
-
-	for(size_t row = a_row; row >= 0; --row)
-	{
-		if(a_stops.find(row) == a_stops.end())
+		if(a_stops.find(row) != a_stops.end())
 		{
-			if(row == 0) // make sure the size_t never wraps around
-				break;
-			else
-				continue;
+			ar_row = row;
+			return true;
 		}
 
-		ar_row = row;
-		found = true;
-		break;
+		if(row == 0  // make sure the size_t never wraps around
+			|| row == a_stops.begin()->first)
+		{
+			break;
+		}
 	}
 
-	return found;
+	return false;
 }
 
 
