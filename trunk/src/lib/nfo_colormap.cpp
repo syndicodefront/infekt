@@ -19,6 +19,7 @@
 
 
 CNFOColorMap::CNFOColorMap()
+	: m_previousBack(), m_previousFore()
 {
 	// default mapping = xterm colors
 	m_rgbMapping[NFOCOLOR_BLACK] = NFORGB(0, 0, 0);
@@ -55,9 +56,6 @@ CNFOColorMap::CNFOColorMap()
 	m_rgbMapping[NFOCOLOR_PINK] = NFORGB(255, 85, 255);
 	m_rgbMapping[NFOCOLOR_BRIGHT_CYAN] = NFORGB(85, 255, 255);
 	m_rgbMapping[NFOCOLOR_WHITE] = NFORGB(255, 255, 255);*/
-
-	// init m_previous...
-	Clear();
 }
 
 
@@ -241,7 +239,7 @@ void CNFOColorMap::PushUsedSection(size_t a_row, size_t a_col_from, size_t a_len
 {
 	auto& row = m_usedSections[a_row];
 
-	// join adjacent sections:
+	// try to join adjacent sections:
 	if(!row.empty() && a_col_from == row.rbegin()->first + row.rbegin()->second)
 	{
 		row.rbegin()->second += a_length;
@@ -530,4 +528,11 @@ uint32_t CNFOColorMap::GetRGB(const SNFOColorStop& a_stop) const
 
 		return 0;
 	}
+}
+
+
+bool CNFOColorMap::_nfo_color_stop::operator==(const _nfo_color_stop& other) const {
+	return
+		color == other.color && bold == other.bold
+		&& (color != NFOCOLOR_RGB || color_rgba == other.color_rgba);
 }
