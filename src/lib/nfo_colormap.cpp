@@ -519,10 +519,12 @@ uint32_t CNFOColorMap::GetRGB(const SNFOColorStop& a_stop) const
 	}
 	else
 	{
-		auto it = m_rgbMapping.find(a_stop.color);
+		const auto& it = m_rgbMapping.find(a_stop.color);
 
 		if(it != m_rgbMapping.end())
+		{
 			return it->second;
+		}
 
 		_ASSERT(false);
 
