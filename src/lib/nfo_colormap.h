@@ -68,6 +68,11 @@ protected:
 
 		_nfo_color_stop()
 			: color(NFOCOLOR_DEFAULT), color_rgba(0), bold(false) {}
+
+		bool operator==(const _nfo_color_stop& other) const;
+		bool operator!=(const _nfo_color_stop& other) const {
+			return !(other == *this);
+		}
 	} SNFOColorStop;
 
 	std::map<ENFOColor, uint32_t> m_rgbMapping;
