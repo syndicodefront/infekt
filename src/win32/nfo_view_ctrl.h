@@ -77,6 +77,7 @@ public:
 	void ZoomIn();
 	void ZoomOut();
 	void ZoomReset();
+	void ZoomToNoHorizontalScrollbars();
 
 	bool FindTermDown(const std::wstring& a_term, size_t& a_startRow, size_t& a_startCol);
 	bool FindTermUp(const std::wstring& a_term, size_t& a_startRow, size_t& a_startCol);

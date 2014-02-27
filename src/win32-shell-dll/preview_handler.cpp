@@ -182,7 +182,9 @@ HRESULT CNFOPreviewHandler::SetRect(const RECT *prc)
 			// Preview window is already created, so set its size and position
 			::MoveWindow(m_view->GetHwnd(), m_rcParent.left, m_rcParent.top,
 				m_rcParent.right - m_rcParent.left,
-				m_rcParent.bottom - m_rcParent.top, TRUE);
+				m_rcParent.bottom - m_rcParent.top, FALSE);
+
+			m_view->ZoomToNoHorizontalScrollbars();
 		}
 
 		return S_OK;
@@ -219,6 +221,8 @@ HRESULT CNFOPreviewHandler::DoPreview()
 		{
 			return HRESULT_FROM_WIN32(::GetLastError());
 		}
+
+		l_view->ZoomToNoHorizontalScrollbars();
 
 		l_view->Show();
 

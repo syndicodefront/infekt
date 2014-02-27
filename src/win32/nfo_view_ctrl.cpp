@@ -23,23 +23,22 @@
 #define NFOVWR_CTRL_CLASS_NAME _T("iNFEKT_NfoViewCtrl")
 
 
-CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic) : CNFORenderer(a_classic)
+CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic)
+	: CNFORenderer(a_classic),
+	m_instance(a_hInstance),
+	m_parent(a_parent),
+	m_left(0), m_top(0), m_width(0), m_height(0),
+	m_hwnd(0),
+	m_cursor(IDC_ARROW),
+	m_centerNfo(true),
+	m_copyOnSelect(false),
+	m_findPosGlobalCol(0), m_findPosGlobalRow(0),
+	m_contextMenuHandle(NULL),
+	m_contextMenuCommandTarget(NULL),
+	m_linkUnderMenu(NULL),
+	m_leftMouseDown(false), m_movedDownMouse(false)
 {
-	m_instance = a_hInstance;
-	m_parent = a_parent;
-	m_left = m_top = m_width = m_height = 0;
-	m_hwnd = 0;
-	m_cursor = IDC_ARROW;
-	m_centerNfo = true;
-	m_copyOnSelect = false;
-	m_findPosGlobalCol = m_findPosGlobalRow = 0;
-
-	m_contextMenuHandle = NULL;
-	m_contextMenuCommandTarget = NULL;
-	m_linkUnderMenu = NULL;
-
 	ClearSelection(false);
-	m_leftMouseDown = m_movedDownMouse = false;
 }
 
 
@@ -262,6 +261,28 @@ void CNFOViewControl::ZoomOut()
 }
 
 
+void CNFOViewControl::ZoomToNoHorizontalScrollbars()
+{
+	unsigned int l_oldZoom = CNFORenderer::GetZoom();
+
+	CNFORenderer::SetZoom(100);
+
+	while(CNFORenderer::GetZoom() > 20 && m_width > 0
+		&& GetWidth() + ::GetSystemMetrics(SM_CXVSCROLL) > static_cast<size_t>(m_width))
+	{
+		CNFORenderer::SetZoom(GetZoom() - 5);
+	}
+
+	if(CNFORenderer::GetZoom() != l_oldZoom && IsClassicMode())
+	{
+		CalcClassicModeBlockSizes(true);
+	}
+
+	UpdateScrollbars(false);
+	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_FRAME);
+}
+
+
 void CNFOViewControl::ZoomReset()
 {
 	SetZoom(100);
@@ -459,9 +480,9 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 }
 
 
+#ifndef NFOVWR_NO_INTERACTIVE_UI
 void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 {
-#ifndef NFOVWR_NO_INTERACTIVE_UI
 	ssize_t l_row, l_col;
 
 	// area where moving the mouse while selecting text scrolls:
@@ -532,13 +553,11 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 	}
-#endif
 }
 
 
 void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 {
-#ifndef NFOVWR_NO_INTERACTIVE_UI
 	ssize_t l_row, l_col;
 
 	if(!HasNfoData())
@@ -664,7 +683,6 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 		::SetCursor(::LoadCursor(NULL, m_cursor = l_oldCursor));
 	}
-#endif
 }
 
 
@@ -688,6 +706,7 @@ void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, ssize_t& ar_row, ssi
 		ar_row = ar_col = (size_t)-1;
 	}
 }
+#endif
 
 
 void CNFOViewControl::GetScrollPositions(int& ar_x, int& ar_y)
@@ -715,9 +734,7 @@ bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	::GetScrollInfo(m_hwnd, a_dir, &l_si);
 	l_prevPos = l_si.nPos;
 
-#if (SB_LINEUP != SB_LINELEFT) || (SB_LINEDOWN != SB_LINERIGHT) || (SB_PAGEDOWN != SB_PAGERIGHT) || (SB_PAGEUP != SB_PAGELEFT)
-#error ZOMG!
-#endif
+	static_assert(SB_LINEUP == SB_LINELEFT && SB_LINEDOWN == SB_LINERIGHT && SB_PAGEDOWN == SB_PAGERIGHT && SB_PAGEUP == SB_PAGELEFT, "SB constants");
 
 	switch(a_event)
 	{
@@ -815,6 +832,7 @@ LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wP
 	return ::DefWindowProc(hWindow, uMsg, wParam, lParam);
 }
 
+
 #ifndef NFOVWR_NO_INTERACTIVE_UI
 const std::wstring CNFOViewControl::GetSelectedText() const
 {
@@ -889,11 +907,9 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 
 void CNFOViewControl::CopySelectedTextToClipboard() const
 {
-#ifdef _WIN32_UI
 	const std::wstring l_wstr = GetSelectedText();
 
 	CUtilWin32GUI::TextToClipboard(m_hwnd, l_wstr);
-#endif
 }
 
 
