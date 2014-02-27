@@ -168,13 +168,6 @@ protected:
 
 	// internal calls:
 	bool IsRendered() const { return m_rendered; }
-	int GetPadding() const {
-		if(!GetEnableGaussShadow()) {
-			return m_padding;
-		} else {
-			return std::max(m_settings.uGaussBlurRadius, 8u); // space for blur/shadow effect near the edges
-		}
-	}
 	bool IsAnsi() const { return m_nfo && m_nfo->HasColorMap(); }
 	bool CalculateGrid();
 	cairo_surface_t *GetStripeSurface(size_t a_stripe) const;
@@ -291,6 +284,14 @@ public:
 		_tcsncpy_s(m_settings.sFontFace, LF_FACESIZE + 1, ns.c_str(), LF_FACESIZE);
 	}
 	std::_tstring GetFontFace() const { return m_settings.sFontFace; }
+
+	int GetPadding() const {
+		if(!GetEnableGaussShadow()) {
+			return m_padding;
+		} else {
+			return std::max(m_settings.uGaussBlurRadius, 8u); // space for blur/shadow effect near the edges
+		}
+	}
 
 	// for the non-classic mode:
 	void SetBlockSize(size_t a_width, size_t a_height) { if(!m_classic) { m_rendered = m_rendered &&

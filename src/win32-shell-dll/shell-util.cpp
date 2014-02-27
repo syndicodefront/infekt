@@ -51,6 +51,7 @@ bool LoadNFOFromStream(IStream* pStream, PNFOData& ar_data)
 	{
 		// process NFO contents into CNFOData instance:
 		PNFOData l_nfoData(l_temp);
+		l_nfoData->SetWrapLines(true);
 
 		if(l_nfoData->LoadFromMemory((const unsigned char*)l_contents.data(), l_contentLength))
 		{

@@ -120,6 +120,14 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 
 	// render and copy to DIB section:
 	int l_imgWidth = (int)l_renderer.GetWidth(), l_imgHeight = (int)l_renderer.GetHeight();
+	bool l_cut = false;
+
+	if(l_imgHeight > 600)
+	{
+		// https://code.google.com/p/infekt/issues/detail?id=89
+		l_imgHeight = 600;
+		l_cut = true;
+	}
 
 	BITMAPINFO l_bi = {0};
 	l_bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
@@ -145,6 +153,27 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 		{
 			if(l_renderer.DrawToSurface(l_surfaceOut, 0, 0, 0, 0, l_imgWidth, l_imgHeight))
 			{
+				// fade out:
+				if(l_cut)
+				{
+					const int FADE_HEIGHT = 100;
+
+					cairo_t* cr = cairo_create(l_surfaceOut);
+					cairo_set_line_width(cr, 1);
+
+					for(int y = 0; y < FADE_HEIGHT; y++)
+					{
+						cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_renderer.GetBackColor()),
+							/*alpha=*/ y / static_cast<double>(FADE_HEIGHT - l_renderer.GetPadding()));
+
+						cairo_move_to(cr, 0, l_imgHeight - 100 + y);
+						cairo_rel_line_to(cr, l_imgWidth, 0);
+						cairo_stroke(cr);
+					}
+
+					cairo_destroy(cr);
+				}
+
 				*phbmp = l_hBitmap;
 				*pdwAlpha = WTSAT_ARGB;
 
