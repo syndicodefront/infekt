@@ -15,7 +15,7 @@
 #include "stdafx.h"
 #include "nfo_view_ctrl.h"
 
-#ifndef NFOVWR_NO_CONTEXT_MENU
+#ifndef NFOVWR_NO_INTERACTIVE_UI
 // makes this control unusable outside of this app, but we need the context menu IDs:
 #include "resource.h"
 #endif
@@ -178,19 +178,17 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		m_height = HIWORD(lParam);
 		UpdateScrollbars(false);
 		return 0;
-#ifndef NFOVWR_NO_CONTEXT_MENU
+#ifndef NFOVWR_NO_INTERACTIVE_UI
 	case WM_MOUSEMOVE:
 		OnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
 	case WM_SETCURSOR:
 		return CUtilWin32GUI::GenericOnSetCursor(m_cursor, lParam);
-#endif
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONUP:
 	case WM_LBUTTONDBLCLK:
 		OnMouseClickEvent(uMsg, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 		return 0;
-#ifndef NFOVWR_NO_CONTEXT_MENU
 	case WM_CONTEXTMENU: {
 		POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
 		::ScreenToClient(m_hwnd, &pt);
@@ -241,6 +239,7 @@ void CNFOViewControl::SetZoom(unsigned int a_percent)
 	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_FRAME);
 }
 
+
 void CNFOViewControl::ZoomIn()
 {
 	unsigned int l_oldZoom = GetZoom();
@@ -251,6 +250,7 @@ void CNFOViewControl::ZoomIn()
 	}
 }
 
+
 void CNFOViewControl::ZoomOut()
 {
 	unsigned int l_oldZoom = GetZoom();
@@ -260,6 +260,7 @@ void CNFOViewControl::ZoomOut()
 		SetZoom(l_oldZoom - 10);
 	}
 }
+
 
 void CNFOViewControl::ZoomReset()
 {
@@ -460,6 +461,7 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 {
+#ifndef NFOVWR_NO_INTERACTIVE_UI
 	ssize_t l_row, l_col;
 
 	// area where moving the mouse while selecting text scrolls:
@@ -530,12 +532,13 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 	}
+#endif
 }
 
 
 void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 {
-#ifndef NFOVWR_NO_CONTEXT_MENU
+#ifndef NFOVWR_NO_INTERACTIVE_UI
 	ssize_t l_row, l_col;
 
 	if(!HasNfoData())
@@ -812,7 +815,7 @@ LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wP
 	return ::DefWindowProc(hWindow, uMsg, wParam, lParam);
 }
 
-
+#ifndef NFOVWR_NO_INTERACTIVE_UI
 const std::wstring CNFOViewControl::GetSelectedText() const
 {
 	if(m_selStartRow == (size_t)-1 || m_selEndRow == (size_t)-1)
@@ -1104,21 +1107,24 @@ bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 }
 
 
+void CNFOViewControl::SetContextMenu(HMENU a_menuHandle, HWND a_target)
+{
+	m_contextMenuHandle = a_menuHandle;
+	m_contextMenuCommandTarget = a_target;
+}
+#endif
+
+
 void CNFOViewControl::ClearSelection(bool a_redraw)
 {
+#ifndef NFOVWR_NO_INTERACTIVE_UI
 	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
 
 	if(a_redraw)
 	{
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 	}
-}
-
-
-void CNFOViewControl::SetContextMenu(HMENU a_menuHandle, HWND a_target)
-{
-	m_contextMenuHandle = a_menuHandle;
-	m_contextMenuCommandTarget = a_target;
+#endif
 }
 
 
