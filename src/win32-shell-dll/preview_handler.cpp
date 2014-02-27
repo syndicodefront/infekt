@@ -110,7 +110,7 @@ public:
 
 HRESULT CNFOPreviewHandler::SetWindow(HWND hwnd, const RECT *prc)
 {
-	if(hwnd && prc && prc->right - prc->left > 0 && prc->bottom - prc->top > 0)
+	if(hwnd && prc)
 	{
 		m_hwndParent = hwnd;
 		m_rcParent = *prc;
@@ -119,9 +119,12 @@ HRESULT CNFOPreviewHandler::SetWindow(HWND hwnd, const RECT *prc)
 		{
 			m_view->SetParent(m_hwndParent);
 
-			::MoveWindow(m_view->GetHwnd(), m_rcParent.left, m_rcParent.top,
-				m_rcParent.right - m_rcParent.left,
-				m_rcParent.bottom - m_rcParent.top, TRUE);
+			if(prc->right - prc->left > 0 && prc->bottom - prc->top > 0)
+			{
+				::MoveWindow(m_view->GetHwnd(), m_rcParent.left, m_rcParent.top,
+					m_rcParent.right - m_rcParent.left,
+					m_rcParent.bottom - m_rcParent.top, TRUE);
+			}
 		}
 
 		return S_OK;
@@ -195,7 +198,7 @@ HRESULT CNFOPreviewHandler::DoPreview()
 	if(m_view || !m_pStream)
 	{
 		// cannot be called more than once (Unload should be called before another DoPreview)
-		return E_FAIL;
+		return E_PREVIEWHANDLER_NOTFOUND;
 	}
 
 	CNFOViewControl* l_temp = new (std::nothrow) CNFOViewControl(g_hInst, m_hwndParent);
@@ -207,14 +210,14 @@ HRESULT CNFOPreviewHandler::DoPreview()
 
 		if(!LoadNFOFromStream(m_pStream, l_nfoData) || !l_view->AssignNFO(l_nfoData))
 		{
-			return E_FAIL;
+			return E_PREVIEWHANDLER_CORRUPT;
 		}
 
 		if(!l_view->CreateControl(m_rcParent.left, m_rcParent.top,
 			m_rcParent.right - m_rcParent.left,
 			m_rcParent.bottom - m_rcParent.top))
 		{
-			return E_FAIL;
+			return HRESULT_FROM_WIN32(::GetLastError());
 		}
 
 		l_view->Show();
