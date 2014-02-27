@@ -233,7 +233,7 @@ BEGIN
     CONTROL         "Always check if iNFekt is the default NFO viewer on startup",IDC_CHECK_DEFAULT_VIEWER,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,22,207,10
     PUSHBUTTON      "Check Now",IDC_BUTTON_DEFAULT_VIEWER,259,19,62,14
-    GROUPBOX        "Miscellaneous",IDC_STATIC,7,43,323,66
+    GROUPBOX        "Miscellaneous",IDC_STATIC,7,43,323,69
     CONTROL         "Always on Top",IDC_ALWAYSONTOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,74,63,10
     CONTROL         "Copy on Select",IDC_COPY_ON_SELECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,57,64,10
     CONTROL         "Show Menubar on Startup",IDC_MENUBAR_ON_STARTUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,57,99,10
@@ -241,12 +241,12 @@ BEGIN
     COMBOBOX        IDC_COMBO_DEFAULTVIEW,148,72,58,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "Re-use Viewer window (single instance mode)",IDC_SINGLEINSTANCEMODE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,91,161,10
-    GROUPBOX        "Theme/View Settings Export && Import",IDC_STATIC,7,112,323,40
-    PUSHBUTTON      "Export...",IDC_THEME_EXPORT,16,128,62,14
-    PUSHBUTTON      "Import...",IDC_THEME_IMPORT,85,128,62,14
+    GROUPBOX        "Theme/View Settings Export && Import",IDC_STATIC,7,115,323,40
+    PUSHBUTTON      "Export...",IDC_THEME_EXPORT,16,131,62,14
+    PUSHBUTTON      "Import...",IDC_THEME_IMPORT,85,131,62,14
     LTEXT           "Static",IDC_SETTINGS_BACKEND_STATUS,10,190,209,8
     CONTROL         "Remember recent files",IDC_REMEMBERMRU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,237,57,86,10
-    PUSHBUTTON      "Advanced...",IDC_BUTTON_ADVANCED,259,87,62,14
+    PUSHBUTTON      "Advanced...",IDC_BUTTON_ADVANCED,259,90,62,14
     CONTROL         "Wrap long lines",IDC_LINEWRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,237,73,86,10
 END
 
