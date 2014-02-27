@@ -5,6 +5,14 @@
   * Added plugin selection list to the preferences
   * Made working Imdb plugin
 
+== v0.8.14 (February 27th 2014) ==
+  * Improved shell integration (preview and thumbnails) - issue 44 / issue 89
+  * Greatly improved ANSI support (only one known remaining bug left)
+  * New setting to enable/disable the glow effect on ANSI art (GPU only, not supported by CPU fallback right now)
+  * Browse mode: crash fix
+  * Line wrap setting is now a global setting (destroys some really weird text-only NFOs, but you can turn it off) (issue 66)
+  * File watcher: wait up to two seconds before reloading if file cannot be opened immediately
+
 == v0.8.12 (February 15th 2014) ==
   * Happy fifth year with iNFekt!
   * New: First draft version of ANSI art support (colors!) - only in rendered mode so far
