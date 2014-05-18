@@ -55,11 +55,8 @@ protected:
 
 		virtual ~CLinkRegEx()
 		{
-			if(m_re)
-			{
-				pcre_free_study(m_study);
-				pcre_free(m_re);
-			}
+			if(m_study) pcre_free_study(m_study);
+			if(m_re) pcre_free(m_re);
 		}
 	protected:
 		pcre *m_re;
