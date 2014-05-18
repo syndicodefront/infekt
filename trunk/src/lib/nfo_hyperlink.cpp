@@ -147,6 +147,21 @@ std::vector<CNFOHyperLink::PLinkRegEx> CNFOHyperLink::ms_linkTriggers;
 
 	if(!bMailto)
 	{
+		// ugly workaround for commonly present IMDB links:
+		// https://code.google.com/p/infekt/issues/detail?id=94
+		// (cannot entirely remove this functionality, it's often used for other types of links)
+		if(!sPrevLineLink.empty() && bMatchContinuesLink && sPrevLineLink.find("imdb.") != std::string::npos)
+		{
+			pcre* re = pcre_compile("/[a-z]{2}\\d{6,}/?$", PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
+			bool matches = (pcre_exec(re, NULL, sPrevLineLink.c_str(), (int)sPrevLineLink.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0);
+			pcre_free(re);
+
+			if(matches)
+			{
+				return false;
+			}
+		}
+
 		string sLineRemainder = sLine.substr(uBytePos);
 
 		if(sLineRemainder.find("hxxp://") == 0 || sLineRemainder.find("h**p://") == 0)
