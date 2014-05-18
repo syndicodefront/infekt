@@ -49,6 +49,7 @@ protected:
 		CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto = false);
 
 		pcre *GetRE() const { return m_re; }
+		pcre_extra *GetStudy() const { return m_study; }
 		bool IsCont() const { return m_cont; }
 		bool IsMailto() const { return m_mailto; }
 
@@ -56,11 +57,13 @@ protected:
 		{
 			if(m_re)
 			{
+				pcre_free_study(m_study);
 				pcre_free(m_re);
 			}
 		}
 	protected:
 		pcre *m_re;
+		pcre_extra* m_study;
 		bool m_cont;
 		bool m_mailto;
 	};
