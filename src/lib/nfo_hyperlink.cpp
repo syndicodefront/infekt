@@ -95,21 +95,23 @@ std::vector<CNFOHyperLink::PLinkRegEx> CNFOHyperLink::ms_linkTriggers;
 	bool bMailto = false;
 	for(std::vector<PLinkRegEx>::const_iterator it = ms_linkTriggers.begin(); it != ms_linkTriggers.end(); it++)
 	{
-		if(sPrevLineLink.empty() && (*it)->IsCont())
+		const PLinkRegEx& lre = *it;
+
+		if(sPrevLineLink.empty() && lre->IsCont())
 		{
 			continue;
 		}
 
-		if(pcre_exec((*it)->GetRE(), NULL, sLine.c_str(), (int)sLine.size(), (int)uirOffset, 0, ovector, OVECTOR_SIZE) >= 0)
+		if(pcre_exec(lre->GetRE(), lre->GetStudy(), sLine.c_str(), (int)sLine.size(), (int)uirOffset, 0, ovector, OVECTOR_SIZE) >= 0)
 		{
 			int iCaptures = 0;
-			if(pcre_fullinfo((*it)->GetRE(), NULL, PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
+			if(pcre_fullinfo(lre->GetRE(), lre->GetStudy(), PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
 			{
 				int idx = (iCaptures == 1 ? 1 : 0) * 2;
 				_ASSERT(ovector[idx] >= 0 && ovector[idx + 1] > 0);
 
 				// never match continuations when an actual link start or earlier continuation has been found:
-				if(uBytePos != (size_t)-1 && (*it)->IsCont())
+				if(uBytePos != (size_t)-1 && lre->IsCont())
 				{
 					break;
 				}
@@ -119,15 +121,15 @@ std::vector<CNFOHyperLink::PLinkRegEx> CNFOHyperLink::ms_linkTriggers;
 				{
 					uBytePos = (size_t)ovector[idx];
 
-					bMatchContinuesLink = (*it)->IsCont();
-					bMailto = (*it)->IsMailto();
+					bMatchContinuesLink = lre->IsCont();
+					bMailto = lre->IsMailto();
 
 					if(bMailto)
 					{
 						uByteLen = (size_t)ovector[idx + 1] - uBytePos;
 					}
 
-					if((*it)->IsCont()) // purely an optimization
+					if(lre->IsCont()) // purely an optimization
 					{
 						break;
 					}
@@ -282,6 +284,8 @@ CNFOHyperLink::CLinkRegEx::CLinkRegEx(const char* regex_str, bool a_cont, bool a
 		&szErrDescr, &iErrOffset, NULL);
 	_ASSERT(m_re != NULL);
 	// no further error handling because all the regex are hardcoded
+
+	m_study = pcre_study(m_re, 0, &szErrDescr);
 
 	m_cont = a_cont;
 	m_mailto = a_mailto;
