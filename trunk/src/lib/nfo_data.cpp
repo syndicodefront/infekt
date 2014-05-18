@@ -879,6 +879,12 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 			{
 				m_textContent[i] = L'\r';
 			}
+			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 2 && a_data[i + 1] == 0x0D && a_data[i + 2] == 0x0A)
+			{
+				// https://code.google.com/p/infekt/issues/detail?id=92
+				// http://stackoverflow.com/questions/6998506/text-file-with-0d-0d-0a-line-breaks
+				m_textContent[i] = L' ';
+			}
 			else
 			{
 				m_textContent[i] = map_cp437_to_unicode_control_range[p];
