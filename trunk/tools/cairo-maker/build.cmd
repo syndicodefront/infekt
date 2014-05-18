@@ -21,7 +21,7 @@ curl http://zlib.net/zlib-1.2.8.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.8.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.10.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
