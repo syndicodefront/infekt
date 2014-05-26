@@ -50,7 +50,6 @@ public:
 	const std::_tstring GetFilePath() const { return m_filePath; }
 	const std::_tstring GetFileName() const;
 
-	const std::wstring& GetLastErrorDescription() const;
 	size_t GetGridWidth() const;
 	size_t GetGridHeight() const;
 	wchar_t GetGridChar(size_t a_row, size_t a_col) const;
@@ -80,8 +79,30 @@ public:
 
 	typedef std::list<const std::wstring> TLineContainer;
 
-protected:
+	typedef enum {
+		NDE_NO_ERROR = 0,
+		NDE_UNRECOGNIZED_FILE_FORMAT = -9999,
+		NDE_ENCODING_PROBLEM,
+		NDE_UNABLE_TO_OPEN_PHYSICAL,
+		NDE_FAILED_TO_DETERMINE_SIZE,
+		NDE_SIZE_EXCEEDS_LIMIT,
+		NDE_FERROR,
+		NDE_ANSI_INTERNAL,
+		NDE_EMPTY_FILE,
+		NDE_MAXIMUM_LINE_LENGTH_EXCEEDED,
+		NDE_MAXIMUM_NUMBER_OF_LINES_EXCEEDED,
+		NDE_SAUCE_INTERNAL,
+	} EErrorCode;
+
+	bool IsInError() const { return m_lastErrorCode != NDE_NO_ERROR; }
+	const std::wstring& GetLastErrorDescription() const { return m_lastErrorDescr; }
+	const EErrorCode GetLastErrorCode() const { return m_lastErrorCode; }
+
+private:
+	EErrorCode m_lastErrorCode;
 	std::wstring m_lastErrorDescr;
+
+protected:
 	std::wstring m_textContent;
 	std::string m_utf8Content;
 	TwoDimVector<wchar_t> *m_grid;
@@ -125,6 +146,9 @@ protected:
 	std::wstring GetStrippedText() const;
 
 	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
+
+	void SetLastError(EErrorCode a_code, const std::wstring& a_descr);
+	void ClearLastError();
 };
 
 typedef shared_ptr<CNFOData> PNFOData;

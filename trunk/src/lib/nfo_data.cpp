@@ -41,10 +41,11 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	if(!(l_file = fopen(a_filePath.c_str(), "rb")))
 #endif
 	{
+		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL,
 #ifdef HAVE_BOOST
-		m_lastErrorDescr = FORMAT(L"Unable to open NFO file '%s' (error %d)", a_filePath % errno);
+			FORMAT(L"Unable to open NFO file '%s' (error %d)", a_filePath % errno));
 #else
-		m_lastErrorDescr = L"Unable to open NFO file. Please check the file name.";
+			L"Unable to open NFO file. Please check the file name.");
 #endif
 
 		return false;
@@ -55,7 +56,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	if(l_fileBytes < 0)
 	{
-		m_lastErrorDescr = L"Unable to get NFO file size.";
+		SetLastError(NDE_FAILED_TO_DETERMINE_SIZE, L"Unable to get NFO file size.");
 
 		fclose(l_file);
 		return false;
@@ -68,7 +69,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	}
 	else
 	{
-		m_lastErrorDescr = L"stat() on NFO file failed.";
+		SetLastError(NDE_FAILED_TO_DETERMINE_SIZE, L"stat() on NFO file failed.");
 
 		fclose(l_file);
 		return false;
@@ -77,7 +78,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	if(l_fileBytes > 1024 * 1024 * 3)
 	{
-		m_lastErrorDescr = L"NFO file is too large (> 3 MB)";
+		SetLastError(NDE_SIZE_EXCEEDS_LIMIT, L"NFO file is too large (> 3 MB)");
 
 		fclose(l_file);
 		return false;
@@ -130,7 +131,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	}
 	else
 	{
-		m_lastErrorDescr = L"An error occured while reading from the NFO file.";
+		SetLastError(NDE_FERROR, L"An error occured while reading from the NFO file.");
 
 		m_loaded = false;
 	}
@@ -165,7 +166,7 @@ bool CNFOData::LoadStripped(const CNFOData& a_source)
 		return false;
 	}
 
-	m_lastErrorDescr.clear();
+	ClearLastError();
 
 	m_filePath = a_source.GetFilePath();
 
@@ -459,7 +460,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	bool l_loaded = false;
 	size_t l_dataLen = a_dataLen;
 
-	m_lastErrorDescr.clear();
+	ClearLastError();
 
 	m_isAnsi = false; // modifying this state here (and in ReadSAUCE) is not nice
 
@@ -515,9 +516,9 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 		return PostProcessLoadedContent();
 	}
-	else if(m_lastErrorDescr.empty())
+	else if(!IsInError())
 	{
-		m_lastErrorDescr = L"There appears to be a charset/encoding problem.";
+		SetLastError(NDE_ENCODING_PROBLEM, L"There appears to be a charset/encoding problem.");
 	}
 
 	return false;
@@ -588,32 +589,35 @@ bool CNFOData::PostProcessLoadedContent()
 
 	if(l_ansiError)
 	{
-		m_lastErrorDescr = L"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.";
+		SetLastError(NDE_ANSI_INTERNAL,
+			L"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.");
 		return false;
 	}
 
 	if(l_lines.size() == 0 || l_maxLineLen == 0)
 	{
-		m_lastErrorDescr = L"Unable to find any lines in this file.";
+		SetLastError(NDE_EMPTY_FILE, L"Unable to find any lines in this file.");
 		return false;
 	}
 
 	if(l_maxLineLen > WIDTH_LIMIT)
 	{
+		SetLastError(NDE_MAXIMUM_LINE_LENGTH_EXCEEDED,
 #ifdef HAVE_BOOST
-		m_lastErrorDescr = FORMAT(L"This file contains a line longer than %d chars. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
+			FORMAT(L"This file contains a line longer than %d chars. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT));
 #else
-		L"This file contains a line that exceeds the internal maximum length limit.";
+			L"This file contains a line that exceeds the internal maximum length limit.");
 #endif
 		return false;
 	}
 
 	if(l_lines.size() > LINES_LIMIT)
 	{
+		SetLastError(NDE_MAXIMUM_NUMBER_OF_LINES_EXCEEDED,
 #ifdef HAVE_BOOST
-		m_lastErrorDescr = FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT);
+			FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT));
 #else
-		L"This file contains more lines than the internal limit.";
+			L"This file contains more lines than the internal limit.");
 #endif
 		return false;
 	}
@@ -924,7 +928,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 	if(l_foundBinary && !l_ansi)
 	{
-		m_lastErrorDescr = L"Binary files can not be loaded.";
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
 
 		return false;
 	}
@@ -987,7 +991,7 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 	if(l_error)
 	{
 		m_textContent.clear();
-		m_lastErrorDescr = L"Binary files can not be loaded.";
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
 		return false;
 	}
 	else
@@ -1043,7 +1047,7 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 
 	if(m_textContent.find(L'\0') != wstring::npos)
 	{
-		m_lastErrorDescr = L"Binary files can not be loaded.";
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
 		return false;
 	}
 
@@ -1103,7 +1107,7 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 
 		if(l_newBuf[p] == 0)
 		{
-			m_lastErrorDescr = L"Binary files can not be loaded.";
+			SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
 			delete[] l_newBuf;
 			return false;
 		}
@@ -1149,7 +1153,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	if(memcmp(l_record.Version, "00", 2) != 0)
 	{
-		m_lastErrorDescr = L"SAUCE: Unsupported file version.";
+		SetLastError(NDE_SAUCE_INTERNAL, L"SAUCE: Unsupported file version.");
 
 		return false;
 	}
@@ -1168,7 +1172,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	if(l_record.Comments > SAUCE_MAX_COMMENTS || ar_dataLen < l_bytesToTrim)
 	{
-		m_lastErrorDescr = L"SAUCE: Bad comments definition.";
+		SetLastError(NDE_SAUCE_INTERNAL, L"SAUCE: Bad comments definition.");
 
 		return false;
 	}
@@ -1196,12 +1200,6 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 }
 
 
-const wstring& CNFOData::GetLastErrorDescription() const
-{
-	return m_lastErrorDescr;
-}
-
-
 const std::_tstring CNFOData::GetFileName() const
 {
 #ifdef _WIN32
@@ -1226,10 +1224,11 @@ FILE *CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePa
 	if(!(l_file = fopen(a_filePath.c_str(), "wb")))
 #endif
 	{
+		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL,
 #ifdef HAVE_BOOST
-		m_lastErrorDescr = FORMAT(L"Unable to open file '%s' for writing (error %d)", a_filePath % errno);
+			FORMAT(L"Unable to open file '%s' for writing (error %d)", a_filePath % errno));
 #else
-		m_lastErrorDescr = L"Unable to open file for writing. Please check the file name.";
+			L"Unable to open file for writing. Please check the file name.");
 #endif
 
 		return NULL;
@@ -1677,6 +1676,20 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 	fclose(fp);
 
 	return l_success;
+}
+
+
+void CNFOData::SetLastError(EErrorCode a_code, const std::wstring& a_descr)
+{
+	m_lastErrorCode = a_code;
+	m_lastErrorDescr = a_descr;
+}
+
+
+void CNFOData::ClearLastError()
+{
+	m_lastErrorCode = NDE_NO_ERROR;
+	m_lastErrorDescr = L"";
 }
 
 
