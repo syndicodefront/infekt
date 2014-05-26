@@ -20,7 +20,7 @@ using namespace std;
 
 void CPluginManager::TriggerNfoLoad(bool a_before, const std::wstring& a_filePath)
 {
-	std::_tstring l_fileName, l_filePath;
+	std::wstring l_fileName, l_filePath;
 
 	if(a_before)
 	{
@@ -58,4 +58,35 @@ bool CPluginManager::TriggerViewChanging(EMainView a_view) // :TODO:
 void CPluginManager::TriggerViewChanged() // :TODO: view information
 {
 	TriggerRegEvents(REG_SETTINGS_EVENTS, IPV_NFO_VIEW_CHANGING, 0, NULL);
+}
+
+
+bool CPluginManager::TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen, const std::wstring& a_filePath)
+{
+	infektDeclareStruct(infekt_file_format_open_info_t, l_info);
+
+	l_info.buffer = a_buf;
+	l_info.bufferLength = a_bufLen;
+
+	if(!a_filePath.empty())
+	{
+		l_info.filePath = a_filePath.c_str();
+		l_info.fileName = ::PathFindFileName(a_filePath.c_str());
+	}
+
+	for(const auto& plp : m_loadedPlugins)
+	{
+		long ret = plp.second->TriggerRegEvent(REG_FILE_FORMAT_SUPPORT_EVENTS, IPV_TRY_OPEN_FILE_FORMAT, 0, &l_info);
+
+		if(ret == IPE_SUCCESS)
+		{
+			return true;
+		}
+		else if(ret != _IPE_NOT_IMPLEMENTED_INTERNAL && ret != IPE_NOT_IMPLEMENTED)
+		{
+			break;
+		}
+	}
+	
+	return false;
 }

@@ -840,55 +840,52 @@ void CMainFrame::SwitchView(EMainView a_view)
 }
 
 
-bool CMainFrame::OpenFile(const std::_tstring a_filePath)
+void CMainFrame::OpenFile(const std::wstring a_filePath)
 // do not use a reference since it might be a string from m_mruPaths and that
 // would turn out badly.
 {
-	if(m_view.OpenFile(a_filePath))
+	if(!m_view.OpenFile(a_filePath))
 	{
-		WatchFileStop();
-
-		m_nfoPreloadData.reset();
-		m_nfoInFolderIndex = (size_t)-1;
-		m_nfoPathsInFolder.clear();
-
-		UpdateCaption();
-		
-		UpdateStatusbar();
-
-		// update MRU list:
-		for(vector<_tstring>::iterator it = m_mruPaths.begin(); it != m_mruPaths.end(); it++)
-		{
-			if(_tcsicmp(it->c_str(), a_filePath.c_str()) == 0)
-			{
-				m_mruPaths.erase(it);
-				break;
-			}
-		}
-
-		m_mruPaths.insert(m_mruPaths.begin(), a_filePath);
-
-		if(m_mruPaths.size() > ms_mruLength)
-		{
-			m_mruPaths.erase(m_mruPaths.begin() + ms_mruLength, m_mruPaths.end());
-		}
-
-		if(m_settings->bKeepOpenMRU)
-		{
-			SaveOpenMruList();
-		}
-
-		AdjustWindowToNFOWidth(true);
-
-		m_lastSearchTerm = L"";
-
-		WatchFileStart();
-
-		// yay.
-		return true;
+		return;
 	}
 
-	return false;
+	WatchFileStop();
+
+	m_nfoPreloadData.reset();
+	m_nfoInFolderIndex = (size_t)-1;
+	m_nfoPathsInFolder.clear();
+
+	UpdateCaption();
+		
+	UpdateStatusbar();
+
+	// update MRU list:
+	for(vector<wstring>::const_iterator it = m_mruPaths.begin(); it != m_mruPaths.end(); it++)
+	{
+		if(_wcsicmp(it->c_str(), a_filePath.c_str()) == 0)
+		{
+			m_mruPaths.erase(it);
+			break;
+		}
+	}
+
+	m_mruPaths.insert(m_mruPaths.begin(), a_filePath);
+
+	if(m_mruPaths.size() > ms_mruLength)
+	{
+		m_mruPaths.erase(m_mruPaths.begin() + ms_mruLength, m_mruPaths.end());
+	}
+
+	if(m_settings->bKeepOpenMRU)
+	{
+		SaveOpenMruList();
+	}
+
+	AdjustWindowToNFOWidth(true);
+
+	m_lastSearchTerm = L"";
+
+	WatchFileStart();
 }
 
 

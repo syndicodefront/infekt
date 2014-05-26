@@ -199,9 +199,9 @@ bool CPluginManager::UnLoadPlugin(const std::string& a_guid)
 
 void CPluginManager::TriggerRegEvents(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam)
 {
-	for(TMGuidPlugins::iterator it = m_loadedPlugins.begin(); it != m_loadedPlugins.end(); it++)
+	for(const auto& plp : m_loadedPlugins)
 	{
-		it->second->TriggerRegEvent(a_reg, a_event, a_lParam, a_pParam);
+		plp.second->TriggerRegEvent(a_reg, a_event, a_lParam, a_pParam);
 	}
 }
 
@@ -304,9 +304,9 @@ long CLoadedPlugin::RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback)
 }
 
 
-long CLoadedPlugin::TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam)
+long CLoadedPlugin::TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam) const
 {
-	TMRegData::iterator l_itCallback = m_activeRegs.find(a_reg);
+	TMRegData::const_iterator l_itCallback = m_activeRegs.find(a_reg);
 
 	if(l_itCallback != m_activeRegs.end())
 	{

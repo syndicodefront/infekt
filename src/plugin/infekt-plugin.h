@@ -51,6 +51,9 @@ typedef enum {
 
 	IPCI_HTTP_REQUEST,
 
+	IPCI_REGISTER_FILE_FORMAT_SUPPORT_EVENTS,
+	IPCI_UNREGISTER_FILE_FORMAT_SUPPORT_EVENTS,
+
 	_IPCI_MAX
 } infektPluginCallId;
 
@@ -85,6 +88,9 @@ typedef enum {
 
 	// sent in response to IPCI_HTTP_REQUEST:
 	IPV_HTTP_RESULT,
+
+	// register for these events using IPCI_REGISTER_FILE_FORMAT_SUPPORT_EVENTS:
+	IPV_TRY_OPEN_FILE_FORMAT,
 
 	_IPV_MAX
 } infektPluginEventId;
@@ -183,6 +189,16 @@ struct infekt_http_result_t {
 	bool success;
 	const char* textBuffer;
 	const wchar_t* downloadFileName;
+};
+
+
+struct infekt_file_format_open_info_t {
+	size_t _uSize;
+
+	const wchar_t* fileName;
+	const wchar_t* filePath;
+	const char *buffer;
+	size_t bufferLength;
 };
 
 

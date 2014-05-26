@@ -85,12 +85,26 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 			return true;
 		}
 	}
-	else
+
+	bool l_showError = true;
+
+#ifdef INFEKT_PLUGIN_HOST
+	if(m_nfoData->GetLastErrorCode() == CNFOData::NDE_UNRECOGNIZED_FILE_FORMAT)
+	{
+		if(CPluginManager::GetInstance()->TriggerTryOpenFileFormat(NULL, 0, a_filePath))
+		{
+			// a file support plugin has posted a new request to display the file to the Windows message queue.
+			l_showError = false;
+		}
+	}
+#endif
+
+	if(l_showError)
 	{
 		this->MessageBox(m_nfoData->GetLastErrorDescription().c_str(), _T("Fail"), MB_ICONEXCLAMATION);
-
-		m_nfoData = l_nfoDataBackup;
 	}
+
+	m_nfoData = l_nfoDataBackup;
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
