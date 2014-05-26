@@ -47,6 +47,11 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long l
 	case IPCI_UNREGISTER_SETTINGS_EVENTS:
 		return DoRegister(szGuid, true, REG_SETTINGS_EVENTS, pParam, pUser);
 
+	case IPCI_REGISTER_FILE_FORMAT_SUPPORT_EVENTS:
+		return DoRegister(szGuid, false, REG_FILE_FORMAT_SUPPORT_EVENTS, pParam, pUser);
+	case IPCI_UNREGISTER_FILE_FORMAT_SUPPORT_EVENTS:
+		return DoRegister(szGuid, false, REG_FILE_FORMAT_SUPPORT_EVENTS, pParam, pUser);
+
 	case IPCI_HTTP_REQUEST:
 		return DoHttpRequest(szGuid, static_cast<infekt_http_request_t*>(pParam), pUser);
 	}

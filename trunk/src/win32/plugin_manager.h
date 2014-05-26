@@ -24,7 +24,8 @@ typedef enum
 {
 	REG_NFO_LOAD_EVENTS = 1,
 	REG_NFO_VIEW_EVENTS = 2,
-	REG_SETTINGS_EVENTS = 4
+	REG_SETTINGS_EVENTS = 4,
+	REG_FILE_FORMAT_SUPPORT_EVENTS = 8,
 } EPluginReg;
 
 
@@ -47,7 +48,7 @@ public:
 	long AddReg(EPluginReg a_reg, infektPluginMethod a_callback, void* a_userData);
 	long RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback);
 
-	long TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam);
+	long TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam) const;
 
 	PWinHttpClient GetHttpClient();
 protected:
@@ -93,6 +94,7 @@ public:
 	void TriggerSettingsChanged();
 	bool TriggerViewChanging(EMainView a_view);
 	void TriggerViewChanged();
+	bool TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen, const std::wstring& a_filePath);
 
 	// don't call this. it's for CLoadedPlugin only.
 	static INFEKT_PLUGIN_METHOD(_pluginToCoreCallback);
