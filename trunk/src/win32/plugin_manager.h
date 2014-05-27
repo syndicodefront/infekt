@@ -32,10 +32,12 @@ typedef enum
 class CLoadedPlugin
 {
 public:
-	CLoadedPlugin(const std::_tstring& a_dllPath, HMODULE a_hModule, infekt_plugin_info_t* a_info);
+	CLoadedPlugin(const std::wstring& a_dllPath, HMODULE a_hModule, infekt_plugin_info_t* a_info);
 	virtual ~CLoadedPlugin();
 
 	bool _DoLoad();
+
+	const std::wstring& GetDllPath() const { return m_dllPath; }
 
 	typedef enum
 	{
@@ -53,7 +55,7 @@ public:
 	PWinHttpClient GetHttpClient();
 protected:
 	HMODULE m_hModule;
-	std::_tstring m_dllPath;
+	std::wstring m_dllPath;
 	std::string m_guid;
 	std::wstring m_name, m_version, m_description;
 	bool m_successfullyLoaded;
@@ -82,12 +84,14 @@ public:
 	virtual ~CPluginManager();
 
 	// real managing stuff:
-	bool LoadPlugin(std::_tstring a_dllPath, bool a_probeInfoOnly = false);
-	std::_tstring GetLastErrorMessage() const { return m_lastErrorMsg; }
+	bool LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly = false);
+	std::wstring GetLastErrorMessage() const { return m_lastErrorMsg; }
 	void GetLastProbedInfo(std::string& ar_guid, std::wstring& ar_name, std::wstring& ar_version, std::wstring& ar_description) const;
 
 	bool IsPluginLoaded(const std::string& a_guid) const;
 	bool UnLoadPlugin(const std::string& a_guid);
+
+	void GetLoadedPlugins(std::vector<const std::wstring>& ar_dllPaths);
 
 	// event triggers (app -> plugins):
 	void TriggerNfoLoad(bool a_before, const std::wstring& a_filePath);
@@ -104,7 +108,7 @@ protected:
 	typedef std::map<std::string, PLoadedPlugin> TMGuidPlugins;
 
 	TMGuidPlugins m_loadedPlugins;
-	std::_tstring m_lastErrorMsg;
+	std::wstring m_lastErrorMsg;
 	std::wstring m_probedName, m_probedVer, m_probedDescr;
 	std::string m_probedGuid;
 

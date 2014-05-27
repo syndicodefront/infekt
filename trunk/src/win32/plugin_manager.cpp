@@ -17,8 +17,6 @@
 #include "util.h"
 #include "app.h"
 
-using namespace std;
-
 
 /************************************************************************/
 /* Plugin Manager Implementation                                        */
@@ -41,7 +39,7 @@ CPluginManager* CPluginManager::GetInstance()
 }
 
 
-bool CPluginManager::LoadPlugin(_tstring a_dllPath, bool a_probeInfoOnly)
+bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 {
 	HMODULE l_hModule = CUtilWin32::SilentLoadLibrary(a_dllPath);
 
@@ -149,6 +147,15 @@ bool CPluginManager::IsPluginLoaded(const std::string& a_guid) const
 }
 
 
+void CPluginManager::GetLoadedPlugins(std::vector<const std::wstring>& ar_dllPaths)
+{
+	for(const auto& pl : m_loadedPlugins)
+	{
+		ar_dllPaths.push_back(pl.second->GetDllPath());
+	}
+}
+
+
 struct _sync_call_data
 {
 	const char* szGuid;
@@ -216,7 +223,7 @@ CPluginManager::~CPluginManager()
 /* CLoadedPlugin Implementation                                         */
 /************************************************************************/
 
-CLoadedPlugin::CLoadedPlugin(const std::_tstring& a_dllPath, HMODULE a_hModule, infekt_plugin_info_t* a_info)
+CLoadedPlugin::CLoadedPlugin(const std::wstring& a_dllPath, HMODULE a_hModule, infekt_plugin_info_t* a_info)
 {
 	// initialize members:
 	m_capabs = 0;
@@ -252,7 +259,7 @@ bool CLoadedPlugin::_DoLoad()
 		l_loadInfo.pluginToCore = CPluginManager::_pluginToCoreCallback;
 		l_loadInfo.hMainWindow = CNFOApp::GetInstance()->GetMainFrame().GetHwnd();
 
-		const std::_tstring l_pluginDir = CUtilWin32::PathRemoveFileSpec(m_dllPath);
+		const std::wstring l_pluginDir = CUtilWin32::PathRemoveFileSpec(m_dllPath);
 		l_loadInfo.pluginDir = l_pluginDir.c_str();
 
 		// send the load event to the plugin:
