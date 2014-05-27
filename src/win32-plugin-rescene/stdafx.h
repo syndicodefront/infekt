@@ -11,8 +11,5 @@
 #include <map>
 #include <limits>
 #include <memory>
-#include <io.h>
 
 using std::shared_ptr;
-
-#include "infekt.h"

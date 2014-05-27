@@ -27,7 +27,6 @@ CContainer::CContainer()
 bool CContainer::ReadFile(const std::wstring& a_filePath)
 {
 	FILE *l_file = NULL;
-	size_t l_fileBytes;
 
 	if(_wfopen_s(&l_file, a_filePath.c_str(), L"rb") != 0 || !l_file)
 	{
@@ -36,11 +35,6 @@ bool CContainer::ReadFile(const std::wstring& a_filePath)
 
 	m_appName.clear();
 	m_storedFiles.clear();
-
-	l_fileBytes = _filelength(_fileno(l_file));
-
-	if(l_fileBytes < sizeof(srr_file_header_t))
-		goto READFAIL;
 
 	srr_file_header_t file_header;
 
