@@ -112,12 +112,7 @@ bool CAnsiArt::Parse(const wstring& a_text)
 		parser_state = PARSERERROR;
 	}
 
-	if(parser_state == PARSERERROR)
-	{
-		return false;
-	}
-
-	return !m_commands.empty();
+	return (parser_state != PARSERERROR && !m_commands.empty());
 }
 
 
@@ -420,7 +415,7 @@ wstring CAnsiArt::GetAsClassicText() const
 {
 	wstring result;
 
-	for(auto line : m_lines)
+	for(const wstring& line : m_lines)
 	{
 		result += line;
 		result += L'\n';
