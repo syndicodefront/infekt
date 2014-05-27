@@ -259,6 +259,8 @@ std::vector<const std::wstring> CUtil::StrSplit(const std::wstring& a_str, const
 /* Reg Ex Utils                                                         */
 /************************************************************************/
 
+#ifdef PCRE_UTF16
+
 #define OVECTOR_SIZE 60
 wstring CRegExUtil::Replace(const wstring& a_subject, const wstring& a_pattern, const wstring& a_replacement, int a_flags)
 {
@@ -383,7 +385,7 @@ bool CRegExUtil::DoesMatch(const std::wstring& a_subject, const std::wstring& a_
 
 	return false;
 }
-
+#endif
 
 /************************************************************************/
 /* Misc                                                                 */

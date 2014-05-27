@@ -195,38 +195,6 @@ CWinHttpClient::~CWinHttpClient()
 }
 
 
-/************************************************************************/
-/* Helper: auto-freeing RAII buffer                                     */
-/************************************************************************/
-
-template<typename T> class CAutoFreeBuffer
-{
-public:
-	CAutoFreeBuffer(size_t a_bufSize)
-	{
-		m_bufSize = a_bufSize;
-		m_buf = new T[m_bufSize];
-		memset(m_buf, 0, a_bufSize);
-	}
-
-	CAutoFreeBuffer(const CAutoFreeBuffer& a_from)
-	{
-		m_bufSize = a_from.m_bufSize;
-		m_buf = new T[m_bufSize];
-		memmove_s(m_buf, m_bufSize, a_from.m_buf, m_bufSize);
-	}
-
-	virtual ~CAutoFreeBuffer()
-	{
-		delete[] m_buf;
-	}
-
-	T* get() { return m_buf; }
-private:
-	T* m_buf;
-	size_t m_bufSize;
-};
-
 
 /************************************************************************/
 /* CWinHttpRequest implementation                                       */
