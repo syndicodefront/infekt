@@ -13,6 +13,7 @@
  **/
 
 #include "stdafx.h"
+#include "infekt.h" // ONLY for plugins shipping with iNFEKT
 
 static CImdbPlugin* s_pPlugin = NULL;
 
@@ -25,7 +26,11 @@ static void DoPluginInfo(infekt_plugin_info_t* a_info)
 {
 	strcpy_s(a_info->guid,			48,		MYGUID);
 	wcscpy_s(a_info->name,			32,		L"IMDb Infobar");
-	wcscpy_s(a_info->version,		16,		L"0.1");
+
+	swprintf_s(a_info->version, 16, L"%d.%d.%d", INFEKT_VERSION_MAJOR, INFEKT_VERSION_MINOR, INFEKT_VERSION_REVISION);
+	// This is okay ONLY! for plugins shipping with iNFEKT, please do it like this
+	//   in your own plugins:
+	// wcscpy_s(a_info->version,		16,		L"0.1");
 
 	wcscpy_s(a_info->description,	512,	L"Shows information about movies and TV shows from IMDb.");
 
