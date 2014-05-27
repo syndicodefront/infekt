@@ -928,7 +928,9 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 	if(l_foundBinary && !l_ansi)
 	{
-		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
+
+		m_textContent.clear();
 
 		return false;
 	}
@@ -990,8 +992,10 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 
 	if(l_error)
 	{
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
+
 		m_textContent.clear();
-		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
+
 		return false;
 	}
 	else
@@ -1047,7 +1051,10 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 
 	if(m_textContent.find(L'\0') != wstring::npos)
 	{
-		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
+
+		m_textContent.clear();
+
 		return false;
 	}
 
@@ -1107,7 +1114,7 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 
 		if(l_newBuf[p] == 0)
 		{
-			SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Binary files can not be loaded.");
+			SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 			delete[] l_newBuf;
 			return false;
 		}
