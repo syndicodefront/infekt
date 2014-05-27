@@ -65,13 +65,19 @@ bool CPluginManager::TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen
 {
 	infektDeclareStruct(infekt_file_format_open_info_t, l_info);
 
+#if 0 // unused
 	l_info.buffer = a_buf;
 	l_info.bufferLength = a_bufLen;
+#endif
 
 	if(!a_filePath.empty())
 	{
 		l_info.filePath = a_filePath.c_str();
 		l_info.fileName = ::PathFindFileName(a_filePath.c_str());
+	}
+	else
+	{
+		return false;
 	}
 
 	for(const auto& plp : m_loadedPlugins)

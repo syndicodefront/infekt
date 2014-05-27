@@ -112,7 +112,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 }
 
 
-bool CViewContainer::OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_nfoData)
+bool CViewContainer::OpenLoadedFile(PNFOData a_nfoData)
 {
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
@@ -123,13 +123,13 @@ bool CViewContainer::OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_n
 
 	m_nfoData = a_nfoData;
 
-	CPluginManager::GetInstance()->TriggerNfoLoad(true, a_filePath.c_str());
+	CPluginManager::GetInstance()->TriggerNfoLoad(true, m_nfoData->GetFilePath());
 
 	if(m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
 	if(m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
 	if(m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
 
-	CPluginManager::GetInstance()->TriggerNfoLoad(false, a_filePath.c_str());
+	CPluginManager::GetInstance()->TriggerNfoLoad(false, m_nfoData->GetFilePath());
 
 	bool b = CurAssignNfo();
 

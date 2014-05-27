@@ -840,15 +840,39 @@ void CMainFrame::SwitchView(EMainView a_view)
 }
 
 
-void CMainFrame::OpenFile(const std::wstring a_filePath)
-// do not use a reference since it might be a string from m_mruPaths and that
-// would turn out badly.
+void CMainFrame::OpenFile(const std::wstring& a_filePath)
 {
 	if(!m_view.OpenFile(a_filePath))
 	{
 		return;
 	}
 
+	UpdateAfterFileLoad();
+	AddToMruList(a_filePath);
+}
+
+
+bool CMainFrame::OpenLoadedFile(PNFOData a_nfoData, bool a_showError)
+{
+	if(!m_view.OpenLoadedFile(a_nfoData))
+	{
+		if(a_showError)
+		{
+			this->MessageBox(a_nfoData->GetLastErrorDescription().c_str(), L"Fail", MB_ICONEXCLAMATION);
+		}
+
+		return false;
+	}
+
+	UpdateAfterFileLoad();
+	AddToMruList(a_nfoData->GetFilePath());
+
+	return true;
+}
+
+
+void CMainFrame::UpdateAfterFileLoad()
+{
 	WatchFileStop();
 
 	m_nfoPreloadData.reset();
@@ -856,10 +880,21 @@ void CMainFrame::OpenFile(const std::wstring a_filePath)
 	m_nfoPathsInFolder.clear();
 
 	UpdateCaption();
-		
+
 	UpdateStatusbar();
 
-	// update MRU list:
+	AdjustWindowToNFOWidth(true);
+
+	m_lastSearchTerm = L"";
+
+	WatchFileStart();
+}
+
+
+void CMainFrame::AddToMruList(const std::wstring a_filePath)
+// do not use a reference since it might be a string from m_mruPaths and that
+// would turn out badly.
+{
 	for(vector<wstring>::const_iterator it = m_mruPaths.begin(); it != m_mruPaths.end(); it++)
 	{
 		if(_wcsicmp(it->c_str(), a_filePath.c_str()) == 0)
@@ -880,12 +915,6 @@ void CMainFrame::OpenFile(const std::wstring a_filePath)
 	{
 		SaveOpenMruList();
 	}
-
-	AdjustWindowToNFOWidth(true);
-
-	m_lastSearchTerm = L"";
-
-	WatchFileStart();
 }
 
 
@@ -1513,7 +1542,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	// use preloaded NFO if there is one:
 	if(m_nfoPreloadData && m_nfoPreloadData->GetFilePath() == m_nfoPathsInFolder[m_nfoInFolderIndex])
 	{
-		bSuccess = m_view.OpenLoadedFile(m_nfoPreloadData->GetFilePath(), m_nfoPreloadData);
+		bSuccess = m_view.OpenLoadedFile(m_nfoPreloadData);
 	}
 	else // load from disk otherwise:
 	{
@@ -1522,7 +1551,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 
 		if(l_nfo->LoadFromFile(m_nfoPathsInFolder[m_nfoInFolderIndex]))
 		{
-			bSuccess = m_view.OpenLoadedFile(m_nfoPathsInFolder[m_nfoInFolderIndex], l_nfo);
+			bSuccess = m_view.OpenLoadedFile(l_nfo);
 		}
 		else
 		{

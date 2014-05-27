@@ -124,6 +124,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	// on the same instance but the second load fails.
 
 	m_filePath = a_filePath;
+	m_vFileName = L"";
 
 	if(!l_error)
 	{
@@ -168,13 +169,22 @@ bool CNFOData::LoadStripped(const CNFOData& a_source)
 
 	ClearLastError();
 
-	m_filePath = a_source.GetFilePath();
+	m_filePath = a_source.m_filePath;
+	m_vFileName = a_source.m_vFileName;
 
 	m_textContent = a_source.GetStrippedText();
 
 	m_loaded = PostProcessLoadedContent();
 
 	return m_loaded;
+}
+
+
+// useful in conjunction with LoadFromMemory...
+void CNFOData::SetVirtualFileName(const std::_tstring& a_filePath, const std::_tstring& a_fileName)
+{
+	m_filePath = a_filePath;
+	m_vFileName = a_fileName;
 }
 
 
@@ -1209,6 +1219,11 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 const std::_tstring CNFOData::GetFileName() const
 {
+	if(!m_vFileName.empty())
+	{
+		return m_vFileName;
+	}
+
 #ifdef _WIN32
 	const wchar_t* l_name = ::PathFindFileName(m_filePath.c_str());
 	return l_name;
