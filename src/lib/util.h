@@ -47,6 +47,7 @@ public:
 };
 
 
+#ifdef PCRE_UTF16
 class CRegExUtil
 {
 public:
@@ -55,6 +56,7 @@ public:
 	static std::wstring Replace(const std::wstring& a_subject, const std::wstring& a_pattern,
 		const std::wstring& a_replacement, int a_flags = 0);
 };
+#endif
 
 
 template <typename T> class TwoDimVector
@@ -108,6 +110,40 @@ private:
 template <typename T> int sgn(T val) {
     return (val > T(0)) - (val < T(0));
 };
+
+
+/************************************************************************/
+/* Helper: auto-freeing RAII buffer                                     */
+/************************************************************************/
+
+template<typename T> class CAutoFreeBuffer
+{
+public:
+	CAutoFreeBuffer(size_t a_bufSize)
+	{
+		m_bufSize = a_bufSize;
+		m_buf = new T[m_bufSize];
+		memset(m_buf, 0, a_bufSize);
+	}
+
+	CAutoFreeBuffer(const CAutoFreeBuffer& a_from)
+	{
+		m_bufSize = a_from.m_bufSize;
+		m_buf = new T[m_bufSize];
+		memmove_s(m_buf, m_bufSize, a_from.m_buf, m_bufSize);
+	}
+
+	virtual ~CAutoFreeBuffer()
+	{
+		delete[] m_buf;
+	}
+
+	T* get() { return m_buf; }
+private:
+	T* m_buf;
+	size_t m_bufSize;
+};
+
 
 /* gutf8.c exports */
 extern "C"
