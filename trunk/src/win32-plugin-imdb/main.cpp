@@ -27,8 +27,7 @@ static void DoPluginInfo(infekt_plugin_info_t* a_info)
 	wcscpy_s(a_info->name,			32,		L"IMDb Infobar");
 	wcscpy_s(a_info->version,		16,		L"0.1");
 
-	wcscpy_s(a_info->description,	512,	L"For each NFO file that carries an IMDb link, this plugin "
-		L"downloads and displays information about the movie or TV show.");
+	wcscpy_s(a_info->description,	512,	L"Shows information about movies and TV shows from IMDb.");
 
 	a_info->cap_infobar = true;
 }
