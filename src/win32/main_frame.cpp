@@ -228,6 +228,8 @@ void CMainFrame::OnInitialUpdate()
 		l_app->CheckDefaultNfoViewer(m_hWnd, false);
 	}
 
+	LoadActivePluginsFromRegistry();
+
 	if(!l_path.empty())
 	{
 		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
@@ -2015,6 +2017,67 @@ void CMainFrame::SavePositionSettings()
 }
 
 
+// :TODO: move to nicer place
+void CMainFrame::SaveActivePluginsToRegistry()
+{
+	PSettingsSection l_sect;
+
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForWriting(L"ActivePlugins", l_sect))
+	{
+		return;
+	}
+
+	std::vector<const std::wstring> l_dllPaths;
+
+	CPluginManager::GetInstance()->GetLoadedPlugins(l_dllPaths);
+
+	l_sect->WriteDword(L"COUNT", static_cast<DWORD>(l_dllPaths.size()));
+
+	DWORD i = 0;
+	for(const std::wstring& path : l_dllPaths)
+	{
+		const std::wstring l_dllName = ::PathFindFileName(path.c_str()); // that shit better be in "plugins"...
+		const std::wstring l_valName = FORMAT(L"%d", i);
+
+		l_sect->WriteString(l_valName.c_str(), l_dllName);
+	}
+}
+
+
+// :TODO: move to nicer place
+void CMainFrame::LoadActivePluginsFromRegistry()
+{
+	PSettingsSection l_sect;
+
+	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForReading(L"ActivePlugins", l_sect))
+	{
+		return;
+	}
+
+	const std::wstring l_pluginDirPath = CUtilWin32::GetExeDir() + _T("\\plugins\\");
+
+	DWORD count = l_sect->ReadDword(L"COUNT");
+
+	for(DWORD i = 0; i < count; ++i)
+	{
+		const std::wstring l_valName = FORMAT(L"%d", i);
+		const std::wstring l_dllName = l_sect->ReadString(l_valName.c_str());
+
+		if(!l_dllName.empty())
+		{
+			const std::wstring l_dllPath = l_pluginDirPath + l_dllName;
+
+			// more checks here?!
+
+			if(::PathFileExists(l_dllPath.c_str()))
+			{
+				CPluginManager::GetInstance()->LoadPlugin(l_dllPath);
+			}
+		}
+	}
+}
+
+
 void CMainFrame::OnClose()
 {
 	SavePositionSettings();
@@ -2024,6 +2087,8 @@ void CMainFrame::OnClose()
 		m_mruPaths.clear();
 		SaveOpenMruList();
 	}
+
+	SaveActivePluginsToRegistry();
 
 	CFrame::OnClose();
 }

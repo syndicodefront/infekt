@@ -64,8 +64,11 @@ protected:
 
 	void LoadOpenMruList();
 	void SaveOpenMruList();
-	void SavePositionSettings();
 	void AddToMruList(const std::wstring a_filePath);
+
+	void SavePositionSettings();
+	void LoadActivePluginsFromRegistry();
+	void SaveActivePluginsToRegistry();
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);
