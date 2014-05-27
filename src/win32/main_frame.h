@@ -32,7 +32,8 @@ public:
 	bool LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFORenderer* a_target);
 
 	void SwitchView(EMainView a_view);
-	void OpenFile(const std::wstring a_filePath);
+	void OpenFile(const std::wstring& a_filePath);
+	bool OpenLoadedFile(PNFOData a_nfoData, bool a_showError = true);
 	void UpdateAlwaysOnTop();
 	void ShowMenuBar(bool a_show = true);
 	PMainSettings GetSettings() { return m_settings; }
@@ -64,6 +65,7 @@ protected:
 	void LoadOpenMruList();
 	void SaveOpenMruList();
 	void SavePositionSettings();
+	void AddToMruList(const std::wstring a_filePath);
 
 	// Win32++ stuff start //
 	virtual void PreCreate(CREATESTRUCT& cs);
@@ -92,6 +94,7 @@ protected:
 	bool DoCharsetMenu(const LPNMMOUSE a_pnmm);
 	void UpdateStatusbar();
 	void AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly = false);
+	void UpdateAfterFileLoad();
 
 	void CheckForUpdates();
 	void CheckForUpdates_Callback(PWinHttpRequest a_req);

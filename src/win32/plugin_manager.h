@@ -118,6 +118,7 @@ protected:
 	long DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser);
 	long DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData);
 	long DoHttpRequest(const std::string& a_guid, const infekt_http_request_t* a_pReq, void* a_pUser);
+	long DoShowNfo(const infekt_show_nfo_t* a_nfo);
 
 	// core -> plugin stuff:
 	void TriggerRegEvents(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam);

@@ -50,6 +50,8 @@ public:
 	const std::_tstring GetFilePath() const { return m_filePath; }
 	const std::_tstring GetFileName() const;
 
+	void SetVirtualFileName(const std::_tstring& a_filePath, const std::_tstring& a_fileName);
+
 	size_t GetGridWidth() const;
 	size_t GetGridHeight() const;
 	wchar_t GetGridChar(size_t a_row, size_t a_col) const;
@@ -110,6 +112,7 @@ protected:
 	bool m_loaded;
 	std::multimap<size_t, CNFOHyperLink> m_hyperLinks;
 	std::_tstring m_filePath;
+	std::_tstring m_vFileName;
 	ENfoCharset m_sourceCharset;
 	bool m_lineWrap;
 	bool m_isAnsi;

@@ -33,7 +33,7 @@ public:
 	PNFOData& GetNfoData() { return m_nfoData; }
 
 	bool OpenFile(const std::wstring& a_filePath, ENfoCharset a_charset = NFOC_AUTO);
-	bool OpenLoadedFile(const std::wstring& a_filePath, PNFOData a_nfoData);
+	bool OpenLoadedFile(PNFOData a_nfoData);
 	void SwitchView(EMainView a_view);
 	EMainView GetViewType() const { return m_curViewType; }
 

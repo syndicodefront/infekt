@@ -54,6 +54,8 @@ typedef enum {
 	IPCI_REGISTER_FILE_FORMAT_SUPPORT_EVENTS,
 	IPCI_UNREGISTER_FILE_FORMAT_SUPPORT_EVENTS,
 
+	IPCI_SHOW_NFO,
+
 	_IPCI_MAX
 } infektPluginCallId;
 
@@ -116,6 +118,8 @@ typedef enum {
 	IPE_NULLCALLBACK,
 	IPE_INTERNAL_PROBLEM,
 	IPE_STOP,
+	IPE_BAD_STRUCTURE_SIZE,
+	IPE_UNABLE_TO_PROCESS,
 
 	_IPE_MAX
 } infektPluginErrorId;
@@ -195,8 +199,16 @@ struct infekt_http_result_t {
 struct infekt_file_format_open_info_t {
 	size_t _uSize;
 
-	const wchar_t* fileName;
 	const wchar_t* filePath;
+	const wchar_t* fileName;
+};
+
+
+struct infekt_show_nfo_t {
+	size_t _uSize;
+
+	const wchar_t* filePath;
+	const wchar_t* fileName;
 	const char *buffer;
 	size_t bufferLength;
 };

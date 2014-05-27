@@ -19,6 +19,15 @@
 using namespace std;
 using namespace std::placeholders;
 
+#define INFEKT_SAFE_STRUCTURE(TYPE, VAR) \
+	infektDeclareStruct(TYPE, VAR); /* zero-initialized! */ \
+	const TYPE* VAR ## _ptr = static_cast<TYPE*>(pParam); \
+	if(!pParam) \
+		return IPE_INVALIDPARAM; \
+	if(VAR ## _ptr->_uSize > VAR._uSize) \
+		return IPE_BAD_STRUCTURE_SIZE; \
+	memcpy_s(&VAR, sizeof(TYPE), VAR ## _ptr, VAR ## _ptr->_uSize); \
+
 
 long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long long lParam, void* pParam, void* pUser)
 {
@@ -52,8 +61,13 @@ long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long l
 	case IPCI_UNREGISTER_FILE_FORMAT_SUPPORT_EVENTS:
 		return DoRegister(szGuid, false, REG_FILE_FORMAT_SUPPORT_EVENTS, pParam, pUser);
 
-	case IPCI_HTTP_REQUEST:
-		return DoHttpRequest(szGuid, static_cast<infekt_http_request_t*>(pParam), pUser);
+	case IPCI_HTTP_REQUEST: {
+		INFEKT_SAFE_STRUCTURE(infekt_http_request_t, req);
+		return DoHttpRequest(szGuid, &req, pUser); }
+
+	case IPCI_SHOW_NFO: {
+		INFEKT_SAFE_STRUCTURE(infekt_show_nfo_t, nfo);
+		return DoShowNfo(&nfo); }
 	}
 #endif
 
@@ -266,6 +280,29 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 	{
 		return IPE_INTERNAL_PROBLEM;
 	}
+}
+
+
+long CPluginManager::DoShowNfo(const infekt_show_nfo_t* a_nfo)
+{
+	PNFOData l_nfo(new CNFOData());
+
+	if(!a_nfo->filePath || !a_nfo->fileName)
+	{
+		return IPE_INVALIDPARAM;
+	}
+
+	if(l_nfo->LoadFromMemory((const unsigned char*)a_nfo->buffer, a_nfo->bufferLength))
+	{
+		l_nfo->SetVirtualFileName(a_nfo->filePath, a_nfo->fileName);
+
+		if(GetApp()->GetMainFrame().OpenLoadedFile(l_nfo))
+		{
+			return IPE_SUCCESS;
+		}
+	}
+
+	return IPE_UNABLE_TO_PROCESS;
 }
 
 #endif /* INFEKT_PLUGIN_HOST */
