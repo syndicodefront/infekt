@@ -574,8 +574,10 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDM_VIEW_RELOAD:
 	case IDMC_RELOAD:
-		m_view.ReloadFile();
-		UpdateStatusbar();
+		if(m_view.ReloadFile())
+		{
+			UpdateStatusbar();
+		}
 		return TRUE;
 
 	case IDM_SHOWSTATUSBAR:
@@ -784,9 +786,10 @@ bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
 
 	if(l_cmd > 0 && l_cmd < _NFOC_MAX)
 	{
-		m_view.ReloadFile((ENfoCharset)l_cmd);
-
-		UpdateStatusbar();
+		if(m_view.ReloadFile((ENfoCharset)l_cmd))
+		{
+			UpdateStatusbar();
+		}
 	}
 
 	return true;
@@ -1245,8 +1248,10 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		return 1; }
 	case WM_RELOAD_NFO:
-		m_view.ReloadFile();
-		UpdateStatusbar();
+		if(m_view.ReloadFile())
+		{
+			UpdateStatusbar();
+		}
 		return 1;
 	case WM_SYNC_PLUGIN_TO_CORE:
 		return CPluginManager::GetInstance()->SynchedPluginToCore((void*)lParam);
@@ -1583,7 +1588,6 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	}
 
 	// pre-load next:
-	// :TODO: this could be in a separate thread!
 	size_t l_preLoadIndex = BrowseFolderNfoGetNext(a_direction);
 
 	if(l_preLoadIndex != m_nfoInFolderIndex && l_preLoadIndex != (size_t)-1)
@@ -1672,14 +1676,14 @@ bool CMainFrame::LoadFolderNfoList()
 
 	::FindClose(l_fh);
 
-	std::sort(m_nfoPathsInFolder.begin(), m_nfoPathsInFolder.end(), [](std::wstring a, std::wstring b) {
+	std::sort(m_nfoPathsInFolder.begin(), m_nfoPathsInFolder.end(), [](const std::wstring& a, const std::wstring& b) {
 		return StrCmpLogicalW(a.c_str(), b.c_str()) < 0;
 	});
 
 	if(::PathFileExists(l_nfoPathFull))
 	{
 		size_t l_index = 0;
-		for(const std::wstring l_nfoPath : m_nfoPathsInFolder)
+		for(const std::wstring& l_nfoPath : m_nfoPathsInFolder)
 		{
 			if(wcscmp(l_nfoPathFull, l_nfoPath.c_str()) == 0)
 			{

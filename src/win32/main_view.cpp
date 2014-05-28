@@ -146,6 +146,13 @@ bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 {
 	if(m_nfoData)
 	{
+		if(!::PathFileExists(m_nfoFilePath.c_str()))
+		{
+			this->MessageBox(L"The file does no longer exist at its previous location.", L"Sorry", MB_ICONEXCLAMATION);
+
+			return false;
+		}
+
 		// save scroll positions:
 		int l_savedScrollPos[3] = {0};
 
