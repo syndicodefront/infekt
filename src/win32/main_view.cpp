@@ -149,30 +149,29 @@ bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 		if(!::PathFileExists(m_nfoFilePath.c_str()))
 		{
 			this->MessageBox(L"The file does no longer exist at its previous location.", L"Sorry", MB_ICONEXCLAMATION);
-
-			return false;
 		}
-
-		// save scroll positions:
-		int l_savedScrollPos[3] = {0};
-
-		if(m_curViewCtrl)
+		else
 		{
-			l_savedScrollPos[0] = 1;
-			m_curViewCtrl->GetScrollPositions(l_savedScrollPos[0], l_savedScrollPos[1]);
-		}
+			// save scroll positions:
+			int scroll_x = 0, scroll_y = 0;
 
-		// actually reload the file:
-		if(OpenFile(m_nfoFilePath, a_charset))
-		{
-			// restore scroll positions:
-			m_curViewCtrl->ScrollIntoView(l_savedScrollPos[1], l_savedScrollPos[0]);
+			if(m_curViewCtrl)
+			{
+				m_curViewCtrl->GetScrollPositions(scroll_x, scroll_y);
+			}
 
-			// redraw scrollbars and such:
-			SendMessage(WM_SETREDRAW, 1);
-			::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+			// actually reload the file:
+			if(OpenFile(m_nfoFilePath, a_charset))
+			{
+				// restore scroll positions:
+				m_curViewCtrl->ScrollIntoView(scroll_y, scroll_x);
 
-			return true;
+				// redraw scrollbars and such:
+				SendMessage(WM_SETREDRAW, 1);
+				::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+
+				return true;
+			}
 		}
 	}
 
