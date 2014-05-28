@@ -292,6 +292,13 @@ long CPluginManager::DoShowNfo(const infekt_show_nfo_t* a_nfo)
 		return IPE_INVALIDPARAM;
 	}
 
+	if(a_nfo->req_charset >= NFOC_AUTO && a_nfo->req_charset < _NFOC_MAX)
+	{
+		l_nfo->SetCharsetToTry((ENfoCharset)a_nfo->req_charset);
+	}
+
+	l_nfo->SetWrapLines(GetApp()->GetMainFrame().GetSettings()->bWrapLines); // how nice...
+
 	if(l_nfo->LoadFromMemory((const unsigned char*)a_nfo->buffer, a_nfo->bufferLength))
 	{
 		l_nfo->SetVirtualFileName(a_nfo->filePath, a_nfo->fileName);

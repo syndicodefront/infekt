@@ -98,7 +98,7 @@ public:
 	void TriggerSettingsChanged();
 	bool TriggerViewChanging(EMainView a_view);
 	void TriggerViewChanged();
-	bool TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen, const std::wstring& a_filePath);
+	bool TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen, const std::wstring& a_filePath, ENfoCharset a_charset);
 
 	// don't call this. it's for CLoadedPlugin only.
 	static INFEKT_PLUGIN_METHOD(_pluginToCoreCallback);

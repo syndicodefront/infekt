@@ -85,6 +85,7 @@ long CRescenePlugin::TryLoadSrrToViewer(const infekt_file_format_open_info_t* a_
 			nfo.fileName = l_nfos[0]->GetFileName().c_str();
 			nfo.bufferLength = l_nfos[0]->GetDataLength();
 			nfo.buffer = l_nfos[0]->GetDataPtr();
+			nfo.req_charset = a_file->req_charset;
 
 			return PluginSend(IPCI_SHOW_NFO, 0, &nfo);
 		}
