@@ -117,24 +117,39 @@ bool CContainer::ReadFile(const std::wstring& a_filePath)
 		else // other block, try to skip it
 		{
 			if(fseek(l_file, block_header.head_size, SEEK_CUR) != 0)
-				goto READFAIL;
+				goto READFAIL_MAYBE;
+
+			bool has_name = (block_header.type == 0x71);
+
+			if(has_name)
+			{
+				uint16_t name_size = 0;
+
+				if(fread_s(&name_size, sizeof(uint16_t), sizeof(uint16_t), 1, l_file) != 1)
+					goto READFAIL_MAYBE;
+
+				if(static_cast<long>(name_size) < 0 || fseek(l_file, name_size, SEEK_CUR) != 0)
+					goto READFAIL_MAYBE;
+			}
 
 			if((block_header.flags & 0x8000) != 0)
 			{
 				uint32_t add_size = 0;
 
 				if(fread_s(&add_size, sizeof(uint32_t), sizeof(uint32_t), 1, l_file) != 1)
-					goto READFAIL;
+					goto READFAIL_MAYBE;
 
 				if(static_cast<long>(add_size) < 0 || fseek(l_file, add_size, SEEK_CUR) != 0)
-					goto READFAIL;
+					goto READFAIL_MAYBE;
 			}
 		}
 	} while(feof(l_file) == 0 && ferror(l_file) == 0);
 
+READFAIL_MAYBE:
+
 	fclose(l_file);
 
-	return true;
+	return (m_storedFiles.size() > 0);
 
 READFAIL:
 	fclose(l_file);
