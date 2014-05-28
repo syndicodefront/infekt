@@ -201,6 +201,8 @@ struct infekt_file_format_open_info_t {
 
 	const wchar_t* filePath;
 	const wchar_t* fileName;
+
+	unsigned long req_charset;
 };
 
 
@@ -211,6 +213,8 @@ struct infekt_show_nfo_t {
 	const wchar_t* fileName;
 	const char *buffer;
 	size_t bufferLength;
+
+	unsigned long req_charset;
 };
 
 

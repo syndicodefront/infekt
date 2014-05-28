@@ -61,14 +61,13 @@ void CPluginManager::TriggerViewChanged() // :TODO: view information
 }
 
 
-bool CPluginManager::TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen, const std::wstring& a_filePath)
+bool CPluginManager::TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen, const std::wstring& a_filePath, ENfoCharset a_charset)
 {
 	infektDeclareStruct(infekt_file_format_open_info_t, l_info);
 
-#if 0 // unused
-	l_info.buffer = a_buf;
-	l_info.bufferLength = a_bufLen;
-#endif
+	// unused
+	(void)a_buf;
+	(void)a_bufLen;
 
 	if(!a_filePath.empty())
 	{
@@ -79,6 +78,8 @@ bool CPluginManager::TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen
 	{
 		return false;
 	}
+
+	l_info.req_charset = a_charset;
 
 	for(const auto& plp : m_loadedPlugins)
 	{

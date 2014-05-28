@@ -54,6 +54,20 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 {
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
+#ifdef INFEKT_PLUGIN_HOST
+	if(0 != _wcsicmp(::PathFindExtension(a_filePath.c_str()), L".nfo")) // never try plugins for .nfo files
+	{
+		if(CPluginManager::GetInstance()->TriggerTryOpenFileFormat(NULL, 0, a_filePath, a_charset))
+		{
+			// a file support plugin has hopefully invoked OpenLoadedFile!
+
+			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+
+			return true;
+		}
+	}
+#endif
+	
 	PNFOData l_nfoDataBackup = m_nfoData;
 
 	if(m_nfoData)
@@ -62,11 +76,9 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 		m_nfoData.reset();
 	}
 
-	PNFOData l_nfoData(new CNFOData());
-	l_nfoData->SetCharsetToTry(a_charset);
-	l_nfoData->SetWrapLines(m_wrapLines);
-
-	m_nfoData = l_nfoData; // for CurAssignNfo
+	m_nfoData = PNFOData(new CNFOData());
+	m_nfoData->SetCharsetToTry(a_charset);
+	m_nfoData->SetWrapLines(m_wrapLines);
 
 	CPluginManager::GetInstance()->TriggerNfoLoad(true, a_filePath.c_str());
 
@@ -88,28 +100,11 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 		}
 	}
 
-	// restore early for plugin support:
-	m_nfoData = l_nfoDataBackup;
+	this->MessageBox(m_nfoData->GetLastErrorDescription().c_str(), _T("Fail"), MB_ICONEXCLAMATION);
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
-	bool l_showError = true;
-
-#ifdef INFEKT_PLUGIN_HOST
-	if(l_nfoData->GetLastErrorCode() == CNFOData::NDE_UNRECOGNIZED_FILE_FORMAT)
-	{
-		if(CPluginManager::GetInstance()->TriggerTryOpenFileFormat(NULL, 0, a_filePath))
-		{
-			// a file support plugin has likely invoked OpenLoadedFile!
-			l_showError = false;
-		}
-	}
-#endif
-
-	if(l_showError)
-	{
-		this->MessageBox(l_nfoData->GetLastErrorDescription().c_str(), _T("Fail"), MB_ICONEXCLAMATION);
-	}
+	m_nfoData = l_nfoDataBackup;
 
 	return false;
 }
