@@ -134,6 +134,12 @@ void CWinFileWatcher::WatchEventThread()
 				// wait up to two seconds to avoid access denied errors due to the file still being written:
 				while(retry_count++ < 20 && NULL == (fh = _wfopen(m_filePath.c_str(), L"rb")))
 				{
+					if(!::PathFileExists(m_filePath.c_str()))
+					{
+						// File is gone!
+						goto WATCH_BREAK;
+					}
+
 					::Sleep(100);
 				}
 
@@ -155,6 +161,8 @@ void CWinFileWatcher::WatchEventThread()
 			// wut?
 		}
 	} while(!bStop);
+
+WATCH_BREAK:
 
 	::FindCloseChangeNotification(l_hEvents[0]);
 

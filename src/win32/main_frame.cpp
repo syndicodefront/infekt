@@ -1546,7 +1546,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	{
 		bSuccess = m_view.OpenLoadedFile(m_nfoPreloadData);
 	}
-	else // load from disk otherwise:
+	else if(m_nfoPathsInFolder.size() > 0) // load from disk otherwise:
 	{
 		PNFOData l_nfo = PNFOData(new CNFOData());
 		l_nfo->SetWrapLines(m_settings->bWrapLines);
@@ -1586,7 +1586,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	// :TODO: this could be in a separate thread!
 	size_t l_preLoadIndex = BrowseFolderNfoGetNext(a_direction);
 
-	if(l_preLoadIndex != m_nfoInFolderIndex)
+	if(l_preLoadIndex != m_nfoInFolderIndex && l_preLoadIndex != (size_t)-1)
 	{
 		m_nfoPreloadData.reset();
 
@@ -1676,16 +1676,24 @@ bool CMainFrame::LoadFolderNfoList()
 		return StrCmpLogicalW(a.c_str(), b.c_str()) < 0;
 	});
 
-	size_t l_index = 0;
-	for(const std::wstring l_nfoPath : m_nfoPathsInFolder)
+	if(::PathFileExists(l_nfoPathFull))
 	{
-		if(wcscmp(l_nfoPathFull, l_nfoPath.c_str()) == 0)
+		size_t l_index = 0;
+		for(const std::wstring l_nfoPath : m_nfoPathsInFolder)
 		{
-			m_nfoInFolderIndex = l_index;
-			break;
-		}
+			if(wcscmp(l_nfoPathFull, l_nfoPath.c_str()) == 0)
+			{
+				m_nfoInFolderIndex = l_index;
+				break;
+			}
 
-		++l_index;
+			++l_index;
+		}
+	}
+	else if(m_nfoPathsInFolder.size() > 0)
+	{
+		// if the file is gone, just start from the beginning:
+		m_nfoInFolderIndex = m_nfoPathsInFolder.size();
 	}
 
 	return (m_nfoInFolderIndex != (size_t)-1);
