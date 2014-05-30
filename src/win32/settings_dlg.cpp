@@ -72,10 +72,10 @@ BOOL CSettingsWindowDialog::OnInitDialog()
 	m_tabControl.AddTabPage(m_tabPageClassic, _T("Classic View"));
 	m_tabControl.AddTabPage(m_tabPageTextOnly, _T("Text-Only View"));
 
-/*#ifdef INFEKT_PLUGIN_HOST
+#ifdef INFEKT_PLUGIN_HOST
 	m_tabPagePlugins = new CSettingsTabDialog(this, TAB_PAGE_PLUGINS, IDD_TAB_PLUGINS);
 	m_tabControl.AddTabPage(m_tabPagePlugins, _T("Plugins"));
-#endif*/
+#endif
 
 	m_tabControl.SetItemSize(100, 20);
 	m_tabControl.SelectPage(0);
