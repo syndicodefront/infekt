@@ -29,7 +29,7 @@ public:
 		bCheckDefaultOnStartup(true),
 		bSingleInstanceMode(false),
 		bKeepOpenMRU(true),
-		bWrapLines(false),
+		bWrapLines(true),
 		bCenterWindow(true),
 		bAutoWidth(true),
 		bCenterNFO(true),

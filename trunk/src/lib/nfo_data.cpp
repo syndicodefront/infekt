@@ -451,13 +451,14 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 		}
 	}
 
-	if(lines_processed > 0)
+	if(lines_processed > 0 &&
+		lines_processed < a_lines.size() * 0.5) // https://code.google.com/p/infekt/issues/detail?id=91 - preserve some NFOs
 	{
 		a_newMaxLineLen = 0;
 
-		for(auto it = l_newLines.begin(); it != l_newLines.end(); it++)
+		for(const std::wstring& line : l_newLines)
 		{
-			a_newMaxLineLen = std::max(it->size(), a_newMaxLineLen);
+			a_newMaxLineLen = std::max(line.size(), a_newMaxLineLen);
 		}
 
 		a_lines = l_newLines;

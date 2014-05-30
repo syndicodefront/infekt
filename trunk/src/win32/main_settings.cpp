@@ -76,7 +76,7 @@ bool CMainSettings::LoadFromRegistry()
 		this->iLastView = dwLastView;
 	}
 
-	CMainSettings defaults(false);
+	const CMainSettings defaults(false);
 
 	this->bCopyOnSelect = l_sect->ReadBool(L"CopyOnSelect", defaults.bCopyOnSelect);
 	this->bAlwaysOnTop = l_sect->ReadBool(L"AlwaysOnTop", defaults.bAlwaysOnTop);
