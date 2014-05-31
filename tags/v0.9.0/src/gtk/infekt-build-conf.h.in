@@ -1,0 +1,7 @@
+#ifndef _INFEKT_BUILD_CONF_H
+#define _INFEKT_BUILD_CONF_H
+
+#define _PREFIX_ "@CMAKE_INSTALL_PREFIX@"
+
+#endif /* !_INFEKT_BUILD_CONF_H */
+
