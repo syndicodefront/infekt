@@ -590,7 +590,8 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
 			l_view->SetCenterNfo(l_settings->bCenterNFO);
 			l_view->SetOnDemandRendering(l_settings->bOnDemandRendering);
-			l_view->SetWrapLines(l_settings->bWrapLines);
+			l_view->SetCopyOnSelect(l_settings->bCopyOnSelect);
+			l_settings->SaveToRegistry();
 			break; }
 		default:
 			return FALSE;
@@ -1093,9 +1094,7 @@ bool CSettingsTabDialog::SaveSettings()
 		l_set->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
 
 		l_set->bWrapLines = (::IsDlgButtonChecked(m_hWnd, IDC_LINEWRAP) != FALSE);
-
-		// from Advanced... dialog:
-		CNFOApp::GetViewContainerInstance()->SetCopyOnSelect(l_set->bCopyOnSelect);
+		CNFOApp::GetViewContainerInstance()->SetWrapLines(l_set->bWrapLines);
 
 		return l_set->SaveToRegistry();
 	}
