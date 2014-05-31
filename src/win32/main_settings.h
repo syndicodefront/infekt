@@ -32,6 +32,7 @@ public:
 		bWrapLines(true),
 		bCenterWindow(true),
 		bAutoWidth(true),
+		bAutoHeight(false),
 		bCenterNFO(true),
 		bDefaultExportToNFODir(false),
 		bCloseOnEsc(false),
@@ -59,6 +60,7 @@ public:
 
 	bool bCenterWindow;
 	bool bAutoWidth;
+	bool bAutoHeight;
 	bool bCenterNFO;
 	bool bDefaultExportToNFODir;
 	bool bCloseOnEsc;
