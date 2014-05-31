@@ -20,7 +20,7 @@
 #include "resource.h"
 #endif
 
-#define NFOVWR_CTRL_CLASS_NAME _T("iNFEKT_NfoViewCtrl")
+#define NFOVWR_CTRL_CLASS_NAME _T("iNFekt_NfoViewCtrl")
 
 
 CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_classic)
