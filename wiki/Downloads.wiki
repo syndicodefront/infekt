@@ -11,7 +11,7 @@ The current release is 0.8.14 from February 27th 2014. [https://code.google.com/
 
 = Archive =
 
-[https://code.google.com/p/infekt/downloads/list?can=1&q=iNFEKT&sort=-uploaded&colspec=Filename%20Summary%20Uploaded%20Size Please click here for old versions.]
+[DownloadsArchive Please click here for old versions.]
 
 = Support =
 
