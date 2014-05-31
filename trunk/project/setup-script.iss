@@ -76,6 +76,15 @@ Type: files; Name: "{app}\cudart64_32_16.dll"
 Type: files; Name: "{app}\libpng15.dll"
 ; these 4 were used up to 0.8.5
 
+Type: files; Name: "{app}\MSVCP100.dll"
+Type: files; Name: "{app}\MSVCR100.dll"
+Type: files; Name: "{app}\VCOMP100.dll"
+Type: files; Name: "{app}\MSVCP110.dll"
+Type: files; Name: "{app}\MSVCR110.dll"
+Type: files; Name: "{app}\VCOMP110.dll"
+Type: files; Name: "{app}\VCAMP110.dll"
+; these should not be in the target directory, clean up in case of previous portable version at the same location etc.
+
 [UnInstallDelete]
 Type: files; Name: "{app}\infekt-nfo-shell.dll"
 ; in case someone copied this file into the program folder manually (when it has NOT been installed using the "shellpreview" task)
