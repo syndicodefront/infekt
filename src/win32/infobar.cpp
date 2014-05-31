@@ -16,7 +16,7 @@
 #include "infobar.h"
 #include "util.h"
 
-#define INFOBAR_CTRL_CLASS_NAME _T("iNFEKT_InfoBarCtrl")
+#define INFOBAR_CTRL_CLASS_NAME _T("iNFekt_InfoBarCtrl")
 
 #ifndef WM_THEMECHANGED
 #define WM_THEMECHANGED 0x31A

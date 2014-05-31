@@ -238,7 +238,7 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 		(a_pReq->flags & INFEKT_HTTP_REQ_CACHE_TEMP) != 0)
 	{
 		std::wstring l_cachePath = ((a_pReq->flags & INFEKT_HTTP_REQ_CACHE_PERM) != 0 ?
-			CUtilWin32::GetAppDataDir(true, L"iNFEKT") : CUtilWin32::GetTempDir());
+			CUtilWin32::GetAppDataDir(true, L"iNFekt") : CUtilWin32::GetTempDir());
 
 		std::wstring l_cacheFileName = CWinHttpClient::ExtractFileNameFromUrl(a_pReq->url);
 

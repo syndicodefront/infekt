@@ -109,7 +109,7 @@ void CMainFrame::PreCreate(CREATESTRUCT& cs)
 			cs.y = l_wa.bottom - cs.cy;
 
 		// this check is necessary in case the monitor setup
-		// has changed since the last time iNFEKT ran
+		// has changed since the last time iNFekt ran
 		if(cs.x < l_wa.left)
 			cs.x = l_wa.left;
 		if(cs.y < l_wa.top)

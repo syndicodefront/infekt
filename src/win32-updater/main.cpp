@@ -202,7 +202,7 @@ static void OnInstallerComplete(HWND hDlg, bool a_success)
 	{
 		SetDlgItemText(hDlg, IDC_STATUS, L"Update has been installed!");
 
-		::MessageBoxW(hDlg, L"Update complete! Click OK to run iNFEKT.", L"Great Success", MB_ICONINFORMATION);
+		::MessageBoxW(hDlg, L"Update complete! Click OK to run iNFekt.", L"Great Success", MB_ICONINFORMATION);
 
 		// try to launch main program( again):
 

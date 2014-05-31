@@ -263,7 +263,7 @@ int CNFOApp::ExtractStartupOptions(const wstring& a_commandLine)
 		}
 		else
 		{
-			::MessageBoxA(HWND_DESKTOP, l_message.c_str(), "iNFEKT", MB_ICONEXCLAMATION);
+			::MessageBoxA(HWND_DESKTOP, l_message.c_str(), "iNFekt", MB_ICONEXCLAMATION);
 		}
 	}
 
