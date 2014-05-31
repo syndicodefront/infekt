@@ -105,7 +105,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 310
         TOPMARGIN, 7
-        BOTTOMMARGIN, 144
+        BOTTOMMARGIN, 163
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -229,25 +229,25 @@ IDD_TAB_GENERAL DIALOGEX 0, 0, 337, 207
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
 BEGIN
-    GROUPBOX        "System Defaults",IDC_STATIC,7,7,323,34
+    GROUPBOX        "Startup",IDC_STATIC,7,7,323,66
     CONTROL         "Always check if iNFekt is the default NFO viewer on startup",IDC_CHECK_DEFAULT_VIEWER,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,22,207,10
     PUSHBUTTON      "Check Now",IDC_BUTTON_DEFAULT_VIEWER,259,19,62,14
-    GROUPBOX        "Miscellaneous",IDC_STATIC,7,43,323,69
-    CONTROL         "Always on Top",IDC_ALWAYSONTOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,74,63,10
-    CONTROL         "Copy on Select",IDC_COPY_ON_SELECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,57,64,10
-    CONTROL         "Show Menubar on Startup",IDC_MENUBAR_ON_STARTUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,57,99,10
-    LTEXT           "Default View:",IDC_STATIC,100,75,44,9
-    COMBOBOX        IDC_COMBO_DEFAULTVIEW,148,72,58,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Re-use Viewer window (single instance mode)",IDC_SINGLEINSTANCEMODE,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,91,161,10
-    GROUPBOX        "Theme/View Settings Export && Import",IDC_STATIC,7,115,323,40
-    PUSHBUTTON      "Export...",IDC_THEME_EXPORT,16,131,62,14
-    PUSHBUTTON      "Import...",IDC_THEME_IMPORT,85,131,62,14
+    CONTROL         "Always on top",IDC_ALWAYSONTOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,87,61,10
+    GROUPBOX        "Theme/View Settings Export && Import",IDC_STATIC,7,124,323,36
+    PUSHBUTTON      "Export...",IDC_THEME_EXPORT,16,139,62,14
+    PUSHBUTTON      "Import...",IDC_THEME_IMPORT,85,139,62,14
     LTEXT           "Static",IDC_SETTINGS_BACKEND_STATUS,10,190,209,8
-    CONTROL         "Remember recent files",IDC_REMEMBERMRU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,237,57,86,10
-    PUSHBUTTON      "Advanced...",IDC_BUTTON_ADVANCED,259,90,62,14
-    CONTROL         "Wrap long lines",IDC_LINEWRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,237,73,86,10
+    CONTROL         "Remember recent files",IDC_REMEMBERMRU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,122,87,86,10
+    PUSHBUTTON      "Advanced...",IDC_BUTTON_ADVANCED,261,100,62,14
+    CONTROL         "Wrap long lines",IDC_LINEWRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,122,102,86,10
+    CONTROL         "Escape key quits program",IDC_CLOSE_ON_ESC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,102,99,10
+    CONTROL         "Show menubar on startup",IDC_MENUBAR_ON_STARTUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,41,99,10
+    LTEXT           "Default view:",IDC_STATIC,215,42,44,9
+    COMBOBOX        IDC_COMBO_DEFAULTVIEW,263,40,58,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Re-use viewer window (single instance mode)",IDC_SINGLEINSTANCEMODE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,56,161,10
+    GROUPBOX        "",IDC_STATIC,7,76,323,44
 END
 
 IDD_TAB_VIEWSETTINGS DIALOGEX 0, 0, 337, 207
@@ -308,28 +308,29 @@ BEGIN
     CONTROL         "",IDC_PLUGIN_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_NOLABELWRAP | LVS_AUTOARRANGE | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,323,112
 END
 
-IDD_DLG_ADVANCED_SETTINGS DIALOGEX 0, 0, 317, 151
+IDD_DLG_ADVANCED_SETTINGS DIALOGEX 0, 0, 317, 170
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Advanced Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,205,130,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,260,130,50,14
+    DEFPUSHBUTTON   "OK",IDOK,205,149,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,260,149,50,14
     GROUPBOX        "Window Options",IDC_STATIC,7,7,303,49
     CONTROL         "Auto-center window on startup",IDC_CENTER_WINDOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,22,122,10
     CONTROL         "Use centered NFO view",IDC_CENTER_NFO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,38,121,10
     CONTROL         "Auto-adjust window width to NFO width",IDC_AUTO_WIDTH,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,22,148,10
-    GROUPBOX        "Miscellaneous",IDC_STATIC,7,59,303,32
+    GROUPBOX        "Miscellaneous",IDC_STATIC,7,59,303,47
     CONTROL         "Default to NFO's directory during export",IDC_EXPORT_NFO_DIR,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,74,159,10
-    CONTROL         "Escape key quits program",IDC_CLOSE_ON_ESC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,38,148,10
-    GROUPBOX        "Internals",IDC_STATIC,7,95,303,32
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,89,148,10
+    GROUPBOX        "Internals",IDC_STATIC,7,110,303,32
     CONTROL         "Use on-demand rendering for large files",IDC_ONDEMAND_RENDERING,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,109,148,10
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,124,148,10
     CONTROL         "Auto-refresh when file changes",IDC_MONITOR_FILE_CHANGES,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,173,74,116,10
-    CONTROL         "Enable hardware (GPU) acceleration",IDC_USE_GPU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,173,109,127,10
+    CONTROL         "Enable hardware (GPU) acceleration",IDC_USE_GPU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,173,124,127,10
+    CONTROL         "Copy on Select",IDC_COPY_ON_SELECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,73,64,10
+    CONTROL         "Auto-adjust window height",IDC_AUTO_HEIGHT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,39,148,10
 END
 
 

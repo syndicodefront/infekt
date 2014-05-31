@@ -42,6 +42,7 @@ bool CMainSettings::SaveToRegistry()
 
 	l_sect->WriteBool(L"CenterWindow", this->bCenterWindow);
 	l_sect->WriteBool(L"AutoWidth", this->bAutoWidth);
+	l_sect->WriteBool(L"AutoHeight", this->bAutoHeight);
 	l_sect->WriteBool(L"CenterNFO", this->bCenterNFO);
 	l_sect->WriteBool(L"DefaultExportToNFODir", this->bDefaultExportToNFODir);
 	l_sect->WriteBool(L"CloseOnEsc", this->bCloseOnEsc);
@@ -88,6 +89,7 @@ bool CMainSettings::LoadFromRegistry()
 
 	this->bCenterWindow = l_sect->ReadBool(L"CenterWindow", defaults.bCenterWindow);
 	this->bAutoWidth = l_sect->ReadBool(L"AutoWidth", defaults.bAutoWidth);
+	this->bAutoHeight = l_sect->ReadBool(L"AutoHeight", defaults.bAutoHeight);
 	this->bCenterNFO = l_sect->ReadBool(L"CenterNFO", defaults.bCenterNFO);
 	this->bDefaultExportToNFODir = l_sect->ReadBool(L"DefaultExportToNFODir", defaults.bDefaultExportToNFODir);
 	this->bCloseOnEsc = l_sect->ReadBool(L"CloseOnEsc", defaults.bCloseOnEsc);

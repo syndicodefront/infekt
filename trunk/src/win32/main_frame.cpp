@@ -889,6 +889,7 @@ void CMainFrame::UpdateAfterFileLoad()
 	UpdateStatusbar();
 
 	AdjustWindowToNFOWidth(true);
+	AdjustWindowToNFOHeight();
 
 	m_lastSearchTerm = L"";
 
@@ -978,6 +979,7 @@ void CMainFrame::OnAfterSettingsChanged() // meh
 		if(m_view.GetNfoData())
 		{
 			AdjustWindowToNFOWidth(true, false);
+			AdjustWindowToNFOHeight();
 		}
 	}
 }
@@ -1083,11 +1085,7 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 	l_desiredWidth += ::GetSystemMetrics(SM_CXSIZEFRAME) * 2;
 	l_desiredWidth += ::GetSystemMetrics(SM_CYVSCROLL);
 	l_desiredWidth += 20; // some extra padding
-
-	if(l_desiredWidth < ms_minWidth)
-	{
-		l_desiredWidth = ms_minWidth;
-	}
+	l_desiredWidth = std::max(l_desiredWidth, ms_minWidth);
 
 	RECT l_rc;
 	if(!::GetWindowRect(GetHwnd(), &l_rc))
@@ -1110,7 +1108,9 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 
 	// make sure windows don't go off-screen to the left:
 	if(l_rc.left < 0 && l_oldLeft >= 0)
+	{
 		l_rc.left = 0;
+	}
 
 	// set width:
 	l_rc.right = l_rc.left + l_desiredWidth;
@@ -1123,7 +1123,7 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 
 	if(::GetMonitorInfo(l_hMonitor, &l_moInfo))
 	{
-		RECT l_wa = l_moInfo.rcWork;
+		const RECT& l_wa = l_moInfo.rcWork;
 
 		// don't let the window grow larger than the size of the work area
 		if(l_rc.right - l_rc.left > l_wa.right - l_wa.left)
@@ -1143,6 +1143,70 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 		{
 			l_rc.bottom -= l_wa.top - l_rc.top;
 			l_rc.top = l_wa.top;
+		}
+	}
+
+	MoveWindow(l_rc);
+}
+
+
+void CMainFrame::AdjustWindowToNFOHeight()
+{
+	if(!m_settings->bAutoHeight)
+	{
+		return;
+	}
+
+	WINDOWPLACEMENT l_wpl = { sizeof(WINDOWPLACEMENT), 0 };
+
+	if(GetWindowPlacement(l_wpl) && l_wpl.showCmd == SW_MAXIMIZE)
+	{
+		return;
+	}
+
+	int l_desiredHeight = static_cast<int>(m_view.GetActiveCtrl()->GetHeight());
+
+	l_desiredHeight += ::GetSystemMetrics(SM_CYSIZEFRAME) * 2;
+	l_desiredHeight += ::GetSystemMetrics(SM_CYCAPTION);
+	l_desiredHeight += ::GetSystemMetrics(SM_CYHSCROLL);
+	l_desiredHeight += GetRebar().GetBarHeight();
+	// :TODO: InfoBar height if visible!
+	l_desiredHeight += GetStatusbar().GetWindowRect().Height();
+
+	l_desiredHeight = std::max(l_desiredHeight, ms_minHeight);
+	
+	RECT l_rc;
+	if(!::GetWindowRect(GetHwnd(), &l_rc) || l_desiredHeight == l_rc.bottom - l_rc.top)
+	{
+		return;
+	}
+
+	if(l_rc.top < 0)
+	{
+		l_rc.top = 0;
+	}
+
+	l_rc.bottom = l_rc.top + l_desiredHeight;
+
+	POINT l_pt = { l_rc.left, l_rc.top };
+	MONITORINFO l_moInfo = { sizeof(MONITORINFO), 0 };
+	HMONITOR l_hMonitor = ::MonitorFromPoint(l_pt, MONITOR_DEFAULTTONEAREST);
+
+	if(::GetMonitorInfo(l_hMonitor, &l_moInfo))
+	{
+		const RECT& l_wa = l_moInfo.rcWork;
+
+		// don't let the window grow larger than the size of the work area:
+		if(l_rc.bottom - l_rc.top > l_wa.bottom - l_wa.top)
+		{
+			l_rc.top = l_wa.top;
+			l_rc.bottom = l_wa.bottom;
+		}
+		// and center vertically otherwise:
+		else if(m_settings->bCenterWindow)
+		{
+			l_rc.top = (l_wa.top + (l_wa.bottom - l_wa.top) / 2) - l_desiredHeight / 2;
+			l_rc.bottom = l_rc.top + l_desiredHeight;
 		}
 	}
 

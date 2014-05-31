@@ -97,6 +97,7 @@ protected:
 	bool DoCharsetMenu(const LPNMMOUSE a_pnmm);
 	void UpdateStatusbar();
 	void AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly = false);
+	void AdjustWindowToNFOHeight();
 	void UpdateAfterFileLoad();
 
 	void CheckForUpdates();

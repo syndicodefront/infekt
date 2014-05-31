@@ -287,23 +287,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 	}
 	else if(m_pageId == TAB_PAGE_GENERAL)
 	{
-		HWND l_hCb = GetDlgItem(IDC_COMBO_DEFAULTVIEW);
-
-		ComboBox_AddString(l_hCb, _T("(Remember)"));
-		ComboBox_AddString(l_hCb, _T("Rendered"));
-		ComboBox_AddString(l_hCb, _T("Classic"));
-		ComboBox_AddString(l_hCb, _T("Text Only"));
-
-		const PMainSettings l_global = m_mainWin->GetSettings();
-
-		ComboBox_SetCurSel(l_hCb, (l_global->iDefaultView == -1 ? 0 : l_global->iDefaultView));
-
-		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, l_global->bAlwaysOnTop);
-		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, l_global->bAlwaysShowMenubar);
-		SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, l_global->bCopyOnSelect);
-		SET_DLG_CHECKBOX(IDC_SINGLEINSTANCEMODE, l_global->bSingleInstanceMode);
-		SET_DLG_CHECKBOX(IDC_REMEMBERMRU, l_global->bKeepOpenMRU);
-		SET_DLG_CHECKBOX(IDC_LINEWRAP, l_global->bWrapLines);
+		const PMainSettings& l_global = m_mainWin->GetSettings();
 
 		if(CUtilWin32::IsWin6x())
 		{
@@ -313,6 +297,23 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		}
 
 		SET_DLG_CHECKBOX(IDC_CHECK_DEFAULT_VIEWER, l_global->bCheckDefaultOnStartup && ::IsWindowEnabled(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER)));
+
+		HWND l_hCb = GetDlgItem(IDC_COMBO_DEFAULTVIEW);
+
+		ComboBox_AddString(l_hCb, _T("(Remember)"));
+		ComboBox_AddString(l_hCb, _T("Rendered"));
+		ComboBox_AddString(l_hCb, _T("Classic"));
+		ComboBox_AddString(l_hCb, _T("Text Only"));
+
+		ComboBox_SetCurSel(l_hCb, (l_global->iDefaultView == -1 ? 0 : l_global->iDefaultView));
+
+		SET_DLG_CHECKBOX(IDC_MENUBAR_ON_STARTUP, l_global->bAlwaysShowMenubar);
+		SET_DLG_CHECKBOX(IDC_SINGLEINSTANCEMODE, l_global->bSingleInstanceMode);
+
+		SET_DLG_CHECKBOX(IDC_ALWAYSONTOP, l_global->bAlwaysOnTop);
+		SET_DLG_CHECKBOX(IDC_REMEMBERMRU, l_global->bKeepOpenMRU);
+		SET_DLG_CHECKBOX(IDC_CLOSE_ON_ESC, l_global->bCloseOnEsc);
+		SET_DLG_CHECKBOX(IDC_LINEWRAP, l_global->bWrapLines);
 
 		const std::wstring l_info = L"Active settings backend: " +
 			CNFOApp::GetInstance()->GetSettingsBackend()->GetName();
@@ -1072,25 +1073,29 @@ bool CSettingsTabDialog::SaveSettings()
 	{
 		PMainSettings l_set = m_mainWin->GetSettings();
 
+		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
+
 		l_set->iDefaultView = ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_DEFAULTVIEW));
 		if(l_set->iDefaultView < 1 || l_set->iDefaultView >= _MAIN_VIEW_MAX)
 			l_set->iDefaultView = -1;
-
-		bool l_oldAot = l_set->bAlwaysOnTop;
-		l_set->bAlwaysOnTop = (::IsDlgButtonChecked(GetHwnd(), IDC_ALWAYSONTOP) != FALSE);
-		if(l_set->bAlwaysOnTop != l_oldAot) m_mainWin->UpdateAlwaysOnTop();
 
 		bool l_oldAsm = l_set->bAlwaysShowMenubar;
 		l_set->bAlwaysShowMenubar = (::IsDlgButtonChecked(GetHwnd(), IDC_MENUBAR_ON_STARTUP) != FALSE);
 		if(l_set->bAlwaysShowMenubar != l_oldAsm) m_mainWin->ShowMenuBar(l_set->bAlwaysShowMenubar);
 
-		l_set->bCopyOnSelect = (::IsDlgButtonChecked(GetHwnd(), IDC_COPY_ON_SELECT) != FALSE);
-		CNFOApp::GetViewContainerInstance()->SetCopyOnSelect(l_set->bCopyOnSelect);
-
-		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
 		l_set->bSingleInstanceMode = (::IsDlgButtonChecked(GetHwnd(), IDC_SINGLEINSTANCEMODE) != FALSE);
+
+		bool l_oldAot = l_set->bAlwaysOnTop;
+		l_set->bAlwaysOnTop = (::IsDlgButtonChecked(GetHwnd(), IDC_ALWAYSONTOP) != FALSE);
+		if(l_set->bAlwaysOnTop != l_oldAot) m_mainWin->UpdateAlwaysOnTop();
+
 		l_set->bKeepOpenMRU = (::IsDlgButtonChecked(GetHwnd(), IDC_REMEMBERMRU) != FALSE);
+		l_set->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
+
 		l_set->bWrapLines = (::IsDlgButtonChecked(m_hWnd, IDC_LINEWRAP) != FALSE);
+
+		// from Advanced... dialog:
+		CNFOApp::GetViewContainerInstance()->SetCopyOnSelect(l_set->bCopyOnSelect);
 
 		return l_set->SaveToRegistry();
 	}
@@ -1312,11 +1317,14 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 {
 	SET_DLG_CHECKBOX(IDC_CENTER_WINDOW, m_settings->bCenterWindow);
 	SET_DLG_CHECKBOX(IDC_AUTO_WIDTH, m_settings->bAutoWidth);
+	SET_DLG_CHECKBOX(IDC_AUTO_HEIGHT, m_settings->bAutoHeight);
 	SET_DLG_CHECKBOX(IDC_CENTER_NFO, m_settings->bCenterNFO);
+
+	SET_DLG_CHECKBOX(IDC_COPY_ON_SELECT, m_settings->bCopyOnSelect);
 	SET_DLG_CHECKBOX(IDC_EXPORT_NFO_DIR, m_settings->bDefaultExportToNFODir);
-	SET_DLG_CHECKBOX(IDC_CLOSE_ON_ESC, m_settings->bCloseOnEsc);
-	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
 	SET_DLG_CHECKBOX(IDC_MONITOR_FILE_CHANGES, m_settings->bMonitorFileChanges);
+
+	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
 
 #ifndef COMPACT_RELEASE
 	if(CUtilWin32::IsWin6x())
@@ -1339,11 +1347,14 @@ void CAdvancedSettingsWindowDialog::OnOK()
 {
 	m_settings->bCenterWindow = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_WINDOW) != FALSE);
 	m_settings->bAutoWidth = (::IsDlgButtonChecked(GetHwnd(), IDC_AUTO_WIDTH) != FALSE);
+	m_settings->bAutoHeight = (::IsDlgButtonChecked(GetHwnd(), IDC_AUTO_HEIGHT) != FALSE);
 	m_settings->bCenterNFO = (::IsDlgButtonChecked(GetHwnd(), IDC_CENTER_NFO) != FALSE);
+
+	m_settings->bCopyOnSelect = (::IsDlgButtonChecked(GetHwnd(), IDC_COPY_ON_SELECT) != FALSE);
 	m_settings->bDefaultExportToNFODir = (::IsDlgButtonChecked(GetHwnd(), IDC_EXPORT_NFO_DIR) != FALSE);
-	m_settings->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
-	m_settings->bOnDemandRendering = (::IsDlgButtonChecked(GetHwnd(), IDC_ONDEMAND_RENDERING) != FALSE);
 	m_settings->bMonitorFileChanges = (::IsDlgButtonChecked(GetHwnd(), IDC_MONITOR_FILE_CHANGES) != FALSE);
+
+	m_settings->bOnDemandRendering = (::IsDlgButtonChecked(GetHwnd(), IDC_ONDEMAND_RENDERING) != FALSE);	
 	m_settings->bUseGPU = (::IsDlgButtonChecked(GetHwnd(), IDC_USE_GPU) != FALSE);
 
 	CDialog::OnOK();
