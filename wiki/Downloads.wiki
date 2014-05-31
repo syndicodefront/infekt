@@ -1,13 +1,13 @@
 #labels Phase-Deploy
 = Current Version =
 
-The current release is 0.8.14 from February 27th 2014. [https://code.google.com/p/infekt/wiki/Changelog Changelog]
+The current release is v0.9.0 from May 31st 2014. [https://code.google.com/p/infekt/wiki/Changelog Changelog]
 
-  * *[http://syndicode.org/infekt/downloads/v0.8.14/iNFekt-v0.8.14-setup.exe iNFekt for Windows: Version 0.8.14 - Complete installation package] - recommended download*
-  * [http://syndicode.org/infekt/downloads/v0.8.14/iNFekt-v0.8.14-SuperCompact.rar iNFekt for Windows: Version 0.8.14 - Super Compact Portable version] - only two files - restrictions: no GPU acceleration
-  * [http://syndicode.org/infekt/downloads/v0.8.14/iNFekt-v0.8.14-32bit-Portable.rar iNFekt for Windows: Version 0.8.14 - 32 bit portable release]
-  * [http://syndicode.org/infekt/downloads/v0.8.14/iNFekt-v0.8.14-64bit-Portable.rar iNFekt for Windows: Version 0.8.14 - 64 bit portable release]
-  * [http://syndicode.org/infekt/downloads/v0.8.14/iNFektPortable_v0.8.14_English.paf.exe iNFekt for Windows: Version 0.8.14 - PortableApps.com edition]
+  * *[http://syndicode.org/infekt/downloads/v0.9.0/iNFekt-v0.9.0-setup.exe iNFekt for Windows: Version 0.9.0 - Complete installation package] - recommended download*
+  * [http://syndicode.org/infekt/downloads/v0.9.0/iNFekt-v0.9.0-SuperCompact.rar iNFekt for Windows: Version 0.9.0 - Super Compact Portable version] - only two files - restrictions: no GPU acceleration
+  * [http://syndicode.org/infekt/downloads/v0.9.0/iNFekt-v0.9.0-32bit-Portable.rar iNFekt for Windows: Version 0.9.0 - 32 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.9.0/iNFekt-v0.9.0-64bit-Portable.rar iNFekt for Windows: Version 0.9.0 - 64 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.9.0/iNFektPortable_v0.9.0_English.paf.exe iNFekt for Windows: Version 0.9.0 - PortableApps.com edition]
 
 = Archive =
 
