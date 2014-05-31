@@ -9,6 +9,7 @@
   * Added support for CRCRLF line ending sequence ("Windows XP notepad word wrap bug") - issue 92
   * Added "auto-adjust window height" feature (default off) - issue 95
   * Moved around some options in the preferences dialogs
+  * Changed line-wrap behavior to only wrap if less than 50% of all lines are affected. Not perfect for really short NFOs, but great for NFOs with huge art blocks that exceed 80 chars.
   * PCRE update to 8.35
   * libpng update to 1.6.10
   * Minor fixes and improvements
