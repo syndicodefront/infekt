@@ -1,9 +1,17 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
-== v0.9 (???) ==
-  * Added plugin selection list to the preferences
-  * Made working Imdb plugin
+== v0.9.0 (May 31st 2014) ==
+  * Enabled plugin selection list in the preferences
+  * First plugin: ReScene - it can read .srr files and show the first embedded .nfo in iNFEKT - issue 93
+  * Fixed handling of files that are deleted or moved while being viewed
+  * Tweaked handling of IMDb links a bit - issue 94
+  * Added support for CRCRLF line ending sequence ("Windows XP notepad word wrap bug") - issue 92
+  * Added "auto-adjust window height" feature (default off) - issue 95
+  * Moved around some options in the preferences dialogs
+  * PCRE update to 8.35
+  * libpng update to 1.6.10
+  * Minor fixes and improvements
 
 == v0.8.14 (February 27th 2014) ==
   * Improved shell integration (preview and thumbnails) - issue 44 / issue 89
