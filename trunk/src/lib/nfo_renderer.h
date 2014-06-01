@@ -199,6 +199,7 @@ protected:
 	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);
 
 	void ClearStripes();
+	void CalcStripeDimensions();
 	void WaitForPreRender();
 	void StopPreRendering(bool a_cancel = false);
 	void PreRender();

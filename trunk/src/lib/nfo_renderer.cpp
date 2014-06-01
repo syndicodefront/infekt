@@ -209,6 +209,11 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	int source_x, int source_y, // coordinates between 0 and GetHeight() / GetWidth()
 	int a_width, int a_height)
 {
+	if(m_onDemandRendering && m_numStripes == 0)
+	{
+		CalcStripeDimensions();
+	}
+
 	if(!m_onDemandRendering || m_numStripes == 1)
 	{
 		if(!m_rendered && !Render())
@@ -356,7 +361,9 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 
 	if(!m_rendered)
 	{
-		ClearStripes();
+		StopPreRendering();
+
+		m_stripes.clear();
 
 		if(m_classic)
 		{
@@ -369,36 +376,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 			PreRenderText();
 		}
 
-		// recalculate stripe dimensions:
-
-#ifndef COMPACT_RELEASE
-		// 2 CPU cores <=> 2000 px stripe height
-		// ==> 8 CPU cores <=> 250
-		// (= more threads)
-		// but: never use less than 500px per stripe.
-		size_t l_stripeHeightMaxForCores = std::max(2000 * 2 / omp_get_num_procs(), 500);
-#else
-		size_t l_stripeHeightMaxForCores = 2000;
-#endif /* COMPACT_RELEASE */
-
-		size_t l_stripeHeightMax = std::max(l_stripeHeightMaxForCores, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
-
-		size_t l_numStripes = GetHeight() / l_stripeHeightMax; // implicit floor()
-		if(l_numStripes == 0) l_numStripes = 1;
-		size_t l_linesPerStripe = m_nfo->GetGridHeight() / l_numStripes; // implicit floor()
-
-		while(l_linesPerStripe * l_numStripes < m_nfo->GetGridHeight())
-		{
-			// correct rounding errors
-			l_numStripes++;
-		}
-
-		// storing these three is a bit redundant, but saves code & calculations in other places:
-		m_linesPerStripe = l_linesPerStripe;
-		m_stripeHeight = static_cast<int>(l_linesPerStripe * GetBlockHeight());
-		m_numStripes = l_numStripes;
-
-		_ASSERT(m_stripeHeight * m_numStripes + GetPadding() * 2 >= GetHeight());
+		CalcStripeDimensions();
 	}
 
 	std::vector<size_t> l_changedStripes;
@@ -441,6 +419,44 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 	m_rendered = true;
 
 	return true;
+}
+
+
+void CNFORenderer::CalcStripeDimensions()
+{
+	if(!m_nfo || !m_gridData)
+	{
+		return;
+	}
+
+#ifndef COMPACT_RELEASE
+	// 2 CPU cores <=> 2000 px stripe height
+	// ==> 8 CPU cores <=> 250
+	// (= more threads)
+	// but: never use less than 500px per stripe.
+	size_t l_stripeHeightMaxForCores = std::max(2000 * 2 / omp_get_num_procs(), 500);
+#else
+	size_t l_stripeHeightMaxForCores = 2000;
+#endif /* COMPACT_RELEASE */
+
+	size_t l_stripeHeightMax = std::max(l_stripeHeightMaxForCores, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
+
+	size_t l_numStripes = GetHeight() / l_stripeHeightMax; // implicit floor()
+	if(l_numStripes == 0) l_numStripes = 1;
+	size_t l_linesPerStripe = m_nfo->GetGridHeight() / l_numStripes; // implicit floor()
+
+	while(l_linesPerStripe * l_numStripes < m_nfo->GetGridHeight())
+	{
+		// correct rounding errors
+		l_numStripes++;
+	}
+
+	// storing these three is a bit redundant, but saves code & calculations in other places:
+	m_linesPerStripe = l_linesPerStripe;
+	m_stripeHeight = static_cast<int>(l_linesPerStripe * GetBlockHeight());
+	m_numStripes = l_numStripes;
+
+	_ASSERT(m_stripeHeight * m_numStripes + GetPadding() * 2 >= GetHeight());
 }
 
 
@@ -1413,12 +1429,17 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 
 void CNFORenderer::SetZoom(unsigned int a_percent)
 {
-	m_zoomFactor = a_percent / 100.0f;
+	unsigned int l_oldPercent = static_cast<unsigned int>(m_zoomFactor * 100);
 
-	ClearStripes();
+	if(a_percent != l_oldPercent)
+	{
+		m_zoomFactor = a_percent / 100.0f;
 
-	m_fontSize = -1;
-	m_rendered = false;
+		ClearStripes();
+
+		m_fontSize = -1;
+		m_rendered = false;
+	}
 }
 
 
@@ -1535,6 +1556,10 @@ void CNFORenderer::ClearStripes()
 	StopPreRendering();
 
 	m_stripes.clear();
+
+	m_stripeHeight = 0;
+	m_numStripes = 0;
+	m_linesPerStripe = 0;
 }
 
 
