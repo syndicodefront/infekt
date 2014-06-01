@@ -1,0 +1,432 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// German (Germany) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // German (Germany) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DLG_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 348
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 250
+    END
+
+    IDD_TAB_GENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 330
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 200
+    END
+
+    IDD_TAB_VIEWSETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 330
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 200
+    END
+
+    IDD_ABOUT, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 98
+    END
+
+    IDD_TAB_PLUGINS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 330
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 200
+    END
+
+    IDD_DLG_ADVANCED_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 310
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 163
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAIN_MENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Open...\tCtrl+O",             IDM_FILE_OPEN
+        MENUITEM SEPARATOR
+        POPUP "&Export"
+        BEGIN
+            MENUITEM "As PNG...\tCtrl+P",           IDM_EXPORT_PNG
+            MENUITEM "As PNG (transparent)...",     IDM_EXPORT_PNG_TRANSP
+            MENUITEM SEPARATOR
+            MENUITEM "As UTF-8 Text File...\tCtrl+S", IDM_EXPORT_UTF8
+            MENUITEM "As UTF-16 Text File...",      IDM_EXPORT_UTF16
+            MENUITEM "As CP 437 NFO File...",       IDM_EXPORT_CP437
+            MENUITEM SEPARATOR
+            MENUITEM "As HTML...",                  IDM_EXPORT_XHTML
+            MENUITEM SEPARATOR
+            MENUITEM "As PDF...",                   IDM_EXPORT_PDF
+            MENUITEM "As PDF (DIN Size)...",        IDM_EXPORT_PDF_DIN
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Exit\tAlt+F4",                IDM_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "Rendered\tF2",                IDM_VIEW_RENDERED
+        MENUITEM "Classic\tF3",                 IDM_VIEW_CLASSIC
+        MENUITEM "Text Only\tF4",               IDM_VIEW_TEXTONLY
+        MENUITEM SEPARATOR
+        MENUITEM "Reload\tF5",                  IDM_VIEW_RELOAD
+        MENUITEM "Optimal Width",               IDM_OPTIWIDTH
+        MENUITEM SEPARATOR
+        POPUP "Zoom"
+        BEGIN
+            MENUITEM "Zoom In\tCtrl++",             IDM_ZOOM_IN
+            MENUITEM "Zoom Out\tCtrl+-",            IDM_ZOOM_OUT
+            MENUITEM SEPARATOR
+            MENUITEM "Reset\tCtrl+0",               IDM_ZOOM_RESET
+        END
+        MENUITEM SEPARATOR
+        MENUITEM "Always on Top\tCtrl+T",       IDM_ALWAYSONTOP
+        MENUITEM "Show Status bar",             IDM_SHOWSTATUSBAR
+        MENUITEM "Show Toolbar",                IDM_VIEW_SHOWTOOLBAR
+    END
+    POPUP "&Tools"
+    BEGIN
+        MENUITEM "Settings\tF6",                IDM_SETTINGS
+        MENUITEM SEPARATOR
+        MENUITEM "Next NFO\tK",                 IDM_TOOLS_NEXTNFO
+        MENUITEM "Previous NFO\tJ",             IDM_TOOLS_PREVIOUSNFO
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "Check for Updates...",        IDM_CHECKFORUPDATES
+        MENUITEM SEPARATOR
+        MENUITEM "About...\tF1",                IDM_ABOUT
+    END
+END
+
+IDR_CONTEXT_MENU MENU
+BEGIN
+    POPUP "."
+    BEGIN
+        MENUITEM "Copy\tCtrl+C",                IDMC_COPY
+        MENUITEM "Select All\tCtrl+A",          IDMC_SELECTALL
+        MENUITEM SEPARATOR
+        MENUITEM "Copy Shortcut",               IDMC_COPYSHORTCUT
+        MENUITEM SEPARATOR
+        MENUITEM "Always on Top\tCtrl+T",       IDMC_ALWAYSONTOP
+        MENUITEM "Toggle Toolbar\tCtrl+G",      IDMC_TOGGLE_TOOLBAR
+        MENUITEM SEPARATOR
+        MENUITEM "Reload\tF5",                  IDMC_RELOAD
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_PNG_FILEOPEN        PNG                     "icons\\folder_txt.png"
+IDB_PNG_INFO            PNG                     "icons\\info.png"
+IDB_PNG_SETTINGS        PNG                     "icons\\advancedsettings.png"
+IDB_PNG_VIEW_CLASSIC    PNG                     "icons\\mime_colorset.png"
+IDB_PNG_VIEW_TEXTONLY   PNG                     "icons\\template_source.png"
+IDB_PNG_VIEW_RENDERED   PNG                     "icons\\kllckety_doc.png"
+IDB_PNG_SHOWMENU        PNG                     "icons\\view_top_bottom.png"
+IDB_PNG_FIND16          PNG                     "icons\\find.png"
+IDB_PNG_CLOSE16         PNG                     "icons\\fileclose.png"
+IDB_PNG_DOWN16          PNG                     "icons\\1downarrow.png"
+IDB_PNG_UP16            PNG                     "icons\\1uparrow.png"
+IDB_PNG_WARNING16       PNG                     "icons\\messagebox_warning.png"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DLG_SETTINGS DIALOGEX 0, 0, 355, 257
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "iNFekt - Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,245,236,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,298,236,50,14
+    CONTROL         "",IDC_SETTINGS_TAB,"SysTabControl32",TCS_MULTILINE | TCS_FIXEDWIDTH | WS_TABSTOP,7,7,341,224
+END
+
+IDD_TAB_GENERAL DIALOGEX 0, 0, 337, 207
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "Startup",IDC_STATIC,7,7,323,66
+    CONTROL         "Always check if iNFekt is the default NFO viewer on startup",IDC_CHECK_DEFAULT_VIEWER,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,22,207,10
+    PUSHBUTTON      "Check Now",IDC_BUTTON_DEFAULT_VIEWER,259,19,62,14
+    CONTROL         "Always on top",IDC_ALWAYSONTOP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,87,61,10
+    GROUPBOX        "Theme/View Settings Export && Import",IDC_STATIC,7,124,323,36
+    PUSHBUTTON      "Export...",IDC_THEME_EXPORT,16,139,62,14
+    PUSHBUTTON      "Import...",IDC_THEME_IMPORT,85,139,62,14
+    LTEXT           "Static",IDC_SETTINGS_BACKEND_STATUS,10,190,209,8
+    CONTROL         "Remember recent files",IDC_REMEMBERMRU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,122,87,86,10
+    PUSHBUTTON      "Advanced...",IDC_BUTTON_ADVANCED,261,100,62,14
+    CONTROL         "Wrap long lines",IDC_LINEWRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,122,102,86,10
+    CONTROL         "Escape key quits program",IDC_CLOSE_ON_ESC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,102,99,10
+    CONTROL         "Show menubar on startup",IDC_MENUBAR_ON_STARTUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,41,99,10
+    LTEXT           "Default view:",IDC_STATIC,215,42,44,9
+    COMBOBOX        IDC_COMBO_DEFAULTVIEW,263,40,58,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Re-use viewer window (single instance mode)",IDC_SINGLEINSTANCEMODE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,56,161,10
+    GROUPBOX        "",IDC_STATIC,7,76,323,44
+END
+
+IDD_TAB_VIEWSETTINGS DIALOGEX 0, 0, 337, 207
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x0
+BEGIN
+    GROUPBOX        "Flags",IDC_STATIC,7,7,323,51
+    CONTROL         "Activate Glow Effect",IDC_ACTIVATE_GLOW,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,112,22,81,10
+    GROUPBOX        "Colors",IDC_STATIC,7,60,323,76
+    LTEXT           "Background:",IDC_STATIC,15,99,41,8
+    LTEXT           "Block Art:",IDC_LABEL_ART,125,99,32,8
+    LTEXT           "Glow Effect:",IDC_GLOW_LABEL1,229,76,40,8
+    LTEXT           "Normal Text:",IDC_STATIC,15,76,42,8
+    CONTROL         "",IDC_CLR_TEXT,"Button",BS_OWNERDRAW | WS_TABSTOP,62,74,50,14,WS_EX_STATICEDGE
+    CONTROL         "Highlight Hyperlinks",IDC_HILIGHT_LINKS,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,22,78,10
+    CONTROL         "Underline Hyperlinks",IDC_UNDERL_LINKS,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,15,39,81,10
+    LTEXT           "Glow Radius:",IDC_GLOW_LABEL2,112,40,42,8
+    CONTROL         "",IDC_GLOW_RADIUS,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,156,37,100,15
+    PUSHBUTTON      "Preview",IDC_PREVIEW_BTN,277,119,50,14
+    CONTROL         "",IDC_CLR_BACK,"Button",BS_OWNERDRAW | WS_TABSTOP,62,97,50,14,WS_EX_STATICEDGE
+    CONTROL         "",IDC_CLR_GAUSS,"Button",BS_OWNERDRAW | WS_TABSTOP,271,74,50,14,WS_EX_STATICEDGE
+    CONTROL         "Synchronize settings from Rendered View",IDC_SYNC_FROM_RENDERED,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,8,193,149,10
+    CONTROL         "Synchronize settings from Classic View",IDC_SYNC_FROM_NORMAL,
+                    "Button",BS_AUTOCHECKBOX | BS_NOTIFY | NOT WS_VISIBLE | WS_DISABLED | WS_TABSTOP,191,193,139,10
+    LTEXT           "The Windows color picker does not support an alpha channel setting, so you have to edit the Registry to change that until we made our own picker.",IDC_STATIC,15,117,244,16
+    LTEXT           "Hyperlinks:",IDC_STATIC,126,76,36,8
+    CONTROL         "",IDC_CLR_LINKS,"Button",BS_OWNERDRAW | WS_TABSTOP,165,74,50,14,WS_EX_STATICEDGE
+    CONTROL         "",IDC_CLR_ART,"Button",BS_OWNERDRAW | WS_TABSTOP,165,98,50,14,WS_EX_STATICEDGE
+    LTEXT           "100",IDC_GLOW_RADIUS_LABEL,255,40,22,9
+    GROUPBOX        "Font",IDC_STATIC,7,139,323,49
+    CONTROL         "Enable Anti-Aliasing",IDC_FONT_ANTIALIAS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,245,150,77,10
+    LTEXT           "Font Family:",IDC_STATIC,14,153,40,8
+    COMBOBOX        IDC_FONTNAME_COMBO,56,149,105,30,CBS_DROPDOWNLIST | CBS_OWNERDRAWFIXED | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_FONT_SIZE_EDIT2,104,170,39,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_FONT_SIZE_EDIT,56,170,39,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Font Size:",IDC_FONTSIZE_LABEL,14,173,33,8
+    LTEXT           "(Width × Height)",IDC_BLOCKSIZE_LABEL2,148,173,55,8
+    LTEXT           "Block Size:",IDC_BLOCKSIZE_LABEL,14,172,34,8
+    CONTROL         "",IDC_FONT_SIZE_SPIN,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,84,168,9,13
+    CONTROL         "",IDC_FONT_SIZE_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_ARROWKEYS,134,168,9,13
+    COMBOBOX        IDC_FONTSIZE_COMBO,56,170,49,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Glow Effect for ANSI Art",IDC_GLOW_ANSI,"Button",BS_AUTOCHECKBOX | BS_NOTIFY | WS_TABSTOP,213,22,94,10
+END
+
+IDD_ABOUT DIALOGEX 0, 0, 232, 135
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,175,114,50,14
+END
+
+IDD_TAB_PLUGINS DIALOGEX 0, 0, 337, 207
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_PLUGIN_LIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_NOLABELWRAP | LVS_AUTOARRANGE | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,323,112
+END
+
+IDD_DLG_ADVANCED_SETTINGS DIALOGEX 0, 0, 317, 170
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Advanced Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,205,149,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,260,149,50,14
+    GROUPBOX        "Window Options",IDC_STATIC,7,7,303,49
+    CONTROL         "Auto-center window on startup",IDC_CENTER_WINDOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,22,122,10
+    CONTROL         "Use centered NFO view",IDC_CENTER_NFO,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,38,121,10
+    CONTROL         "Auto-adjust window width to NFO width",IDC_AUTO_WIDTH,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,22,148,10
+    GROUPBOX        "Miscellaneous",IDC_STATIC,7,59,303,47
+    CONTROL         "Default to NFO's directory during export",IDC_EXPORT_NFO_DIR,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,89,148,10
+    GROUPBOX        "Internals",IDC_STATIC,7,110,303,32
+    CONTROL         "Use on-demand rendering for large files",IDC_ONDEMAND_RENDERING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,124,148,10
+    CONTROL         "Auto-refresh when file changes",IDC_MONITOR_FILE_CHANGES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,173,74,116,10
+    CONTROL         "Enable hardware (GPU) acceleration",IDC_USE_GPU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,173,124,127,10
+    CONTROL         "Copy on Select",IDC_COPY_ON_SELECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,73,64,10
+    CONTROL         "Auto-adjust window height",IDC_AUTO_HEIGHT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,39,148,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAIN_KEYBOARD_SHORTCUTS ACCELERATORS
+BEGIN
+    "T",            IDM_ALWAYSONTOP,        VIRTKEY, CONTROL, NOINVERT
+    "P",            IDM_EXPORT_PNG,         VIRTKEY, CONTROL, NOINVERT
+    "S",            IDM_EXPORT_UTF8,        VIRTKEY, CONTROL, NOINVERT
+    "O",            IDM_FILE_OPEN,          VIRTKEY, CONTROL, NOINVERT
+    "F",            IDM_FINDTEXT,           VIRTKEY, CONTROL, NOINVERT
+    VK_F12,         IDM_HIDDENGIMMICK,      VIRTKEY, NOINVERT
+    VK_F6,          IDM_SETTINGS,           VIRTKEY, NOINVERT
+    "K",            IDM_TOOLS_NEXTNFO,      VIRTKEY, NOINVERT
+    "J",            IDM_TOOLS_PREVIOUSNFO,  VIRTKEY, NOINVERT
+    VK_F3,          IDM_VIEW_CLASSIC,       VIRTKEY, NOINVERT
+    "R",            IDM_VIEW_RELOAD,        VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          IDM_VIEW_RELOAD,        VIRTKEY, NOINVERT
+    VK_F2,          IDM_VIEW_RENDERED,      VIRTKEY, NOINVERT
+    VK_F4,          IDM_VIEW_TEXTONLY,      VIRTKEY, NOINVERT
+    VK_ADD,         IDM_ZOOM_IN,            VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_PLUS,    IDM_ZOOM_IN,            VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_MINUS,   IDM_ZOOM_OUT,           VIRTKEY, CONTROL, NOINVERT
+    VK_SUBTRACT,    IDM_ZOOM_OUT,           VIRTKEY, CONTROL, NOINVERT
+    "0",            IDM_ZOOM_RESET,         VIRTKEY, CONTROL, NOINVERT
+    VK_NUMPAD0,     IDM_ZOOM_RESET,         VIRTKEY, CONTROL, NOINVERT
+    "C",            IDMC_COPY,              VIRTKEY, CONTROL, NOINVERT
+    "A",            IDMC_SELECTALL,         VIRTKEY, CONTROL, NOINVERT
+    "G",            IDM_VIEW_SHOWTOOLBAR,   VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APPICON             ICON                    "iNFEKT_icon_by_railgun.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,9,2,0
+ PRODUCTVERSION 0,9,2,0
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "http://code.google.com/p/infekt/ - This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation."
+            VALUE "CompanyName", "cxxjoe Development"
+            VALUE "FileDescription", "iNFekt NFO Viewer"
+            VALUE "FileVersion", "0.9.2.0"
+            VALUE "InternalName", "iNFekt"
+            VALUE "LegalCopyright", "Copyright © 2010-2014 cxxjoe & Contributors"
+            VALUE "OriginalFilename", "infekt-winXX.exe"
+            VALUE "ProductName", "iNFekt"
+            VALUE "ProductVersion", "0.9.2.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
