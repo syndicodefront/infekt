@@ -46,7 +46,7 @@ protected:
 	class CLinkRegEx
 	{
 	public:
-		CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto = false);
+		CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto = false, bool a_caseless = true);
 
 		pcre *GetRE() const { return m_re; }
 		pcre_extra *GetStudy() const { return m_study; }
