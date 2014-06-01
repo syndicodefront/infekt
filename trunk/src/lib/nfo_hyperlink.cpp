@@ -51,7 +51,7 @@ CNFOHyperLink::CNFOHyperLink(int a_linkID, const wstring& a_href, size_t a_row, 
 	ms_linkTriggers.push_back(TRGR("(tinyurl|twitter|facebook|imgur|youtube)\\.com", false));
 	ms_linkTriggers.push_back(TRGR("(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)", false));
 
-	ms_linkTriggers.push_back(PLinkRegEx(new CLinkRegEx("[a-zA-Z0-9._=-]+@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-z]+", false, true)));
+	ms_linkTriggers.push_back(PLinkRegEx(new CLinkRegEx("[a-zA-Z0-9]+(?:[a-zA-Z0-9._=-]*)@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}", false, true, false)));
 
 	// all link continuations must appear *after* non-continuations in the list:
 
@@ -274,13 +274,13 @@ std::vector<CNFOHyperLink::PLinkRegEx> CNFOHyperLink::ms_linkTriggers;
 /**
  * CLinkRegEx constructor
  */
-CNFOHyperLink::CLinkRegEx::CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto)
+CNFOHyperLink::CLinkRegEx::CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto, bool a_caseless)
 {
 	const char *szErrDescr = NULL;
 	int iErrOffset;
 
 	m_re = pcre_compile(regex_str,
-		PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK,
+		PCRE_UTF8 | PCRE_NO_UTF8_CHECK | (a_caseless ? PCRE_CASELESS : 0),
 		&szErrDescr, &iErrOffset, NULL);
 	_ASSERT(m_re != NULL);
 	// no further error handling because all the regex are hardcoded
