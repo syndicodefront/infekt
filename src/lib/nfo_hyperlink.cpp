@@ -49,7 +49,7 @@ CNFOHyperLink::CNFOHyperLink(int a_linkID, const wstring& a_href, size_t a_row, 
 	ms_linkTriggers.push_back(TRGR("imdb\\.com", false));
 	ms_linkTriggers.push_back(TRGR("(imdb|ofdb|cinefacts|zelluloid|kino)\\.de", false));
 	ms_linkTriggers.push_back(TRGR("(tinyurl|twitter|facebook|imgur|youtube)\\.com", false));
-	ms_linkTriggers.push_back(TRGR("(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)", false));
+	ms_linkTriggers.push_back(TRGR("\\b(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)/", false));
 
 	ms_linkTriggers.push_back(PLinkRegEx(new CLinkRegEx("[a-zA-Z0-9]+(?:[a-zA-Z0-9._=-]*)@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}", false, true, false)));
 
@@ -275,6 +275,7 @@ std::vector<CNFOHyperLink::PLinkRegEx> CNFOHyperLink::ms_linkTriggers;
  * CLinkRegEx constructor
  */
 CNFOHyperLink::CLinkRegEx::CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto, bool a_caseless)
+	: m_reString(regex_str), m_cont(a_cont), m_mailto(a_mailto)
 {
 	const char *szErrDescr = NULL;
 	int iErrOffset;
@@ -286,7 +287,4 @@ CNFOHyperLink::CLinkRegEx::CLinkRegEx(const char* regex_str, bool a_cont, bool a
 	// no further error handling because all the regex are hardcoded
 
 	m_study = pcre_study(m_re, 0, &szErrDescr);
-
-	m_cont = a_cont;
-	m_mailto = a_mailto;
 }

@@ -59,6 +59,7 @@ protected:
 			if(m_re) pcre_free(m_re);
 		}
 	protected:
+		const char *m_reString;
 		pcre *m_re;
 		pcre_extra* m_study;
 		bool m_cont;
