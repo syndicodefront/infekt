@@ -1275,21 +1275,12 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 
 	if(a_utf8)
 	{
-		// write signature
-		unsigned char l_sig[3] = { 0xEF, 0xBB, 0xBF };
-		l_written += fwrite(l_sig, 1, sizeof(l_sig), l_file);
+		unsigned char l_signature[3] = { 0xEF, 0xBB, 0xBF };
+		l_written += fwrite(l_signature, 1, sizeof(l_signature), l_file);
 
-		std::string l_contents;
-
-		// dump contents
-		if(a_compoundWhitespace)
-		{
-			l_contents = CUtil::FromWideStr(GetWithBoxedWhitespace(), CP_UTF8);
-		}
-		else
-		{
-			l_contents = GetTextUtf8();
-		}
+		const std::string& l_contents = (a_compoundWhitespace
+			? CUtil::FromWideStr(GetWithBoxedWhitespace(), CP_UTF8)
+			: GetTextUtf8());
 
 		l_written += fwrite(l_contents.c_str(), l_contents.size(), 1, l_file);
 
@@ -1297,21 +1288,14 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 	}
 	else
 	{
-		// write BOM
 		unsigned char l_bom[2] = { 0xFF, 0xFE };
 		l_written += fwrite(l_bom, 1, sizeof(l_bom), l_file);
 
-		// dump contents
-		if(a_compoundWhitespace)
-		{
-			const std::wstring l_buf = GetWithBoxedWhitespace();
+		const std::wstring& l_contents = (a_compoundWhitespace
+			? GetWithBoxedWhitespace()
+			: m_textContent);
 
-			l_written += fwrite(l_buf.c_str(), l_buf.size(), sizeof(wchar_t), l_file);
-		}
-		else
-		{
-			l_written += fwrite(m_textContent.c_str(), m_textContent.size(), sizeof(wchar_t), l_file);
-		}
+		l_written += fwrite(l_contents.c_str(), l_contents.size(), sizeof(wchar_t), l_file);
 
 		l_success = (l_written == 4);
 	}
