@@ -1279,18 +1279,19 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 		unsigned char l_sig[3] = { 0xEF, 0xBB, 0xBF };
 		l_written += fwrite(l_sig, 1, sizeof(l_sig), l_file);
 
+		std::string l_contents;
+
 		// dump contents
 		if(a_compoundWhitespace)
 		{
-			const std::string l_buf = CUtil::FromWideStr(GetWithBoxedWhitespace(), CP_UTF8);
-
-			l_written += fwrite(l_buf.c_str(), l_buf.size(), 1, l_file);
+			l_contents = CUtil::FromWideStr(GetWithBoxedWhitespace(), CP_UTF8);
 		}
 		else
 		{
-			const std::string l_utf8Content = GetTextUtf8();
-			l_written += fwrite(l_utf8Content.c_str(), l_utf8Content.size(), 1, l_file);
+			l_contents = GetTextUtf8();
 		}
+
+		l_written += fwrite(l_contents.c_str(), l_contents.size(), 1, l_file);
 
 		l_success = (l_written == 4);
 	}
