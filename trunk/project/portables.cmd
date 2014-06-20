@@ -86,6 +86,9 @@ copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\iNFektPortableLauncher.exe %PAP%\iNFektPortable.exe
 xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PAP%\App\iNFekt
 
+mkdir %PAP%\App\iNFekt\plugins
+copy /Y %ROOTDIR%\Release\plugins\rescene.dll %PAP%\App\iNFekt\plugins
+
 copy /Y %ROOTDIR%\..\project\infekt-win32\iNFEKT_icon_by_railgun.ico %PAP%\App\AppInfo\appicon.ico
 
 rem DELETE OLD RARS
