@@ -57,6 +57,14 @@ copy /Y %ROOTDIR%\Release-x64\infekt-cmd.exe %PP64%
 copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PP32%
 copy /Y %ROOTDIR%\Release-x64\infekt-gpu.dll %PP64%
 
+rem COPY PLUGINS
+
+mkdir %PP32%\plugins
+mkdir %PP64%\plugins
+
+copy /Y %ROOTDIR%\Release\plugins\rescene.dll %PP32%\plugins
+copy /Y %ROOTDIR%\Release-x64\plugins\rescene.dll %PP64%\plugins
+
 rem COPY DEPS
 
 xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PP32%
