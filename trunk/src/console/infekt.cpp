@@ -29,6 +29,7 @@ static const struct ::option g_longOpts[] = {
 
 	{ _T("png"),			no_argument,		0,	'P' },
 	{ _T("png-classic"),	no_argument,		0,	'p' },
+	{ _T("text-only"),		no_argument,		0,	'S' },
 	{ _T("utf-8"),			no_argument,		0,	'f' },
 #ifdef _WIN32
 	{ _T("utf-16"),			no_argument,		0,	't' },
@@ -50,6 +51,7 @@ static const struct ::option g_longOpts[] = {
 	{ _T("block-height"),	required_argument,	0,	'H' },
 	{ _T("glow-radius"),	required_argument,	0,	'R' },
 	{ _T("compound-whitespace"), no_argument,	0,	'c' },
+	{ _T("wrap"),			no_argument,		0,	'w' },
 
 	{0}
 };
@@ -71,6 +73,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("Mode of operation:\n");
 	printf("  -P, --png                   Renders a PNG (default).\n");
 	printf("  -p, --png-classic           Prints the NFO file into a PNG file as text.\n");
+	printf("  -S, --text-only             Remove art blocks before rendering/saving.\n");
 	printf("  -f, --utf-8                 Converts the NFO file into UTF-8.\n");
 #ifdef _WIN32
 	printf("  -t, --utf-16                Converts the NFO file into UTF-16.\n");
@@ -98,6 +101,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 
 	printf("Text conversion settings:\n");
 	printf("  -c, --compound-whitespace   Add whitespace so that all lines have the same length.\n");
+	printf("  -w, --wrap                  Wrap long lines.\n");
 
 	// :TODO: option for input charset.
 }
@@ -133,7 +137,8 @@ int main(int argc, char* argv[])
 	std::_tstring l_outFileName;
 	bool l_classic = false, l_makePng = true, l_textUtf8 = true,
 		l_htmlOut = false, l_makePdf = false, l_pdfDin = false,
-		l_textCp437 = false, l_compoundWhitespace = false;
+		l_textCp437 = false, l_compoundWhitespace = false,
+		l_textOnly = false, l_wrap = false;
 
 #ifdef _WIN32
 	CUtilWin32::EnforceDEP();
@@ -161,7 +166,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDce"), g_longOpts, &l_optIdx)) != -1)
+	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDceSw"), g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -222,6 +227,9 @@ int main(int argc, char* argv[])
 		case 'P':
 			l_makePng = true; l_classic = false;
 			break;
+		case 'S':
+			l_textOnly = true; l_classic = true;
+			break;
 		case 'p':
 			l_makePng = l_classic = true;
 			break;
@@ -247,6 +255,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'c':
 			l_compoundWhitespace = true;
+			break;
+		case 'w':
+			l_wrap = true;
 			break;
 		case '?':
 		default:
@@ -281,11 +292,26 @@ int main(int argc, char* argv[])
 
 	// open+load the NFO file:
 	PNFOData l_nfoData(new CNFOData());
+	l_nfoData->SetWrapLines(l_wrap && !l_textOnly);
 
 	if(!l_nfoData->LoadFromFile(l_nfoFileName))
 	{
 		fwprintf(stderr, L"ERROR: Unable to load NFO file: %s\n", l_nfoData->GetLastErrorDescription().c_str());
 		return 1;
+	}
+
+	if(l_textOnly)
+	{
+		PNFOData l_stripped(new CNFOData());
+		l_stripped->SetWrapLines(l_wrap);
+
+		if(!l_stripped->LoadStripped(*l_nfoData))
+		{
+			fwprintf(stderr, L"ERROR: Unable to convert to text-only: %s\n", l_nfoData->GetLastErrorDescription().c_str());
+			return 1;
+		}
+
+		l_nfoData = l_stripped;
 	}
 
 	// determine output file name if none has been given:
