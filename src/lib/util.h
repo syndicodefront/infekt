@@ -22,6 +22,8 @@
 #include "util_win32_gui.h"
 #endif
 
+#include "util_regex.h"
+
 
 class CUtil
 {
@@ -45,18 +47,6 @@ public:
 	static std::vector<std::string> StrSplit(const std::string& a_str, const std::string& a_separator);
 	static std::vector<std::wstring> StrSplit(const std::wstring& a_str, const std::wstring& a_separator);
 };
-
-
-#ifdef PCRE_UTF16
-class CRegExUtil
-{
-public:
-	static bool DoesMatch(const std::wstring& a_subject, const std::wstring& a_pattern, int a_flags = 0);
-
-	static std::wstring Replace(const std::wstring& a_subject, const std::wstring& a_pattern,
-		const std::wstring& a_replacement, int a_flags = 0);
-};
-#endif
 
 
 template <typename T> class TwoDimVector

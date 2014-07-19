@@ -259,9 +259,10 @@ std::vector<std::wstring> CUtil::StrSplit(const std::wstring& a_str, const std::
 /* Reg Ex Utils                                                         */
 /************************************************************************/
 
-#ifdef PCRE_UTF16
-
 #define OVECTOR_SIZE 60
+
+#ifdef INFEKT_REGEX_UTF16
+
 wstring CRegExUtil::Replace(const wstring& a_subject, const wstring& a_pattern, const wstring& a_replacement, int a_flags)
 {
 	wstring l_result;
@@ -356,10 +357,9 @@ wstring CRegExUtil::Replace(const wstring& a_subject, const wstring& a_pattern, 
 
 	return l_result;
 }
-#undef OVECTOR_SIZE
 
 
-bool CRegExUtil::DoesMatch(const std::wstring& a_subject, const std::wstring& a_pattern, int a_flags)
+bool CRegExUtil::DoesMatch(const wstring& a_subject, const wstring& a_pattern, int a_flags)
 {
 	const char *szErrDescr;
 	int iErrOffset;
@@ -385,7 +385,128 @@ bool CRegExUtil::DoesMatch(const std::wstring& a_subject, const std::wstring& a_
 
 	return false;
 }
+#else /* INFEKT_REGEX_UTF16 */
+
+string CRegExUtil::Replace(const string& a_subject, const string& a_pattern, const string& a_replacement, int a_flags)
+{
+        string l_result;
+
+        if(a_subject.size() > (uint64_t)std::numeric_limits<int>::max())
+        {
+                return "";
+        }
+
+        const char *szErrDescr;
+        int iErrOffset;
+        int ovector[OVECTOR_SIZE];
+
+        pcre* re;
+
+        if((re = pcre_compile(a_pattern.c_str(), PCRE_UTF8 | PCRE_NEWLINE_ANYCRLF | a_flags, &szErrDescr, &iErrOffset, NULL)) != NULL)
+        {
+                int l_prevEndPos = 0; // the index of the character that follows the last character of the previous match.
+                pcre_extra *pe = pcre_study(re, 0, &szErrDescr); // this could be NULL but it wouldn't matter.
+
+                while(1)
+                {
+                        int l_execResult = pcre_exec(re, pe, a_subject.c_str(), (int)a_subject.size(), l_prevEndPos, 0, ovector, OVECTOR_SIZE);
+
+                        if(l_execResult == PCRE_ERROR_NOMATCH)
+                        {
+                                l_result += a_subject.substr(l_prevEndPos);
+                                break;
+                        }
+                        else if(l_execResult < 1)
+                        {
+                                // ovector is too small (= 0) or some other internal error (< 0).
+                                break;
+                        }
+
+                        _ASSERT(ovector[0] >= l_prevEndPos);
+
+                        // append string between end of last match and the start of this one:
+                        l_result += a_subject.substr(l_prevEndPos, ovector[0] - l_prevEndPos);
+
+                        if(!a_replacement.empty())
+                        {
+                                // insert back references of form $1 $2 $3 ...
+                                string l_replacement;
+                                string::size_type l_pos = a_replacement.find('$'), l_prevPos = 0;
+
+                                while(l_pos != string::npos)
+                                {
+                                        l_replacement += a_replacement.substr(l_prevPos, l_pos - l_prevPos);
+
+                                        string l_numBuf;
+                                        while(l_pos + 1 < a_replacement.size() &&
+                                                (a_replacement[l_pos + 1] >= '0' && a_replacement[l_pos + 1] <= '9'))
+                                        {
+                                                l_pos++;
+                                                l_numBuf += a_replacement[l_pos];
+                                        }
+                                        // maybe make "$14" insert $1 + "4" here if there is no $14.
+
+                                        int l_group = atoi(l_numBuf.c_str());
+                                        if(l_group >= 0 && l_group < l_execResult)
+                                        {
+                                                int l_len = ovector[l_group * 2 + 1] - ovector[l_group * 2];
+                                                l_replacement.append(a_subject, ovector[l_group * 2], l_len);
+                                        }
+
+                                        l_prevPos = l_pos + 1;
+                                        l_pos = a_replacement.find('$', l_prevPos);
+                                }
+
+                                if(l_prevPos < a_replacement.size() - 1)
+                                {
+                                        l_replacement += a_replacement.substr(l_prevPos);
+                                }
+
+                                l_result += l_replacement;
+                        }
+
+                        // this is where we will start searching again:
+                        l_prevEndPos = ovector[1];
+                }
+
+                if(pe) pcre_free(pe);
+                pcre_free(re);
+        }
+        else
+        {
+                _ASSERT(false);
+        }
+
+        return l_result;
+}
+
+bool CRegExUtil::DoesMatch(const string& a_subject, const string& a_pattern, int a_flags)
+{
+	const char *szErrDescr;
+	int iErrOffset;
+
+	pcre* re = pcre_compile(a_pattern.c_str(), PCRE_UTF8 | a_flags, &szErrDescr, &iErrOffset, NULL);
+
+	_ASSERT(re != NULL);
+
+	if(re)
+	{
+		int match = pcre_exec(re, NULL, a_subject.c_str(), (int)a_subject.size(), 0, 0, NULL, 0);
+
+		if(match != PCRE_ERROR_NOMATCH)
+		{
+			return true;
+		}
+
+		pcre_free(re);
+	}
+
+	return false;
+}
+
 #endif
+
+#undef OVECTOR_SIZE
 
 /************************************************************************/
 /* Misc                                                                 */

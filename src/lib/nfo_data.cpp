@@ -1032,14 +1032,18 @@ bool CNFOData::DetectAnsi() const
 {
 	// try to detect ANSI art files without SAUCE records:
 
-	if(!m_isAnsi && HasFileExtension(_T(".ans")) && m_textContent.find(L"\x2190[") != std::wstring::npos)
+	if(!m_isAnsi && HasFileExtension(_T(".ans")) && m_textContent.find(L"\u2190[") != std::wstring::npos)
 	{
 		return true;
 	}
 
-	if(!m_isAnsi && !HasFileExtension(_T(".nfo")) && m_textContent.find(L"\x2190[") != std::wstring::npos)
+	if(!m_isAnsi && !HasFileExtension(_T(".nfo")) && m_textContent.find(L"\u2190[") != std::wstring::npos)
 	{
-		return CRegExUtil::DoesMatch(m_textContent, L"\x2190\\[[0-9;]+m");
+#ifdef INFEKT_REGEX_UTF16
+		return CRegExUtil::DoesMatch(m_textContent, L"\u2190\\[[0-9;]+m");
+#else
+		return CRegExUtil::DoesMatch(CUtil::FromWideStr(m_textContent, CP_UTF8), "\xE2\x86\x90\\[[0-9;]+m");
+#endif
 	}
 
 	return false;
@@ -1563,32 +1567,42 @@ wstring CNFOData::GetStrippedText() const
 		}
 	}
 
-	l_text = CRegExUtil::Replace(l_text, L"^[^a-zA-Z0-9]+$", L"", PCRE_MULTILINE);
+#ifndef INFEKT_REGEX_UTF16
+	std::string l_textUtf8 = CUtil::FromWideStr(l_text, CP_UTF8);
+	#define l_text l_textUtf8
+#endif
 
-	l_text = CRegExUtil::Replace(l_text, L"^(.)\\1+$", L"",
-		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, _RE("^[^a-zA-Z0-9]+$"), _RE(""), PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, L"^([\\S])\\1+\\s{3,}(.+?)$", L"$2",
-		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, _RE("^(.)\\1+$"), _RE(""),
+		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, L"^(.+?)\\s{3,}([\\S])\\2+$", L"$1",
-		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, _RE("^([\\S])\\1+\\s{3,}(.+?)$"), _RE("$2"),
+		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
+
+	l_text = CRegExUtil::Replace(l_text, _RE("^(.+?)\\s{3,}([\\S])\\2+$"), _RE("$1"),
+		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
 #if 0
 	// this ruins our efforts to keep indention for paragraphs :(
 	// ...but it makes other NFOs look A LOT better...
 	// :TODO: figure out a smart way.
-	l_text = CRegExUtil::Replace(l_text, L"^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+", L"",
-		PCRE_NO_UTF8_CHECK | PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, _RE("^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+"), _RE(""),
+		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 #endif
 
-	l_text = CRegExUtil::Replace(l_text, L"\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$", L"",
-		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, _RE("\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$"), _RE(""),
+		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, L"^\\s*.{1,3}\\s*$", L"",
-		PCRE_NO_UTF16_CHECK | PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, _RE("^\\s*.{1,3}\\s*$"), _RE(""),
+		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, L"\\n{2,}", L"\n\n", PCRE_NO_UTF16_CHECK);
+	l_text = CRegExUtil::Replace(l_text, _RE("\\n{2,}"), _RE("\n\n"), INFEKT_PCRE_NO_UTF_CHECK);
+
+#ifndef INFEKT_REGEX_UTF16
+	#undef l_text
+	l_text = CUtil::ToWideStr(l_textUtf8, CP_UTF8);
+#endif
 
 	CUtil::StrTrimLeft(l_text, L"\n");
 
