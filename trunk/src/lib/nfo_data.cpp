@@ -1572,32 +1572,32 @@ wstring CNFOData::GetStrippedText() const
 	#define l_text l_textUtf8
 #endif
 
-	l_text = CRegExUtil::Replace(l_text, _RE("^[^a-zA-Z0-9]+$"), _RE(""), PCRE_MULTILINE);
+	l_text = CRegExUtil::Replace(l_text, _RESTR("^[^a-zA-Z0-9]+$"), _RESTR(""), PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, _RE("^(.)\\1+$"), _RE(""),
+	l_text = CRegExUtil::Replace(l_text, _RESTR("^(.)\\1+$"), _RESTR(""),
 		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, _RE("^([\\S])\\1+\\s{3,}(.+?)$"), _RE("$2"),
+	l_text = CRegExUtil::Replace(l_text, _RESTR("^([\\S])\\1+\\s{3,}(.+?)$"), _RESTR("$2"),
 		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, _RE("^(.+?)\\s{3,}([\\S])\\2+$"), _RE("$1"),
+	l_text = CRegExUtil::Replace(l_text, _RESTR("^(.+?)\\s{3,}([\\S])\\2+$"), _RESTR("$1"),
 		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
 #if 0
 	// this ruins our efforts to keep indention for paragraphs :(
 	// ...but it makes other NFOs look A LOT better...
 	// :TODO: figure out a smart way.
-	l_text = CRegExUtil::Replace(l_text, _RE("^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+"), _RE(""),
+	l_text = CRegExUtil::Replace(l_text, _RESTR("^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+"), _RESTR(""),
 		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 #endif
 
-	l_text = CRegExUtil::Replace(l_text, _RE("\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$"), _RE(""),
+	l_text = CRegExUtil::Replace(l_text, _RESTR("\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$"), _RESTR(""),
 		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, _RE("^\\s*.{1,3}\\s*$"), _RE(""),
+	l_text = CRegExUtil::Replace(l_text, _RESTR("^\\s*.{1,3}\\s*$"), _RESTR(""),
 		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
 
-	l_text = CRegExUtil::Replace(l_text, _RE("\\n{2,}"), _RE("\n\n"), INFEKT_PCRE_NO_UTF_CHECK);
+	l_text = CRegExUtil::Replace(l_text, _RESTR("\\n{2,}"), _RESTR("\n\n"), INFEKT_PCRE_NO_UTF_CHECK);
 
 #ifndef INFEKT_REGEX_UTF16
 	#undef l_text

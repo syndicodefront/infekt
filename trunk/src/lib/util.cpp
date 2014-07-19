@@ -358,7 +358,6 @@ wstring CRegExUtil::Replace(const wstring& a_subject, const wstring& a_pattern, 
 	return l_result;
 }
 
-
 bool CRegExUtil::DoesMatch(const wstring& a_subject, const wstring& a_pattern, int a_flags)
 {
 	const char *szErrDescr;
@@ -385,7 +384,8 @@ bool CRegExUtil::DoesMatch(const wstring& a_subject, const wstring& a_pattern, i
 
 	return false;
 }
-#else /* INFEKT_REGEX_UTF16 */
+
+#elif defined(INFEKT_REGEX_UTF8)
 
 string CRegExUtil::Replace(const string& a_subject, const string& a_pattern, const string& a_replacement, int a_flags)
 {
