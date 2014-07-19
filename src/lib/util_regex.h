@@ -15,17 +15,19 @@
 #ifndef _UTIL_REGEX_H
 #define _UTIL_REGEX_H
 
-#include <pcre.h>
+#ifdef _PCRE_H /* MAGIC! :( */
+
 #include <string>
 
 #if defined(PCRE_UTF16) && defined(_WIN32)
 #define INFEKT_REGEX_UTF16
-#define INFEKT_PCRE_NO_UTF_CHECK INFEKT_PCRE_NO_UTF_CHECK
-#define __RE(S) L ## S
-#define _RE(S) __RE(S)
+#define INFEKT_PCRE_NO_UTF_CHECK PCRE_NO_UTF16_CHECK
+#define __RESTR(S) L ## S
+#define _RESTR(S) __RESTR(S)
 #else
+#define INFEKT_REGEX_UTF8
 #define INFEKT_PCRE_NO_UTF_CHECK PCRE_NO_UTF8_CHECK
-#define _RE(S) S
+#define _RESTR(S) S
 #endif
 
 class CRegExUtil
@@ -42,5 +44,7 @@ public:
 	static StringType Replace(const StringType& a_subject, const StringType& a_pattern,
 		const StringType& a_replacement, int a_flags = 0);
 };
+
+#endif /* _PCRE_H */
 
 #endif /* !_UTIL_REGEX_H */
