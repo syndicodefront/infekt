@@ -9,6 +9,12 @@ set (LIBS ${LIBS} ${CAIRO_LIBRARIES})
 include_directories (${CAIRO_INCLUDE_DIRS})
 link_directories (${CAIRO_LIBRARY_DIRS})
 
+pkg_check_modules (LIBPNG REQUIRED libpng)
+
+set (LIBS ${LIBS} ${LIBPNG_LIBRARIES})
+include_directories (${LIBPNG_INCLUDE_DIRS})
+link_directories (${LIBPNG_LIBRARY_DIRS})
+
 message (STATUS "Looking for PCRE library")
 find_library (PCRE_LIBRARY pcre)
 if (NOT PCRE_LIBRARY)

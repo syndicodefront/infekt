@@ -346,7 +346,7 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 	std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const
 {
 	size_t row;
-	auto& it_row_sections = m_usedSections.find(a_row);
+	auto it_row_sections = m_usedSections.find(a_row);
 
 	if(it_row_sections == m_usedSections.end())
 	{

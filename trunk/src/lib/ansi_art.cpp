@@ -291,7 +291,7 @@ bool CAnsiArt::Process()
 			case L'm': { // rainbows and stuff!
 				std::vector<uint8_t> params;
 
-				for(const wstring s : CUtil::StrSplit(cmd.data, L";"))
+				for(const wstring& s : CUtil::StrSplit(cmd.data, L";"))
 				{
 					int n = _wtoi(s.c_str());
 

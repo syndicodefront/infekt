@@ -124,7 +124,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	// on the same instance but the second load fails.
 
 	m_filePath = a_filePath;
-	m_vFileName = L"";
+	m_vFileName = _T("");
 
 	if(!l_error)
 	{
@@ -1159,7 +1159,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	SAUCE l_record = {0};
 
-	memcpy_s(&l_record, sizeof(l_record), a_data + ar_dataLen - SAUCE_RECORD_SIZE, SAUCE_RECORD_SIZE);
+	memcpy(&l_record, a_data + ar_dataLen - SAUCE_RECORD_SIZE, SAUCE_RECORD_SIZE);
 
 	// validate SAUCE header + supported features:
 
