@@ -24,7 +24,7 @@
 class CAnsiArt
 {
 public:
-	typedef std::list<const std::wstring> TLineContainer;
+	typedef std::list<std::wstring> TLineContainer;
 
 public:
 	CAnsiArt(size_t a_widthLimit, size_t a_heightLimit, size_t a_hintWidth, size_t a_hintHeight);
@@ -62,7 +62,7 @@ protected:
 		std::wstring data;
 	} ansi_command_t;
 
-	std::list<const ansi_command_t> m_commands;
+	std::list<ansi_command_t> m_commands;
 
 	// this is filled by Process():
 

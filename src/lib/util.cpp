@@ -227,9 +227,9 @@ std::wstring CUtil::StrReplace(const std::wstring& a_find, const std::wstring& a
 	return _StrReplace(a_find, a_replace, a_input);
 }
 
-template<typename T> static std::vector<const T> _StrSplit(const T& a_str, const T& a_separator)
+template<typename T> static std::vector<T> _StrSplit(const T& a_str, const T& a_separator)
 {
-	std::vector<const T> result;
+	std::vector<T> result;
 	typename T::size_type prev_pos = 0, pos = a_str.find(a_separator);
 
 	while(pos != T::npos)
@@ -245,12 +245,12 @@ template<typename T> static std::vector<const T> _StrSplit(const T& a_str, const
 	return result;
 }
 
-std::vector<const std::string> CUtil::StrSplit(const std::string& a_str, const std::string& a_separator)
+std::vector<std::string> CUtil::StrSplit(const std::string& a_str, const std::string& a_separator)
 {
 	return _StrSplit(a_str, a_separator);
 }
 
-std::vector<const std::wstring> CUtil::StrSplit(const std::wstring& a_str, const std::wstring& a_separator)
+std::vector<std::wstring> CUtil::StrSplit(const std::wstring& a_str, const std::wstring& a_separator)
 {
 	return _StrSplit(a_str, a_separator);
 }
