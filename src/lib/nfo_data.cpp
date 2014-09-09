@@ -859,6 +859,17 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		a_dataLen -= 3;
 	}
 
+	bool l_containsCR = false;
+	bool l_containsLF = false;
+
+	for(int i = 0; i < static_cast<int>(a_dataLen) && (!l_containsCR || !l_containsLF); ++i)
+	{
+		if (a_data[i] == '\r')
+			l_containsCR = true;
+		else if (a_data[i] == '\n')
+			l_containsLF = true;
+	}
+
 	bool l_foundBinary = false;
 
 	m_textContent.resize(a_dataLen);
@@ -899,6 +910,11 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 				// https://code.google.com/p/infekt/issues/detail?id=92
 				// http://stackoverflow.com/questions/6998506/text-file-with-0d-0d-0a-line-breaks
 				m_textContent[i] = L' ';
+			}
+			else if (p == 0x0D && !l_containsLF && l_containsCR)
+			{
+				// http://code.google.com/p/infekt/issues/detail?id=103
+				m_textContent[i] = L'\n';
 			}
 			else
 			{
