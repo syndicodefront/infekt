@@ -3,6 +3,14 @@
 
 = Downloads Archive ==
 
+== v0.9.2 (June 1st 2014) ==
+
+  * [http://syndicode.org/infekt/downloads/v0.9.2/iNFekt-v0.9.2-setup.exe iNFekt for Windows: Version 0.9.2 - Complete installation package]
+  * [http://syndicode.org/infekt/downloads/v0.9.2/iNFekt-v0.9.2-SuperCompact.rar iNFekt for Windows: Version 0.9.2 - Super Compact Portable version]
+  * [http://syndicode.org/infekt/downloads/v0.9.2/iNFekt-v0.9.2-32bit-Portable.rar iNFekt for Windows: Version 0.9.2 - 32 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.9.2/iNFekt-v0.9.2-64bit-Portable.rar iNFekt for Windows: Version 0.9.2 - 64 bit portable release]
+  * [http://syndicode.org/infekt/downloads/v0.9.2/iNFektPortable_v0.9.2_English.paf.exe iNFekt for Windows: Version 0.9.2 - PortableApps.com edition]
+
 == v0.8.14 (February 27th 2014) ==
 
   * [http://syndicode.org/infekt/downloads/v0.8.14/iNFekt-v0.8.14-setup.exe iNFekt for Windows: Version 0.8.14 - Complete installation package]
