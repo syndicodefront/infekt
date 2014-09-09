@@ -2,10 +2,10 @@
 The program downloads this file from http://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki and uses it to check for the latest available version. It has the label "Deprecated" so that it doesn't show up on the web page too often.
 
 {{{
-latest[stable].1 = 0.9.2
+latest[stable].1 = 0.9.3
 download_latest[stable].1 = https://code.google.com/p/infekt/wiki/Downloads?tm=2
-autoupdate_download[stable].1/087 = http://syndicode.org/infekt/downloads/v0.9.2/iNFekt-v0.9.2-setup.exe
-autoupdate_hash[stable].1/087 = 2FD9D1B421CF133DB57E9A7BBCA888BFA34C28F6
+autoupdate_download[stable].1/087 = http://syndicode.org/infekt/downloads/v0.9.3/iNFekt-v0.9.3-setup.exe
+autoupdate_hash[stable].1/087 = CAEE7B906587A104AB2FCD1AE119B436CEA60EC0
 }}}
 
 EOF
