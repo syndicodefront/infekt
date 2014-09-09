@@ -1,6 +1,13 @@
 #summary Version and release history
 #labels Featured,Phase-Support
 
+== v0.9.3 (September 9th 2014) ==
+  * Added missing plugin(s) to portable download
+  * Fixed some false positives in hyperlink detection (issue 97)
+  * Fixed issue 103 (CR-only NFOs)
+  * Added --text-only and --wrap options to infekt-cmd
+  * pixman + libpng library update
+
 == v0.9.2 (June 1st 2014) ==
   * Fixed a redrawing issue (opaque rectangles when zooming)
   * Improved detection of mail addresses to avoid false positives
