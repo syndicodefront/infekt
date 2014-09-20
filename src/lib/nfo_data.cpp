@@ -737,50 +737,17 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 	a_data += 3;
 	a_dataLen -= 3;
 
-#ifdef _WIN32
-	// use optimized calls to MultiByteToWideChar instead of generic stuff from CUtil.
-	int l_dataLen = static_cast<int>(a_dataLen);
-
-	int l_size = static_cast<int>(
-		::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, l_dataLen, NULL, NULL));
-
-	if(l_size && ::GetLastError() != ERROR_NO_UNICODE_TRANSLATION)
+	if(TryLoad_UTF8(a_data, a_dataLen, EA_TRY))
 	{
-		wchar_t *l_buf = new wchar_t[l_size];
-
-		if(l_buf)
+		if(m_sourceCharset == NFOC_UTF8)
 		{
-			bool l_success = false;
-
-			*l_buf = 0;
-
-			if(::MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, (const char*)a_data, l_dataLen, l_buf, l_size) == l_size)
-			{
-				m_textContent = std::wstring(l_buf, l_size);
-
-				m_sourceCharset = NFOC_UTF8_SIG;
-
-				l_success = true;
-			}
-
-			delete[] l_buf;
-
-			return l_success;
+			m_sourceCharset = NFOC_UTF8_SIG;
 		}
-	}
 
-	// if we got here, there was a valid signature, but invalid UTF-8
-
-	return false;
-#else
-	// for Linux... TryLoad_UTF8 does some validation, so this should be roughly equal.
-	if(TryLoad_UTF8(a_data, a_dataLen, EA_FALSE))
-	{
-		m_sourceCharset = NFOC_UTF8_SIG;
 		return true;
 	}
+
 	return false;
-#endif
 }
 
 
@@ -798,14 +765,17 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos)
 			/* two consecutive 'LATIN CAPITAL LETTER U WITH DIAERESIS' or 'LATIN CAPITAL LETTER U WITH CIRCUMFLEX' */ &&
 			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos)
-			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */))
+			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */)
+			/* following is more detection stuff for double-encoded CP437 NFOs that were converted to UTF-8 */
+			|| (a_fix == EA_TRY && (l_utf.find("\xC2\x9A\xC2\x9A") != std::string::npos && l_utf.find("\xC3\xA1\xC3\xA1") != std::string::npos))
+		)
 		{
-			const wstring l_unicode = CUtil::ToWideStr(l_utf, CP_UTF8);
-			const string l_cp437 = CUtil::FromWideStr(l_unicode, CP_ACP);
+			std::vector<char> l_cp437(a_dataLen + 1);
+			size_t l_newLength = utf8_to_latin9(l_cp437.data(), (const char*)a_data, a_dataLen);
 
-			if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EA_FALSE))
+			if(l_newLength > 0 && TryLoad_CP437((unsigned char*)l_cp437.data(), l_newLength, EA_TRY))
 			{
-				m_sourceCharset = NFOC_CP437_IN_UTF8;
+				m_sourceCharset = (m_sourceCharset == NFOC_CP437_IN_CP437 ? NFOC_CP437_IN_CP437_IN_UTF8 : NFOC_CP437_IN_UTF8);
 
 				return true;
 			}
@@ -1390,11 +1360,13 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 	case NFOC_CP437:
 		return L"CP 437";
 	case NFOC_CP437_IN_UTF8:
-		return L"CP 437 (in broken UTF-8)";
+		return L"CP 437 (in UTF-8)";
 	case NFOC_CP437_IN_UTF16:
-		return L"CP 437 (in broken UTF-16)";
+		return L"CP 437 (in UTF-16)";
 	case NFOC_CP437_IN_CP437:
 		return L"CP 437 (double encoded)";
+	case NFOC_CP437_IN_CP437_IN_UTF8:
+		return L"CP 437 (double encoded + UTF-8)";
 	case NFOC_CP437_STRICT:
 		return L"CP 437 (strict mode)";
 	case NFOC_WINDOWS_1252:

@@ -135,14 +135,16 @@ private:
 };
 
 
-/* gutf8.c exports */
 extern "C"
 {
+	/* gutf8.c exports */
 	int utf8_validate(const char *str, size_t max_len, const char **end);
 	char *utf8_find_next_char(const char *p, const char *end = NULL);
 	size_t utf8_strlen(const char *p, size_t max_bytes);
-}
 
+	/* forgiving_utf8.c exports */
+	size_t utf8_to_latin9(char *const output, const char *const input, const size_t length);
+}
 
 /* useful macros */
 #ifdef HAVE_BOOST
