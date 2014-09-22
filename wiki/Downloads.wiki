@@ -4,7 +4,7 @@
 The current release is v0.9.3 from September 9th 2014. [https://code.google.com/p/infekt/wiki/Changelog Changelog]
 
   * *[http://syndicode.org/infekt/downloads/v0.9.3/iNFekt-v0.9.3-setup.exe iNFekt for Windows: Version 0.9.3 - Complete installation package] - recommended download*
-  * [http://syndicode.org/infekt/downloads/v0.9.3/iNFekt-v0.9.3-SuperCompact.rar iNFekt for Windows: Version 0.9.3 - Super Compact Portable version] - only two files - restrictions: no GPU acceleration
+  * [http://syndicode.org/infekt/downloads/v0.9.3/iNFekt-v0.9.3-SuperCompact.rar iNFekt for Windows: Version 0.9.3 - Super Compact Portable version] - only two files - restrictions: no GPU acceleration, no plugins
   * [http://syndicode.org/infekt/downloads/v0.9.3/iNFekt-v0.9.3-32bit-Portable.rar iNFekt for Windows: Version 0.9.3 - 32 bit portable release]
   * [http://syndicode.org/infekt/downloads/v0.9.3/iNFekt-v0.9.3-64bit-Portable.rar iNFekt for Windows: Version 0.9.3 - 64 bit portable release]
   * [http://syndicode.org/infekt/downloads/v0.9.3/iNFektPortable_v0.9.3_English.paf.exe iNFekt for Windows: Version 0.9.3 - PortableApps.com edition]
