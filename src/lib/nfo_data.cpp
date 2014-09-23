@@ -396,7 +396,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 
 static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
-	const int l_maxLen = 80;
+	const int l_maxLen = 90;
 
 	// Please note that this routine is not behaving consistently
 	// when it comes to taking into account leading whitespace or not.
