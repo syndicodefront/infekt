@@ -59,6 +59,7 @@ CNFOHyperLink::CNFOHyperLink(int a_linkID, const wstring& a_href, size_t a_row, 
 	ms_linkTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?|jpe?g|png|gif)\\S*)", true));
 	ms_linkTriggers.push_back(TRGR("(\\S+/dp/\\S*)", true)); // for amazon
 	ms_linkTriggers.push_back(TRGR("(\\S*dp/[A-Z]\\S+)", true)); // for amazon
+	ms_linkTriggers.push_back(TRGR("(\\S*/\\w+=\\S+)", true));
 	ms_linkTriggers.push_back(TRGR("(\\S+[&?]\\w+=\\S*)", true));
 
 	/*if(sPrevLineLink[sPrevLineLink.size() - 1] == '-') originally */
