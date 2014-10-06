@@ -99,7 +99,7 @@ HMODULE CUtilWin32::SilentLoadLibrary(const std::wstring& a_path)
 	HMODULE l_hResult = NULL;
 	DWORD dwErrorMode = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS;
 
-	if(CUtilWin32::IsWin7(true))
+	if(CUtilWin32::IsAtLeastWin7())
 	{
 		// BOOL SetThreadErrorMode(DWORD dwNewMode, LPDWORD lpOldMode);
 		typedef BOOL (WINAPI *fstem)(DWORD, LPDWORD);
@@ -221,7 +221,7 @@ bool CUtilWin32::IsWinXP()
 	return is;
 }
 
-bool CUtilWin32::IsWin6x(bool a_orHigher)
+bool CUtilWin32::IsAtLeastWinVista()
 {
 	static bool is = IS_WIN_XX(6, 0, true);
 
@@ -235,23 +235,30 @@ bool CUtilWin32::IsWinVista()
 	return is;
 }
 
-bool CUtilWin32::IsWin7(bool a_orHigher)
+bool CUtilWin32::IsAtLeastWin7()
 {
-	static bool is = IS_WIN_XX(6, 1, a_orHigher);
+	static bool is = IS_WIN_XX(6, 1, true);
+
+	return is;
+}
+
+bool CUtilWin32::IsWin7()
+{
+	static bool is = IS_WIN_XX(6, 1, false);
 
 	return is;
 }
 
 bool CUtilWin32::IsWin8()
 {
-	static bool is = IS_WIN_XX(6, 2, false);
+	static bool is = IS_WIN_XX(6, 2, false) || IS_WIN_XX(6, 3, false);
 
 	return is;
 }
 
-bool CUtilWin32::IsWin81()
+bool CUtilWin32::IsWin10()
 {
-	static bool is = IS_WIN_XX(6, 3, false);
+	static bool is = IS_WIN_XX(6, 4, false);
 
 	return is;
 }

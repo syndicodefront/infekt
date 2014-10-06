@@ -352,7 +352,7 @@ int CNFOApp::IsDefaultNfoViewer()
 	}
 	else
 #endif
-	if(CUtilWin32::IsWin6x())
+	if(CUtilWin32::IsAtLeastWinVista())
 	{
 		CWin6xDefaultApp l_defApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 
@@ -388,7 +388,7 @@ bool CNFOApp::MakeDefaultNfoViewer()
 	}
 	else 
 #endif
-	if(CUtilWin32::IsWin6x())
+	if(CUtilWin32::IsAtLeastWinVista())
 	{
 		l_defApp = new (std::nothrow) CWin6xDefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION);
 	}

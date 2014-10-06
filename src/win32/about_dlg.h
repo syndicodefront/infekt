@@ -25,6 +25,7 @@ public:
 
 	void SetMainWin(CMainFrame* a_mainWin) { m_mainWin = a_mainWin; }
 	CMainFrame* GetMainWin() const { return m_mainWin; }
+
 protected:
 	HICON m_icon;
 	HFONT m_boldFont;
@@ -34,6 +35,9 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT, WPARAM, LPARAM);
 	virtual LRESULT OnNotify(WPARAM, LPARAM);
+
+private:
+	static std::wstring GetWindowsClientOSName();
 };
 
 #endif  /* !_ABOUT_DLG_H */

@@ -289,7 +289,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 	{
 		const PMainSettings& l_global = m_mainWin->GetSettings();
 
-		if(CUtilWin32::IsWin6x())
+		if(CUtilWin32::IsAtLeastWinVista())
 		{
 			int l_status = CNFOApp::GetInstance()->IsDefaultNfoViewer();
 
@@ -1326,7 +1326,7 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
 
 #ifndef COMPACT_RELEASE
-	if(CUtilWin32::IsWin6x())
+	if(CUtilWin32::IsAtLeastWinVista())
 	{
 		SET_DLG_CHECKBOX(IDC_USE_GPU, m_settings->bUseGPU);
 	}
