@@ -68,18 +68,17 @@ BOOL CAboutDialog::OnInitDialog()
 		l_verStr += L" (32 bit)";
 #endif
 #endif
+	const std::wstring winVerName = GetWindowsClientOSName();
+
 	if (CUtilWin32::IsWinServerOS())
-		l_verStr += L" on Windows Server OS";
-	else if(CUtilWin32::IsWinXP())
-		l_verStr += L" on Windows XP";
-	else if(CUtilWin32::IsWinVista())
-		l_verStr += L" on Windows Vista";
-	else if(CUtilWin32::IsWin7())
-		l_verStr += L" on Windows 7";
-	else if(CUtilWin32::IsWin8())
-		l_verStr += L" on Windows 8";
-	else if(CUtilWin32::IsWin81())
-		l_verStr += L" on Windows 8.1";
+	{
+		l_verStr += L" on Windows Server";
+
+		if (!winVerName.empty())
+			l_verStr += L" (like Win " + winVerName + L")";
+	}
+	else
+		l_verStr += L" on Windows " + winVerName;
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
@@ -126,7 +125,7 @@ BOOL CAboutDialog::OnInitDialog()
 	l_top += 60;
 
 #ifndef COMPACT_RELEASE
-	if(CUtilWin32::IsWin6x())
+	if(CUtilWin32::IsAtLeastWinVista())
 	{
 		_CREATE_STATIC(l_hGreetings, L"Rebecca, you are the love of my life. \x2764", l_top, 20);
 	}
@@ -172,6 +171,23 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 	}
 
 	return CDialog::OnNotify(wParam, lParam);
+}
+
+
+/*static*/ std::wstring CAboutDialog::GetWindowsClientOSName()
+{
+	if(CUtilWin32::IsWinXP())
+		return L"XP";
+	else if(CUtilWin32::IsWinVista())
+		return L"Vista";
+	else if(CUtilWin32::IsWin7())
+		return L"7";
+	else if(CUtilWin32::IsWin8())
+		return L"8";
+	else if(CUtilWin32::IsWin10())
+		return L"10";
+	else
+		return L"";
 }
 
 

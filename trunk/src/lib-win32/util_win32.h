@@ -19,11 +19,12 @@ class CUtilWin32
 {
 public:
 	static bool IsWinXP();
-	static bool IsWin6x(bool a_orHigher = true);
+	static bool IsAtLeastWinVista();
 	static bool IsWinVista();
-	static bool IsWin7(bool a_orHigher = false);
+	static bool IsAtLeastWin7();
+	static bool IsWin7();
 	static bool IsWin8();
-	static bool IsWin81();
+	static bool IsWin10();
 	static bool IsWow64();
 	static bool IsWinServerOS();
 

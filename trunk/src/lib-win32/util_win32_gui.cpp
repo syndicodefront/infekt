@@ -147,7 +147,7 @@ static TLegacyFilterSpec ComDlgFilterSpecToLegacy(const COMDLG_FILTERSPEC* a_fil
 wstring CUtilWin32GUI::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
 {
 #if _WIN32_WINNT < 0x600
-	if(!CUtilWin32::IsWin6x())
+	if(!CUtilWin32::IsAtLeastWinVista())
 	{
 		OPENFILENAME ofn = {0};
 		TCHAR szBuf[1000] = {0};
@@ -182,7 +182,7 @@ wstring CUtilWin32GUI::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const
 	const LPCTSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath)
 {
 #if _WIN32_WINNT < 0x600
-	if(!CUtilWin32::IsWin6x())
+	if(!CUtilWin32::IsAtLeastWinVista())
 	{
 		OPENFILENAME ofn = {0};
 		TCHAR szBuf[1000] = {0};

@@ -272,7 +272,7 @@ CCairoBoxBlur::~CCairoBoxBlur()
 /*static*/ bool CCairoBoxBlur::IsGPUUsable()
 {
 #if defined(_WIN32) && !defined(COMPACT_RELEASE)
-	if(CUtilWin32::IsWin6x())
+	if(CUtilWin32::IsAtLeastWinVista())
 	{
 		if(!m_hAmpDll)
 		{
