@@ -77,7 +77,7 @@ BOOL CAboutDialog::OnInitDialog()
 		if (!winVerName.empty())
 			l_verStr += L" (like Win " + winVerName + L")";
 	}
-	else
+	else if (!winVerName.empty())
 		l_verStr += L" on Windows " + winVerName;
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
