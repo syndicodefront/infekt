@@ -25,6 +25,11 @@ endif (NOT PCRE_LIBRARY)
 
 set (LIBS ${LIBS} pcre)
 
+find_package (PNG REQUIRED)
+if (PNG_FOUND)
+       set (LIBS ${LIBS} ${PNG_LIBRARIES})
+endif()
+
 find_package (OpenMP REQUIRED)
 if (OPENMP_FOUND)
 	set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
