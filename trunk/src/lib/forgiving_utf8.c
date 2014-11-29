@@ -4,6 +4,7 @@
 //
 
 #include <stdint.h>
+#include <stdlib.h>
 
 /* UTF-8 to ISO-8859-1/ISO-8859-15 mapper.
  * Return 0..255 for valid ISO-8859-15 code points, 256 otherwise.

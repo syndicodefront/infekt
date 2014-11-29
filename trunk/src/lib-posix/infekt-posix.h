@@ -16,6 +16,7 @@
 #define _INFEKT_POSIX_H
 
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <wctype.h>
