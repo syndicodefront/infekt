@@ -141,12 +141,12 @@ void CWinFileWatcher::WatchEventThread()
 					}
 
 					::Sleep(100);
-
-					// read time again to avoid invoking the callback too often:
-					l_newTime = GetFileModificationTime();
 				}
 
 				fclose(fh);
+
+				// read time again to avoid invoking the callback too often:
+				l_newTime = GetFileModificationTime();
 
 				m_callback();
 			}
