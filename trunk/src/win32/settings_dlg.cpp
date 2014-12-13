@@ -1101,7 +1101,7 @@ bool CSettingsTabDialog::SaveSettings()
 #ifdef INFEKT_PLUGIN_HOST
 	else if(m_pageId == TAB_PAGE_PLUGINS)
 	{
-		CPluginManager* l_plugMgr = CPluginManager::GetInstance();
+		PPluginManager l_plugMgr = CPluginManager::GetInstance();
 		std::_tstring l_pluginDirPath = CUtilWin32::GetExeDir() + _T("\\plugins\\");
 
 		for(std::map<size_t, std::string>::const_iterator it = m_pluginGuids.begin();
@@ -1162,7 +1162,7 @@ void CSettingsTabDialog::PopulatePluginList()
 	std::_tstring l_pluginDirPath = CUtilWin32::GetExeDir() + _T("\\plugins\\"),
 		l_pluginDirPattern = l_pluginDirPath + _T("*.dll");
 
-	CPluginManager* l_plugMgr = CPluginManager::GetInstance();
+	PPluginManager l_plugMgr = CPluginManager::GetInstance();
 
 	WIN32_FIND_DATA l_ffd = {0};
 	HANDLE l_fh;

@@ -26,13 +26,13 @@ CPluginManager::CPluginManager()
 {
 }
 
-static CPluginManager* s_plManInst = NULL;
+static PPluginManager s_plManInst;
 
-CPluginManager* CPluginManager::GetInstance()
+PPluginManager CPluginManager::GetInstance()
 {
 	if(!s_plManInst)
 	{
-		s_plManInst = new CPluginManager();
+		s_plManInst.reset(new CPluginManager());
 	}
 
 	return s_plManInst;
@@ -167,7 +167,7 @@ struct _sync_call_data
 
 /*static*/ INFEKT_PLUGIN_METHOD(CPluginManager::_pluginToCoreCallback)
 {
-	CPluginManager* l_mgr = CPluginManager::GetInstance();
+	PPluginManager l_mgr = CPluginManager::GetInstance();
 
 	if(l_mgr)
 	{
@@ -215,7 +215,6 @@ void CPluginManager::TriggerRegEvents(EPluginReg a_reg, infektPluginEventId a_ev
 
 CPluginManager::~CPluginManager()
 {
-	if(s_plManInst == this) s_plManInst = NULL;
 }
 
 
