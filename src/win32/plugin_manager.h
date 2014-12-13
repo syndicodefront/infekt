@@ -77,10 +77,13 @@ protected:
 typedef shared_ptr<CLoadedPlugin> PLoadedPlugin;
 
 
+class CPluginManager;
+typedef shared_ptr<CPluginManager> PPluginManager;
+
 class CPluginManager
 {
 public:
-	static CPluginManager* GetInstance();
+	static PPluginManager GetInstance();
 	virtual ~CPluginManager();
 
 	// real managing stuff:
