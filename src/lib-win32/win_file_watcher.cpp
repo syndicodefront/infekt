@@ -160,6 +160,7 @@ void CWinFileWatcher::WatchEventThread()
 			break;
 		case WAIT_FAILED:
 			bStop = true;
+			break;
 		default: ;
 			// wut?
 		}
