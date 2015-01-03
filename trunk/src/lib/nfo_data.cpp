@@ -269,7 +269,7 @@ static void _InternalLoad_FixLfLf(wstring& a_text, CNFOData::TLineContainer& a_l
 	int l_evenEmpty = 0, l_oddEmpty = 0;
 
 	size_t i = 0;
-	for(auto it = a_lines.begin(); it != a_lines.end(); it++, i++)
+	for(auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
 	{
 		if(it->empty())
 		{
@@ -292,7 +292,7 @@ static void _InternalLoad_FixLfLf(wstring& a_text, CNFOData::TLineContainer& a_l
 		wstring l_newContent; l_newContent.reserve(a_text.size());
 		CNFOData::TLineContainer l_newLines;
 		i = 0;
-		for(auto it = a_lines.begin(); it != a_lines.end(); it++, i++)
+		for(auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
 		{
 			if(!it->empty() || i % 2 != l_kill)
 			{
@@ -643,7 +643,7 @@ bool CNFOData::PostProcessLoadedContent()
 
 	// go through line by line:
 	size_t i = 0; // line (row) index
-	for(TLineContainer::const_iterator it = l_lines.begin(); it != l_lines.end(); it++, i++)
+	for(TLineContainer::const_iterator it = l_lines.cbegin(); it != l_lines.cend(); it++, i++)
 	{
 		int l_lineLen = static_cast<int>(it->length());
 
@@ -1414,10 +1414,9 @@ wstring CNFOData::GetWithBoxedWhitespace() const
 
 const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 {
-	pair<multimap<size_t, CNFOHyperLink>::const_iterator, multimap<size_t, CNFOHyperLink>::const_iterator> l_range
-		= m_hyperLinks.equal_range(a_row);
+	const auto l_range = m_hyperLinks.equal_range(a_row);
 
-	for(multimap<size_t, CNFOHyperLink>::const_iterator it = l_range.first; it != l_range.second; it++)
+	for (auto it = l_range.first; it != l_range.second; it++)
 	{
 		if(a_col >= it->second.GetColStart() && a_col <= it->second.GetColEnd())
 		{
@@ -1433,7 +1432,7 @@ const CNFOHyperLink* CNFOData::GetLinkByIndex(size_t a_index) const
 {
 	if(a_index < m_hyperLinks.size())
 	{
-		multimap<size_t, CNFOHyperLink>::const_iterator it = m_hyperLinks.begin();
+		multimap<size_t, CNFOHyperLink>::const_iterator it = m_hyperLinks.cbegin();
 		for(size_t i = 0; i < a_index; i++, it++) ;
 		return &it->second;
 	}
@@ -1446,10 +1445,9 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 {
 	vector<const CNFOHyperLink*> l_result;
 
-	pair<multimap<size_t, CNFOHyperLink>::const_iterator, multimap<size_t, CNFOHyperLink>::const_iterator> l_range
-		= m_hyperLinks.equal_range(a_row);
+	const auto l_range = m_hyperLinks.equal_range(a_row);
 
-	for(multimap<size_t, CNFOHyperLink>::const_iterator it = l_range.first; it != l_range.second; it++)
+	for (auto it = l_range.first; it != l_range.second; it++)
 	{
 		l_result.push_back(&it->second);
 	}
@@ -1487,7 +1485,7 @@ static wstring _TrimParagraph(const wstring& a_text)
 
 	// find out the minimum number of leading whitespace characters.
 	// all other lines will be reduced to this number.
-	for(vector<wstring>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
+	for(auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
 	{
 		wstring::size_type p = 0;
 		while(p < it->size() && (*it)[p] == L' ') p++;
@@ -1502,7 +1500,7 @@ static wstring _TrimParagraph(const wstring& a_text)
 	wstring l_result;
 	l_result.reserve(a_text.size());
 
-	for(vector<wstring>::const_iterator it = l_lines.begin(); it != l_lines.end(); it++)
+	for(auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
 	{
 		l_result += (*it).substr(l_minWhite);
 		l_result += L'\n';
