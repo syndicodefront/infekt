@@ -35,7 +35,7 @@ public:
 		bAutoHeight(false),
 		bCenterNFO(true),
 		bDefaultExportToNFODir(false),
-		bCloseOnEsc(false),
+		bCloseOnEsc(true),
 		bOnDemandRendering(true),
 		bMonitorFileChanges(true),
 		bUseGPU(true)
