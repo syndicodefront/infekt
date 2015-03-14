@@ -308,10 +308,6 @@ a.buttons {
 	height: 30px;
 }
 
-li.download {
-	text-align: left;
-}
-
 a.github {
 	background: url(../images/octocat-small.png) no-repeat 1px;
 }
