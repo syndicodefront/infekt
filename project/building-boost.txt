@@ -2,14 +2,14 @@
 
 bootstrap
 
-.\b2 --with-program_options runtime-link=shared runtime-debugging=off release
+.\b2 --with-program_options runtime-link=shared runtime-debugging=off toolset=msvc-11.0 release
 
-.\b2 --with-program_options runtime-link=static runtime-debugging=off release
+.\b2 --with-program_options runtime-link=static runtime-debugging=off toolset=msvc-11.0 release
 
-.\b2 --with-program_options runtime-link=shared runtime-debugging=on debug
+.\b2 --with-program_options runtime-link=shared runtime-debugging=on toolset=msvc-11.0 debug
 
 "VS2012 x64 Native Tools Command Prompt"
 
-.\b2 --with-program_options runtime-link=shared runtime-debugging=off address-model=64 release
+.\b2 --with-program_options runtime-link=shared runtime-debugging=off address-model=64 toolset=msvc-11.0 release
 
-.\b2 --with-program_options runtime-link=shared runtime-debugging=on address-model=64 debug
+.\b2 --with-program_options runtime-link=shared runtime-debugging=on address-model=64 toolset=msvc-11.0 debug

@@ -132,7 +132,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;cairo.lib;Msimg32.lib;pcre.lib;shlwapi.lib;uxtheme.lib;winhttp.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -159,7 +159,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;cairo.lib;Msimg32.lib;pcre.lib;shlwapi.lib;uxtheme.lib;winhttp.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -185,7 +185,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;cairo.lib;pcre.lib;shlwapi.lib;uxtheme.lib;winhttp.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -215,7 +215,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>comctl32.lib;cairo.lib;pcre.lib;shlwapi.lib;uxtheme.lib;winhttp.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -243,7 +243,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>false</OpenMPSupport>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo-static.lib;pcre.lib;libpng16.lib;zlib.lib;comctl32.lib;shlwapi.lib;uxtheme.lib;winhttp.lib;msimg32.lib;LIBCMT.LIB;%(AdditionalDependencies)</AdditionalDependencies>
@@ -273,7 +273,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <OpenMPSupport>true</OpenMPSupport>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo-static.lib;pcre.lib;libpng16.lib;zlib.lib;comctl32.lib;shlwapi.lib;uxtheme.lib;winhttp.lib;msimg32.lib;LIBCMT.LIB;%(AdditionalDependencies)</AdditionalDependencies>

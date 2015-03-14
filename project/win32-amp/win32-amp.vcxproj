@@ -108,7 +108,7 @@
       <PreprocessorDefinitions>WIN32;_TARGETVER_VISTA;_DEBUG;_WINDOWS;_USRDLL;WIN32AMP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -124,7 +124,7 @@
       <PreprocessorDefinitions>WIN32;_TARGETVER_VISTA;_DEBUG;_WINDOWS;_USRDLL;WIN32AMP_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -144,7 +144,7 @@
       <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -166,7 +166,7 @@
       <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>..\..\src\lib-win32</AdditionalIncludeDirectories>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
