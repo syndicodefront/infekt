@@ -75,6 +75,7 @@ rem MAKE PORTABLEAPPS.COM THINGIE
 move %PAP% %PAP%.bak
 rmdir /S /Q %PAP%.bak
 mkdir %PAP%
+mkdir %PAP%\App\DefaultData
 xcopy /Y /S /E %ROOTDIR%\..\release\PortableApps %PAP%
 
 copy /Y %ROOTDIR%\..\release\portable.ini %PAP%\App\DefaultData

@@ -626,7 +626,7 @@ bool CNFOData::PostProcessLoadedContent()
 	{
 		SetLastError(NDE_MAXIMUM_NUMBER_OF_LINES_EXCEEDED,
 #ifdef HAVE_BOOST
-			FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT));
+			FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", LINES_LIMIT));
 #else
 			L"This file contains more lines than the internal limit.");
 #endif
