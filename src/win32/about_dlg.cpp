@@ -100,10 +100,10 @@ BOOL CAboutDialog::OnInitDialog()
 #endif
 	}
 
-	_CREATE_STATIC(l_hCopyright, L"\xA9 cxxjoe && Contributors 2010-2014", l_top, 20);
+	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2015", l_top, 20);
 	l_top += 20;
 
-	_CREATE_SYSLINK(l_hHomepage, L"Project Homepage: <A HREF=\"http://infekt.googlecode.com/\">infekt.googlecode.com</A>", l_top, 20);
+	_CREATE_SYSLINK(l_hHomepage, L"Project Homepage: <A HREF=\"http://infekt.ws/\">infekt.ws</A>", l_top, 20);
 	m_linkCtrl = l_hHomepage;
 	l_top += 20;
 
@@ -164,7 +164,7 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 	case NM_RETURN:
 		if(nh->hwndFrom == m_linkCtrl)
 		{
-			::ShellExecute(NULL, L"open", L"http://infekt.googlecode.com/", NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(NULL, L"open", L"http://infekt.ws/", NULL, NULL, SW_SHOWNORMAL);
 			return 0;
 		}
 		break;

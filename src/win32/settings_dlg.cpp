@@ -838,7 +838,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 
 		l_file << "# NFO Theme Info File\n";
 		l_file << "# Exported by iNFekt " << m_mainWin->InfektVersionAsString() << "\n";
-		l_file << "# http://infekt.googlecode.com/\n\n";
+		l_file << "# http://infekt.ws/\n\n";
 
 		l_file << "[rendered]\n";
 		l_tmp = CUtil::FromWideStr(m_tabPageRendered->GetViewSettings()->Serialize(), CP_UTF8);

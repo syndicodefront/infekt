@@ -9,8 +9,8 @@ AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
 AppVerName=iNFekt 0.9.3
 AppVersion=0.9.3
-AppPublisher=cxxjoe & Contributors
-AppPublisherURL=http://infekt.googlecode.com/
+AppPublisher=syndicode
+AppPublisherURL=http://infekt.ws/
 DefaultDirName={pf}\iNFekt
 DefaultGroupName=iNFekt NFO Viewer
 AllowNoIcons=yes
@@ -92,7 +92,7 @@ Type: files; Name: "{app}\infekt-nfo-shell.dll"
 [Icons]
 Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Check: not Is64BitInstallMode
 Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Check: Is64BitInstallMode
-Name: "{group}\{cm:ProgramOnTheWeb,iNFekt NFO Viewer}"; Filename: "http://infekt.googlecode.com/"
+Name: "{group}\{cm:ProgramOnTheWeb,iNFekt NFO Viewer}"; Filename: "http://infekt.ws/"
 Name: "{group}\{cm:UninstallProgram,iNFekt NFO Viewer}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: desktopicon; Check: not Is64BitInstallMode
 Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Tasks: desktopicon; Check: Is64BitInstallMode

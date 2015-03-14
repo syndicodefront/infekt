@@ -1864,7 +1864,12 @@ void CMainFrame::CheckForUpdates()
 {
 	PWinHttpClient l_client(new CWinHttpClient(GetApp()->GetInstanceHandle()));
 
-	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(L"https://infekt.googlecode.com/svn/wiki/CurrentVersion.wiki",
+	const wchar_t* urls[] = {
+		L"https://infekt.ws/prog/CurrentVersion.txt",
+		L"https://syndicode.org/infekt/prog/CurrentVersion.txt",
+	};
+
+	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(urls[::time(NULL) % 2],
 		std::bind(&CMainFrame::CheckForUpdates_Callback, this, _1));
 
 	l_req->SetBypassCache(true);
@@ -1926,12 +1931,12 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 
 	if(!l_validData)
 	{
-		const wstring l_msg = L"Failed to contact infekt.googlecode.com to get the latest version's info. "
-			L"Please make sure you are connected to the internet and try again later.\n\nDo you want to visit http://infekt.googlecode.com/ now instead?";
+		const wstring l_msg = L"Failed to contact the update server to get the latest version's info. "
+			L"Please make sure you are connected to the internet and try again later.\n\nDo you want to visit http://infekt.ws/ now instead?";
 
 		if(this->MessageBox(l_msg.c_str(), L"Connection Problem", MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
 		{
-			::ShellExecute(0, L"open", L"http://infekt.googlecode.com/", NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(0, L"open", L"http://infekt.ws/", NULL, NULL, SW_SHOWNORMAL);
 		}
 
 		return;
