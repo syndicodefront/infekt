@@ -1,0 +1,5 @@
+ipch
+*.opensdf
+*.user
+*.sdf
+*.suo

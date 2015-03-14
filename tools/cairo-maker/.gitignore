@@ -1,0 +1,7 @@
+*.tgz
+*.tar
+*.xz
+work
+out-release*
+out-debug*
+include
