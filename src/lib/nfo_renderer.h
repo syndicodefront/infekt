@@ -193,7 +193,7 @@ protected:
 		const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
 		cairo_surface_t* a_surface, double a_xBase, double a_yBase) const;
-	void CalcClassicModeBlockSizes(bool a_force = false);
+	bool CalcClassicModeBlockSizes(bool a_force = false);
 
 	bool IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace = false) const;
 	static void _FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd);

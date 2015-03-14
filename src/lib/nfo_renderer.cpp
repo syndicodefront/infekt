@@ -78,13 +78,18 @@ bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 
 		m_nfo = a_nfo;
 
-		CalcClassicModeBlockSizes(true);
-
 		// the CPU fallback for blurring is 8-bit alpha channel only currently,
 		// only the GPU implementation supports more than one color.
 		m_allowCPUFallback = !IsAnsi();
 
-		return true;
+		if (CalcClassicModeBlockSizes(true))
+		{
+			return true;
+		}
+		else
+		{
+			UnAssignNFO();
+		}
 	}
 
 	return false;
@@ -368,7 +373,10 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 		if(m_classic)
 		{
 			// we need the block size to check the minimum maximum (no typo) stripe height:
-			CalcClassicModeBlockSizes();
+			if (!CalcClassicModeBlockSizes())
+			{
+				return false;
+			}
 		}
 		else
 		{
@@ -1218,12 +1226,13 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 }
 
 
-void CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
+bool CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
 {
+	bool success = true;
+
 	if(m_classic && (m_fontSize < 0 || a_force))
 	{
 		cairo_surface_t* l_tmpSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 100);
-		cairo_surface_finish(l_tmpSurface); // "freeze" / make read-only, we only need it to measure shit
 
 		cairo_t* cr;
 		cairo_font_options_t* l_fontOptions;
@@ -1235,15 +1244,24 @@ void CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
 		cairo_text_extents_t l_extents;
 		cairo_text_extents(cr, l_blockStrUtf.c_str(), &l_extents);
 
-		m_settings.uBlockWidth = (size_t)l_extents.x_advance;
-		m_settings.uBlockHeight = (size_t)l_extents.height;
+		if (l_extents.x_advance < 1 || l_extents.height < 1)
+		{
+			success = false;
+		}
+		else
+		{
+			m_settings.uBlockWidth = (size_t)l_extents.x_advance;
+			m_settings.uBlockHeight = (size_t)l_extents.height;
+
+			m_fontSize = 1; // we use this as a flag. pretty gross, huh?
+		}
 
 		_FinalizeDrawingTools(&cr, &l_fontOptions);
 
 		cairo_surface_destroy(l_tmpSurface);
-
-		m_fontSize = 1; // we use this as a flag. pretty gross, huh?
 	}
+
+	return success;
 }
 
 
