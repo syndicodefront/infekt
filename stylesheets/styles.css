@@ -285,6 +285,8 @@ header li {
 	-webkit-box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
 	box-shadow: inset 0px 1px 1px 0 rgba(233,2,38, 1);
 
+	text-align: center;
+	white-space: nowrap;
 }
 
 header li:hover {
@@ -304,6 +306,10 @@ a.buttons {
 	text-shadow: rgba(0, 0, 0, 0.4) 0 -1px 0;
 	padding: 2px 2px 2px 22px;
 	height: 30px;
+}
+
+li.download {
+	text-align: left;
 }
 
 a.github {
