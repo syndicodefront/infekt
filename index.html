@@ -5,8 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>iNFekt NFO Viewer</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="stylesheets/styles.css" />
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css" />
+    <link rel="stylesheet" href="stylesheets/infekt.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fluidbox/1.4.2/css/fluidbox.css" />
     <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
@@ -34,7 +36,7 @@
 <a id="infekt-for-windows" class="anchor" href="#infekt-for-windows" aria-hidden="true"><span class="octicon octicon-link"></span></a>iNFekt for Windows</h1>
 
 <p>A text viewer application that has been carefully designed around its main task: viewing and presenting NFO files. It comes with three different view modes (Rendered, Classic and Text Only), export functionality and lots of options!
-All Windows versions starting with Windows XP are supported. iNFekt works very well with Windows 7, 8 and is available in a native 64 bit version.</p>
+All Windows versions starting with Windows XP are supported. iNFekt works very well with Windows 8 and is available in a native 64 bit version.</p>
 
 <h2>
 <a id="key-features" class="anchor" href="#key-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Key features</h2>
@@ -53,13 +55,26 @@ All Windows versions starting with Windows XP are supported. iNFekt works very w
 <li>Integrated updater</li>
 <li>Free and Open Source</li>
 <li>Portable versions available</li>
-<li>Color themes<sup>coming soon</sup>
-</li>
-<li>Plugin support<sup>work in progress</sup>
-</li>
+<li>Command line version for easy conversions to PNG, Unicode, HTML, PDF...</li>
 </ul>
 
-<p>A command line version to convert NFO files to PNG images, Unicode text, HTML and PDF documents is shipped with the main download.</p>
+<h2>
+<a id="screenshots" class="anchor" href="#screenshots" aria-hidden="true"><span class="octicon octicon-link"></span></a>Screenshots</h2>
+
+<p class="screenshots">
+  <a href="screens/infekt-screen-1.png" rel="screenshots"><img src="screens/infekt-screen-1-preview.jpg" width="200" height="236" /></a><br />
+  <a href="screens/infekt-screen-2.png" rel="screenshots"><img src="screens/infekt-screen-2-preview.jpg" width="200" height="258" /></a><br />
+  <a href="screens/infekt-screen-3.png" rel="screenshots"><img src="screens/infekt-screen-3-preview.jpg" width="200" height="218" /></a><br />
+  <a href="screens/infekt-screen-4.png" rel="screenshots"><img src="screens/infekt-screen-4-preview.jpg" width="200" height="368" /></a>
+</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fluidbox/1.4.2/jquery.fluidbox.min.js"></script>
+<script>
+$(function () {
+    $('a[rel="screenshots"]').fluidbox();
+})
+</script>
 
 <h2>
 <a id="about" class="anchor" href="#about" aria-hidden="true"><span class="octicon octicon-link"></span></a>About</h2>
@@ -70,22 +85,13 @@ All Windows versions starting with Windows XP are supported. iNFekt works very w
 <a id="infekt-for-linux" class="anchor" href="#infekt-for-linux" aria-hidden="true"><span class="octicon octicon-link"></span></a>iNFekt for Linux</h2>
 
 <p>The command line version is fully functional on Linux. There's also a basic GTK+ version in the source code repository. If you would like to work on improving it, please contact me via e-mail.</p>
+
+
+
       </section>
       <footer>
         <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		          <script type="text/javascript">
-            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-          </script>
-          <script type="text/javascript">
-            try {
-              var pageTracker = _gat._getTracker("UA-18733463-1");
-            pageTracker._trackPageview();
-            } catch(err) {}
-          </script>
-
   </body>
 </html>
