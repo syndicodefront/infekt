@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 cxxjoe
+ * Copyright (C) 2010 syndicode
  *
  * _wtol and _wtoi:
  * Copyright 2000 Alexandre Julliard
