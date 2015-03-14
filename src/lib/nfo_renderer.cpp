@@ -72,23 +72,19 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 
 bool CNFORenderer::AssignNFO(const PNFOData& a_nfo)
 {
-	if(a_nfo->HasData())
+	if (a_nfo->HasData())
 	{
 		UnAssignNFO();
 
-		m_nfo = a_nfo;
-
-		// the CPU fallback for blurring is 8-bit alpha channel only currently,
-		// only the GPU implementation supports more than one color.
-		m_allowCPUFallback = !IsAnsi();
-
 		if (CalcClassicModeBlockSizes(true))
 		{
+			m_nfo = a_nfo;
+
+			// the CPU fallback for blurring is 8-bit alpha channel only currently,
+			// only the GPU implementation supports more than one color.
+			m_allowCPUFallback = !IsAnsi();
+
 			return true;
-		}
-		else
-		{
-			UnAssignNFO();
 		}
 	}
 
