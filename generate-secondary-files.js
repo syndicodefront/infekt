@@ -30,7 +30,7 @@ https.get('https://github.com/syndicodefront/infekt/blob/master/ChangeLog.md', f
   var body = ''
 	res.setEncoding('utf8')
 	res.on('data', function (chunk) { body += chunk })
-	res.on('end', function () { write_content('changelog.html', 'iNFEKT - Changelog', body) })
+	res.on('end', function () { write_content('changelog.html', 'iNFekt - Changelog', body) })
 }).on('error', function(e) {
   console.log(e.message)
 })
@@ -39,7 +39,7 @@ https.get('https://github.com/syndicodefront/infekt/blob/master/FAQ.md', functio
   var body = ''
 	res.setEncoding('utf8')
 	res.on('data', function (chunk) { body += chunk })
-	res.on('end', function () { write_content('faq.html', 'iNFEKT - FAQ', body) })
+	res.on('end', function () { write_content('faq.html', 'iNFekt - FAQ', body) })
 }).on('error', function(e) {
   console.log(e.message)
 })
