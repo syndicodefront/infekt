@@ -1,3 +1,6 @@
+## v0.9.5 (March 14th 2015)
+  * Fix for crash introduced with 0.9.4, sorry
+
 ## v0.9.4 (March 13th 2015)
   * URLs for homepage and auto-update adjusted
   * Line wrap: relaxed max. columns to 90
@@ -241,7 +244,7 @@
   * Updated dependencies: cairo 1.8.10, pixman, libpng
   * Made an optional installer
 
-## v0.1.6 (24 Feb 2010)=
+## v0.1.6 (24 Feb 2010)
   * Implemented block size (Rendered view) setting
   * Added "Default View Mode" setting
   * Added Anti-Alias setting
@@ -271,4 +274,3 @@
 
 ## 31 Dec 2009
   * Work begun
-  
