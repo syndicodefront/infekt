@@ -16,7 +16,7 @@ SETLOCAL
 PUSHD
 
 IF EXIST pcre.tgz GOTO PCREOK
-curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.36.tar.gz -o pcre.tgz
+curl ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.38.tar.gz -o pcre.tgz
 :PCREOK
 
 set ROOTDIR=%cd%\work
