@@ -38,6 +38,7 @@ protected:
 
 private:
 	static std::wstring GetWindowsClientOSName();
+	static std::wstring GetWindowsServerOSName();
 };
 
 #endif  /* !_ABOUT_DLG_H */

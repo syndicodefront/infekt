@@ -68,17 +68,17 @@ BOOL CAboutDialog::OnInitDialog()
 		l_verStr += L" (32 bit)";
 #endif
 #endif
-	const std::wstring winVerName = GetWindowsClientOSName();
-
 	if (CUtilWin32::IsWinServerOS())
 	{
-		l_verStr += L" on Windows Server";
+		l_verStr += L" on Server " + GetWindowsServerOSName();
+	}
+	else
+	{
+		const std::wstring winVerName = GetWindowsClientOSName();
 
 		if (!winVerName.empty())
-			l_verStr += L" (like Win " + winVerName + L")";
+			l_verStr += L" on Windows " + winVerName;
 	}
-	else if (!winVerName.empty())
-		l_verStr += L" on Windows " + winVerName;
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
@@ -100,7 +100,7 @@ BOOL CAboutDialog::OnInitDialog()
 #endif
 	}
 
-	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2015", l_top, 20);
+	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2016", l_top, 20);
 	l_top += 20;
 
 	_CREATE_SYSLINK(l_hHomepage, L"Project Homepage: <A HREF=\"http://infekt.ws/\">infekt.ws</A>", l_top, 20);
@@ -175,6 +175,23 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 		return L"8";
 	else if(CUtilWin32::IsWin10())
 		return L"10";
+	else
+		return L"";
+}
+
+
+/*static*/ std::wstring CAboutDialog::GetWindowsServerOSName()
+{
+	if(CUtilWin32::IsWinXP())
+		return L"2003";
+	else if(CUtilWin32::IsWinVista())
+		return L"2008";
+	else if(CUtilWin32::IsWin7())
+		return L"2008R2";
+	else if(CUtilWin32::IsWin8())
+		return L"2012";
+	else if(CUtilWin32::IsWin10())
+		return L"2016";
 	else
 		return L"";
 }
