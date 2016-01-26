@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+	Disable ultra high-precision scrolling because we only support scrolling full lines anyway.
+	based on
+	https://github.com/syndicodefront/infekt/issues/108
+	https://msdn.microsoft.com/en-us/library/windows/desktop/Dn457656(v=VS.85).aspx
+//-->
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+	<application xmlns="urn:schemas-microsoft-com:asm.v3">
+		<windowsSettings>
+			<ultraHighResolutionScrollingAware xmlns="http://schemas.microsoft.com/SMI/2013/WindowsSettings">false</ultraHighResolutionScrollingAware>
+		</windowsSettings>
+	</application>
+</assembly>
