@@ -2,7 +2,7 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2012
+REM * Visual Studio 2015
 REM * curl in PATH
 REM * http://tukaani.org/xz/
 
@@ -37,11 +37,11 @@ set PATH=%PATH%;C:\msys\1.0\bin
 set VisualStudioVersion=11.0
 
 IF %X64%==y GOTO SWITCHX64
-call "%VS110COMNTOOLS%\vsvars32.bat"
+call "%VS140COMNTOOLS%\vsvars32.bat"
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
-call "%VS110COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
+call "%VS140COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
 set PLATFORM=x64
 :SWITCHNOX64
 
@@ -96,11 +96,11 @@ move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 grep -iv "\(AFCC227E3C1D\|BBEF8099F1D8\|A3CDB672D2FF\|2B829BA36FEC\).*Build" vstudio.sln > vstudio.sln.fixed
 move /Y vstudio.sln.fixed vstudio.sln
 
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110_xp<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v140_xp<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
 move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110_xp<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v140_xp<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
 move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v110_xp<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v140_xp<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
 IF %X64%==n GOTO ZLIBNOX64

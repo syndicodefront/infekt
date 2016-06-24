@@ -8,6 +8,7 @@
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
 	<application xmlns="urn:schemas-microsoft-com:asm.v3">
 		<windowsSettings>
+      <highResolutionScrollingAware xmlns="http://schemas.microsoft.com/SMI/2013/WindowsSettings">false</highResolutionScrollingAware>
 			<ultraHighResolutionScrollingAware xmlns="http://schemas.microsoft.com/SMI/2013/WindowsSettings">false</ultraHighResolutionScrollingAware>
 		</windowsSettings>
 	</application>

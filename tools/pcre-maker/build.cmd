@@ -2,7 +2,7 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2012
+REM * Visual Studio 2015
 REM * curl in PATH
 
 IF NOT "%CONFIG%x"=="x" GOTO PRECONFIGURED
@@ -24,11 +24,11 @@ set PATH=%PATH%;C:\msys\1.0\bin
 set VisualStudioVersion=11.0
 
 IF %X64%==y GOTO SWITCHX64
-call "%VS110COMNTOOLS%vsvars32.bat"
+call "%VS140COMNTOOLS%vsvars32.bat"
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
-call "%VS110COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
+call "%VS140COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
 set PLATFORM=x64
 :SWITCHNOX64
 

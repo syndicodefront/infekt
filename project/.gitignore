@@ -1,5 +1,7 @@
 ipch
 *.opensdf
+*.opendb
 *.user
 *.sdf
 *.suo
+.vs
