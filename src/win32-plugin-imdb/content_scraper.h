@@ -28,12 +28,12 @@ public:
 
 	int GetInt(const std::string& a_name);
 	std::string GetString(const std::string& a_name);
-	bool GetList(const std::string& a_name, std::vector<const std::string>& ar_result);
+	bool GetList(const std::string& a_name, std::vector<std::string>& ar_result);
 
 protected:
 	PXMLTag m_scrapeDefs;
-	std::map<const std::string, std::string> m_extractedStrings;
-	std::map<const std::string, std::vector<const std::string> > m_extractedLists;
+	std::map<std::string, std::string> m_extractedStrings;
+	std::map<std::string, std::vector<std::string>> m_extractedLists;
 };
 
 #endif /* !_CONTENT_SCRAPER_H */

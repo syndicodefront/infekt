@@ -75,7 +75,7 @@ long CRescenePlugin::TryLoadSrrToViewer(const infekt_file_format_open_info_t* a_
 	if(container.ReadFile(a_file->filePath))
 	{
 		// now find .nfo and call Show...
-		std::vector<const SRR::PStoredFile> l_nfos;
+		std::vector<SRR::PStoredFile> l_nfos;
 
 		if(container.FindStoredFiles(L".nfo", true, l_nfos))
 		{

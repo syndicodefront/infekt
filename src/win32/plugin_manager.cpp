@@ -147,7 +147,7 @@ bool CPluginManager::IsPluginLoaded(const std::string& a_guid) const
 }
 
 
-void CPluginManager::GetLoadedPlugins(std::vector<const std::wstring>& ar_dllPaths)
+void CPluginManager::GetLoadedPlugins(std::vector<std::wstring>& ar_dllPaths)
 {
 	for(const auto& pl : m_loadedPlugins)
 	{

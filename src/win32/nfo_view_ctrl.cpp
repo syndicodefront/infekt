@@ -763,6 +763,7 @@ bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 		l_si.nPos += l_si.nPage;
 		break;
 	case SB_THUMBTRACK: // user dragged the scroll box
+	case SB_THUMBPOSITION: // user drag-released the scroll box
 		l_si.nPos = l_si.nTrackPos;
 		break;
 	}

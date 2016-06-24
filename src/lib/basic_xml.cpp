@@ -156,7 +156,7 @@ std::string CXMLParser::StripTags(const std::string& sString)
 /************************************************************************/
 
 // will miss some things such as the bar in <foo lol="wat" bar>, but whatever.
-void CXMLParser::ParseAttributes(const std::string& sTagContents, std::map<const std::string, std::string>& mAttributes)
+void CXMLParser::ParseAttributes(const std::string& sTagContents, std::map<std::string, std::string>& mAttributes)
 {
 	std::string::size_type pos = sTagContents.find(" ");
 	bool bInName = true, bWaitingForVal = false, bInVal = false;

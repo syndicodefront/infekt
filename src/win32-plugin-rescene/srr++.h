@@ -50,7 +50,7 @@ public:
 
 	bool ReadFile(const std::wstring& a_filePath);
 
-	bool FindStoredFiles(const std::wstring& a_suffix, bool a_withoutSlashes, std::vector<const PStoredFile>& ar_found);
+	bool FindStoredFiles(const std::wstring& a_suffix, bool a_withoutSlashes, std::vector<PStoredFile>& ar_found);
 
 protected:
 	std::string m_appName;

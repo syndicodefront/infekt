@@ -157,7 +157,7 @@ READFAIL:
 }
 
 
-bool CContainer::FindStoredFiles(const std::wstring& a_suffix, bool a_withoutSlashes, std::vector<const PStoredFile>& ar_found)
+bool CContainer::FindStoredFiles(const std::wstring& a_suffix, bool a_withoutSlashes, std::vector<PStoredFile>& ar_found)
 {
 	size_t l_oldSize = ar_found.size();
 

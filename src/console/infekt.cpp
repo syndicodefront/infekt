@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
 
 	if(!l_nfoData->LoadFromFile(l_nfoFileName))
 	{
-		fwprintf(stderr, L"ERROR: Unable to load NFO file: %s\n", l_nfoData->GetLastErrorDescription().c_str());
+		fwprintf(stderr, L"ERROR: Unable to load NFO file: %ls\n", l_nfoData->GetLastErrorDescription().c_str());
 		return 1;
 	}
 
@@ -307,7 +307,7 @@ int main(int argc, char* argv[])
 
 		if(!l_stripped->LoadStripped(*l_nfoData))
 		{
-			fwprintf(stderr, L"ERROR: Unable to convert to text-only: %s\n", l_nfoData->GetLastErrorDescription().c_str());
+			fwprintf(stderr, L"ERROR: Unable to convert to text-only: %ls\n", l_nfoData->GetLastErrorDescription().c_str());
 			return 1;
 		}
 
@@ -420,7 +420,7 @@ int main(int argc, char* argv[])
 
 			if(l_inconvertible > 0)
 			{
-				_ftprintf(stderr, _T("WARNING: %d characters in NFO do not have a CP 437 equivalent and were dropped.\n"), l_inconvertible);
+				_ftprintf(stderr, _T("WARNING: %zd characters in NFO do not have a CP 437 equivalent and were dropped.\n"), l_inconvertible);
 			}
 		}
 		else

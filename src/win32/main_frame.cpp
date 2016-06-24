@@ -901,7 +901,7 @@ void CMainFrame::AddToMruList(const std::wstring a_filePath)
 // do not use a reference since it might be a string from m_mruPaths and that
 // would turn out badly.
 {
-	for(vector<wstring>::const_iterator it = m_mruPaths.begin(); it != m_mruPaths.end(); it++)
+	for(auto it = m_mruPaths.begin(); it != m_mruPaths.end(); it++)
 	{
 		if(_wcsicmp(it->c_str(), a_filePath.c_str()) == 0)
 		{
@@ -2108,7 +2108,7 @@ void CMainFrame::SaveActivePluginsToRegistry()
 		return;
 	}
 
-	std::vector<const std::wstring> l_dllPaths;
+	std::vector<std::wstring> l_dllPaths;
 
 	CPluginManager::GetInstance()->GetLoadedPlugins(l_dllPaths);
 

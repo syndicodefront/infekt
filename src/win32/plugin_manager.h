@@ -94,7 +94,7 @@ public:
 	bool IsPluginLoaded(const std::string& a_guid) const;
 	bool UnLoadPlugin(const std::string& a_guid);
 
-	void GetLoadedPlugins(std::vector<const std::wstring>& ar_dllPaths);
+	void GetLoadedPlugins(std::vector<std::wstring>& ar_dllPaths);
 
 	// event triggers (app -> plugins):
 	void TriggerNfoLoad(bool a_before, const std::wstring& a_filePath);

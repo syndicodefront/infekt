@@ -75,7 +75,7 @@ static bool _FindAndConsumeDynamicGroups(pcrecpp::RE* re, pcrecpp::StringPiece* 
 
 bool CContentScraper::DoScrape(const std::string& a_content)
 {
-	std::map<const std::string, std::string> l_symbols;
+	std::map<std::string, std::string> l_symbols;
 
 	if(!m_scrapeDefs)
 	{
@@ -85,7 +85,7 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 	m_extractedStrings.clear();
 	m_extractedLists.clear();
 
-	std::vector<const std::string> l_requiredSymbolNames;
+	std::vector<std::string> l_requiredSymbolNames;
 
 	// evaluate <vars><var>...
 	const PXMLTag l_varsTag = m_scrapeDefs->GetChildByName("vars");
@@ -103,7 +103,7 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 			// pre-fill maps for output/results:
 			if((*itv)->GetAttribute("list") == "true")
 			{
-				m_extractedLists[l_symbolName] = std::vector<const std::string>();
+				m_extractedLists[l_symbolName] = std::vector<std::string>();
 			}
 			else
 			{
@@ -302,9 +302,9 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 	// check that all of the "required" symbols are non-empty:
 	bool l_success = true;
 
-	for(std::vector<const std::string>::const_iterator itr = l_requiredSymbolNames.begin(); itr != l_requiredSymbolNames.end(); itr++)
+	for(const std::string& s : l_requiredSymbolNames)
 	{
-		if((l_symbols.find(*itr) == l_symbols.end() || l_symbols[*itr].empty()) && m_extractedLists[*itr].empty())
+		if((l_symbols.find(s) == l_symbols.end() || l_symbols[s].empty()) && m_extractedLists[s].empty())
 		{
 			l_success = false;
 		}
@@ -313,7 +313,7 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 	if(l_success)
 	{
 		// copy results to member var:
-		for(std::map<const std::string, std::string>::iterator its = m_extractedStrings.begin(); its != m_extractedStrings.end(); its++)
+		for(auto its = m_extractedStrings.begin(); its != m_extractedStrings.end(); its++)
 		{
 			its->second = l_symbols[its->first];
 		}
@@ -336,7 +336,7 @@ std::string CContentScraper::GetString(const std::string& a_name)
 }
 
 
-bool CContentScraper::GetList(const std::string& a_name, std::vector<const std::string>& ar_result)
+bool CContentScraper::GetList(const std::string& a_name, std::vector<std::string>& ar_result)
 {
 	if(m_extractedLists.find(a_name) != m_extractedLists.end() && !m_extractedLists[a_name].empty())
 	{

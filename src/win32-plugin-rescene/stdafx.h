@@ -11,5 +11,6 @@
 #include <map>
 #include <limits>
 #include <memory>
+#include <algorithm>
 
 using std::shared_ptr;

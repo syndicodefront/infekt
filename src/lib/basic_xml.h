@@ -38,7 +38,7 @@ class CXMLTag
 	friend class CXMLParser;
 protected:
 	std::string m_name;
-	std::map<const std::string, std::string> m_attributes;
+	std::map<std::string, std::string> m_attributes;
 	std::vector<PXMLTag> m_children;
 	std::string m_text;
 
@@ -53,17 +53,17 @@ public:
 
 	const std::string GetAttribute(const std::string& sName) const
 	{
-		std::map<const std::string, std::string>::const_iterator it = m_attributes.find(sName);
+		std::map<std::string, std::string>::const_iterator it = m_attributes.find(sName);
 		return (it != m_attributes.end() ? it->second : "");
 	}
 
 	const PXMLTag GetChildByName(const std::string& sTagName) const
 	{
-		for(std::vector<PXMLTag>::const_iterator it = m_children.begin(); it != m_children.end(); it++)
+		for(const PXMLTag& tag : m_children)
 		{
-			if(!_stricmp((*it)->m_name.c_str(), sTagName.c_str()))
+			if(!_stricmp(tag->m_name.c_str(), sTagName.c_str()))
 			{
-				return *it;
+				return tag;
 			}
 		}
 		return PXMLTag();
@@ -94,7 +94,7 @@ public:
 class CXMLParser
 {
 protected:
-	static void ParseAttributes(const std::string& sTagContents, std::map<const std::string, std::string>& mAttributes);
+	static void ParseAttributes(const std::string& sTagContents, std::map<std::string, std::string>& mAttributes);
 public:
 	static PXMLTag ParseString(const std::string& sXmlString);
 	static PXMLTag ParseFile(const std::wstring& a_filePath);
