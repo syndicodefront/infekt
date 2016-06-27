@@ -46,6 +46,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <regex>
 #include <omp.h>
 
 #ifdef HAVE_BOOST

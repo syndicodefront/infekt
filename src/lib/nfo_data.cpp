@@ -637,7 +637,7 @@ bool CNFOData::PostProcessLoadedContent()
 	m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen, 0);
 
 	// vars for hyperlink detection:
-	string l_prevLinkUrl; // UTF-8
+	wstring l_prevLinkUrl;
 	int l_maxLinkId = 1;
 	std::multimap<size_t, CNFOHyperLink>::iterator l_prevLinkIt = m_hyperLinks.end();
 
@@ -677,18 +677,17 @@ bool CNFOData::PostProcessLoadedContent()
 		{
 			size_t l_linkPos = (size_t)-1, l_linkLen;
 			bool l_linkContinued;
-			string l_url, l_prevUrlCopy = l_prevLinkUrl;
+			wstring l_url, l_prevUrlCopy = l_prevLinkUrl;
 			size_t l_offset = 0;
 
-			while(CNFOHyperLink::FindLink(l_utf8Line, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
+			while(CNFOHyperLink::FindLink(*it, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
 			{
-				const wstring wsUrl = CUtil::ToWideStr(l_url, CP_UTF8);
 				int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
 
 				std::multimap<size_t, CNFOHyperLink>::iterator l_newItem =
 					m_hyperLinks.insert(
 					std::pair<size_t, CNFOHyperLink>
-						(i, CNFOHyperLink(l_linkID, wsUrl, i, l_linkPos, l_linkLen))
+						(i, CNFOHyperLink(l_linkID, l_url, i, l_linkPos, l_linkLen))
 					);
 
 				if(!l_linkContinued)
@@ -699,25 +698,25 @@ bool CNFOData::PostProcessLoadedContent()
 				}
 				else
 				{
-					(*l_newItem).second.SetHref(wsUrl);
+					(*l_newItem).second.SetHref(l_url);
 
 					if(l_prevLinkIt != m_hyperLinks.end())
 					{
 						_ASSERT((*l_prevLinkIt).second.GetLinkID() == l_linkID);
 						// update href of link's first line:
-						(*l_prevLinkIt).second.SetHref(wsUrl);
+						(*l_prevLinkIt).second.SetHref(l_url);
 					}
 
-					l_prevLinkUrl = "";
+					l_prevLinkUrl.clear();
 				}
 
-				l_prevUrlCopy = "";
+				l_prevUrlCopy.clear();
 			}
 
 			if(l_linkPos == (size_t)-1)
 			{
 				// do not try to continue links when a line without any link on it is met.
-				l_prevLinkUrl = "";
+				l_prevLinkUrl.clear();
 			}
 		}
 	} // end of foreach line loop.

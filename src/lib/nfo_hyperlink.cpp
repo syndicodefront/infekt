@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010-2014 syndicode
+ * Copyright (C) 2010-2016 syndicode
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,273 +19,236 @@
 using std::string;
 using std::wstring;
 
-
-CNFOHyperLink::CNFOHyperLink(int a_linkID, const wstring& a_href, size_t a_row, size_t a_col, size_t a_len)
+CNFOHyperLink::CNFOHyperLink(int linkID, const wstring& href, size_t row, size_t col, size_t len)
+	: m_linkID(linkID), m_href(href), m_row(row), m_colStart(col), m_colEnd(col + len - 1)
 {
-	m_linkID = a_linkID;
-	m_href = a_href;
-	m_row = a_row;
-	m_colStart = a_col;
-	m_colEnd = a_col + a_len - 1;
 }
 
-
-/*static*/ void CNFOHyperLink::PopulateLinkTriggers()
+bool CNFOHyperLink::FindLink(const std::wstring& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen, std::wstring& srUrl, const std::wstring& sPrevLineLink, bool& brLinkContinued)
 {
-#define TRGR(a, b) PLinkRegEx(new CLinkRegEx(a, b))
-
-	// cache compiled trigger regexes because all those execute on
-	// every single line, so this is an easy performance gain.
-
-	if(!ms_linkTriggers.empty())
-	{
-		return;
-	}
-
-	ms_linkTriggers.push_back(TRGR("h(?:tt|xx|\\*\\*)p://", false));
-	ms_linkTriggers.push_back(TRGR("h(?:tt|xx|\\*\\*)ps://", false));
-	ms_linkTriggers.push_back(TRGR("www\\.", false));
-	ms_linkTriggers.push_back(TRGR("\\w+\\.imdb\\.com", false));
-	ms_linkTriggers.push_back(TRGR("imdb\\.com", false));
-	ms_linkTriggers.push_back(TRGR("(imdb|ofdb|cinefacts|zelluloid|kino)\\.de", false));
-	ms_linkTriggers.push_back(TRGR("(tinyurl|twitter|facebook|imgur|youtube)\\.com", false));
-	ms_linkTriggers.push_back(TRGR("\\b(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)/", false));
-
-	ms_linkTriggers.push_back(PLinkRegEx(new CLinkRegEx("[a-zA-Z0-9]+(?:[a-zA-Z0-9._=-]*)@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}", false, true, false)));
-
-	// all link continuations must appear *after* non-continuations in the list:
-
-	ms_linkTriggers.push_back(TRGR("^\\s*(/)", true));
-	ms_linkTriggers.push_back(TRGR("(\\S+\\.(?:html?|php|aspx?|jpe?g|png|gif)\\S*)", true));
-	ms_linkTriggers.push_back(TRGR("(\\S+/dp/\\S*)", true)); // for amazon
-	ms_linkTriggers.push_back(TRGR("(\\S*dp/[A-Z]\\S+)", true)); // for amazon
-	ms_linkTriggers.push_back(TRGR("(\\S*/\\w+=\\S+)", true));
-	ms_linkTriggers.push_back(TRGR("(\\S+[&?]\\w+=\\S*)", true));
-
-	/*if(sPrevLineLink[sPrevLineLink.size() - 1] == '-') originally */
-	ms_linkTriggers.push_back(TRGR("(\\S{4,}/\\S*)", true));
-	// use at least 4 chars so "4.4/10" in a line following an imdb link does not trigger.
-#undef TRGR
-}
-std::vector<CNFOHyperLink::PLinkRegEx> CNFOHyperLink::ms_linkTriggers;
-
-
-#define OVECTOR_SIZE 30 // multiple of 3!
-/*static*/ bool CNFOHyperLink::FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
-			  std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued)
-{
-	size_t uBytePos = (size_t)-1, uByteLen = 0;
-
 	srUrl.clear();
 
-	if(sLine.size() > (uint64_t)std::numeric_limits<int>::max()
-		|| uirOffset > (uint64_t)std::numeric_limits<int>::max())
+	if (sLine.find_first_of(L"./") == std::wstring::npos)
 	{
+		// no need to run any regex if the line does not contain a . or /
 		return false;
 	}
 
-	// boring vars for pcre_compile:
-	const char *szErrDescr = NULL;
-	int iErrOffset;
-	int ovector[OVECTOR_SIZE];
-
-	PopulateLinkTriggers();
-
-	// find link starting point:
-	bool bMatchContinuesLink = false;
-	bool bMailto = false;
-	for(std::vector<PLinkRegEx>::const_iterator it = ms_linkTriggers.begin(); it != ms_linkTriggers.end(); it++)
+	if (ms_linkTriggers.empty())
 	{
-		const PLinkRegEx& lre = *it;
+		// init static stuff
+		PopulateLinkTriggers();
+	}
 
-		if(sPrevLineLink.empty() && lre->IsCont())
+	//
+	// Phase 1: find earliest link starting point:
+	//
+	size_t linkStartPos = (size_t)-1;
+	bool matchContinuesLink = false;
+	bool matchIsMailLink = false;
+	size_t matchLinkLength = 0;
+	// using this because std::regex_search cannot be given an offset:
+	const std::wstring sLineRemainder = sLine.substr(uirOffset);
+
+	for (const CLinkRegEx& linkRegEx : ms_linkTriggers)
+	{
+		// never match continuations when an actual link start or earlier continuation has been found:
+		// (all continuations are sorted after normal triggers)
+		if (linkRegEx.IsContinuation())
+		{
+			if (sPrevLineLink.empty() || linkStartPos != (size_t)-1)
+			{
+				break;
+			}
+		}
+
+		std::wsmatch match;
+
+		// probe:
+		if (!std::regex_search(sLineRemainder, match, linkRegEx.GetStdRegEx()))
 		{
 			continue;
 		}
 
-		if(pcre_exec(lre->GetRE(), lre->GetStudy(), sLine.c_str(), (int)sLine.size(), (int)uirOffset, 0, ovector, OVECTOR_SIZE) >= 0)
+		size_t newPos = uirOffset + match.position(match.size() < 2 ? 0 : 1);
+
+		// find the earliest link start:
+		if (newPos < linkStartPos)
 		{
-			int iCaptures = 0;
-			if(pcre_fullinfo(lre->GetRE(), lre->GetStudy(), PCRE_INFO_CAPTURECOUNT, &iCaptures) == 0)
+			linkStartPos = newPos;
+
+			matchContinuesLink = linkRegEx.IsContinuation();
+			
+			if (linkRegEx.IsMailLink())
 			{
-				int idx = (iCaptures == 1 ? 1 : 0) * 2;
-				_ASSERT(ovector[idx] >= 0 && ovector[idx + 1] > 0);
-
-				// never match continuations when an actual link start or earlier continuation has been found:
-				if(uBytePos != (size_t)-1 && lre->IsCont())
-				{
-					break;
-				}
-
-				// find the earliest link start:
-				if((size_t)ovector[idx] < uBytePos)
-				{
-					uBytePos = (size_t)ovector[idx];
-
-					bMatchContinuesLink = lre->IsCont();
-					bMailto = lre->IsMailto();
-
-					if(bMailto)
-					{
-						uByteLen = (size_t)ovector[idx + 1] - uBytePos;
-					}
-
-					if(lre->IsCont()) // purely an optimization
-					{
-						break;
-					}
-				}
+				matchLinkLength = match.length();
+				matchIsMailLink = true;
 			}
 		}
 	}
 
-	if(uBytePos == (size_t)-1)
+	if (linkStartPos == (size_t)-1)
 	{
-		// no link found:
+		// no link found.
 		return false;
 	}
 
-	// get the full link:
-	string sWorkUrl;
+	//
+	// Phase 2: get the full link:
+	//          (sWorkUrl must have the same length as in the original document, no fixes here yet!)
+	//
 
-	if(!bMailto)
+	std::wstring sWorkUrl;
+
+	if (matchLinkLength > 0)
+	{
+		sWorkUrl = sLine.substr(linkStartPos, matchLinkLength);
+	}
+	else
 	{
 		// ugly workaround for commonly present IMDB links:
-		// https://code.google.com/p/infekt/issues/detail?id=94
+		// https://github.com/syndicodefront/infekt/issues/94
 		// (cannot entirely remove this functionality, it's often used for other types of links)
-		if(!sPrevLineLink.empty() && bMatchContinuesLink && sPrevLineLink.find("imdb.") != std::string::npos)
+		if (!sPrevLineLink.empty() && matchContinuesLink && sPrevLineLink.find(L"imdb.") != std::wstring::npos)
 		{
-			pcre* re = pcre_compile("/[a-z]{2}\\d{6,}/?$", PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
-			bool matches = (pcre_exec(re, NULL, sPrevLineLink.c_str(), (int)sPrevLineLink.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0);
-			pcre_free(re);
-
-			if(matches)
+			if (std::regex_search(sPrevLineLink, std::wregex(L"/[a-z]{2}\\d{6,}/?$")))
 			{
 				return false;
 			}
 		}
 
-		string sLineRemainder = sLine.substr(uBytePos);
+		std::wstring sLineRemainder = sLine.substr(linkStartPos);
 
-		if(sLineRemainder.find("hxxp://") == 0 || sLineRemainder.find("h**p://") == 0)
+		if (sLineRemainder.find(L"hxxp://") == 0 || sLineRemainder.find(L"h**p://") == 0)
 		{
-			sLineRemainder.replace(0, 7, "http://");
+			sLineRemainder.replace(0, 7, L"http://");
 		}
-		else if(sLineRemainder.find("hxxps://") == 0 || sLineRemainder.find("h**ps://") == 0)
+		else if (sLineRemainder.find(L"hxxps://") == 0 || sLineRemainder.find(L"h**ps://") == 0)
 		{
-			sLineRemainder.replace(0, 8, "https://");
+			sLineRemainder.replace(0, 8, L"https://");
 		}
 
-#define REMPAT "^[\\w,/.!#:%;?&=~+-]"
+		std::wregex reUrlRemainder(
+			std::wstring(L"^[\\w,/.!#:%;?&=~+-]") + (matchContinuesLink ? L"{4,}" : L"{9,}"));
+		std::wsmatch match;
 
-		pcre* reUrlRemainder = pcre_compile(bMatchContinuesLink ? REMPAT "{4,}" : REMPAT "{9,}",
-			PCRE_UTF8 | PCRE_NO_UTF8_CHECK | PCRE_UCP, &szErrDescr, &iErrOffset, NULL);
-
-#undef REMPAT
-
-		if(pcre_exec(reUrlRemainder, NULL, sLineRemainder.c_str(), (int)sLineRemainder.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
+		if (std::regex_search(sLineRemainder, match, reUrlRemainder))
 		{
-			_ASSERT(ovector[0] == 0);
-			uByteLen = (size_t)ovector[1] - (size_t)ovector[0];
-
-			sWorkUrl = sLineRemainder.substr((size_t)ovector[0], uByteLen);
+			sWorkUrl = match.str();
 
 			// strip trailing dots and colons. gross code.
-			while(sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == '.' || sWorkUrl[sWorkUrl.size() - 1] == ':'))
+			while (sWorkUrl.size() && (sWorkUrl[sWorkUrl.size() - 1] == L'.' || sWorkUrl[sWorkUrl.size() - 1] == L':'))
 			{
 				sWorkUrl.erase(sWorkUrl.size() - 1);
 			}
 		}
+	}
 
-		pcre_free(reUrlRemainder);
+	if (sWorkUrl.empty())
+	{
+		return false;
+	}
+
+	//
+	// Phase 3: combine and fix up final URL:
+	//
+
+	urLinkPos = linkStartPos;
+	urLinkLen = sWorkUrl.size();
+	uirOffset = linkStartPos + sWorkUrl.size();
+
+	if (matchIsMailLink)
+	{
+		srUrl = L"mailto:" + sWorkUrl;
+		brLinkContinued = false;
+
+		return true;
+	}
+
+	if (sWorkUrl.find(L"http://http://") == 0)
+	{
+		// sigh...
+		sWorkUrl.erase(0, 7);
+	}
+
+	if (!sPrevLineLink.empty() && matchContinuesLink)
+	{
+		wstring sPrevLineLinkCopy(sPrevLineLink);
+
+		if (sPrevLineLink[sPrevLineLink.size() - 1] != '.')
+		{
+			if (std::regex_search(sWorkUrl, std::wregex(L"^(html?|php|aspx?|jpe?g|png|gif)")))
+			{
+				sPrevLineLinkCopy += L'.';
+			}
+		}
+
+		sWorkUrl.insert(0, sPrevLineLinkCopy);
+		brLinkContinued = true;
 	}
 	else
 	{
-		// uByteLen has been set above.
-		sWorkUrl = sLine.substr(uBytePos, uByteLen);
+		brLinkContinued = false;
 	}
 
-	if(!sWorkUrl.empty())
+	if (!std::regex_search(sWorkUrl, std::wregex(L"^(http|ftp)s?://", std::regex::icase)))
 	{
-		urLinkPos = utf8_strlen(sLine.c_str(), uBytePos);
-		urLinkLen = utf8_strlen(sWorkUrl.c_str(), -1); // IN CHARACTERS, NOT BYTES!
-
-		uirOffset = uBytePos + uByteLen;
-
-		if(bMailto)
-		{
-			// early exit for mailto links:
-
-			srUrl = "mailto:" + sWorkUrl;
-			brLinkContinued = false;
-
-			return true;
-		}
-
-		if(sWorkUrl.find("http://http://") == 0)
-		{
-			// sigh...
-			sWorkUrl.erase(0, 7);
-		}
-
-		if(!sPrevLineLink.empty() && bMatchContinuesLink)
-		{
-			string sPrevLineLinkCopy(sPrevLineLink);
-			if(sPrevLineLink[sPrevLineLink.size() - 1] != '.')
-			{
-				pcre* re = pcre_compile("^(html?|php|aspx?|jpe?g|png|gif)", PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
-				if(pcre_exec(re, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
-				{
-					sPrevLineLinkCopy += '.';
-				}
-				pcre_free(re);
-			}
-			sWorkUrl = sPrevLineLinkCopy + sWorkUrl;
-			brLinkContinued = true;
-		}
-		else
-		{
-			brLinkContinued = false;
-		}
-
-		pcre* reProtocol = pcre_compile("^(http|ftp)s?://",
-			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
-		if(pcre_exec(reProtocol, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) < 0)
-		{
-			sWorkUrl = "http://" + sWorkUrl;
-		}
-		pcre_free(reProtocol);
-
-		pcre* reValid = pcre_compile("^(http|ftp)s?://([\\w-]+)\\.([\\w.-]+)/?",
-			PCRE_CASELESS | PCRE_UTF8 | PCRE_NO_UTF8_CHECK, &szErrDescr, &iErrOffset, NULL);
-		if(pcre_exec(reValid, NULL, sWorkUrl.c_str(), (int)sWorkUrl.size(), 0, 0, ovector, OVECTOR_SIZE) >= 0)
-		{
-			srUrl = sWorkUrl;
-		}
-		pcre_free(reValid);
-
-		return (!srUrl.empty());
+		sWorkUrl.insert(0, L"http://");
 	}
 
-	return false;
-}
-#undef OVECTOR_SIZE
+	if (std::regex_search(sWorkUrl, std::wregex(L"^(http|ftp)s?://([\\w-]+)\\.([\\w.-]+)/?", std::regex::icase)))
+	{
+		srUrl = sWorkUrl;
+	}
 
+	return !srUrl.empty();
+}
+
+void CNFOHyperLink::PopulateLinkTriggers()
+{
+	// keep compiled trigger regexes because all those execute on
+	// every single line, so this is an easy performance gain.
+
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"h(?:tt|xx|\\*\\*)p://", false));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"h(?:tt|xx|\\*\\*)ps://", false));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"www\\.", false));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"\\w+\\.imdb\\.com", false));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"imdb\\.com", false));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(imdb|ofdb|cinefacts|zelluloid|kino)\\.de", false));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(tinyurl|twitter|facebook|imgur|youtube)\\.com", false));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"\\b(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)/", false));
+
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"[a-zA-Z0-9]+(?:[a-zA-Z0-9._=-]*)@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}", false, true, false));
+
+	//
+	// all link continuations must appear *after* non-continuations in the list:
+	//
+
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"^\\s*(/)", true));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S+\\.(?:html?|php|aspx?|jpe?g|png|gif)\\S*)", true));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S+/dp/\\S*)", true)); // for amazon
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S*dp/[A-Z]\\S+)", true)); // for amazon
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S*/\\w+=\\S+)", true));
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S+[&?]\\w+=\\S*)", true));
+
+	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S{4,}/\\S*)", true));
+	// use at least 4 chars so "4.4/10" in a line following an imdb link does not trigger.
+}
+
+std::vector<CNFOHyperLink::CLinkRegEx> CNFOHyperLink::ms_linkTriggers;
 
 /**
  * CLinkRegEx constructor
  */
-CNFOHyperLink::CLinkRegEx::CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto, bool a_caseless)
-	: m_reString(regex_str), m_cont(a_cont), m_mailto(a_mailto)
+CNFOHyperLink::CLinkRegEx::CLinkRegEx(const std::wstring& regexStr, bool isContinutation, bool isMailLink, bool ignoreCase)
+	: m_isContinuation(isContinutation), m_isMailLink(isMailLink)
 {
-	const char *szErrDescr = NULL;
-	int iErrOffset;
+	std::regex::flag_type flags = std::regex::ECMAScript | std::regex::optimize;
 
-	m_re = pcre_compile(regex_str,
-		PCRE_UTF8 | PCRE_NO_UTF8_CHECK | (a_caseless ? PCRE_CASELESS : 0),
-		&szErrDescr, &iErrOffset, NULL);
-	_ASSERT(m_re != NULL);
-	// no further error handling because all the regex are hardcoded
+	if (ignoreCase)
+	{
+		flags = flags | std::regex::icase;
+	}
 
-	m_study = pcre_study(m_re, 0, &szErrDescr);
+	m_regex.swap(std::wregex(regexStr, flags));
 }

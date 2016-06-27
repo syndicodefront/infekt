@@ -16,12 +16,13 @@
 #define _NFO_HYPERLINK_H
 
 #include <string>
+#include <vector>
+#include <regex>
 
 class CNFOHyperLink
 {
 public:
-	CNFOHyperLink(int a_linkID, const std::wstring& a_href, size_t a_row,
-		size_t a_col, size_t a_len);
+	CNFOHyperLink(int linkID, const std::wstring& href, size_t row, size_t col, size_t len);
 
 	void SetHref(const std::wstring& a_href) { m_href = a_href; }
 	const int GetLinkID() const { return m_linkID; }
@@ -31,8 +32,8 @@ public:
 	const size_t GetColEnd() const { return m_colEnd; }
 	const size_t GetLength() const { return m_colEnd - m_colStart + 1; }
 
-	static bool FindLink(const std::string& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
-		std::string& srUrl, const std::string& sPrevLineLink, bool& brLinkContinued);
+	static bool FindLink(const std::wstring& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
+		std::wstring& srUrl, const std::wstring& sPrevLineLink, bool& brLinkContinued);
 
 protected:
 	int m_linkID;
@@ -46,28 +47,20 @@ protected:
 	class CLinkRegEx
 	{
 	public:
-		CLinkRegEx(const char* regex_str, bool a_cont, bool a_mailto = false, bool a_caseless = true);
+		CLinkRegEx(const std::wstring& regexStr, bool isContinutation, bool isMailLink = false, bool ignoreCase = true);
 
-		pcre *GetRE() const { return m_re; }
-		pcre_extra *GetStudy() const { return m_study; }
-		bool IsCont() const { return m_cont; }
-		bool IsMailto() const { return m_mailto; }
+		bool IsContinuation() const { return m_isContinuation; }
+		bool IsMailLink() const { return m_isMailLink; }
 
-		virtual ~CLinkRegEx()
-		{
-			if(m_study) pcre_free_study(m_study);
-			if(m_re) pcre_free(m_re);
-		}
+		const std::wregex& GetStdRegEx() const { return m_regex; }
+
 	protected:
-		const char *m_reString;
-		pcre *m_re;
-		pcre_extra* m_study;
-		bool m_cont;
-		bool m_mailto;
+		std::wregex m_regex;
+		bool m_isContinuation;
+		bool m_isMailLink;
 	};
-	typedef shared_ptr<CLinkRegEx> PLinkRegEx;
 
-	static std::vector<PLinkRegEx> ms_linkTriggers;
+	static std::vector<CLinkRegEx> ms_linkTriggers;
 	static void PopulateLinkTriggers();
 
 private:

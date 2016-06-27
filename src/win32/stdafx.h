@@ -58,6 +58,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <regex>
 #include <omp.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
