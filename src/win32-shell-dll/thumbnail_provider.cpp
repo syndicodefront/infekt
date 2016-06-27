@@ -124,7 +124,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 
 	if(l_imgHeight > 600)
 	{
-		// https://code.google.com/p/infekt/issues/detail?id=89
+		// https://github.com/syndicodefront/infekt/issues/89
 		l_imgHeight = 600;
 		l_cut = true;
 	}

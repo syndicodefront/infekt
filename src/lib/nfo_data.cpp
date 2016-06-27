@@ -451,12 +451,12 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 		}
 	}
 
-	if(lines_processed > 0 &&
-		lines_processed < a_lines.size() * 0.5) // https://code.google.com/p/infekt/issues/detail?id=91 - preserve some NFOs
+	if (lines_processed > 0 &&
+		lines_processed < a_lines.size() * 0.5) // https://github.com/syndicodefront/infekt/issues/91 - preserve some NFOs
 	{
 		a_newMaxLineLen = 0;
 
-		for(const std::wstring& line : l_newLines)
+		for (const std::wstring& line : l_newLines)
 		{
 			a_newMaxLineLen = std::max(line.size(), a_newMaxLineLen);
 		}
@@ -685,10 +685,7 @@ bool CNFOData::PostProcessLoadedContent()
 				int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
 
 				std::multimap<size_t, CNFOHyperLink>::iterator l_newItem =
-					m_hyperLinks.insert(
-					std::pair<size_t, CNFOHyperLink>
-						(i, CNFOHyperLink(l_linkID, l_url, i, l_linkPos, l_linkLen))
-					);
+					m_hyperLinks.emplace(i, CNFOHyperLink(l_linkID, l_url, i, l_linkPos, l_linkLen));
 
 				if(!l_linkContinued)
 				{
@@ -876,13 +873,13 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 			}
 			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 2 && a_data[i + 1] == 0x0D && a_data[i + 2] == 0x0A)
 			{
-				// https://code.google.com/p/infekt/issues/detail?id=92
+				// https://github.com/syndicodefront/infekt/issues/92
 				// http://stackoverflow.com/questions/6998506/text-file-with-0d-0d-0a-line-breaks
 				m_textContent[i] = L' ';
 			}
 			else if (p == 0x0D && !l_containsLF && l_containsCR)
 			{
-				// http://code.google.com/p/infekt/issues/detail?id=103
+				// https://github.com/syndicodefront/infekt/issues/103
 				m_textContent[i] = L'\n';
 			}
 			else
@@ -944,7 +941,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLen)
 {
 	// no fuzz here, be compliant!
-	// https://code.google.com/p/infekt/issues/detail?id=83
+	// https://github.com/syndicodefront/infekt/issues/83
 
 	bool l_error = false;
 
@@ -1017,18 +1014,14 @@ bool CNFOData::DetectAnsi() const
 {
 	// try to detect ANSI art files without SAUCE records:
 
-	if(!m_isAnsi && HasFileExtension(_T(".ans")) && m_textContent.find(L"\u2190[") != std::wstring::npos)
+	if (!m_isAnsi && HasFileExtension(_T(".ans")) && m_textContent.find(L"\u2190[") != std::wstring::npos)
 	{
 		return true;
 	}
 
-	if(!m_isAnsi && !HasFileExtension(_T(".nfo")) && m_textContent.find(L"\u2190[") != std::wstring::npos)
+	if (!m_isAnsi && !HasFileExtension(_T(".nfo")) && m_textContent.find(L"\u2190[") != std::wstring::npos)
 	{
-#ifdef INFEKT_REGEX_UTF16
-		return CRegExUtil::DoesMatch(m_textContent, L"\u2190\\[[0-9;]+m");
-#else
-		return CRegExUtil::DoesMatch(CUtil::FromWideStr(m_textContent, CP_UTF8), "\xE2\x86\x90\\[[0-9;]+m");
-#endif
+		return std::regex_search(m_textContent, std::wregex(L"\u2190\\[[0-9;]+m"));
 	}
 
 	return false;

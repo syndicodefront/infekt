@@ -28,9 +28,9 @@ bool CNFOHyperLink::FindLink(const std::wstring& sLine, size_t& uirOffset, size_
 {
 	srUrl.clear();
 
-	if (sLine.find_first_of(L"./") == std::wstring::npos)
+	if (sLine.find_first_of(L"./&?") == std::wstring::npos)
 	{
-		// no need to run any regex if the line does not contain a . or /
+		// no need to run any regex if the line does not contain any URL-worthy characters
 		return false;
 	}
 
