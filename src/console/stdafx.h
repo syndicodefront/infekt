@@ -70,7 +70,6 @@ using boost::shared_ptr;
 #else
 #include <cairo.h>
 #endif
-#include <pcre.h>
 
 /* local headers */
 #include "infekt.h"

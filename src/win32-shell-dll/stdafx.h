@@ -44,7 +44,6 @@
 using std::shared_ptr;
 
 #include <cairo-win32.h>
-#include <pcre.h>
 
 #ifdef _WIN64
 typedef signed __int64 ssize_t;

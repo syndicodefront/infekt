@@ -14,7 +14,6 @@
 
 #include "stdafx.h"
 #include "content_scraper.h"
-#include "pcrecpp.h"
 #include "util.h"
 
 
@@ -52,7 +51,7 @@ bool CContentScraper::LoadScraperFile(const std::wstring& a_filePath)
 	}
 }
 
-
+#if 0
 static bool _FindAndConsumeDynamicGroups(pcrecpp::RE* re, pcrecpp::StringPiece* a_piece, std::vector<std::string>& grps)
 {
 	bool bMatch = false;
@@ -71,6 +70,7 @@ static bool _FindAndConsumeDynamicGroups(pcrecpp::RE* re, pcrecpp::StringPiece* 
 	}
 	return bMatch;
 }
+#endif
 
 
 bool CContentScraper::DoScrape(const std::string& a_content)
@@ -121,6 +121,7 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 	// define reserved symbol for entire input:
 	l_symbols["_INPUT_"] = a_content;
 
+#if 0
 	// go through root tag and find <extract> children:
 	for(std::vector<PXMLTag>::const_iterator ite = m_scrapeDefs->BeginChildren(); ite != m_scrapeDefs->EndChildren(); ite++)
 	{
@@ -298,6 +299,9 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 			} while (bLoopOccurrences && _FindAndConsumeDynamicGroups(&l_regex, &l_reInput, l_groups));
 		}
 	}
+#else
+	return false;
+#endif
 
 	// check that all of the "required" symbols are non-empty:
 	bool l_success = true;

@@ -73,13 +73,12 @@ INFEKT_PLUGIN_METHOD(CImdbPlugin::EnumNfoLinksCallback)
 	if(lCall == IPV_ENUM_ITEM)
 	{
 		infekt_nfo_link_t* l_link = reinterpret_cast<infekt_nfo_link_t*>(pParam);
+		const std::wstring l_href(l_link->href);
+		std::wsmatch match;
 
-		const std::string l_utf8Url = CUtil::FromWideStr(l_link->href, CP_UTF8);
-		pcrecpp::StringPiece l_linkUrlPiece(l_utf8Url);
-		std::string l_imdbId;
-
-		if(pcrecpp::RE("\\.imdb\\.\\w+.*/tt(\\d+)").PartialMatch(l_linkUrlPiece, &l_imdbId))
+		if (std::regex_search(l_href, match, std::wregex(L"\\.imdb\\.\\w+.*/tt(\\d+)", std::regex::icase)))
 		{
+			const std::string l_imdbId = CUtil::FromWideStr(match.str(1), CP_UTF8);
 			reinterpret_cast<CImdbPlugin*>(pUser)->OnFoundImdbLink(l_imdbId);
 
 			return IPE_STOP; // we only use the first imdb link.

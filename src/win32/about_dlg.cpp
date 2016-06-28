@@ -114,9 +114,9 @@ BOOL CAboutDialog::OnInitDialog()
 		l_gpuFlag = CNFORenderer::GetGlobalUseGPUFlag() ? L"yes" : L"disabled";
 	}
 
-	_CREATE_STATIC(l_hLibVersions, FORMAT(L"Using Cairo v%d.%d.%d, PCRE v%d.%02d, GPU: %s",
-		CAIRO_VERSION_MAJOR % CAIRO_VERSION_MINOR % CAIRO_VERSION_MICRO %
-		PCRE_MAJOR % PCRE_MINOR % l_gpuFlag), l_top, 20);
+	_CREATE_STATIC(l_hLibVersions, FORMAT(L"Using Cairo v%d.%d.%d, GPU: %s",
+		CAIRO_VERSION_MAJOR % CAIRO_VERSION_MINOR % CAIRO_VERSION_MICRO % l_gpuFlag),
+		l_top, 20);
 	l_top += 20;
 
 	_CREATE_STATIC(l_hGPL, L"This program is free software; you can redistribute it and/or "

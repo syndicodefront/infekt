@@ -15,11 +15,5 @@
 #include <queue>
 #include <stack>
 #include <memory>
+#include <regex>
 using std::shared_ptr;
-
-#include <pcre.h>
-#pragma warning (push)
-#pragma warning (disable: 4251)
-// disable warning about DLL import of std:: class
-#include <pcrecpp.h>
-#pragma warning (pop)

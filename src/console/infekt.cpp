@@ -178,7 +178,7 @@ int main(int argc, char* argv[])
 			return 0;
 		case 'v':
 			printf("VERSION: iNFekt v%d.%d.%d\n", INFEKT_VERSION_MAJOR, INFEKT_VERSION_MINOR, INFEKT_VERSION_REVISION);
-			printf("using Cairo v%d.%d.%d, PCRE v%d.%02d\n", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO, PCRE_MAJOR, PCRE_MINOR);
+			printf("using Cairo v%d.%d.%d\n", CAIRO_VERSION_MAJOR, CAIRO_VERSION_MINOR, CAIRO_VERSION_MICRO);
 			return 0;
 		case 'O':
 			l_outFileName = ::optarg;
