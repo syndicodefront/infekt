@@ -22,8 +22,6 @@
 #include "util_win32_gui.h"
 #endif
 
-#include "util_regex.h"
-
 
 class CUtil
 {

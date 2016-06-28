@@ -114,8 +114,10 @@ int getopt_missing_arg( const TCHAR *optstring )
  * error messages, displayed on various fault conditions, provided
  * `opterr' is non-zero.
  */
-#define	complain( MSG, ARG )  if( opterr ) \
-  fprintf( stderr, "%s: "MSG"\n", PROGNAME, ARG )
+#define	complain( MSG, ARG )
+ // disabled because it doesn't properly support TCHAR/wchar_t
+ // if( opterr ) \
+ // fprintf( stderr, "%s: "MSG"\n", PROGNAME, ARG )
 
 static __inline__
 int getopt_argerror( int mode, TCHAR *fmt, TCHAR *prog, struct option *opt, int retval )
