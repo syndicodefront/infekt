@@ -1,4 +1,4 @@
-@echo off
+@echo on
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
@@ -21,20 +21,20 @@ curl http://zlib.net/zlib-1.2.8.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.21.tar.gz -o libpng.tgz
+curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.22.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl http://www.cairographics.org/releases/pixman-0.32.8.tar.gz -o pixman.tgz
+curl https://www.cairographics.org/releases/pixman-0.34.0.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tar.xz GOTO CZOK
-curl http://www.cairographics.org/releases/cairo-1.14.6.tar.xz -o cairo.tar.xz
+curl https://www.cairographics.org/releases/cairo-1.14.6.tar.xz -o cairo.tar.xz
 :CZOK
 
 set ROOTDIR=%cd%\work
 set PATH=%PATH%;C:\msys\1.0\bin
-set VisualStudioVersion=11.0
+set VisualStudioVersion=14.0
 
 IF %X64%==y GOTO SWITCHX64
 call "%VS140COMNTOOLS%\vsvars32.bat"
