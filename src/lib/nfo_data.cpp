@@ -1503,95 +1503,82 @@ static wstring _TrimParagraph(const wstring& a_text)
 	return l_result;
 }
 
+// no multine flag in std::regex (yet), so do it line by line:
+static std::wstring _StripSingleLine(const std::wstring& line)
+{
+	if (std::regex_match(line, std::wregex(L"^[^a-zA-Z0-9]+$")))
+	{
+		return L"";
+	}
+	else if (std::regex_match(line, std::wregex(L"^(.)\\1+$")))
+	{
+		return L"";
+	}
+
+	std::wstring work
+		= std::regex_replace(line, std::wregex(L"^([\\S])\\1+\\s{3,}(.+?)$"), L"$2");
+
+	work
+		= std::regex_replace(work, std::wregex(L"^(.+?)\\s{3,}([\\S])\\2+$"), L"$1");
+
+	work
+		= std::regex_replace(work, std::wregex(L"\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$"), L"");
+
+	if (work.empty() || std::regex_match(work, std::wregex(L"^\\s*.{1,3}\\s*$")))
+	{
+		return L"";
+	}
+
+	return work;
+}
 
 wstring CNFOData::GetStrippedText() const
 {
 	wstring l_text;
-	l_text.reserve(m_textContent.size() / 2);
+	wstring l_line;
 
-	for(size_t p = 0; p < m_textContent.size(); p++)
+	l_text.reserve(m_textContent.size() / 2);
+	l_line.reserve(200);
+
+	// remove "special" characters and process by line:
+	for (const wchar_t& c : m_textContent)
 	{
 #if defined(_WIN32) || defined(MACOSX)
-		if(iswascii(m_textContent[p]) || iswalnum(m_textContent[p]) || iswspace(m_textContent[p]))
+		if (iswascii(c) || iswalnum(c) || iswspace(c))
 #else
-		if(iswalnum(m_textContent[p]) || iswspace(m_textContent[p]))
+		if (iswalnum(c) || iswspace(c))
 #endif
 		{
-			if(m_textContent[p] == L'\n')
+			if (c == L'\n')
 			{
-				CUtil::StrTrimRight(l_text, L" ");
-			}
+				CUtil::StrTrimRight(l_line); // unify newlines
 
-			l_text += m_textContent[p];
+				l_text += _StripSingleLine(l_line);
+				l_text += L'\n';
+
+				l_line.clear();
+			}
+			else
+			{
+				l_line += c;
+			}
 		}
 		else
 		{
-			l_text += L' ';
-			 // we do this to make it easier to nicely retain paragraphs later on
+			l_line += L' '; // do this to make it easier to nicely retain paragraphs later on
 		}
 	}
-
-	// collapse newlines between paragraphs:
-	for(size_t p = 0; p < l_text.size(); p++)
-	{
-		if(l_text[p] == L'\n' && p < l_text.size() - 2 && l_text[p + 1] == L'\n')
-		{
-			p += 2;
-
-			while(p < l_text.size() && l_text[p] == L'\n')
-			{
-				l_text.erase(p, 1);
-			}
-		}
-	}
-
-#ifndef INFEKT_REGEX_UTF16
-	std::string l_textUtf8 = CUtil::FromWideStr(l_text, CP_UTF8);
-	#define l_text l_textUtf8
-#endif
-
-	l_text = CRegExUtil::Replace(l_text, _RESTR("^[^a-zA-Z0-9]+$"), _RESTR(""), PCRE_MULTILINE);
-
-	l_text = CRegExUtil::Replace(l_text, _RESTR("^(.)\\1+$"), _RESTR(""),
-		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
-
-	l_text = CRegExUtil::Replace(l_text, _RESTR("^([\\S])\\1+\\s{3,}(.+?)$"), _RESTR("$2"),
-		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
-
-	l_text = CRegExUtil::Replace(l_text, _RESTR("^(.+?)\\s{3,}([\\S])\\2+$"), _RESTR("$1"),
-		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
-
-#if 0
-	// this ruins our efforts to keep indention for paragraphs :(
-	// ...but it makes other NFOs look A LOT better...
-	// :TODO: figure out a smart way.
-	l_text = CRegExUtil::Replace(l_text, _RESTR("^[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}\\s+"), _RESTR(""),
-		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
-#endif
-
-	l_text = CRegExUtil::Replace(l_text, _RESTR("\\s+[\\\\/:.#_|()\\[\\]*@=+ \\t-]{3,}$"), _RESTR(""),
-		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
-
-	l_text = CRegExUtil::Replace(l_text, _RESTR("^\\s*.{1,3}\\s*$"), _RESTR(""),
-		INFEKT_PCRE_NO_UTF_CHECK | PCRE_MULTILINE);
-
-	l_text = CRegExUtil::Replace(l_text, _RESTR("\\n{2,}"), _RESTR("\n\n"), INFEKT_PCRE_NO_UTF_CHECK);
-
-#ifndef INFEKT_REGEX_UTF16
-	#undef l_text
-	l_text = CUtil::ToWideStr(l_textUtf8, CP_UTF8);
-#endif
 
 	CUtil::StrTrimLeft(l_text, L"\n");
 
+	l_text = std::regex_replace(l_text, std::wregex(L"\\n{2,}"), L"\n\n");
+
 	// adjust indention for each paragraph:
-	if(true)
 	{
 		wstring l_newText;
-
 		wstring::size_type l_pos = l_text.find(L"\n\n"), l_prevPos = 0;
 
-		while(l_pos != wstring::npos)
+		while (l_pos != wstring::npos)
 		{
 			const wstring l_paragraph = l_text.substr(l_prevPos, l_pos - l_prevPos);
 			const wstring l_newPara = _TrimParagraph(l_paragraph);
@@ -1602,7 +1589,7 @@ wstring CNFOData::GetStrippedText() const
 			l_pos = l_text.find(L"\n\n", l_prevPos);
 		}
 
-		if(l_prevPos < l_text.size())
+		if (l_prevPos < l_text.size())
 		{
 			const wstring l_paragraph = l_text.substr(l_prevPos);
 			l_newText += _TrimParagraph(l_paragraph);
@@ -1613,7 +1600,6 @@ wstring CNFOData::GetStrippedText() const
 
 	return l_text;
 }
-
 
 const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace) const
 {
