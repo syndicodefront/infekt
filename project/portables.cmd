@@ -35,13 +35,17 @@ xcopy /Y "%ROOTDIR%\..\release\*.url" %PP64%
 
 rem COPY RUNTIME DLLS
 
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.CRT\msvc*.dll" %PP32%
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.OpenMP\*.dll" %PP32%
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.CXXAMP\*.dll" %PP32%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\msvc*.dll" %PP32%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\concrt*.dll" %PP32%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\vcruntime*.dll" %PP32%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.OpenMP\*.dll" %PP32%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CXXAMP\*.dll" %PP32%
 
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC110.CRT\msvc*.dll" %PP64%
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC110.OpenMP\*.dll" %PP64%
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC110.CXXAMP\*.dll" %PP64%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\msvc*.dll" %PP64%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\concrt*.dll" %PP64%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\vcruntime*.dll" %PP64%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.OpenMP\*.dll" %PP64%
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CXXAMP\*.dll" %PP64%
 
 rem COPY BUILT FILES
 
@@ -80,8 +84,10 @@ xcopy /Y /S /E %ROOTDIR%\..\release\PortableApps %PAP%
 
 copy /Y %ROOTDIR%\..\release\portable.ini %PAP%\App\DefaultData
 
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.CRT\*.dll" %PAP%\App\iNFekt
-xcopy /Y "%VS110COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC110.OpenMP\*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\msvc*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\concrt*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\vcruntime*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.OpenMP\*.dll" %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-win32.exe %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\iNFektPortableLauncher.exe %PAP%\iNFektPortable.exe

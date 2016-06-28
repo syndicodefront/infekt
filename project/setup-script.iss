@@ -52,8 +52,6 @@ Source: "{#SourceFileDir32}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversio
 Source: "{#SourceFileDir64}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#SourceFileDir64}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#SourceFileDir32}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\pcre.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
 Source: "{#SourceFileDir64}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: not Is64BitInstallMode
@@ -75,6 +73,8 @@ Type: files; Name: "{app}\cudart32_32_16.dll"
 Type: files; Name: "{app}\cudart64_32_16.dll"
 Type: files; Name: "{app}\libpng15.dll"
 ; these 4 were used up to 0.8.5
+Type: files; Name: "{app}\pcre.dll"
+; these were used up to 0.9.9
 
 Type: files; Name: "{app}\MSVCP100.dll"
 Type: files; Name: "{app}\MSVCR100.dll"
@@ -83,6 +83,11 @@ Type: files; Name: "{app}\MSVCP110.dll"
 Type: files; Name: "{app}\MSVCR110.dll"
 Type: files; Name: "{app}\VCOMP110.dll"
 Type: files; Name: "{app}\VCAMP110.dll"
+Type: files; Name: "{app}\concrt140.dll"
+Type: files; Name: "{app}\msvcp140.dll"
+Type: files; Name: "{app}\vcruntime140.dll"
+Type: files; Name: "{app}\vcamp140.dll"
+Type: files; Name: "{app}\vcomp140.dll"
 ; these should not be in the target directory, clean up in case of previous portable version at the same location etc.
 
 [UnInstallDelete]
@@ -190,8 +195,8 @@ var
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x64.exe';
-	MSVC_X86_URL = 'http://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x86.exe';
+	MSVC_X64_URL = '://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x64.exe';
+	MSVC_X86_URL = '://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
@@ -202,42 +207,49 @@ end;
 
 procedure InitializeWizard();
 var
-	U1Installed, U3Installed, U4Installed: Boolean;
+	WinVersion: TWindowsVersion;
+	DownloadProtocol: String;
+	U1Installed: Boolean;
 begin
 	ITD_Init();
 	ITD_SetOption('UI_AllowContinue', '1');
 
+	GetWindowsVersionEx(WinVersion);
+
+	if (WinVersion.Major = 5) then
+		DownloadProtocol := 'http'
+	else
+		DownloadProtocol := 'https';
+
+	// GUIDs from: https://svn.wsusoffline.net/svn/wsusoffline/trunk/client/cmd/DetermineSystemProperties.vbs
+
 	if Is64BitInstallMode() then
 	begin
-		ITD_AddFile(MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
-		ITD_AddMirror('http://syndicode.org/infekt/mirror/vcredist_x64_2012u4.exe', expandconstant('{tmp}\vcredist_x64.exe'));
+		ITD_AddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
+		if (WinVersion.Major != 5) then
+		begin
+			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u1.exe', expandconstant('{tmp}\vcredist_x64.exe'));
+		end;
 
-		U1Installed := (MsiQueryProductState('{5AF4E09F-5C9B-3AAF-B731-544D3DC821DD}') = INSTALLSTATE_DEFAULT)
-		  and (MsiQueryProductState('{3C28BFD4-90C7-3138-87EF-418DC16E9598}') = INSTALLSTATE_DEFAULT);
-
-		U3Installed := (MsiQueryProductState('{2EDC2FA3-1F34-34E5-9085-588C9EFD1CC6}') = INSTALLSTATE_DEFAULT)
-		  and (MsiQueryProductState('{764384C5-BCA9-307C-9AAC-FD443662686A}') = INSTALLSTATE_DEFAULT);
-
-		U4Installed := (MsiQueryProductState('{CF2BEA3C-26EA-32F8-AA9B-331F7E34BA97}') = INSTALLSTATE_DEFAULT)
-		  and (MsiQueryProductState('{37B8F9C7-03FB-3253-8781-2517C99D7C00}') = INSTALLSTATE_DEFAULT);
+		U1Installed := (MsiQueryProductState('{3ee5e5bb-b7cc-4556-8861-a00a82977d6c}') = INSTALLSTATE_DEFAULT)
+			or (MsiQueryProductState('{B0B194F8-E0CE-33FE-AA11-636428A4B73D}') = INSTALLSTATE_DEFAULT)
+			or (MsiQueryProductState('{A1C31BA5-5438-3A07-9EEE-A5FB2D0FDE36}') = INSTALLSTATE_DEFAULT);
 	end
 	else
 	begin
-		ITD_AddFile(MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
-		ITD_AddMirror('http://syndicode.org/infekt/mirror/vcredist_x86_2012u4.exe', expandconstant('{tmp}\vcredist_x86.exe'));
+		ITD_AddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
+		if (WinVersion.Major != 5) then
+		begin
+			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u1.exe', expandconstant('{tmp}\vcredist_x86.exe'));
+		end;
 
-		U1Installed := (MsiQueryProductState('{E824E81C-80A4-3DFF-B5F9-4842A9FF5F7F}') = INSTALLSTATE_DEFAULT)
-		  and (MsiQueryProductState('{6C772996-BFF3-3C8C-860B-B3D48FF05D65}') = INSTALLSTATE_DEFAULT);
-
-		U3Installed := (MsiQueryProductState('{E7D4E834-93EB-351F-B8FB-82CDAE623003}') = INSTALLSTATE_DEFAULT)
-		  and (MsiQueryProductState('{3D6AD258-61EA-35F5-812C-B7A02152996E}') = INSTALLSTATE_DEFAULT);
-
-		U4Installed := (MsiQueryProductState('{BD95A8CD-1D9F-35AD-981A-3E7925026EBB}') = INSTALLSTATE_DEFAULT)
-		  and (MsiQueryProductState('{B175520C-86A2-35A7-8619-86DC379688B9}') = INSTALLSTATE_DEFAULT);
+		U1Installed := (MsiQueryProductState('{23daf363-3020-4059-b3ae-dc4ad39fed19}') = INSTALLSTATE_DEFAULT)
+			or (MsiQueryProductState('{1045AB6F-6151-3634-8C2C-EE308AA1A6A7}') = INSTALLSTATE_DEFAULT)
+			or (MsiQueryProductState('{65AD78AD-D23D-3A1E-9305-3AE65CD522C2}') = INSTALLSTATE_DEFAULT);
 	end;
 
 	allowCppRuntimeInstall := true; // default
-	cppRuntimeInstalled := U1Installed or U3Installed or U4Installed;
+	cppRuntimeInstalled := U1Installed;
 
 	if InstallCppRuntime() then
 	begin
@@ -281,9 +293,9 @@ begin
 		if FileExists(exepath) then
 		begin
 			if Is64BitInstallMode() then
-				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2012 (x64) runtime...'
+				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2015 (x64) runtime...'
 			else
-				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2012 (x86) runtime...';
+				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2015 (x86) runtime...';
 
 			SendStatusMessageToUpdater(WizardForm.StatusLabel.Caption);
 
@@ -298,7 +310,7 @@ var
 	msg: String;
 begin
 	if (CurPageID = wpReady) and InstallCppRuntime() then
-		msg := 'Downloading Microsoft Visual C++ 2012 runtime... this may take a minute.'
+		msg := 'Downloading Microsoft Visual C++ 2015 runtime... this may take a minute.'
 	else if WizardForm.StatusLabel.Caption <> '' then
 		msg := WizardForm.StatusLabel.Caption
 	else if WizardForm.PageNameLabel.Caption <> '' then
