@@ -195,8 +195,8 @@ var
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = '://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x64.exe';
-	MSVC_X86_URL = '://download.microsoft.com/download/C/E/5/CE514EAE-78A8-4381-86E8-29108D78DBD4/VC_redist.x86.exe';
+	MSVC_X64_URL = '://download.microsoft.com/download/4/2/F/42FF78CE-8DE0-4C88-AD7A-5F8DFFB49F74/vc_redist.x64.exe';
+	MSVC_X86_URL = '://download.microsoft.com/download/4/2/F/42FF78CE-8DE0-4C88-AD7A-5F8DFFB49F74/vc_redist.x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
@@ -209,7 +209,7 @@ procedure InitializeWizard();
 var
 	WinVersion: TWindowsVersion;
 	DownloadProtocol: String;
-	U1Installed: Boolean;
+	U3Installed: Boolean;
 begin
 	ITD_Init();
 	ITD_SetOption('UI_AllowContinue', '1');
@@ -228,28 +228,30 @@ begin
 		ITD_AddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
 		if (WinVersion.Major != 5) then
 		begin
-			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u1.exe', expandconstant('{tmp}\vcredist_x64.exe'));
+			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 		end;
 
-		U1Installed := (MsiQueryProductState('{3ee5e5bb-b7cc-4556-8861-a00a82977d6c}') = INSTALLSTATE_DEFAULT)
-			or (MsiQueryProductState('{B0B194F8-E0CE-33FE-AA11-636428A4B73D}') = INSTALLSTATE_DEFAULT)
-			or (MsiQueryProductState('{A1C31BA5-5438-3A07-9EEE-A5FB2D0FDE36}') = INSTALLSTATE_DEFAULT);
+  // Microsoft Visual C++ 2015 x64 Additional Runtime - 14.0.24210
+		U3Installed := (MsiQueryProductState('{95265B86-188E-3F62-9CDB-60FCE59EC721}') = INSTALLSTATE_DEFAULT)
+		// Microsoft Visual C++ 2015 x64 Minimum Runtime - 14.0.24210
+			          and (MsiQueryProductState('{C0B2C673-ECAA-372D-94E5-E89440D087AD}') = INSTALLSTATE_DEFAULT);
 	end
 	else
 	begin
 		ITD_AddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
 		if (WinVersion.Major != 5) then
 		begin
-			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u1.exe', expandconstant('{tmp}\vcredist_x86.exe'));
+			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 		end;
 
-		U1Installed := (MsiQueryProductState('{23daf363-3020-4059-b3ae-dc4ad39fed19}') = INSTALLSTATE_DEFAULT)
-			or (MsiQueryProductState('{1045AB6F-6151-3634-8C2C-EE308AA1A6A7}') = INSTALLSTATE_DEFAULT)
-			or (MsiQueryProductState('{65AD78AD-D23D-3A1E-9305-3AE65CD522C2}') = INSTALLSTATE_DEFAULT);
+  // Microsoft Visual C++ 2015 x86 Additional Runtime - 14.0.24210
+		U3Installed := (MsiQueryProductState('{D8C8656B-0BD8-39C3-B741-F889B7C144E5}') = INSTALLSTATE_DEFAULT)
+		// Microsoft Visual C++ 2015 x86 Minimum Runtime - 14.0.24210
+			          and (MsiQueryProductState('{8FD71E98-EE44-3844-9DAD-9CB0BBBC603C}') = INSTALLSTATE_DEFAULT);
 	end;
 
 	allowCppRuntimeInstall := true; // default
-	cppRuntimeInstalled := U1Installed;
+	cppRuntimeInstalled := U3Installed;
 
 	if InstallCppRuntime() then
 	begin
