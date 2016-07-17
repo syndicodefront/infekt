@@ -180,7 +180,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		return false;
 	}
 
-#if defined(_WIN32) && !defined(COMPACT_RELEASE)
+#if defined(_WIN32)
 	if(!m_useFallback && cairo_image_surface_get_format(m_imgSurface) == CAIRO_FORMAT_ARGB32)
 	{
 		typedef int (__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
@@ -213,7 +213,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		}
 	}
 	else
-#endif /* !COMPACT_RELEASE */
+#endif /* _WIN32 */
 	if(IsFallbackAllowed())
 	{
 		// fallback.
@@ -271,7 +271,7 @@ CCairoBoxBlur::~CCairoBoxBlur()
 
 /*static*/ bool CCairoBoxBlur::IsGPUUsable()
 {
-#if defined(_WIN32) && !defined(COMPACT_RELEASE)
+#if defined(_WIN32)
 	if(CUtilWin32::IsAtLeastWinVista())
 	{
 		if(!m_hAmpDll)
@@ -290,6 +290,6 @@ CCairoBoxBlur::~CCairoBoxBlur()
 	return false;
 }
 
-#if defined(_WIN32) && !defined(COMPACT_RELEASE)
+#if defined(_WIN32)
 HMODULE CCairoBoxBlur::m_hAmpDll = NULL;
 #endif

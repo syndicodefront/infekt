@@ -36,19 +36,7 @@ CWinHttpClient::CWinHttpClient(HINSTANCE a_hInstance)
 	m_hwndMessageOnlyWin = ::CreateWindowEx(0, WINHTTP_MESSAGE_ONLY_WINDOW_CLASSNAME,
 		NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, 0, NULL);
 
-	OSVERSIONINFO l_osVer = { sizeof(OSVERSIONINFO), 0 };
-	if(::GetVersionEx(&l_osVer))
-	{
-		std::wstringstream l_uas;
-
-		l_uas << boost::wformat(L"Mozilla/%d.0 (compatible; MSIE %d.0; Windows NT %d.%d;%s Trident/%d.0)")
-			% (l_osVer.dwMajorVersion > 5 ? 5 : 4) % (l_osVer.dwMajorVersion > 5 ? 9 : 8)
-			% l_osVer.dwMajorVersion % l_osVer.dwMinorVersion
-			% (CUtilWin32::IsWow64() ? L" WOW64;" : L"")
-			% (l_osVer.dwMajorVersion > 5 ? 5 : 4);
-
-		m_userAgent = l_uas.str();
-	}
+	m_userAgent = L"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586";
 }
 
 

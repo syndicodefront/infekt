@@ -434,7 +434,7 @@ void CMainFrame::DoFindText(bool a_up, bool a_force)
 
 	bool l_showNotFound;
 
-	if(a_force || wcsicmp(l_text, m_lastSearchTerm.c_str()) != 0)
+	if(a_force || _wcsicmp(l_text, m_lastSearchTerm.c_str()) != 0)
 	{
 		m_lastSearchTerm = l_text;
 

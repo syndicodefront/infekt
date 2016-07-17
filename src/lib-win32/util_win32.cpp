@@ -15,7 +15,6 @@
 #include "stdafx.h"
 #include "util_win32.h"
 
-
 std::wstring CUtilWin32::PathRemoveFileSpec(const std::wstring& a_path)
 {
 	TCHAR* l_buf = new TCHAR[a_path.size() + 1];
@@ -201,7 +200,7 @@ bool CUtilWin32::EnforceDEP()
 
 static bool IS_WIN_XX(DWORD MAJ, DWORD MIN, bool OR_HIGHER)
 {
-	OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX), 0 };
+	OSVERSIONINFOEXW osvi = { sizeof(OSVERSIONINFOEXW), 0 };
 	DWORDLONG dwlConditionMask = 0;
 	
 	osvi.dwMajorVersion = MAJ;
@@ -210,7 +209,7 @@ static bool IS_WIN_XX(DWORD MAJ, DWORD MIN, bool OR_HIGHER)
 	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, OR_HIGHER ? VER_GREATER_EQUAL : VER_EQUAL);
 	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, OR_HIGHER ? VER_GREATER_EQUAL : VER_EQUAL);
 	
-	return ::VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) == TRUE;
+	return ::VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) == TRUE;
 }
 
 bool CUtilWin32::IsWinXP()
@@ -258,21 +257,21 @@ bool CUtilWin32::IsWin8()
 
 bool CUtilWin32::IsWin10()
 {
-	static bool is = IS_WIN_XX(6, 4, false);
+	static bool is = IS_WIN_XX(10, 0, false);
 
 	return is;
 }
 
 bool CUtilWin32::IsWinServerOS()
 {
-	OSVERSIONINFOEX osvi = { sizeof(OSVERSIONINFOEX), 0 };
+	OSVERSIONINFOEXW osvi = { sizeof(OSVERSIONINFOEXW), 0 };
 	DWORDLONG dwlConditionMask = 0;
 	
 	osvi.wProductType = VER_NT_SERVER;
 	
 	VER_SET_CONDITION(dwlConditionMask, VER_PRODUCT_TYPE, VER_EQUAL);
 	
-	return ::VerifyVersionInfo(&osvi, VER_PRODUCT_TYPE, dwlConditionMask) == TRUE;
+	return ::VerifyVersionInfoW(&osvi, VER_PRODUCT_TYPE, dwlConditionMask) == TRUE;
 }
 
 bool CUtilWin32::IsWow64()

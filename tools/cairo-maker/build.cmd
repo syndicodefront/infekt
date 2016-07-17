@@ -160,8 +160,8 @@ rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit
 
 IF EXIST pixman\pixman-version.h GOTO PIXMANVERSIONHOK
 sed "s/@PIXMAN_VERSION_MAJOR@/0/" pixman\pixman-version.h.in > v1
-sed "s/@PIXMAN_VERSION_MINOR@/32/" v1 > v2
-sed "s/@PIXMAN_VERSION_MICRO@/4/" v2 > pixman\pixman-version.h
+sed "s/@PIXMAN_VERSION_MINOR@/34/" v1 > v2
+sed "s/@PIXMAN_VERSION_MICRO@/0/" v2 > pixman\pixman-version.h
 :PIXMANVERSIONHOK
 
 IF %STATIC%==n GOTO PIXMANSKIPSTATICFIX

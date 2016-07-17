@@ -1,15 +1,5 @@
-"VS2012 x86 Native Tools Command Prompt"
+"VS2015 x64 x86 Cross Tools Command Prompt"
 
 bootstrap
-
-.\b2 --with-program_options runtime-link=shared runtime-debugging=off toolset=msvc-11.0 release
-
-.\b2 --with-program_options runtime-link=static runtime-debugging=off toolset=msvc-11.0 release
-
-.\b2 --with-program_options runtime-link=shared runtime-debugging=on toolset=msvc-11.0 debug
-
-"VS2012 x64 Native Tools Command Prompt"
-
-.\b2 --with-program_options runtime-link=shared runtime-debugging=off address-model=64 toolset=msvc-11.0 release
-
-.\b2 --with-program_options runtime-link=shared runtime-debugging=on address-model=64 toolset=msvc-11.0 debug
+.\b2 --with-program_options link=shared,static address-model=32
+.\b2 --with-program_options link=shared,static address-model=64

@@ -1152,7 +1152,7 @@ static int CALLBACK _PluginSortCallback(LPARAM lParam1, LPARAM lParam2, LPARAM l
 
 	std::map<size_t, std::wstring>* l_map = (std::map<size_t, std::wstring>*)lParamSort;
 
-	return wcsicmp((*l_map)[lParam1].c_str(), (*l_map)[lParam2].c_str());
+	return _wcsicmp((*l_map)[lParam1].c_str(), (*l_map)[lParam2].c_str());
 }
 
 void CSettingsTabDialog::PopulatePluginList()

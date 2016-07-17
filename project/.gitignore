@@ -1,4 +1,7 @@
 ipch
+Debug
+Release
+iNFekt.VC.db
 *.opensdf
 *.opendb
 *.user

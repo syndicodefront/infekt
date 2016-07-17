@@ -29,4 +29,9 @@ set X64=y
 
 call build.cmd
 
+:: x64-Release-Static
+set STATIC=y
+
+call build.cmd
+
 PAUSE
