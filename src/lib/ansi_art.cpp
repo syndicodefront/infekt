@@ -82,6 +82,12 @@ bool CAnsiArt::Parse(const wstring& a_text)
 
 				parser_state = ANYTEXT;
 			}
+			else if (iswspace(c))
+			{
+				// ignore sequences terminated with space instead of alpha character.
+				data.clear();
+				parser_state = ANYTEXT;
+			}
 			else
 			{
 				parser_state = PARSERERROR;
