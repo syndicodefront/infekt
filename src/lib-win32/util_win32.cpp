@@ -257,7 +257,7 @@ bool CUtilWin32::IsWin8()
 
 bool CUtilWin32::IsWin10()
 {
-	static bool is = IS_WIN_XX(10, 0, false);
+	static bool is = IS_WIN_XX(10, 0, true);
 
 	return is;
 }

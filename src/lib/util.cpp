@@ -26,46 +26,70 @@ using namespace std;
 
 string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePage)
 {
-	int l_size = ::WideCharToMultiByte(a_targetCodePage, 0, a_wideStr.c_str(),
-		-1, NULL, NULL, NULL, NULL);
+	std::string result;
 
-	if(l_size)
+	if (a_wideStr.empty())
 	{
-		char *l_buf = new char[l_size];
-
-		if(l_buf)
-		{
-			*l_buf = 0;
-			::WideCharToMultiByte(a_targetCodePage, 0, a_wideStr.c_str(), -1, l_buf, l_size, NULL, NULL);
-			string l_result(l_buf);
-			delete[] l_buf;
-			return l_result;
-		}
+		return result;
 	}
 
-	return "";
+	if (a_wideStr.size() > (size_t)std::numeric_limits<int>::max())
+	{
+		// impossible to convert in one chunk.
+		return result;
+	}
+
+	int resultLength = ::WideCharToMultiByte(
+		a_targetCodePage, 0,
+		a_wideStr.data(), (int)a_wideStr.size(),
+		nullptr, 0, nullptr, nullptr);
+
+	if (resultLength > 0)
+	{
+		result.resize(resultLength);
+
+		::WideCharToMultiByte(
+			a_targetCodePage, 0,
+			a_wideStr.data(), (int)a_wideStr.size(),
+			&result[0], (int)resultLength,
+			nullptr, nullptr);
+	}
+
+	return result;
 }
 
 
 wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 {
-	int l_size = ::MultiByteToWideChar(a_originCodePage, 0, a_str.c_str(), -1, NULL, NULL);
+	std::wstring utf16;
 
-	if(l_size)
+	if (a_str.empty())
 	{
-		wchar_t *l_buf = new wchar_t[l_size];
-
-		if(l_buf)
-		{
-			*l_buf = 0;
-			::MultiByteToWideChar(a_originCodePage, 0, a_str.c_str(), -1, l_buf, l_size);
-			wstring l_result(l_buf);
-			delete[] l_buf;
-			return l_result;
-		}
+		return utf16;
 	}
 
-	return L"";
+	if (a_str.size() > (size_t)std::numeric_limits<int>::max())
+	{
+		// impossible to convert in one chunk.
+		return utf16;
+	}
+
+	int utf16Length = ::MultiByteToWideChar(
+		a_originCodePage, 0,
+		a_str.data(), (int)a_str.size(),
+		nullptr, 0);
+
+	if (utf16Length > 0)
+	{
+		utf16.resize(utf16Length);
+
+		::MultiByteToWideChar(
+			a_originCodePage, 0,
+			a_str.data(), (int)a_str.size(),
+			&utf16[0], (int)utf16.size());
+	}
+
+	return utf16;
 }
 
 
