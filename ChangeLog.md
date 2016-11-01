@@ -1,4 +1,6 @@
 ## v0.9.6 (? Nov 2016)
+  * Switched J and K navigation keys
+  * Added spacebar scrolling
   * New packaging: portable versions have less files, removed SuperCompact version
   * Switched to Visual C++ 2015, improved performance
   * Removed libpcre, using native C++ regex instead
