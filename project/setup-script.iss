@@ -7,8 +7,8 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.9.5
-AppVersion=0.9.5
+AppVerName=iNFekt 0.9.6
+AppVersion=0.9.6
 AppPublisher=syndicode
 AppPublisherURL=http://infekt.ws/
 DefaultDirName={pf}\iNFekt
@@ -74,7 +74,7 @@ Type: files; Name: "{app}\cudart64_32_16.dll"
 Type: files; Name: "{app}\libpng15.dll"
 ; these 4 were used up to 0.8.5
 Type: files; Name: "{app}\pcre.dll"
-; these were used up to 0.9.9
+; these were used up to 0.9.6
 
 Type: files; Name: "{app}\MSVCP100.dll"
 Type: files; Name: "{app}\MSVCR100.dll"

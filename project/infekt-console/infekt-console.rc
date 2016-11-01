@@ -64,14 +64,15 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // remains consistent on all systems.
 IDI_APPICON             ICON                    "console_app.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,9,5,0
- PRODUCTVERSION 0,9,5,0
+ FILEVERSION 0,9,6,0
+ PRODUCTVERSION 0,9,6,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -89,12 +90,12 @@ BEGIN
             VALUE "Comments", "http://infekt.ws/ - This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation."
             VALUE "CompanyName", "syndicode"
             VALUE "FileDescription", "iNFekt NFO Renderer - Command Line Version"
-            VALUE "FileVersion", "0.9.5.0"
+            VALUE "FileVersion", "0.9.6.0"
             VALUE "InternalName", "infekt-console"
             VALUE "LegalCopyright", "Copyright © 2010-2015 syndicode"
             VALUE "OriginalFilename", "infekt-cmd.exe"
             VALUE "ProductName", "iNFekt"
-            VALUE "ProductVersion", "0.9.5.0"
+            VALUE "ProductVersion", "0.9.6.0"
         END
     END
     BLOCK "VarFileInfo"

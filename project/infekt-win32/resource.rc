@@ -198,17 +198,29 @@ END
 //
 
 IDB_PNG_FILEOPEN        PNG                     "icons\\folder_txt.png"
+
 IDB_PNG_INFO            PNG                     "icons\\info.png"
+
 IDB_PNG_SETTINGS        PNG                     "icons\\advancedsettings.png"
+
 IDB_PNG_VIEW_CLASSIC    PNG                     "icons\\mime_colorset.png"
+
 IDB_PNG_VIEW_TEXTONLY   PNG                     "icons\\template_source.png"
+
 IDB_PNG_VIEW_RENDERED   PNG                     "icons\\kllckety_doc.png"
+
 IDB_PNG_SHOWMENU        PNG                     "icons\\view_top_bottom.png"
+
 IDB_PNG_FIND16          PNG                     "icons\\find.png"
+
 IDB_PNG_CLOSE16         PNG                     "icons\\fileclose.png"
+
 IDB_PNG_DOWN16          PNG                     "icons\\1downarrow.png"
+
 IDB_PNG_UP16            PNG                     "icons\\1uparrow.png"
+
 IDB_PNG_WARNING16       PNG                     "icons\\messagebox_warning.png"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -376,14 +388,15 @@ END
 // remains consistent on all systems.
 IDI_APPICON             ICON                    "iNFEKT_icon_by_railgun.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,9,5,0
- PRODUCTVERSION 0,9,5,0
+ FILEVERSION 0,9,6,0
+ PRODUCTVERSION 0,9,6,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -401,12 +414,12 @@ BEGIN
             VALUE "Comments", "http://infekt.ws - This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation."
             VALUE "CompanyName", "syndicode"
             VALUE "FileDescription", "iNFekt NFO Viewer"
-            VALUE "FileVersion", "0.9.5.0"
+            VALUE "FileVersion", "0.9.6.0"
             VALUE "InternalName", "iNFekt"
             VALUE "LegalCopyright", "Copyright © 2010-2015 syndicode"
             VALUE "OriginalFilename", "infekt-winXX.exe"
             VALUE "ProductName", "iNFekt"
-            VALUE "ProductVersion", "0.9.5.0"
+            VALUE "ProductVersion", "0.9.6.0"
         END
     END
     BLOCK "VarFileInfo"

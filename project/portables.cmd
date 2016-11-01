@@ -1,6 +1,6 @@
 rem VARS
 
-set VERSION=0.9.5
+set VERSION=0.9.6
 set ROOTDIR=%cd%\..\build-out
 set DEPS=%cd%\..\dependencies
 

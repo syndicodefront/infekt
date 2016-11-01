@@ -1,3 +1,11 @@
+## v0.9.6 (? Nov 2016)
+  * New packaging: portable versions have less files, removed SuperCompact version
+  * Switched to Visual C++ 2015, improved performance
+  * Removed libpcre, using native C++ regex instead
+  * Fixed issue 112 (ignore unterminated escape sequences in ANSI files)
+  * Library update to cairo 1.14.6, libpng v1.6.26
+  * Impaired Linux compatibility, to be fixed
+
 ## v0.9.5 (March 14th 2015)
   * Fix for crash introduced with 0.9.4, sorry
 
