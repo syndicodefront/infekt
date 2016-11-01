@@ -4,20 +4,11 @@ set VERSION=0.9.5
 set ROOTDIR=%cd%\..\build-out
 set DEPS=%cd%\..\dependencies
 
-set PSC=%ROOTDIR%\iNFekt-SuperCompact
 set PP32=%ROOTDIR%\iNFekt-32bit-Portable
 set PP64=%ROOTDIR%\iNFekt-64bit-Portable
 set PAP=%ROOTDIR%\iNFektPortable
 
-rem MAKE SUPER COMPACT THING
-
-move %PSC% %PSC%.bak
-rmdir /S /Q %PSC%.bak
-mkdir %PSC%
-copy /Y %ROOTDIR%\Release-Compact\infekt-compact.exe %PSC%
-copy /Y %ROOTDIR%\..\release\portable.ini %PSC%
-
-rem PREPARE OTHER DIRS
+rem PREPARE DIRS
 
 move %PP32% %PP32%.bak
 rmdir /S /Q %PP32%.bak
@@ -35,22 +26,10 @@ xcopy /Y "%ROOTDIR%\..\release\*.url" %PP64%
 
 rem COPY RUNTIME DLLS
 
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\msvc*.dll" %PP32%
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\concrt*.dll" %PP32%
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\vcruntime*.dll" %PP32%
 xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.OpenMP\*.dll" %PP32%
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CXXAMP\*.dll" %PP32%
-
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\msvc*.dll" %PP64%
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\concrt*.dll" %PP64%
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\vcruntime*.dll" %PP64%
 xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.OpenMP\*.dll" %PP64%
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CXXAMP\*.dll" %PP64%
 
 rem COPY BUILT FILES
-
-copy /Y %ROOTDIR%\Release\infekt-nfo-shell.dll %PP32%
-copy /Y %ROOTDIR%\Release-x64\infekt-nfo-shell.dll %PP64%
 
 copy /Y %ROOTDIR%\Release\infekt-win32.exe %PP32%
 copy /Y %ROOTDIR%\Release-x64\infekt-win64.exe %PP64%
@@ -88,6 +67,7 @@ xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\msvc*.dll" %PA
 xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\concrt*.dll" %PAP%\App\iNFekt
 xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\vcruntime*.dll" %PAP%\App\iNFekt
 xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.OpenMP\*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CXXAMP\*.dll" %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-win32.exe %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\iNFektPortableLauncher.exe %PAP%\iNFektPortable.exe
@@ -107,7 +87,6 @@ rem NOW RAR!
 
 cd %ROOTDIR%
 
-rar a -k -m5 iNFekt-v%VERSION%-SuperCompact.rar iNFekt-SuperCompact
 rar a -k -m5 iNFekt-v%VERSION%-32bit-Portable.rar iNFekt-32bit-Portable
 rar a -k -m5 iNFekt-v%VERSION%-64bit-Portable.rar iNFekt-64bit-Portable
 

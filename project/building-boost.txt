@@ -1,5 +1,5 @@
 "VS2015 x64 x86 Cross Tools Command Prompt"
 
 bootstrap
-.\b2 --with-program_options link=shared,static address-model=32
-.\b2 --with-program_options link=shared,static address-model=64
+.\b2 --with-program_options link=static address-model=32 runtime-link=static,shared
+.\b2 --with-program_options link=static address-model=64 runtime-link=static,shared

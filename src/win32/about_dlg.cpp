@@ -52,21 +52,19 @@ BOOL CAboutDialog::OnInitDialog()
 	m_icon = (HICON)::LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
 
 	HFONT l_defaultFont = (HFONT)SendMessage(WM_GETFONT);
-	if(!l_defaultFont) l_defaultFont = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
+	if (!l_defaultFont) l_defaultFont = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
 
 	const int l_left = 70;
 	int l_top = 15;
 
 	std::wstring l_verStr = L"iNFekt v" + m_mainWin->InfektVersionAsString();
-#ifndef COMPACT_RELEASE
 #ifdef _WIN64
 	l_verStr += L" (64 bit)";
 #else
-	if(CUtilWin32::IsWow64())
+	if (CUtilWin32::IsWow64())
 		l_verStr += L" (WoW64)";
 	else
 		l_verStr += L" (32 bit)";
-#endif
 #endif
 	if (CUtilWin32::IsWinServerOS())
 	{
@@ -83,21 +81,13 @@ BOOL CAboutDialog::OnInitDialog()
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
 
-#ifdef COMPACT_RELEASE
-	_CREATE_STATIC(l_hSubTitle, L"Super Compact Version", l_top, 20);
-	l_top += 20;
-#endif
-
-	if(l_hTitle)
+	if (l_hTitle)
 	{
 		LOGFONT l_tmpFont;
 		::GetObject(l_defaultFont, sizeof(LOGFONT), &l_tmpFont);
 		l_tmpFont.lfWeight = FW_BOLD;
 		m_boldFont = ::CreateFontIndirect(&l_tmpFont);
 		::SendMessage(l_hTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
-#ifdef COMPACT_RELEASE
-		if(l_hSubTitle) ::SendMessage(l_hSubTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
-#endif
 	}
 
 	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2016", l_top, 20);
@@ -109,7 +99,7 @@ BOOL CAboutDialog::OnInitDialog()
 
 	const wchar_t* l_gpuFlag = L"no";
 
-	if(CCairoBoxBlur::IsGPUUsable())
+	if (CCairoBoxBlur::IsGPUUsable())
 	{
 		l_gpuFlag = CNFORenderer::GetGlobalUseGPUFlag() ? L"yes" : L"disabled";
 	}
