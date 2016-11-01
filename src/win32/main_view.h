@@ -61,6 +61,9 @@ public:
 	void CopySelectedTextToClipboard() const;
 	void SelectAll();
 	bool ReloadFile(ENfoCharset a_charset = NFOC_AUTO);
+
+	void ScrollPageDown();
+	void ScrollPageUp();
 protected:
 	PNFOViewControl m_renderControl;
 	PNFOViewControl m_classicControl;

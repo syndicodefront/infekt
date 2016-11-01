@@ -364,6 +364,28 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 }
 
 
+void CViewContainer::ScrollPageDown()
+{
+	HWND hScrollTarget = m_curViewCtrl->GetHwnd();
+
+	if (hScrollTarget)
+	{
+		::PostMessage(hScrollTarget, WM_VSCROLL, MAKELONG(SB_PAGEDOWN, 0), 0L);
+	}
+}
+
+
+void CViewContainer::ScrollPageUp()
+{
+	HWND hScrollTarget = m_curViewCtrl->GetHwnd();
+
+	if (hScrollTarget)
+	{
+		::PostMessage(hScrollTarget, WM_VSCROLL, MAKELONG(SB_PAGEUP, 0), 0L);
+	}
+}
+
+
 void CViewContainer::SwitchView(EMainView a_view)
 {
 	if(a_view >= _MAIN_VIEW_MAX || m_curViewType == a_view)

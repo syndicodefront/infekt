@@ -631,6 +631,14 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 		break;
 
+	case ID_SCROLL_PAGEDOWN:
+		m_view.ScrollPageDown();
+		break;
+
+	case ID_SCROLL_PAGEUP:
+		m_view.ScrollPageUp();
+		break;
+
 	case IDM_FINDTEXT:
 		ShowSearchToolbar();
 		break;
