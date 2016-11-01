@@ -16,10 +16,7 @@
 #include "nfo_hyperlink.h"
 #include "util.h"
 
-using std::string;
-using std::wstring;
-
-CNFOHyperLink::CNFOHyperLink(int linkID, const wstring& href, size_t row, size_t col, size_t len)
+CNFOHyperLink::CNFOHyperLink(int linkID, const std::wstring& href, size_t row, size_t col, size_t len)
 	: m_linkID(linkID), m_href(href), m_row(row), m_colStart(col), m_colEnd(col + len - 1)
 {
 }
@@ -173,7 +170,7 @@ bool CNFOHyperLink::FindLink(const std::wstring& sLine, size_t& uirOffset, size_
 
 	if (!sPrevLineLink.empty() && matchContinuesLink)
 	{
-		wstring sPrevLineLinkCopy(sPrevLineLink);
+		std::wstring sPrevLineLinkCopy(sPrevLineLink);
 
 		if (sPrevLineLink[sPrevLineLink.size() - 1] != '.')
 		{
@@ -209,29 +206,29 @@ void CNFOHyperLink::PopulateLinkTriggers()
 	// keep compiled trigger regexes because all those execute on
 	// every single line, so this is an easy performance gain.
 
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"h(?:tt|xx|\\*\\*)p://", false));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"h(?:tt|xx|\\*\\*)ps://", false));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"www\\.", false));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"\\w+\\.imdb\\.com", false));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"imdb\\.com", false));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(imdb|ofdb|cinefacts|zelluloid|kino)\\.de", false));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(tinyurl|twitter|facebook|imgur|youtube)\\.com", false));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"\\b(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)/", false));
+	ms_linkTriggers.emplace_back(L"h(?:tt|xx|\\*\\*)p://", false);
+	ms_linkTriggers.emplace_back(L"h(?:tt|xx|\\*\\*)ps://", false);
+	ms_linkTriggers.emplace_back(L"www\\.", false);
+	ms_linkTriggers.emplace_back(L"\\w+\\.imdb\\.com", false);
+	ms_linkTriggers.emplace_back(L"imdb\\.com", false);
+	ms_linkTriggers.emplace_back(L"(imdb|ofdb|cinefacts|zelluloid|kino)\\.de", false);
+	ms_linkTriggers.emplace_back(L"(tinyurl|twitter|facebook|imgur|youtube)\\.com", false);
+	ms_linkTriggers.emplace_back(L"\\b(bit\\.ly|goo\\.gl|t\\.co|youtu\\.be)/", false);
 
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"[a-zA-Z0-9]+(?:[a-zA-Z0-9._=-]*)@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}", false, true, false));
+	ms_linkTriggers.emplace_back(L"[a-zA-Z0-9]+(?:[a-zA-Z0-9._=-]*)@[a-zA-Z](?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,}", false, true, false);
 
 	//
 	// all link continuations must appear *after* non-continuations in the list:
 	//
 
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"^\\s*(/)", true));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S+\\.(?:html?|php|aspx?|jpe?g|png|gif)\\S*)", true));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S+/dp/\\S*)", true)); // for amazon
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S*dp/[A-Z]\\S+)", true)); // for amazon
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S*/\\w+=\\S+)", true));
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S+[&?]\\w+=\\S*)", true));
+	ms_linkTriggers.emplace_back(L"^\\s*(/)", true);
+	ms_linkTriggers.emplace_back(L"(\\S+\\.(?:html?|php|aspx?|jpe?g|png|gif)\\S*)", true);
+	ms_linkTriggers.emplace_back(L"(\\S+/dp/\\S*)", true); // for amazon
+	ms_linkTriggers.emplace_back(L"(\\S*dp/[A-Z]\\S+)", true); // for amazon
+	ms_linkTriggers.emplace_back(L"(\\S*/\\w+=\\S+)", true);
+	ms_linkTriggers.emplace_back(L"(\\S+[&?]\\w+=\\S*)", true);
 
-	ms_linkTriggers.emplace_back(CLinkRegEx(L"(\\S{4,}/\\S*)", true));
+	ms_linkTriggers.emplace_back(L"(\\S{4,}/\\S*)", true);
 	// use at least 4 chars so "4.4/10" in a line following an imdb link does not trigger.
 }
 
@@ -250,5 +247,5 @@ CNFOHyperLink::CLinkRegEx::CLinkRegEx(const std::wstring& regexStr, bool isConti
 		flags = flags | std::regex::icase;
 	}
 
-	m_regex.swap(std::wregex(regexStr, flags));
+	m_regex = std::move(std::wregex(regexStr, flags));
 }
