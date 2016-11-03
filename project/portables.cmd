@@ -31,27 +31,22 @@ xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.OpenMP\*.dll" %PP6
 
 rem COPY BUILT FILES
 
-copy /Y %ROOTDIR%\Release\infekt-win32.exe %PP32%
-copy /Y %ROOTDIR%\Release-x64\infekt-win64.exe %PP64%
+copy /Y %ROOTDIR%\Release-Static\infekt-win32.exe %PP32%
+copy /Y %ROOTDIR%\Release-Static-x64\infekt-win64.exe %PP64%
 
-copy /Y %ROOTDIR%\Release\infekt-cmd.exe %PP32%
-copy /Y %ROOTDIR%\Release-x64\infekt-cmd.exe %PP64%
+copy /Y %ROOTDIR%\Release-Static\infekt-cmd.exe %PP32%
+copy /Y %ROOTDIR%\Release-Static-x64\infekt-cmd.exe %PP64%
 
-copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PP32%
-copy /Y %ROOTDIR%\Release-x64\infekt-gpu.dll %PP64%
+copy /Y %ROOTDIR%\Release-Static\infekt-gpu.dll %PP32%
+copy /Y %ROOTDIR%\Release-Static-x64\infekt-gpu.dll %PP64%
 
 rem COPY PLUGINS
 
 mkdir %PP32%\plugins
 mkdir %PP64%\plugins
 
-copy /Y %ROOTDIR%\Release\plugins\rescene.dll %PP32%\plugins
-copy /Y %ROOTDIR%\Release-x64\plugins\rescene.dll %PP64%\plugins
-
-rem COPY DEPS
-
-xcopy /Y "%DEPS%\lib_x86_release\*.dll" %PP32%
-xcopy /Y "%DEPS%\lib_x64_release\*.dll" %PP64%
+copy /Y %ROOTDIR%\Release-Static\plugins\rescene.dll %PP32%\plugins
+copy /Y %ROOTDIR%\Release-Static-x64\plugins\rescene.dll %PP64%\plugins
 
 rem MAKE PORTABLEAPPS.COM THINGIE
 
