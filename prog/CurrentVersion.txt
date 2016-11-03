@@ -4,7 +4,7 @@ The program downloads this file and uses it to check for the latest available ve
 latest[stable].1 = 0.9.6
 download_latest[stable].1 = https://infekt.ws
 autoupdate_download[stable].1/087 = https://syndicode.org/infekt/downloads/v0.9.6/iNFekt-v0.9.6-setup.exe
-autoupdate_hash[stable].1/087 = D36B12133DDCAA07D8EA949913EB77596050DA00
+autoupdate_hash[stable].1/087 = BA353C8087FF75C885C4384464F99CED3E0D2D6C
 }}}
 
 EOF
