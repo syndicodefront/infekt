@@ -224,7 +224,7 @@ begin
 	if Is64BitInstallMode() then
 	begin
 		ITD_AddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
-		if (WinVersion.Major <> 5) then
+		if DownloadProtocol = 'https' then
 		begin
 			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 		end;
@@ -237,7 +237,7 @@ begin
 	else
 	begin
 		ITD_AddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
-		if (WinVersion.Major <> 5) then
+		if DownloadProtocol = 'https' then
 		begin
 			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 		end;
@@ -300,7 +300,7 @@ begin
 
 			SendStatusMessageToUpdater(WizardForm.StatusLabel.Caption);
 
-			Exec(exepath, '/install /quiet', '', SW_HIDE, ewWaitUntilTerminated, exitcode);
+			Exec(exepath, '/install /quiet /norestart', '', SW_HIDE, ewWaitUntilTerminated, exitcode);
 		end;
 	end;
 end;
