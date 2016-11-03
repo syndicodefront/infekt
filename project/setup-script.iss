@@ -34,12 +34,11 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: checkedonce
-Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 Name: "nfoassoc"; Description: "Make iNFekt the default viewer for .nfo files"; GroupDescription: "Shell integration"; Check: not WizardSilent
 Name: "dizassoc"; Description: "Make iNFekt the default viewer for .diz files"; GroupDescription: "Shell integration"; Flags: unchecked
 Name: "ansiassoc"; Description: "Make iNFekt the default viewer for .ans and .asc files"; GroupDescription: "Shell integration"; Flags: unchecked
 Name: "shellpreview"; Description: "Install Explorer preview pane and thumbnail integration for associated files"; GroupDescription: "Shell integration"; MinVersion: 0,6.0
-Name: "cppredist"; Description: "Download and install Microsoft C++ runtime if necessary"; GroupDescription: "Advanced"; Flags: checkedonce
+Name: "cppredist2015"; Description: "Download and install Microsoft C++ runtime if necessary"; GroupDescription: "Advanced"; Flags: checkedonce
 
 [Files]
 Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
@@ -93,6 +92,7 @@ Type: files; Name: "{app}\vcomp140.dll"
 [UnInstallDelete]
 Type: files; Name: "{app}\infekt-nfo-shell.dll"
 ; in case someone copied this file into the program folder manually (when it has NOT been installed using the "shellpreview" task)
+Type: files; Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer.lnk"
 
 [Icons]
 Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Check: not Is64BitInstallMode
@@ -101,8 +101,6 @@ Name: "{group}\{cm:ProgramOnTheWeb,iNFekt NFO Viewer}"; Filename: "http://infekt
 Name: "{group}\{cm:UninstallProgram,iNFekt NFO Viewer}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: desktopicon; Check: not Is64BitInstallMode
 Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Tasks: desktopicon; Check: Is64BitInstallMode
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: quicklaunchicon; Check: not Is64BitInstallMode
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Tasks: quicklaunchicon; Check: Is64BitInstallMode
 
 [Run]
 Filename: "{app}\infekt-win32.exe"; Description: "{cm:LaunchProgram,iNFekt NFO Viewer}"; Flags: nowait postinstall skipifsilent; Check: not Is64BitInstallMode
@@ -195,13 +193,13 @@ var
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = '://download.microsoft.com/download/4/2/F/42FF78CE-8DE0-4C88-AD7A-5F8DFFB49F74/vc_redist.x64.exe';
-	MSVC_X86_URL = '://download.microsoft.com/download/4/2/F/42FF78CE-8DE0-4C88-AD7A-5F8DFFB49F74/vc_redist.x86.exe';
+	MSVC_X64_URL = '://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x64.exe';
+	MSVC_X86_URL = '://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
 begin
-  Result := allowCppRuntimeInstall and not cppRuntimeInstalled;
+		Result := allowCppRuntimeInstall and not cppRuntimeInstalled;
 end;
 
 
@@ -226,7 +224,7 @@ begin
 	if Is64BitInstallMode() then
 	begin
 		ITD_AddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
-		if (WinVersion.Major != 5) then
+		if (WinVersion.Major <> 5) then
 		begin
 			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 		end;
@@ -239,7 +237,7 @@ begin
 	else
 	begin
 		ITD_AddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
-		if (WinVersion.Major != 5) then
+		if (WinVersion.Major <> 5) then
 		begin
 			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 		end;
@@ -253,8 +251,9 @@ begin
 	allowCppRuntimeInstall := true; // default
 	cppRuntimeInstalled := U3Installed;
 
-	if InstallCppRuntime() then
+	if not cppRuntimeInstalled then
 	begin
+  // note: cannot consider checkbox here, it's not even been created.
 		ITD_DownloadAfter(wpReady);
 	end;
 end;
@@ -270,7 +269,7 @@ begin
 		Index := WizardForm.TasksList.Items.IndexOf('Download and install Microsoft C++ runtime if necessary');
 		if Index <> -1 then
 		begin
-			allowCppRuntimeInstall := WizardForm.TasksList.Checked[Index];
+					allowCppRuntimeInstall := WizardForm.TasksList.Checked[Index];
 		end;
 	end;
 end;
@@ -301,7 +300,7 @@ begin
 
 			SendStatusMessageToUpdater(WizardForm.StatusLabel.Caption);
 
-			Exec(exepath, '/q /norestart', '', SW_HIDE, ewWaitUntilTerminated, exitcode);
+			Exec(exepath, '/install /quiet', '', SW_HIDE, ewWaitUntilTerminated, exitcode);
 		end;
 	end;
 end;
@@ -321,4 +320,8 @@ begin
 		msg := 'Installing update...';
 
 	SendStatusMessageToUpdater(msg);
+
+	// skip download if checkbox hasn't been selected:
+	if (CurPageID = wpReady) and not InstallCppRuntime() then
+		ITD_ClearFiles();
 end;
