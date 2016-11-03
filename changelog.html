@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>iNFekt NFO Viewer</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css?2015-03-14" />
+    <link rel="stylesheet" href="stylesheets/styles.css?2016-03-14" />
     <link rel="stylesheet" href="stylesheets/pygment_trac.css" />
-    <link rel="stylesheet" href="stylesheets/infekt.css?2015-03-14" />
+    <link rel="stylesheet" href="stylesheets/infekt.css?2016-11-03" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fluidbox/1.4.2/css/fluidbox.css" />
     <script src="javascripts/scale.fix.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
@@ -21,7 +21,7 @@
         <h1 class="header"><a href="index.html">iNFekt</a></h1>
         <p class="header">The ultimate best NFO viewer, ever!</p>
 
-        <p>Current version: <strong>0.9.5</strong> (March 15th 2015)</p>
+        <p>Current version: <strong>0.9.6</strong> (Nov 3rd 2016)</p>
 
         <ul>
           <li class="download"><a class="buttons" href="index.html#downloads">Download</a></li>
@@ -34,17 +34,28 @@
 
 
       </header>
-      <section><h1>iNFekt - Changelog</h1><h2>
-<a id="user-content-v095-march-14th-2015" class="anchor" href="#v095-march-14th-2015" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.9.5 (March 14th 2015)</h2>
+      <section><h1>iNFekt - Changelog</h1><h2><a id="user-content-v096--nov-2016" class="anchor" href="#v096--nov-2016" aria-hidden="true"></a>v0.9.6 (? Nov 2016)</h2>
 
-<ul class="task-list">
+<ul>
+<li>Switched J and K navigation keys</li>
+<li>Added spacebar scrolling</li>
+<li>New packaging: portable versions have less files, removed SuperCompact version</li>
+<li>Switched to Visual C++ 2015, improved performance</li>
+<li>Removed libpcre, using native C++ regex instead</li>
+<li>Fixed issue 112 (ignore unterminated escape sequences in ANSI files)</li>
+<li>Library update to cairo 1.14.6, libpng v1.6.26</li>
+<li>Impaired Linux compatibility, to be fixed</li>
+</ul>
+
+<h2><a id="user-content-v095-march-14th-2015" class="anchor" href="#v095-march-14th-2015" aria-hidden="true"></a>v0.9.5 (March 14th 2015)</h2>
+
+<ul>
 <li>Fix for crash introduced with 0.9.4, sorry</li>
 </ul>
 
-<h2>
-<a id="user-content-v094-march-13th-2015" class="anchor" href="#v094-march-13th-2015" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.9.4 (March 13th 2015)</h2>
+<h2><a id="user-content-v094-march-13th-2015" class="anchor" href="#v094-march-13th-2015" aria-hidden="true"></a>v0.9.4 (March 13th 2015)</h2>
 
-<ul class="task-list">
+<ul>
 <li>URLs for homepage and auto-update adjusted</li>
 <li>Line wrap: relaxed max. columns to 90</li>
 <li>Support for double-CP437-encoded NFOs that were additionally encoded as UTF-8 afterwards (see issue 104)</li>
@@ -54,13 +65,11 @@
 <li>Linux build fixed</li>
 </ul>
 
-<h2>
-<a id="user-content-project-moved-from-google-code-to-github-march-13th-2015" class="anchor" href="#project-moved-from-google-code-to-github-march-13th-2015" aria-hidden="true"><span class="octicon octicon-link"></span></a>Project moved from Google Code to GitHub (March 13th 2015)</h2>
+<h2><a id="user-content-project-moved-from-google-code-to-github-march-13th-2015" class="anchor" href="#project-moved-from-google-code-to-github-march-13th-2015" aria-hidden="true"></a>Project moved from Google Code to GitHub (March 13th 2015)</h2>
 
-<h2>
-<a id="user-content-v093-september-9th-2014" class="anchor" href="#v093-september-9th-2014" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.9.3 (September 9th 2014)</h2>
+<h2><a id="user-content-v093-september-9th-2014" class="anchor" href="#v093-september-9th-2014" aria-hidden="true"></a>v0.9.3 (September 9th 2014)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Added missing plugin(s) to portable download</li>
 <li>Fixed some false positives in hyperlink detection (issue 97)</li>
 <li>Fixed issue 103 (CR-only NFOs)</li>
@@ -68,19 +77,17 @@
 <li>pixman + libpng library update</li>
 </ul>
 
-<h2>
-<a id="user-content-v092-june-1st-2014" class="anchor" href="#v092-june-1st-2014" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.9.2 (June 1st 2014)</h2>
+<h2><a id="user-content-v092-june-1st-2014" class="anchor" href="#v092-june-1st-2014" aria-hidden="true"></a>v0.9.2 (June 1st 2014)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Fixed a redrawing issue (opaque rectangles when zooming)</li>
 <li>Improved detection of mail addresses to avoid false positives</li>
 <li>Fixed Ctrl+G shortcut (toggles toolbar)</li>
 </ul>
 
-<h2>
-<a id="user-content-v090-may-31st-2014" class="anchor" href="#v090-may-31st-2014" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.9.0 (May 31st 2014)</h2>
+<h2><a id="user-content-v090-may-31st-2014" class="anchor" href="#v090-may-31st-2014" aria-hidden="true"></a>v0.9.0 (May 31st 2014)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Enabled plugin selection list in the preferences</li>
 <li>First plugin: ReScene - it can read .srr files and show the first embedded .nfo in iNFekt - issue 93</li>
 <li>Fixed handling of files that are deleted or moved while being viewed</li>
@@ -94,10 +101,9 @@
 <li>Minor fixes and improvements</li>
 </ul>
 
-<h2>
-<a id="user-content-v0814-february-27th-2014" class="anchor" href="#v0814-february-27th-2014" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.14 (February 27th 2014)</h2>
+<h2><a id="user-content-v0814-february-27th-2014" class="anchor" href="#v0814-february-27th-2014" aria-hidden="true"></a>v0.8.14 (February 27th 2014)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Improved shell integration (preview and thumbnails) - issue 44 / issue 89</li>
 <li>Greatly improved ANSI support (only one known remaining bug left)</li>
 <li>New setting to enable/disable the glow effect on ANSI art (GPU only, not supported by CPU fallback right now)</li>
@@ -106,10 +112,9 @@
 <li>File watcher: wait up to two seconds before reloading if file cannot be opened immediately</li>
 </ul>
 
-<h2>
-<a id="user-content-v0812-february-15th-2014" class="anchor" href="#v0812-february-15th-2014" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.12 (February 15th 2014)</h2>
+<h2><a id="user-content-v0812-february-15th-2014" class="anchor" href="#v0812-february-15th-2014" aria-hidden="true"></a>v0.8.12 (February 15th 2014)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Happy fifth year with iNFekt!</li>
 <li>New: First draft version of ANSI art support (colors!) - only in rendered mode so far</li>
 <li>New: When displaying an NFO file with "on-demand rendering", render remaining parts of the NFO in background. This avoids some lags that  appeared with slow GPUs. If this crashes for you, please temporarily turn off "on-demand rendering" in the preferences.</li>
@@ -126,10 +131,9 @@
 <li>Over 80 commits in total, most for ANSI colors support</li>
 </ul>
 
-<h2>
-<a id="user-content-v0810-october-2nd-2013" class="anchor" href="#v0810-october-2nd-2013" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.10 (October 2nd 2013)</h2>
+<h2><a id="user-content-v0810-october-2nd-2013" class="anchor" href="#v0810-october-2nd-2013" aria-hidden="true"></a>v0.8.10 (October 2nd 2013)</h2>
 
-<ul class="task-list">
+<ul>
 <li>PDF export is working again (issue 84)</li>
 <li>Added CP437 strict mode (issue 83)</li>
 <li>Fixed 0x9B character not showing up (issue 83)</li>
@@ -140,20 +144,18 @@
 <li>cairo and pixman updates (1.12.16 and 0.30.2 respectively)</li>
 </ul>
 
-<h2>
-<a id="user-content-v089-july-8th-2013" class="anchor" href="#v089-july-8th-2013" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.9 (July 8th 2013)</h2>
+<h2><a id="user-content-v089-july-8th-2013" class="anchor" href="#v089-july-8th-2013" aria-hidden="true"></a>v0.8.9 (July 8th 2013)</h2>
 
-<ul class="task-list">
+<ul>
 <li>More fixes &amp; improvements to hyperlink detection</li>
 <li>New: Turn email addresses into clickable links</li>
 <li>PCRE update to 8.33</li>
 <li>boost lib update to 1.54, VS2012 update to 2012.U3, minor stuff</li>
 </ul>
 
-<h2>
-<a id="user-content-v088-may-14-2013" class="anchor" href="#v088-may-14-2013" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.8 (May 14 2013)</h2>
+<h2><a id="user-content-v088-may-14-2013" class="anchor" href="#v088-may-14-2013" aria-hidden="true"></a>v0.8.8 (May 14 2013)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Fixes and improvements to hyperlink detection</li>
 <li>New: Support + detect yet another way of broken encodings that NFOs out there have. It's double-encoded, partly-transliterated CP437.</li>
 <li>New: It's possible to try force-loading an NFO with one of the broken encoding workarounds from the charset right-click menu.</li>
@@ -161,10 +163,9 @@
 <li>zlib (1.2.8), libpng (1.6.2) and pixman (0.30.0) update</li>
 </ul>
 
-<h2>
-<a id="user-content-v087-april-14-2013" class="anchor" href="#v087-april-14-2013" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.7 (April 14 2013)</h2>
+<h2><a id="user-content-v087-april-14-2013" class="anchor" href="#v087-april-14-2013" aria-hidden="true"></a>v0.8.7 (April 14 2013)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Attention: Due to a bug in all previous versions' auto updater, it's not possible to auto-update to this version. Please download &amp; install the new version manually.</li>
 <li>New feature: iNFekt automatically reloads the currently viewed file if it changes on disk</li>
 <li>New feature: Export NFOs as CP 437 (informs about nonconvertible characters, too)</li>
@@ -185,10 +186,9 @@
 <li>Attention: The 64-bit build for this and all following versions will no longer work on Windows XP 64-bit (32-bit is fine)</li>
 </ul>
 
-<h2>
-<a id="user-content-v085-june-9-2012" class="anchor" href="#v085-june-9-2012" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.5 (June 9 2012)</h2>
+<h2><a id="user-content-v085-june-9-2012" class="anchor" href="#v085-june-9-2012" aria-hidden="true"></a>v0.8.5 (June 9 2012)</h2>
 
-<ul class="task-list">
+<ul>
 <li>New feature: Browse all NFO files in a folder using the J and K keys</li>
 <li>New feature: Ctrl + F to search</li>
 <li>New feature: Toolbar can be hidden if desired (Ctrl + G or right-click menu, use Alt to get menu bar)</li>
@@ -206,10 +206,9 @@
 <li>New download: PortableApps.com edition</li>
 </ul>
 
-<h2>
-<a id="user-content-v081-26th-september-2011" class="anchor" href="#v081-26th-september-2011" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.1 (26th September 2011)</h2>
+<h2><a id="user-content-v081-26th-september-2011" class="anchor" href="#v081-26th-september-2011" aria-hidden="true"></a>v0.8.1 (26th September 2011)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Fixed issue 59</li>
 <li>Setup/installer fix: don't fail to register shell extension if MSVC++ 2010 runtimes have NOT been installed (this also resolves some auto-update issues)</li>
 <li>Setup/installer fix: correctly remove old libpng14.dll</li>
@@ -218,10 +217,9 @@
 <li>Updated libpng to 1.5.5 and PCRE to 8.13</li>
 </ul>
 
-<h2>
-<a id="user-content-v080-16th-september-2011" class="anchor" href="#v080-16th-september-2011" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.8.0 (16th September 2011)</h2>
+<h2><a id="user-content-v080-16th-september-2011" class="anchor" href="#v080-16th-september-2011" aria-hidden="true"></a>v0.8.0 (16th September 2011)</h2>
 
-<ul class="task-list">
+<ul>
 <li>New <em>Super Compact Version</em> (no CUDA H/W acceleration, no plugins, one EXE file without dependencies + configuration INI only)</li>
 <li>Parallelized CPU-based blur computation using OpenMP (performance improvement for non-Nvidia GPU users)</li>
 <li>Added "(portable)" to Window caption when running in portable mode</li>
@@ -236,18 +234,16 @@
 <li>Misc fixes and improvements</li>
 </ul>
 
-<h2>
-<a id="user-content-v079-04-march-2011" class="anchor" href="#v079-04-march-2011" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.7.9 (04 March 2011)</h2>
+<h2><a id="user-content-v079-04-march-2011" class="anchor" href="#v079-04-march-2011" aria-hidden="true"></a>v0.7.9 (04 March 2011)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Last version that runs on Windows 2000</li>
 <li>Enabled auto update to actually work when the next version comes out... d'oh.</li>
 </ul>
 
-<h2>
-<a id="user-content-v078-04-march-2011" class="anchor" href="#v078-04-march-2011" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.7.8 (04 March 2011)</h2>
+<h2><a id="user-content-v078-04-march-2011" class="anchor" href="#v078-04-march-2011" aria-hidden="true"></a>v0.7.8 (04 March 2011)</h2>
 
-<ul class="task-list">
+<ul>
 <li>New: Making mouse movements while selecting text scroll the viewer window</li>
 <li>Fixed issue 51 (Window going off-screen to the right)</li>
 <li>Fixed issue 49 (Window not being brought to the front in single-instance mode)</li>
@@ -258,12 +254,10 @@
 <li>Misc code changes in preparation of Linux/GTK+ and Mac OS versions</li>
 </ul>
 
-<h2>
-<a id="user-content-v076-13th-november-2010" class="anchor" href="#v076-13th-november-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.7.6 (13th November 2010)</h2>
+<h2><a id="user-content-v076-13th-november-2010" class="anchor" href="#v076-13th-november-2010" aria-hidden="true"></a>v0.7.6 (13th November 2010)</h2>
 
-<ul class="task-list">
-<li>Added a bunch of new, advanced settings: <em>Auto-center window on startup</em>, <em>Auto-adjust window width to NFO</em>, <em>Use centered NFO view</em>
-</li>
+<ul>
+<li>Added a bunch of new, advanced settings: <em>Auto-center window on startup</em>, <em>Auto-adjust window width to NFO</em>, <em>Use centered NFO view</em></li>
 <li>Added a show/hide menu button to the main toolbar</li>
 <li>Fixed another minor redrawing bug that caused artifacts from overlapping windows to remain visible</li>
 <li>Fixed weird zoom results in Classic Mode</li>
@@ -278,27 +272,24 @@
 <li>v0.7.5 was originally released, but didn't work on Windows XP</li>
 </ul>
 
-<h2>
-<a id="user-content-v072-25th-september-2010" class="anchor" href="#v072-25th-september-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.7.2 (25th September 2010)</h2>
+<h2><a id="user-content-v072-25th-september-2010" class="anchor" href="#v072-25th-september-2010" aria-hidden="true"></a>v0.7.2 (25th September 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Fix for minor redrawing issue (background-colored boxes)</li>
 </ul>
 
-<h2>
-<a id="user-content-v071-24th-september-2010" class="anchor" href="#v071-24th-september-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.7.1 (24th September 2010)</h2>
+<h2><a id="user-content-v071-24th-september-2010" class="anchor" href="#v071-24th-september-2010" aria-hidden="true"></a>v0.7.1 (24th September 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Fixed wrong line-wrap default in Rendered and Classic mode</li>
 <li>Updated cairo, pixman and libpng</li>
 <li>Minor speedups</li>
 <li>Fixed setup/installer version info</li>
 </ul>
 
-<h2>
-<a id="user-content-v07-5th-september-2010" class="anchor" href="#v07-5th-september-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.7 (5th September 2010)</h2>
+<h2><a id="user-content-v07-5th-september-2010" class="anchor" href="#v07-5th-september-2010" aria-hidden="true"></a>v0.7 (5th September 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Native 64-bit version</li>
 <li>Shell integration on Vista and 7: NFO file thumbnails and (basic) preview pane support</li>
 <li>Real portable mode support by using an INI file (portable.ini) instead of the Registry</li>
@@ -313,10 +304,9 @@
 <li>Other fixes &amp; improvements</li>
 </ul>
 
-<h2>
-<a id="user-content-v06-4th-july-2010" class="anchor" href="#v06-4th-july-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.6 (4th July 2010)</h2>
+<h2><a id="user-content-v06-4th-july-2010" class="anchor" href="#v06-4th-july-2010" aria-hidden="true"></a>v0.6 (4th July 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Made text output in Rendered View a lot faster (also improves zoom speed)</li>
 <li>Fixed bug where a cleared open MRU list was not being saved</li>
 <li>Fixed time zone of "last modified" timestamp in the status bar</li>
@@ -326,10 +316,9 @@
 <li>Other fixes &amp; improvements</li>
 </ul>
 
-<h2>
-<a id="user-content-v05-23-march-2010" class="anchor" href="#v05-23-march-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.5 (23 March 2010)</h2>
+<h2><a id="user-content-v05-23-march-2010" class="anchor" href="#v05-23-march-2010" aria-hidden="true"></a>v0.5 (23 March 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Added zoom functionality (speed will be improved later)</li>
 <li>Added useful file information to the status bar</li>
 <li>Added ability to export and import view settings from the preferences</li>
@@ -341,10 +330,9 @@
 <li>Other fixes &amp; improvements</li>
 </ul>
 
-<h2>
-<a id="user-content-v03-12-march-2010" class="anchor" href="#v03-12-march-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.3 (12 March 2010)</h2>
+<h2><a id="user-content-v03-12-march-2010" class="anchor" href="#v03-12-march-2010" aria-hidden="true"></a>v0.3 (12 March 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Added support for multiple hyperlinks in one line</li>
 <li>Made the blur/shadow effect a little bit faster for small radii and a lot faster for big radii. In fact, the blur radius does no longer affect the rendering speed at all (on/off still does).</li>
 <li>Sick stuff: The blur/shadow effect now uses NVIDIA CUDA where available!</li>
@@ -356,10 +344,9 @@
 <li>Other fixes &amp; improvements</li>
 </ul>
 
-<h2>
-<a id="user-content-v02-7-march-2010" class="anchor" href="#v02-7-march-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.2 (7 March 2010)</h2>
+<h2><a id="user-content-v02-7-march-2010" class="anchor" href="#v02-7-march-2010" aria-hidden="true"></a>v0.2 (7 March 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Implemented font size (Classic + Text-Only View) setting</li>
 <li>Implemented font face setting</li>
 <li>Implemented "Show Menubar on Startup" setting</li>
@@ -378,10 +365,9 @@
 <li>Made an optional installer</li>
 </ul>
 
-<h2>
-<a id="user-content-v016-24-feb-2010" class="anchor" href="#v016-24-feb-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.1.6 (24 Feb 2010)</h2>
+<h2><a id="user-content-v016-24-feb-2010" class="anchor" href="#v016-24-feb-2010" aria-hidden="true"></a>v0.1.6 (24 Feb 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Implemented block size (Rendered view) setting</li>
 <li>Added "Default View Mode" setting</li>
 <li>Added Anti-Alias setting</li>
@@ -393,10 +379,9 @@
 <li>Fixed HUGE memory leak</li>
 </ul>
 
-<h2>
-<a id="user-content-v015-23-feb-2010" class="anchor" href="#v015-23-feb-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.1.5 (23 Feb 2010)</h2>
+<h2><a id="user-content-v015-23-feb-2010" class="anchor" href="#v015-23-feb-2010" aria-hidden="true"></a>v0.1.5 (23 Feb 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Added awesome icon by Railgun! THANKS!!</li>
 <li>Added Classic view (copying text is still buggy)</li>
 <li>Added very buggy raw text view</li>
@@ -408,24 +393,21 @@
 <li>Other improvements</li>
 </ul>
 
-<h2>
-<a id="user-content-v010-17-feb-2010" class="anchor" href="#v010-17-feb-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>v0.1.0 (17 Feb 2010)</h2>
+<h2><a id="user-content-v010-17-feb-2010" class="anchor" href="#v010-17-feb-2010" aria-hidden="true"></a>v0.1.0 (17 Feb 2010)</h2>
 
-<ul class="task-list">
+<ul>
 <li>Initial public release of Win32 binaries</li>
 </ul>
 
-<h2>
-<a id="user-content-25-jan-2010" class="anchor" href="#25-jan-2010" aria-hidden="true"><span class="octicon octicon-link"></span></a>25 Jan 2010</h2>
+<h2><a id="user-content-25-jan-2010" class="anchor" href="#25-jan-2010" aria-hidden="true"></a>25 Jan 2010</h2>
 
-<ul class="task-list">
+<ul>
 <li>Initial source code import</li>
 </ul>
 
-<h2>
-<a id="user-content-31-dec-2009" class="anchor" href="#31-dec-2009" aria-hidden="true"><span class="octicon octicon-link"></span></a>31 Dec 2009</h2>
+<h2><a id="user-content-31-dec-2009" class="anchor" href="#31-dec-2009" aria-hidden="true"></a>31 Dec 2009</h2>
 
-<ul class="task-list">
+<ul>
 <li>Work begun</li>
 </ul>
 </section>

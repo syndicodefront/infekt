@@ -5,3 +5,27 @@ p.screenshots {
 p.screenshots img {
 	margin-bottom: 1em;
 }
+
+sup {
+  vertical-align: super;
+  font-size: 75%;
+}
+
+table.product-matrix th {
+  font-size: 14px;
+}
+
+table.product-matrix td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.pm-yes {
+  color: green;
+  font-size: 20px;
+}
+
+.pm-no {
+  color: darkred;
+  font-size: 20px;
+}

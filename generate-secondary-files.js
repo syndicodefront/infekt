@@ -21,7 +21,7 @@ function write_content(filename, title, body)
 	fs.writeFileSync(filename,
 		tpl.substr(0, tpl_content_begin) +
 		'<section><h1>' + title + '</h1>' +
-		body.substring(content_begin, content_end) +
+		body.substring(content_begin, content_end).replace(/<svg\b[\s\S]*?<\/svg>/g, '') +
 		tpl.substr(tpl_content_end)
 	)	
 }
