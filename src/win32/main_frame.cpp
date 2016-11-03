@@ -1870,6 +1870,19 @@ const std::_tstring CMainFrame::InfektVersionAsString()
 
 void CMainFrame::CheckForUpdates()
 {
+	if (!CUtilWin32::IsAtLeastWinVista())
+	{
+		const wstring l_msg = L"Your operating system doesn't support secure TLS connections.\r\n"
+			L"Do you want to visit http://infekt.ws/ now to check for updates manually?";
+
+		if (this->MessageBox(l_msg.c_str(), L"Update - Old OS", MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
+		{
+			::ShellExecute(0, L"open", L"http://infekt.ws/", NULL, NULL, SW_SHOWNORMAL);
+		}
+
+		return;
+	}
+
 	PWinHttpClient l_client(new CWinHttpClient(GetApp()->GetInstanceHandle()));
 
 	const wchar_t* urls[] = {
@@ -1974,7 +1987,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 			// auto update has been disabled from this version or is not available for other reasons,
 			// use classic manual approach.
 
-			l_msg += L"Auto-update is not possible. Do you want to go to the download page now?";
+			l_msg += L"Auto-update is not possible - e.g. because this is a portable version. Do you want to go to the download page now?";
 		}
 		else
 		{
