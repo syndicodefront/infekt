@@ -2,7 +2,7 @@
 #define SourceFileDir64 "..\build-out\Release-x64"
 #define NfoProgId "iNFEKT.NFOFile.1"
 
-#include "it_download.iss"
+#include "C:\Program Files (x86)\Inno Download Plugin\idp.iss"
 
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
@@ -209,8 +209,7 @@ var
 	DownloadProtocol: String;
 	U3Installed: Boolean;
 begin
-	ITD_Init();
-	ITD_SetOption('UI_AllowContinue', '1');
+	idpSetOption('AllowContinue', '1');
 
 	GetWindowsVersionEx(WinVersion);
 
@@ -223,10 +222,10 @@ begin
 
 	if Is64BitInstallMode() then
 	begin
-		ITD_AddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
+		idpAddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
 		if DownloadProtocol = 'https' then
 		begin
-			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
+			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 		end;
 
   // Microsoft Visual C++ 2015 x64 Additional Runtime - 14.0.24215
@@ -236,10 +235,10 @@ begin
 	end
 	else
 	begin
-		ITD_AddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
+		idpAddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
 		if DownloadProtocol = 'https' then
 		begin
-			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
+			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 		end;
 
   // Microsoft Visual C++ 2015 x86 Additional Runtime - 14.0.24215
@@ -254,7 +253,7 @@ begin
 	if not cppRuntimeInstalled then
 	begin
   // note: cannot consider checkbox here, it's not even been created.
-		ITD_DownloadAfter(wpReady);
+		idpDownloadAfter(wpReady);
 	end;
 end;
 
@@ -323,5 +322,5 @@ begin
 
 	// skip download if checkbox hasn't been selected:
 	if (CurPageID = wpReady) and not InstallCppRuntime() then
-		ITD_ClearFiles();
+		idpClearFiles();
 end;
