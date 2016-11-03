@@ -1,4 +1,5 @@
 ## v0.9.6 (November 3rd 2016)
+  * [re-uploaded setup routine after initial publication to fix broken downloads]
   * Switched J and K navigation keys
   * Added spacebar scrolling
   * New packaging: portable versions have less files, removed SuperCompact version
