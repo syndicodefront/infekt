@@ -9,7 +9,7 @@ Simply press the Alt key on your keyboard. You can also permanently show it usin
 You need to download and install the <a href="https://www.microsoft.com/en-us/download/details.aspx?id=53840">Visual C++ 2015 Redistributable Package</a> from Microsoft.
 Alternatively, you can get the iNFekt setup file which will download and install the required files automatically.
 
-* Up to and including version 0.8.5 the Visual C++ *202* runtime was required:
+* Up to and including version 0.9.5 the Visual C++ *2012* runtime was required:
 <a href="hhttp://www.microsoft.com/en-us/download/details.aspx?id=30679">Microsoft Visual C++ Redistributable for Visual Studio 2012</a>
 
 * Up to and including version 0.8.5 the Visual C++ *2010* runtime was required:
