@@ -58,9 +58,9 @@ xcopy /Y /S /E %ROOTDIR%\..\release\PortableApps %PAP%
 
 copy /Y %ROOTDIR%\..\release\portable.ini %PAP%\App\DefaultData
 
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\msvc*.dll" %PAP%\App\iNFekt
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\concrt*.dll" %PAP%\App\iNFekt
-xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x64\Microsoft.VC140.CRT\vcruntime*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\msvc*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\concrt*.dll" %PAP%\App\iNFekt
+xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CRT\vcruntime*.dll" %PAP%\App\iNFekt
 xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.OpenMP\*.dll" %PAP%\App\iNFekt
 xcopy /Y "%VS140COMNTOOLS%..\..\VC\redist\x86\Microsoft.VC140.CXXAMP\*.dll" %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-win32.exe %PAP%\App\iNFekt
