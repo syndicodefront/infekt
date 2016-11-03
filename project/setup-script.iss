@@ -193,8 +193,8 @@ var
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = '://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x64.exe';
-	MSVC_X86_URL = '://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x86.exe';
+	MSVC_X64_URL = '://download.microsoft.com/download/6/A/A/6AA4EDFF-645B-48C5-81CC-ED5963AEAD48/vc_redist.x64.exe';
+	MSVC_X86_URL = '://download.microsoft.com/download/6/A/A/6AA4EDFF-645B-48C5-81CC-ED5963AEAD48/vc_redist.x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
@@ -229,10 +229,10 @@ begin
 			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 		end;
 
-  // Microsoft Visual C++ 2015 x64 Additional Runtime - 14.0.24210
-		U3Installed := (MsiQueryProductState('{95265B86-188E-3F62-9CDB-60FCE59EC721}') = INSTALLSTATE_DEFAULT)
-		// Microsoft Visual C++ 2015 x64 Minimum Runtime - 14.0.24210
-			          and (MsiQueryProductState('{C0B2C673-ECAA-372D-94E5-E89440D087AD}') = INSTALLSTATE_DEFAULT);
+  // Microsoft Visual C++ 2015 x64 Additional Runtime - 14.0.24215
+		U3Installed := (MsiQueryProductState('{EF1EC6A9-17DE-3DA9-B040-686A1E8A8B04}') = INSTALLSTATE_DEFAULT)
+		// Microsoft Visual C++ 2015 x64 Minimum Runtime - 14.0.24215
+			          and (MsiQueryProductState('{50A2BC33-C9CD-3BF1-A8FF-53C10A0B183C}') = INSTALLSTATE_DEFAULT);
 	end
 	else
 	begin
@@ -242,10 +242,10 @@ begin
 			ITD_AddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 		end;
 
-  // Microsoft Visual C++ 2015 x86 Additional Runtime - 14.0.24210
-		U3Installed := (MsiQueryProductState('{D8C8656B-0BD8-39C3-B741-F889B7C144E5}') = INSTALLSTATE_DEFAULT)
-		// Microsoft Visual C++ 2015 x86 Minimum Runtime - 14.0.24210
-			          and (MsiQueryProductState('{8FD71E98-EE44-3844-9DAD-9CB0BBBC603C}') = INSTALLSTATE_DEFAULT);
+  // Microsoft Visual C++ 2015 x86 Additional Runtime - 14.0.24215
+  U3Installed := (MsiQueryProductState('{69BCE4AC-9572-3271-A2FB-9423BDA36A43}') = INSTALLSTATE_DEFAULT)
+		// Microsoft Visual C++ 2015 x86 Minimum Runtime - 14.0.24215
+			          and (MsiQueryProductState('{BBF2AC74-720C-3CB3-8291-5E34039232FA}') = INSTALLSTATE_DEFAULT);
 	end;
 
 	allowCppRuntimeInstall := true; // default
