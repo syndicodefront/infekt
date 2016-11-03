@@ -433,15 +433,11 @@ void CNFORenderer::CalcStripeDimensions()
 		return;
 	}
 
-#ifndef COMPACT_RELEASE
 	// 2 CPU cores <=> 2000 px stripe height
 	// ==> 8 CPU cores <=> 250
 	// (= more threads)
 	// but: never use less than 500px per stripe.
 	size_t l_stripeHeightMaxForCores = std::max(2000 * 2 / omp_get_num_procs(), 500);
-#else
-	size_t l_stripeHeightMaxForCores = 2000;
-#endif /* COMPACT_RELEASE */
 
 	size_t l_stripeHeightMax = std::max(l_stripeHeightMaxForCores, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
 

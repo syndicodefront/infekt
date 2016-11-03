@@ -1004,9 +1004,6 @@ void CMainFrame::UpdateCaption()
 
 	if(!l_caption.empty()) l_caption += _T(" - ");
 	l_caption += L"iNFekt v" + InfektVersionAsString();
-#ifdef COMPACT_RELEASE
-	l_caption += L"-compact";
-#endif
 
 	if(CNFOApp::GetInstance()->InPortableMode())
 	{
@@ -1972,13 +1969,9 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 	}
 	else if(l_result < 0)
 	{
-#ifndef COMPACT_RELEASE
-		wstring l_auExePath = CUtilWin32::GetExeDir() + L"\\infekt-win32-updater.exe";
+		const wstring l_auExePath = CUtilWin32::GetExeDir() + L"\\infekt-win32-updater.exe";
 		bool l_auPossible = ::PathFileExists(l_auExePath.c_str()) &&
 			!l_autoUpdateHash.empty() && !l_autoUpdateUrl.empty();
-#else
-		bool l_auPossible = false;
-#endif
 
 		wstring l_msg = L"Attention! A new version is available (iNFekt v" + l_serverVersion + L")!\n\n";
 
@@ -2005,7 +1998,6 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 			// URL has been validated above.
 			::ShellExecute(0, L"open", l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
 		}
-#ifndef COMPACT_RELEASE
 		else
 		{
 			// try to perform auto-update.
@@ -2028,7 +2020,6 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 				}
 			}
 		}
-#endif
 	}
 	else if(l_result > 0)
 	{

@@ -19,10 +19,7 @@
 #include "targetver.h"
 
 #define _WIN32_UI
-
-#ifndef COMPACT_RELEASE
 #define INFEKT_PLUGIN_HOST
-#endif
 
 /* Win32++ headers */
 #include <wincore.h>

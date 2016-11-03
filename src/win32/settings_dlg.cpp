@@ -1325,15 +1325,9 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 
 	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
 
-#ifndef COMPACT_RELEASE
-	if(CUtilWin32::IsAtLeastWinVista())
+	if (CCairoBoxBlur::IsGPUUsable())
 	{
 		SET_DLG_CHECKBOX(IDC_USE_GPU, m_settings->bUseGPU);
-	}
-	else
-#endif
-	{
-		::EnableWindow(GetDlgItem(IDC_USE_GPU), FALSE);
 	}
 
 	ShowWindow(SW_SHOW);
