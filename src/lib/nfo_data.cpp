@@ -346,10 +346,9 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 			if(!l_numBuf.empty() && l_finalChar > 0)
 			{
 				// we only honor the first number:
-				wstring::size_type l_end = l_numBuf.find(L';');
-				if(l_end != wstring::npos) l_numBuf.erase(l_end);
+				l_numBuf.erase(l_numBuf.find(L';'));
 
-				int l_number = _wtoi(l_numBuf.c_str());
+				long l_number = std::wcstol(l_numBuf.c_str(), nullptr, 10);
 
 				switch(l_finalChar)
 				{
@@ -357,7 +356,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 					if(l_number < 1) l_number = 1;
 					else if(l_number > 1024) l_number = 1024;
 
-					for(int i = 0; i < l_number; i++) l_newText += L' ';
+					for(long i = 0; i < l_number; i++) l_newText += L' ';
 					break;
 				}
 
