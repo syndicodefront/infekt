@@ -17,7 +17,6 @@ add_executable (infekt-cli
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_to_png.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/util.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/cairo_box_blur.cpp
-	${INFEKT_SOURCE_DIR}/src/lib-posix/infekt-posix.cpp
 	${INFEKT_SOURCE_DIR}/src/lib-posix/iconv_string.c)
 
 target_link_libraries (infekt-cli ${LIBS})
