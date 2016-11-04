@@ -65,7 +65,4 @@
 #define CP_UTF8 8
 #define CP_ACP 5
 
-/* wrapper implementations from infekt-posix.cpp */
-int _wtoi(const wchar_t* str);
-
 #endif /* !_INFEKT_POSIX_H */

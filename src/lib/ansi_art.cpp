@@ -140,21 +140,21 @@ bool CAnsiArt::Process()
 	std::stack<std::pair<size_t, size_t> > saved_positions;
 	size_t x = 0, y = 0;
 
-	for(const ansi_command_t cmd : m_commands)
+	for(const ansi_command_t& cmd : m_commands)
 	{
-		int x_delta = 0, y_delta = 0;
-		int n = 0, m = 0;
+		long x_delta = 0, y_delta = 0;
+		long n = 0, m = 0;
 
 		if(cmd.cmd != 0 && cmd.cmd != L'm')
 		{
 			// this could be done somewhat nicer, but okay for now:
 			wstring::size_type pos;
 
-			n = std::max(_wtoi(cmd.data.c_str()), 1);
+			n = std::max(std::wcstol(cmd.data.c_str(), nullptr, 10), 1l);
 
 			if((pos = cmd.data.find(L';')) != wstring::npos)
 			{
-				m = std::max(_wtoi(cmd.data.substr(pos + 1).c_str()), 1);
+				m = std::max(std::wcstol(cmd.data.substr(pos + 1).c_str(), nullptr, 10), 1l);
 			}
 			else
 			{
@@ -299,7 +299,7 @@ bool CAnsiArt::Process()
 
 				for(const wstring& s : CUtil::StrSplit(cmd.data, L";"))
 				{
-					int n = _wtoi(s.c_str());
+					long n = std::wcstol(s.c_str(), nullptr, 10);
 
 					if(n >= 0 && n <= 255)
 					{

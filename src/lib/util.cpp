@@ -291,7 +291,8 @@ static void _ParseVersionNumber(const wstring& vs, vector<int>* ret)
 	{
 		if(vs[p] == L'.')
 		{
-			ret->push_back(_wtoi(l_buf.c_str()));
+			ret->push_back(std::wcstol(l_buf.c_str(), nullptr, 10));
+
 			l_buf.clear();
 		}
 		else
@@ -302,7 +303,7 @@ static void _ParseVersionNumber(const wstring& vs, vector<int>* ret)
 
 	if(!l_buf.empty())
 	{
-		ret->push_back(_wtoi(l_buf.c_str()));
+		ret->push_back(std::wcstol(l_buf.c_str(), nullptr, 10));
 	}
 	else if(ret->empty())
 	{
