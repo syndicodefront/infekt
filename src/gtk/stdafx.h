@@ -32,4 +32,3 @@
 #include <algorithm>
 
 #include <cairo.h>
-#include <pcre.h>
