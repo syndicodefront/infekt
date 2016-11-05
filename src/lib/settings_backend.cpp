@@ -86,8 +86,8 @@ bool CRegistrySettingsBackend::OpenSectionForWriting(const std::wstring& a_name,
 	HKEY l_hKey;
 	const std::wstring l_path = m_appIdf + a_name;
 
-	if (RegCreateKeyEx(GetHive(), l_path.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-		KEY_WRITE | KEY_QUERY_VALUE, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	if (RegCreateKeyEx(GetHive(), l_path.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE,
+		KEY_WRITE | KEY_QUERY_VALUE, nullptr, &l_hKey, nullptr) != ERROR_SUCCESS)
 	{
 		_ASSERT(false);
 		return false;
@@ -117,7 +117,7 @@ DWORD CRegistrySettingsSection::ReadDword(const wchar_t* a_szName, DWORD a_defau
 	DWORD l_dwBuf = 0;
 	DWORD l_dwBufSz = sizeof(DWORD);
 
-	if (RegQueryValueEx(m_hKey, a_szName, NULL, &l_dwType,
+	if (RegQueryValueEx(m_hKey, a_szName, nullptr, &l_dwType,
 		(LPBYTE)&l_dwBuf, &l_dwBufSz) == ERROR_SUCCESS && l_dwType == REG_DWORD)
 	{
 		return l_dwBuf;
@@ -247,5 +247,5 @@ bool CINISettingsSection::WriteString(const wchar_t* a_szName, std::wstring a_ne
 
 bool CINISettingsSection::DeletePair(const wchar_t* a_szName)
 {
-	return (WritePrivateProfileString(m_name.c_str(), a_szName, NULL, m_iniPath.c_str()) != FALSE);
+	return (WritePrivateProfileString(m_name.c_str(), a_szName, nullptr, m_iniPath.c_str()) != FALSE);
 }

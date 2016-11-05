@@ -39,7 +39,7 @@ HRESULT _stdcall CMainDropTargetHelper::QueryInterface(REFIID iid, void** ppvObj
 	}
 	else
 	{
-		*ppvObject = NULL;
+		*ppvObject = nullptr;
 		return E_NOINTERFACE;
 	}
 }
@@ -115,7 +115,7 @@ HRESULT _stdcall CMainDropTargetHelper::Drop(IDataObject* pDataObject, DWORD grf
 
 		if (l_hDrop)
 		{
-			UINT l_numFiles = ::DragQueryFile(l_hDrop, 0xFFFFFFFF, NULL, 0);
+			UINT l_numFiles = ::DragQueryFile(l_hDrop, 0xFFFFFFFF, nullptr, 0);
 
 			if (l_numFiles > 0)
 			{

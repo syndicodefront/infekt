@@ -23,8 +23,8 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 	m_forceGPUOff(false),
 	m_allowCPUFallback(true),
 	m_onDemandRendering(false),
-	m_preRenderThread(NULL),
-	m_gridData(NULL),
+	m_preRenderThread(nullptr),
+	m_gridData(nullptr),
 	m_rendered(false),
 	m_linesPerStripe(0),
 	m_stripeHeight(0),
@@ -99,7 +99,7 @@ void CNFORenderer::UnAssignNFO()
 	m_rendered = false;
 	m_fontSize = -1;
 	delete m_gridData;
-	m_gridData = NULL;
+	m_gridData = nullptr;
 
 	ClearStripes();
 }
@@ -472,7 +472,7 @@ cairo_surface_t *CNFORenderer::GetStripeSurface(size_t a_stripe) const
 		return *it->second.get();
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -539,7 +539,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 {
 	cairo_surface_t * const l_surface = GetStripeSurface(a_stripe);
 
-	_ASSERT(l_surface != NULL);
+	_ASSERT(l_surface != nullptr);
 
 	if ((!m_hasBlocks || m_classic) && GetBackColor().A > 0)
 	{
@@ -557,7 +557,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 
 	if (m_classic)
 	{
-		RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(),
+		RenderClassic(GetTextColor(), nullptr, GetHyperLinkColor(),
 			false,
 			l_rowStart, 0, l_rowEnd, m_nfo->GetGridWidth() - 1,
 			l_surface, 0, l_baseY);
@@ -619,7 +619,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 
 		if ((m_partial & NRP_RENDER_TEXT) != 0 && !m_cancelRenderingImmediately)
 		{
-			RenderText(GetTextColor(), NULL, GetHyperLinkColor(),
+			RenderText(GetTextColor(), nullptr, GetHyperLinkColor(),
 				l_rowStart, 0, l_rowEnd, m_nfo->GetGridWidth() - 1,
 				l_surface, 0, l_baseY);
 		}
@@ -878,10 +878,10 @@ static inline void _SetUpDrawingTools(const CNFORenderer* r, cairo_surface_t* a_
 static inline void _FinalizeDrawingTools(cairo_t** pcr, cairo_font_options_t** pcfo)
 {
 	cairo_font_options_destroy(*pcfo);
-	*pcfo = NULL;
+	*pcfo = nullptr;
 
 	cairo_destroy(*pcr);
-	*pcr = NULL;
+	*pcr = nullptr;
 }
 
 
@@ -939,13 +939,13 @@ void CNFORenderer::PreRenderText()
 
 				// measure the inked area of this glyph (char):
 				cairo_scaled_font_t *l_csf = cairo_get_scaled_font(cr);
-				cairo_glyph_t *l_glyphs = NULL;
+				cairo_glyph_t *l_glyphs = nullptr;
 				int l_numGlyphs = 0;
 
 				const std::string utf8 = m_nfo->GetGridCharUtf8(*it);
 
 				if (cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, utf8.c_str(), -1,
-					&l_glyphs, &l_numGlyphs, NULL, NULL, NULL) == CAIRO_STATUS_SUCCESS)
+					&l_glyphs, &l_numGlyphs, nullptr, nullptr, nullptr) == CAIRO_STATUS_SUCCESS)
 				{
 					cairo_scaled_font_glyph_extents(l_csf, l_glyphs, l_numGlyphs, &l_extents);
 					cairo_glyph_free(l_glyphs);
@@ -1056,7 +1056,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 		if (l_firstCol != (size_t)-1)
 		{
-			cairo_glyph_t *l_glyphs = NULL, *l_pg;
+			cairo_glyph_t *l_glyphs = nullptr, *l_pg;
 			int l_numGlyphs = -1, i;
 
 			// remove trailing whitespace added above:
@@ -1067,7 +1067,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			cairo_scaled_font_text_to_glyphs(l_csf,
 				0,
 				l_off_y + row * GetBlockHeight() + (l_font_extents.ascent + GetBlockHeight()) / 2.0 - 2,
-				l_utfBuf.c_str(), (int)l_utfBuf.size(), &l_glyphs, &l_numGlyphs, NULL, NULL, NULL);
+				l_utfBuf.c_str(), (int)l_utfBuf.size(), &l_glyphs, &l_numGlyphs, nullptr, nullptr, nullptr);
 
 			// put each char/glyph into its cell in the grid:
 			for (l_pg = l_glyphs, i = 0; i < l_numGlyphs; i++, l_pg++)
@@ -1321,7 +1321,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 
 				if (l_block->shape == RGS_NO_BLOCK)
 				{
-					if (GetHilightHyperLinks() && m_nfo->GetLink(row, col) != NULL)
+					if (GetHilightHyperLinks() && m_nfo->GetLink(row, col) != nullptr)
 						l_type = BT_LINK;
 					else
 						l_type = BT_TEXT;
@@ -1674,11 +1674,11 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 		l_numExtracted++;
 
 		if (l_key == L"blw")
-			l_tmpSets.uBlockWidth = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
+			l_tmpSets.uBlockWidth = static_cast<size_t>(wcstoul(l_val.c_str(), nullptr, 10));
 		else if (l_key == L"blh")
-			l_tmpSets.uBlockHeight = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
+			l_tmpSets.uBlockHeight = static_cast<size_t>(wcstoul(l_val.c_str(), nullptr, 10));
 		else if (l_key == L"fos")
-			l_tmpSets.uFontSize = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
+			l_tmpSets.uFontSize = static_cast<size_t>(wcstoul(l_val.c_str(), nullptr, 10));
 		else if (l_key == L"cba")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cBackColor);
 		else if (l_key == L"cte")
@@ -1699,19 +1699,19 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 #endif
 		}
 		else if (l_key == L"foa")
-			l_tmpSets.bFontAntiAlias = (wcstol(l_val.c_str(), NULL, 10) != 0);
+			l_tmpSets.bFontAntiAlias = (wcstol(l_val.c_str(), nullptr, 10) != 0);
 		else if (l_key == L"cga")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cGaussColor);
 		else if (l_key == L"gas")
-			l_tmpSets.bGaussShadow = (wcstol(l_val.c_str(), NULL, 10) != 0);
+			l_tmpSets.bGaussShadow = (wcstol(l_val.c_str(), nullptr, 10) != 0);
 		else if (l_key == L"gar")
-			l_tmpSets.uGaussBlurRadius = static_cast<unsigned int>(wcstoul(l_val.c_str(), NULL, 10));
+			l_tmpSets.uGaussBlurRadius = static_cast<unsigned int>(wcstoul(l_val.c_str(), nullptr, 10));
 		else if (l_key == L"hhl")
-			l_tmpSets.bHilightHyperlinks = (wcstol(l_val.c_str(), NULL, 10) != 0);
+			l_tmpSets.bHilightHyperlinks = (wcstol(l_val.c_str(), nullptr, 10) != 0);
 		else if (l_key == L"chl")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cHyperlinkColor);
 		else if (l_key == L"hul")
-			l_tmpSets.bUnderlineHyperlinks = (wcstol(l_val.c_str(), NULL, 10) != 0);
+			l_tmpSets.bUnderlineHyperlinks = (wcstol(l_val.c_str(), nullptr, 10) != 0);
 		else
 			l_numExtracted--;
 

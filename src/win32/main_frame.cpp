@@ -53,11 +53,11 @@ enum _toolbar_button_ids {
 CMainFrame::CMainFrame()
 	: CFrame()
 	, m_showingAbout(false)
-	, m_dropHelper(NULL)
+	, m_dropHelper(nullptr)
 	, m_nfoInFolderIndex((size_t)-1)
 	, m_menuBarVisible(false)
-	, m_searchToolbar(NULL)
-	, m_hSearchEditBox(NULL)
+	, m_searchToolbar(nullptr)
+	, m_hSearchEditBox(nullptr)
 {
 	SetView(m_view);
 }
@@ -235,12 +235,12 @@ void CMainFrame::OnInitialUpdate()
 
 	if (!l_path.empty())
 	{
-		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+		::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 		OpenFile(l_path);
 	}
 
-	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 }
 
 
@@ -367,10 +367,10 @@ void CMainFrame::CreateSearchToolbar()
 	m_searchToolbar->SendMessage(TB_ADDBUTTONS, sizeof(l_btns) / sizeof(l_btns[0]), (LPARAM)&l_btns);
 
 	// create search edit control:
-	m_hSearchEditBox = ::CreateWindowEx(WS_EX_CLIENTEDGE, L"Edit", NULL,
+	m_hSearchEditBox = ::CreateWindowEx(WS_EX_CLIENTEDGE, L"Edit", nullptr,
 		WS_CHILD | WS_VISIBLE | ES_LEFT | ES_AUTOHSCROLL,
 		0, 0, EDITCTRL_WIDTH, EDITCTRL_HEIGHT,
-		m_hWnd, NULL, g_hInstance, 0);
+		m_hWnd, nullptr, g_hInstance, 0);
 	::SendMessage(m_hSearchEditBox, WM_SETFONT, m_searchToolbar->SendMessage(WM_GETFONT, 0, 0), FALSE);
 
 	// notifications still go to the main window, but the control should live inside the toolbar window:
@@ -626,12 +626,12 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 
 	case IDM_TOOLS_NEXTNFO:
 		BrowseFolderNfoMove(1);
-		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 		break;
 
 	case IDM_TOOLS_PREVIOUSNFO:
 		BrowseFolderNfoMove(-1);
-		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 		break;
 
 	case ID_SCROLL_PAGEDOWN:
@@ -738,7 +738,7 @@ bool CMainFrame::DoOpenMruMenu(const LPNMTOOLBAR a_lpnm)
 		}
 		else
 		{
-			::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+			::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, nullptr);
 			::AppendMenu(hPopupMenu, MF_STRING, TBBID_CLEARMRU, _T("Empty Recently Viewed List"));
 		}
 
@@ -771,16 +771,16 @@ bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
 
 	// auto
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_AUTO, L"Auto");
-	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, nullptr);
 	// regular things
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437, L"CP437");
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_STRICT, L"CP437 (strict)");
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_UTF8, L"UTF-8");
-	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, nullptr);
 	// more exotic things:
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_UTF16, L"UTF-16");
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_WINDOWS_1252, L"Windows-1252");
-	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, NULL);
+	::AppendMenu(hPopupMenu, MF_SEPARATOR, 0, nullptr);
 	// crazy shit:
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_IN_UTF8, L"CP437 in UTF-8");
 	::AppendMenu(hPopupMenu, MF_STRING, NFOC_CP437_IN_UTF16, L"CP437 in UTF-16");
@@ -791,7 +791,7 @@ bool CMainFrame::DoCharsetMenu(const LPNMMOUSE a_pnmm)
 
 	int l_cmd = ::TrackPopupMenuEx(hPopupMenu,
 		TPM_TOPALIGN | TPM_CENTERALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
-		pt.x, pt.y, m_hWnd, NULL);
+		pt.x, pt.y, m_hWnd, nullptr);
 
 	::DestroyMenu(hPopupMenu);
 
@@ -1104,7 +1104,7 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 	if (l_desiredWidth == l_rc.right - l_rc.left ||
 		(a_growOnly && l_desiredWidth < l_rc.right - l_rc.left))
 	{
-		::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE);
+		::RedrawWindow(GetHwnd(), nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE);
 		return;
 	}
 
@@ -1293,7 +1293,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 
 	if (pMsg->message >= WM_KEYFIRST && pMsg->message <= WM_KEYLAST)
 	{
-		static HACCEL hAccelTable = NULL;
+		static HACCEL hAccelTable = nullptr;
 		if (!hAccelTable) hAccelTable = ::LoadAccelerators(g_hInstance, MAKEINTRESOURCE(IDR_MAIN_KEYBOARD_SHORTCUTS));
 
 		return ::TranslateAccelerator(m_hWnd, hAccelTable, pMsg);
@@ -1332,7 +1332,7 @@ LRESULT CMainFrame::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (l_cpds->dwData == WM_LOAD_NFO)
 		{
 			if (l_cpds->cbData < 1000 && l_cpds->lpData &&
-				::IsTextUnicode(l_cpds->lpData, l_cpds->cbData, NULL))
+				::IsTextUnicode(l_cpds->lpData, l_cpds->cbData, nullptr))
 			{
 				const wstring l_path = (wchar_t*)l_cpds->lpData;
 				if (::PathFileExists(l_path.c_str()))
@@ -1450,7 +1450,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 			bool l_internalError = true;
 
-			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+			::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 			l_exporter.InjectSettings(l_settings);
 			l_exporter.AssignNFO(m_view.GetActiveCtrl()->GetNfoData());
@@ -1477,7 +1477,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if (!l_filePath.empty())
 		{
-			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+			::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 			if (m_view.GetActiveCtrl()->GetNfoData()->SaveToUnicodeFile(l_filePath, l_utf8))
 			{
@@ -1507,7 +1507,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if (!l_filePath.empty())
 		{
-			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+			::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 			if (m_view.GetActiveCtrl()->GetNfoData()->SaveToCP437File(l_filePath, l_inconvertible))
 			{
@@ -1550,7 +1550,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			l_exporter.SetSettings(m_view.GetActiveCtrl()->GetSettings());
 			l_exporter.SetTitle(m_view.GetNfoData()->GetFileName());
 
-			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+			::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 			const string l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
 
@@ -1577,7 +1577,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if (!l_filePath.empty())
 		{
-			::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+			::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 			CNFOToPDF l_exporter(m_view.GetActiveCtrl() != m_view.GetRenderCtrl());
 			l_exporter.SetUseDINSizes(a_id == IDM_EXPORT_PDF_DIN);
@@ -1595,7 +1595,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 		}
 	}
 
-	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 }
 
 
@@ -1616,7 +1616,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 
 	bool bSuccess;
 
-	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+	::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	// use preloaded NFO if there is one:
 	if (m_nfoPreloadData && m_nfoPreloadData->GetFilePath() == m_nfoPathsInFolder[m_nfoInFolderIndex])
@@ -1713,7 +1713,7 @@ bool CMainFrame::LoadFolderNfoList()
 		l_filePattern = l_folderPath + L"*.*";
 
 	if (!::PathIsDirectory(l_folderPath.c_str()) ||
-		::GetFullPathName(l_currentNfoPath.c_str(), 999, l_nfoPathFull, NULL) > 999)
+		::GetFullPathName(l_currentNfoPath.c_str(), 999, l_nfoPathFull, nullptr) > 999)
 	{
 		// what happened?!
 		return false;
@@ -1739,7 +1739,7 @@ bool CMainFrame::LoadFolderNfoList()
 		{
 			wchar_t l_buf[1000] = { 0 };
 
-			if (::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, NULL) < 1000)
+			if (::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, nullptr) < 1000)
 			{
 				m_nfoPathsInFolder.push_back(l_buf);
 			}
@@ -1877,7 +1877,7 @@ void CMainFrame::CheckForUpdates()
 
 		if (this->MessageBox(l_msg.c_str(), L"Update - Old OS", MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
 		{
-			::ShellExecute(0, L"open", L"http://infekt.ws/", NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(0, L"open", L"http://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
 		}
 
 		return;
@@ -1890,7 +1890,7 @@ void CMainFrame::CheckForUpdates()
 		L"https://syndicode.org/infekt/prog/CurrentVersion.txt",
 	};
 
-	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(urls[::time(NULL) % 2],
+	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(urls[::time(nullptr) % 2],
 		std::bind(&CMainFrame::CheckForUpdates_Callback, this, _1));
 
 	l_req->SetBypassCache(true);
@@ -1957,7 +1957,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 
 		if (this->MessageBox(l_msg.c_str(), L"Connection Problem", MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
 		{
-			::ShellExecute(0, L"open", L"http://infekt.ws/", NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(0, L"open", L"http://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
 		}
 
 		return;
@@ -1999,7 +1999,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 		if (!l_auPossible)
 		{
 			// URL has been validated above.
-			::ShellExecute(0, L"open", l_newDownloadUrl.c_str(), NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(0, L"open", l_newDownloadUrl.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 		}
 		else
 		{
@@ -2015,7 +2015,7 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 				{
 					const std::wstring l_args = L"\"" + l_autoUpdateUrl + L"\" " + l_autoUpdateHash;
 
-					::ShellExecute(0, L"open", l_tempExePath.c_str(), l_args.c_str(), NULL, SW_SHOWNORMAL);
+					::ShellExecute(0, L"open", l_tempExePath.c_str(), l_args.c_str(), nullptr, SW_SHOWNORMAL);
 				}
 				else
 				{

@@ -64,7 +64,7 @@ const CLASS_OBJECT_INIT c_rgClassObjectInit[] =
 /************************************************************************/
 
 long g_cRefModule = 0;
-HINSTANCE g_hInst = NULL;
+HINSTANCE g_hInst = nullptr;
 
 
 /************************************************************************/
@@ -87,7 +87,7 @@ class CClassFactory : public IClassFactory
 public:
 	static HRESULT CreateInstance(REFCLSID clsid, const CLASS_OBJECT_INIT *pClassObjectInits, size_t cClassObjectInits, REFIID riid, void **ppv)
 	{
-		*ppv = NULL;
+		*ppv = nullptr;
 		HRESULT hr = CLASS_E_CLASSNOTAVAILABLE;
 		for(size_t i = 0; i < cClassObjectInits; i++)
 		{
@@ -211,7 +211,7 @@ HRESULT CreateRegKeyAndSetValue(const REGISTRY_ENTRY *pRegistryEntry)
 {
 	HKEY hKey;
 	HRESULT hr = HRESULT_FROM_WIN32(RegCreateKeyExW(pRegistryEntry->hkeyRoot, pRegistryEntry->pszKeyName,
-		0, NULL, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, NULL, &hKey, NULL));
+		0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &hKey, nullptr));
 
 	if(SUCCEEDED(hr))
 	{
@@ -288,17 +288,17 @@ STDAPI DllRegisterServer()
 		const REGISTRY_ENTRY rgRegistryEntries[] =
 		{
 			// thumbnail handler:
-			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOTHUMBHANDLER,                             NULL,                       SZ_NFOTHUMBHANDLER},
-			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOTHUMBHANDLER L"\\InProcServer32",         NULL,                       szModuleName},
+			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOTHUMBHANDLER,                             nullptr,                       SZ_NFOTHUMBHANDLER},
+			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOTHUMBHANDLER L"\\InProcServer32",         nullptr,                       szModuleName},
 			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOTHUMBHANDLER L"\\InProcServer32",         L"ThreadingModel",          L"Apartment"},
-			{HKEY_CURRENT_USER,   L"Software\\Classes\\" DEFAULT_APP_PROG_ID L"\\ShellEx\\{e357fccd-a995-4576-b01f-234630154e96}", NULL,          SZ_CLSID_NFOTHUMBHANDLER},
+			{HKEY_CURRENT_USER,   L"Software\\Classes\\" DEFAULT_APP_PROG_ID L"\\ShellEx\\{e357fccd-a995-4576-b01f-234630154e96}", nullptr,          SZ_CLSID_NFOTHUMBHANDLER},
 
 			// preview handler:
-			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOPREVIEWHANDLER,                           NULL,                       SZ_NFOPREVIEWHANDLER},
-			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOPREVIEWHANDLER L"\\InProcServer32",       NULL,                       szModuleName},
+			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOPREVIEWHANDLER,                           nullptr,                       SZ_NFOPREVIEWHANDLER},
+			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOPREVIEWHANDLER L"\\InProcServer32",       nullptr,                       szModuleName},
 			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOPREVIEWHANDLER L"\\InProcServer32",       L"ThreadingModel",          L"Apartment"},
 			{HKEY_CURRENT_USER,   L"Software\\Classes\\CLSID\\" SZ_CLSID_NFOPREVIEWHANDLER,                           L"AppID",                   L"{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}"},
-			{HKEY_CURRENT_USER,   L"Software\\Classes\\" DEFAULT_APP_PROG_ID L"\\ShellEx\\{8895b1c6-b41f-4c1c-a562-0d564250836f}", NULL,          SZ_CLSID_NFOPREVIEWHANDLER},
+			{HKEY_CURRENT_USER,   L"Software\\Classes\\" DEFAULT_APP_PROG_ID L"\\ShellEx\\{8895b1c6-b41f-4c1c-a562-0d564250836f}", nullptr,          SZ_CLSID_NFOPREVIEWHANDLER},
 			{HKEY_CURRENT_USER,   L"Software\\Microsoft\\Windows\\CurrentVersion\\PreviewHandlers",                   SZ_CLSID_NFOPREVIEWHANDLER, SZ_NFOPREVIEWHANDLER},
 		};
 
@@ -319,7 +319,7 @@ STDAPI DllRegisterServer()
 	{
 		// This tells the shell to invalidate the thumbnail cache.  This is important because any associated files
 		// viewed before registering this handler would otherwise show cached blank thumbnails.
-		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
 	}
 
 	return hr;

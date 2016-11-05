@@ -15,7 +15,7 @@
 #include "stdafx.h"
 #include "infekt.h" // ONLY for plugins shipping with iNFekt
 
-static CImdbPlugin* s_pPlugin = NULL;
+static CImdbPlugin* s_pPlugin = nullptr;
 
 
 /************************************************************************/
@@ -67,7 +67,7 @@ extern "C" __declspec(dllexport)
 		if(s_pPlugin)
 		{
 			delete s_pPlugin;
-			s_pPlugin = NULL;
+			s_pPlugin = nullptr;
 			return IPE_SUCCESS;
 		}
 		break;

@@ -26,7 +26,7 @@ CContainer::CContainer()
 
 bool CContainer::ReadFile(const std::wstring& a_filePath)
 {
-	FILE *l_file = NULL;
+	FILE *l_file = nullptr;
 
 	if (_wfopen_s(&l_file, a_filePath.c_str(), L"rb") != 0 || !l_file)
 	{
@@ -191,6 +191,6 @@ CStoredFile::~CStoredFile()
 	if (m_ownsMemory)
 	{
 		delete[] m_data;
-		m_data = NULL;
+		m_data = nullptr;
 	}
 }

@@ -48,7 +48,7 @@ INFEKT_PLUGIN_METHOD(CImdbPlugin::ImdbMainEventCallback)
 {
 	CImdbPlugin* pInstance = reinterpret_cast<CImdbPlugin*>(pUser);
 
-	_ASSERTE(pUser != NULL);
+	_ASSERTE(pUser != nullptr);
 
 	switch(lCall)
 	{
@@ -103,7 +103,7 @@ void CImdbPlugin::OnFoundImdbLink(const std::string& a_imdbId)
 
 INFEKT_PLUGIN_METHOD(CImdbPlugin::HttpCallback)
 {
-	if(lCall == IPV_HTTP_RESULT && pParam != NULL)
+	if(lCall == IPV_HTTP_RESULT && pParam != nullptr)
 	{
 		infekt_http_result_t* l_result = reinterpret_cast<infekt_http_result_t*>(pParam);
 

@@ -79,7 +79,7 @@ int CUtilWin32GUI::AddPngToImageList(HIMAGELIST a_imgList,
 	l_bi.bmiHeader.biYPelsPerMeter = l_bi.bmiHeader.biXPelsPerMeter = 1000;
 
 	unsigned char* l_rawData;
-	HBITMAP l_hBitmap = ::CreateDIBSection(NULL, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, NULL, 0);
+	HBITMAP l_hBitmap = ::CreateDIBSection(nullptr, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, nullptr, 0);
 
 	if (l_hBitmap)
 	{
@@ -99,7 +99,7 @@ int CUtilWin32GUI::AddPngToImageList(HIMAGELIST a_imgList,
 			cairo_destroy(cr);
 
 			// finally add to image list:
-			l_resultId = ImageList_Add(a_imgList, l_hBitmap, NULL);
+			l_resultId = ImageList_Add(a_imgList, l_hBitmap, nullptr);
 
 			cairo_surface_destroy(l_surfaceOut);
 		}
@@ -230,11 +230,11 @@ wstring CUtilWin32GUI::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const
 
 void CUtilWin32GUI::PopUpLastWin32Error()
 {
-	LPTSTR lpMsgBuf = NULL;
+	LPTSTR lpMsgBuf = nullptr;
 	DWORD dwSize;
 	dwSize = ::FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf, 0, NULL);
+		nullptr, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&lpMsgBuf, 0, nullptr);
 
 	if (lpMsgBuf && dwSize)
 	{
@@ -252,19 +252,19 @@ void CUtilWin32GUI::FormatFileTimeSize(const std::wstring& a_filePath, std::wstr
 	{
 		SYSTEMTIME l_sysTimeUTC = { 0 }, l_sysTime = { 0 };
 		if (::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTimeUTC) &&
-			::SystemTimeToTzSpecificLocalTime(NULL, &l_sysTimeUTC, &l_sysTime))
+			::SystemTimeToTzSpecificLocalTime(nullptr, &l_sysTimeUTC, &l_sysTime))
 		{
 			TCHAR l_date[100] = { 0 };
 
 			if (::GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &l_sysTime,
-				NULL, l_date, 99) != 0)
+				nullptr, l_date, 99) != 0)
 			{
 				ar_timeInfo = l_date;
 			}
 
 			memset(l_date, 0, 100);
 
-			if (::GetTimeFormat(LOCALE_USER_DEFAULT, 0, &l_sysTime, NULL,
+			if (::GetTimeFormat(LOCALE_USER_DEFAULT, 0, &l_sysTime, nullptr,
 				l_date, 99) != 0)
 			{
 				ar_timeInfo += L" ";
@@ -313,11 +313,11 @@ BOOL CUtilWin32GUI::GenericOnSetCursor(const LPTSTR a_cursor, LPARAM lParam)
 	switch (LOWORD(lParam)) // hit test code
 	{
 	case HTCLIENT:
-		::SetCursor(::LoadCursor(NULL, a_cursor));
+		::SetCursor(::LoadCursor(nullptr, a_cursor));
 		return TRUE;
 	case HTVSCROLL:
 	case HTHSCROLL:
-		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 		return TRUE;
 	default:
 		return FALSE;

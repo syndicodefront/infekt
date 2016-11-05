@@ -66,7 +66,7 @@ struct option		/* specification for a long form option...	*/
 {
   const TCHAR *name;		/* option name, without leading hyphens */
   int         has_arg;		/* does it take an argument?		*/
-  int        *flag;		/* where to save its status, or NULL	*/
+  int        *flag;		/* where to save its status, or nullptr	*/
   int         val;		/* its associated status value		*/
 };
 

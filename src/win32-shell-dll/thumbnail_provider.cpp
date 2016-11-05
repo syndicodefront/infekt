@@ -32,7 +32,7 @@ public:
 	CNFOThumbProvider()
 	{
 		m_cRef = 1;
-		m_pStream = NULL;
+		m_pStream = nullptr;
 	}
 
 	virtual ~CNFOThumbProvider()
@@ -43,7 +43,7 @@ public:
 	// IUnknown
 	IFACEMETHODIMP QueryInterface(REFIID riid, void **ppv)
 	{
-		*ppv = NULL;
+		*ppv = nullptr;
 
 		static const QITAB qit[] =
 		{
@@ -138,7 +138,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 	l_bi.bmiHeader.biYPelsPerMeter = l_bi.bmiHeader.biXPelsPerMeter = 1000;
 
 	unsigned char* l_rawData;
-	HBITMAP l_hBitmap = CreateDIBSection(NULL, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, NULL, 0);
+	HBITMAP l_hBitmap = CreateDIBSection(nullptr, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, nullptr, 0);
 
 	HRESULT hr = E_FAIL;
 
@@ -199,7 +199,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 
 HRESULT CNFOThumbProvider_CreateInstance(REFIID riid, void **ppv)
 {
-	*ppv = NULL;
+	*ppv = nullptr;
 
 	CNFOThumbProvider *pNew = new (std::nothrow) CNFOThumbProvider();
 

@@ -22,7 +22,7 @@
 
 
 CViewContainer::CViewContainer() :
-	m_contextMenuHandle(NULL),
+	m_contextMenuHandle(nullptr),
 	m_resized(true),
 	m_curViewType(_MAIN_VIEW_MAX),
 	m_wrapLines(false),
@@ -52,16 +52,16 @@ void CViewContainer::OnCreate()
 
 bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_charset)
 {
-	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+	::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 #ifdef INFEKT_PLUGIN_HOST
 	if (0 != _wcsicmp(::PathFindExtension(a_filePath.c_str()), L".nfo")) // never try plugins for .nfo files
 	{
-		if (CPluginManager::GetInstance()->TriggerTryOpenFileFormat(NULL, 0, a_filePath, a_charset))
+		if (CPluginManager::GetInstance()->TriggerTryOpenFileFormat(nullptr, 0, a_filePath, a_charset))
 		{
 			// a file support plugin has hopefully invoked OpenLoadedFile!
 
-			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+			::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 
 			return true;
 		}
@@ -92,7 +92,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 
 		if (CurAssignNfo())
 		{
-			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+			::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 
 			m_nfoFilePath = m_nfoData->GetFilePath();
 
@@ -102,7 +102,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 
 	this->MessageBox(m_nfoData->GetLastErrorDescription().c_str(), _T("Fail"), MB_ICONEXCLAMATION);
 
-	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 
 	m_nfoData = l_nfoDataBackup;
 
@@ -112,7 +112,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 
 bool CViewContainer::OpenLoadedFile(PNFOData a_nfoData)
 {
-	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+	::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	if (m_nfoData)
 	{
@@ -131,7 +131,7 @@ bool CViewContainer::OpenLoadedFile(PNFOData a_nfoData)
 
 	bool b = CurAssignNfo();
 
-	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 
 	if (b)
 	{
@@ -168,7 +168,7 @@ bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 
 				// redraw scrollbars and such:
 				SendMessage(WM_SETREDRAW, 1);
-				::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+				::RedrawWindow(GetHwnd(), nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 
 				return true;
 			}
@@ -226,7 +226,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (IsYOnSplitter(GET_Y_LPARAM(lParam)))
 		{
 			m_infoBarResizing = true;
-			::SetCursor(::LoadCursor(NULL, IDC_SIZENS));
+			::SetCursor(::LoadCursor(nullptr, IDC_SIZENS));
 			SetCapture();
 		}
 		break;
@@ -234,7 +234,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if (IsYOnSplitter(GET_Y_LPARAM(lParam)))
 		{
 			m_infoBarResizing = false;
-			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+			::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 			ReleaseCapture();
 		}
 		break;
@@ -414,9 +414,9 @@ void CViewContainer::SwitchView(EMainView a_view)
 
 	if (m_nfoData && !m_curViewCtrl->HasNfoData())
 	{
-		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+		::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 		CurAssignNfo();
-		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 	}
 
 	if (m_resized)
@@ -442,7 +442,7 @@ void CViewContainer::SwitchView(EMainView a_view)
 #endif
 
 	SendMessage(WM_SETREDRAW, 1);
-	::RedrawWindow(GetHwnd(), NULL, NULL, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
+	::RedrawWindow(GetHwnd(), nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN);
 }
 
 

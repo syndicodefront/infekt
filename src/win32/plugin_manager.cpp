@@ -83,7 +83,7 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 	}
 
 	infektDeclareStruct(infekt_plugin_info_t, l_info);
-	long l_infoResult = l_fPluginMain(NULL, 0, IPV_PLUGIN_INFO, 0, &l_info, NULL);
+	long l_infoResult = l_fPluginMain(nullptr, 0, IPV_PLUGIN_INFO, 0, &l_info, nullptr);
 
 	if (l_infoResult != IPE_SUCCESS || !l_info.guid[0])
 	{
@@ -261,7 +261,7 @@ bool CLoadedPlugin::_DoLoad()
 		l_loadInfo.pluginDir = l_pluginDir.c_str();
 
 		// send the load event to the plugin:
-		long l_loadResult = l_fPluginMain(NULL, 0, IPV_PLUGIN_LOAD, 0, &l_loadInfo, NULL);
+		long l_loadResult = l_fPluginMain(nullptr, 0, IPV_PLUGIN_LOAD, 0, &l_loadInfo, nullptr);
 
 		if (l_loadResult == IPE_SUCCESS)
 		{
@@ -315,7 +315,7 @@ long CLoadedPlugin::TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_even
 
 	if (l_itCallback != m_activeRegs.end())
 	{
-		return l_itCallback->second.pCallback(NULL, 0, a_event, a_lParam, a_pParam, l_itCallback->second.pUser);
+		return l_itCallback->second.pCallback(nullptr, 0, a_event, a_lParam, a_pParam, l_itCallback->second.pUser);
 	}
 
 	return _IPE_NOT_IMPLEMENTED_INTERNAL;
@@ -341,7 +341,7 @@ CLoadedPlugin::~CLoadedPlugin()
 
 		if (l_fPluginMain)
 		{
-			l_fPluginMain(NULL, 0, IPV_PLUGIN_UNLOAD, 0, NULL, NULL);
+			l_fPluginMain(nullptr, 0, IPV_PLUGIN_UNLOAD, 0, nullptr, nullptr);
 		}
 	}
 

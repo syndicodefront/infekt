@@ -107,9 +107,9 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 }
 
 #ifdef _UNICODE
-#define OutputHelp() _OutputHelp(NULL, argv[0])
+#define OutputHelp() _OutputHelp(nullptr, argv[0])
 #else
-#define OutputHelp() _OutputHelp(argv[0], NULL)
+#define OutputHelp() _OutputHelp(argv[0], nullptr)
 #endif
 
 #define _CHECK_COLOR_OPT(CHAR, STRING_NAME, PROP_NAME, EXTRA_CODE) \

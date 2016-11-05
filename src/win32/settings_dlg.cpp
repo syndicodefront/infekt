@@ -47,10 +47,10 @@ enum _tab_page_ids {
 CSettingsWindowDialog::CSettingsWindowDialog(HWND hWndParent) :
 	CDialog(IDD_DLG_SETTINGS, hWndParent)
 {
-	m_mainWin = NULL;
+	m_mainWin = nullptr;
 
 	m_tabPageGeneral = m_tabPageRendered = m_tabPageClassic =
-		m_tabPageTextOnly = m_tabPagePlugins = NULL;
+		m_tabPageTextOnly = m_tabPagePlugins = nullptr;
 }
 
 
@@ -221,8 +221,8 @@ CSettingsTabDialog::CSettingsTabDialog(CSettingsWindowDialog* a_dlg, int a_pageI
 	m_pageId = a_pageId;
 	m_mainWin = a_dlg->GetMainWin();
 	m_dlgWin = a_dlg;
-	m_viewSettings = NULL;
-	m_previewSettingsBackup = NULL;
+	m_viewSettings = nullptr;
+	m_previewSettingsBackup = nullptr;
 	m_selectedFontIndex = 0;
 	m_beforePreviewViewType = _MAIN_VIEW_MAX;
 
@@ -280,7 +280,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		case TAB_PAGE_CLASSIC: *m_viewSettings = l_view->GetClassicCtrl()->GetSettings(); break;
 		case TAB_PAGE_TEXTONLY: *m_viewSettings = l_view->GetTextOnlyCtrl()->GetSettings(); break;
 		default:
-			delete m_viewSettings; m_viewSettings = NULL;
+			delete m_viewSettings; m_viewSettings = nullptr;
 		}
 
 		ViewSettingsToGui();
@@ -500,7 +500,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 					GetBValue(l_cc.rgbResult), l_color->A);
 			}
 
-			::RedrawWindow(GetDlgItem(LOWORD(wParam)), NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(GetDlgItem(LOWORD(wParam)), nullptr, nullptr, RDW_INVALIDATE);
 		}
 
 		return TRUE;
@@ -710,13 +710,13 @@ void CSettingsTabDialog::DoPreview()
 
 	ReadBlockSize();
 
-	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
+	::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
 
 	l_ctrl->InjectSettings(*m_viewSettings);
 
 	l_view->SwitchView(l_newViewType);
 
-	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+	::SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 }
 
 
@@ -783,7 +783,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 
 						if (MessageBox(l_prompt.c_str(), _T("Question"), MB_ICONQUESTION | MB_YESNO) == IDYES)
 						{
-							CSettingsTabDialog* l_pViewDlg = NULL;
+							CSettingsTabDialog* l_pViewDlg = nullptr;
 
 							if (l_dataName == L"rendered") l_pViewDlg = m_tabPageRendered;
 							else if (l_dataName == L"classic") l_pViewDlg = m_tabPageClassic;
@@ -887,7 +887,7 @@ void CSettingsTabDialog::OnCancelled()
 
 S_COLOR_T* CSettingsTabDialog::ColorFromControlId(UINT a_id)
 {
-	if (!m_viewSettings) return NULL;
+	if (!m_viewSettings) return nullptr;
 
 	switch (a_id)
 	{
@@ -898,7 +898,7 @@ S_COLOR_T* CSettingsTabDialog::ColorFromControlId(UINT a_id)
 	case IDC_CLR_GAUSS:	return &m_viewSettings->cGaussColor;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

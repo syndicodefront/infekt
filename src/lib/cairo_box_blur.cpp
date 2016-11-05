@@ -186,7 +186,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 		typedef int(__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
 		bool l_ok = false;
 
-		_ASSERT(m_hAmpDll != NULL);
+		_ASSERT(m_hAmpDll != nullptr);
 
 		if (fnc gb = (fnc)GetProcAddress(m_hAmpDll, "GaussianBlurARGB32"))
 		{
@@ -291,5 +291,5 @@ CCairoBoxBlur::~CCairoBoxBlur()
 }
 
 #if defined(_WIN32)
-HMODULE CCairoBoxBlur::m_hAmpDll = NULL;
+HMODULE CCairoBoxBlur::m_hAmpDll = nullptr;
 #endif

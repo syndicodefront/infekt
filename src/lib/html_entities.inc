@@ -257,18 +257,18 @@ namespace html_entities
 		{ "clubs", L"\x2663" },
 		{ "hearts", L"\x2665" },
 		{ "diams", L"\x2666" },
-		{ NULL, NULL }
+		{ nullptr, nullptr }
 	};
 
 	const wchar_t* translate(const char* entity_name)
 	{
-		for(int i = 0; entity_table[i].name != NULL; i++)
+		for(int i = 0; entity_table[i].name != nullptr; i++)
 		{
 			if(!_stricmp(entity_name, entity_table[i].name))
 			{
 				return entity_table[i].meaning;
 			}
 		}
-		return NULL;
+		return nullptr;
 	}
 };

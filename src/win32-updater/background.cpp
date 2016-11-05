@@ -53,7 +53,7 @@ bool StartTaskKill(HWND hDlg)
 {
 	s_hDlg = hDlg;
 
-	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+	HANDLE hStartEvent = ::CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
 	if (_beginthread(TaskKillThread, 0, hStartEvent))
 	{
@@ -93,7 +93,7 @@ bool StartInstaller(HWND hDlg, const std::wstring& a_installerPath)
 	s_hDlg = hDlg;
 	s_installerPath = a_installerPath;
 
-	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+	HANDLE hStartEvent = ::CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
 	if (_beginthread(InstallerThread, 0, hStartEvent))
 	{

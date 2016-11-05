@@ -67,7 +67,7 @@ std::wstring CUtilWin32::GetAppDataDir(bool a_local, const std::wstring& a_appNa
 {
 	wchar_t l_tmpPathBuf[1000] = { 0 };
 
-	if (::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, NULL,
+	if (::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, nullptr,
 		SHGFP_TYPE_CURRENT, l_tmpPathBuf) == S_OK)
 	{
 		::PathAddBackslash(l_tmpPathBuf);
@@ -76,7 +76,7 @@ std::wstring CUtilWin32::GetAppDataDir(bool a_local, const std::wstring& a_appNa
 
 		if (!::PathIsDirectory(l_tmpPathBuf))
 		{
-			::SHCreateDirectoryEx(NULL, l_tmpPathBuf, NULL);
+			::SHCreateDirectoryEx(nullptr, l_tmpPathBuf, nullptr);
 		}
 
 		if (::PathIsDirectory(l_tmpPathBuf))
@@ -95,7 +95,7 @@ HMODULE CUtilWin32::SilentLoadLibrary(const std::wstring& a_path)
 {
 	_ASSERT(!PathIsRelative(a_path.c_str()));
 
-	HMODULE l_hResult = NULL;
+	HMODULE l_hResult = nullptr;
 	DWORD dwErrorMode = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS;
 
 	if (CUtilWin32::IsAtLeastWin7())
@@ -110,7 +110,7 @@ HMODULE CUtilWin32::SilentLoadLibrary(const std::wstring& a_path)
 			DWORD l_oldErrorMode = 0;
 			fnc(dwErrorMode, &l_oldErrorMode);
 			l_hResult = ::LoadLibrary(a_path.c_str());
-			fnc(l_oldErrorMode, NULL);
+			fnc(l_oldErrorMode, nullptr);
 		}
 	}
 	else
@@ -135,7 +135,7 @@ std::wstring CUtilWin32::GetExePath()
 	TCHAR l_buf[1000] = { 0 };
 	TCHAR l_buf2[1000] = { 0 };
 
-	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
 
 	return l_buf2;
@@ -147,7 +147,7 @@ std::wstring CUtilWin32::GetExeDir()
 	TCHAR l_buf[1000] = { 0 };
 	TCHAR l_buf2[1000] = { 0 };
 
-	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
 	::PathRemoveFileSpec(l_buf2);
 	::PathRemoveBackslash(l_buf2);
@@ -165,7 +165,7 @@ bool CUtilWin32::HardenHeap()
 	fhsi l_fHSI = (fhsi)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "HeapSetInformation");
 	if (l_fHSI)
 	{
-		return (l_fHSI(GetProcessHeap(), HeapEnableTerminationOnCorruption, NULL, 0) != FALSE);
+		return (l_fHSI(GetProcessHeap(), HeapEnableTerminationOnCorruption, nullptr, 0) != FALSE);
 	}
 #endif
 	return false;

@@ -104,7 +104,7 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 		BT_LINK
 	} _block_color_type;
 
-	const CNFOHyperLink* l_link = NULL;
+	const CNFOHyperLink* l_link = nullptr;
 
 	for (size_t row = 0; row < m_nfo->GetGridHeight(); row++)
 	{
@@ -121,7 +121,7 @@ const wstring CNFOToHTML::GetHTML(bool a_includeHeaderAndFooter)
 
 			if (l_shape == RGS_NO_BLOCK || (l_shape == RGS_WHITESPACE && l_curType == BT_LINK))
 			{
-				if ((l_link = m_nfo->GetLink(row, col)) != NULL)
+				if ((l_link = m_nfo->GetLink(row, col)) != nullptr)
 					l_type = BT_LINK;
 				else
 					l_type = BT_TEXT;

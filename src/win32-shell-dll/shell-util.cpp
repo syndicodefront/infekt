@@ -23,7 +23,7 @@ bool LoadNFOFromStream(IStream* pStream, PNFOData& ar_data)
 	char l_buf[200] = { 0 };
 
 	const LARGE_INTEGER l_nullPos = { 0 };
-	pStream->Seek(l_nullPos, STREAM_SEEK_SET, NULL);
+	pStream->Seek(l_nullPos, STREAM_SEEK_SET, nullptr);
 
 	ULONG l_bytesRead;
 	do

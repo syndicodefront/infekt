@@ -28,10 +28,10 @@ CWin6xDefaultApp::CWin6xDefaultApp(const std::wstring& a, const std::wstring& b)
 
 bool CWin6xDefaultApp::IsDefault()
 {
-	IApplicationAssociationRegistration* pAAR = NULL;
+	IApplicationAssociationRegistration* pAAR = nullptr;
 	BOOL pfHasExt = FALSE;
 
-	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
+	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
 
 	if (SUCCEEDED(hr))
 	{
@@ -53,9 +53,9 @@ bool CWin6xDefaultApp::IsDefault()
 
 bool CWin6xDefaultApp::MakeDefault()
 {
-	IApplicationAssociationRegistration* pAAR = NULL;
+	IApplicationAssociationRegistration* pAAR = nullptr;
 
-	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
+	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
 
 	if (SUCCEEDED(hr))
 	{

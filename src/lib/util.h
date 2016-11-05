@@ -137,7 +137,7 @@ extern "C"
 {
 	/* gutf8.c exports */
 	int utf8_validate(const char *str, size_t max_len, const char **end);
-	char *utf8_find_next_char(const char *p, const char *end = NULL);
+	char *utf8_find_next_char(const char *p, const char *end = nullptr);
 	size_t utf8_strlen(const char *p, size_t max_bytes);
 
 	/* forgiving_utf8.c exports */
@@ -157,7 +157,7 @@ class _CCairoSurface
 public:
 	_CCairoSurface()
 	{
-		m_surface = NULL;
+		m_surface = nullptr;
 	}
 	_CCairoSurface(cairo_surface_t *p)
 	{
@@ -176,7 +176,7 @@ public:
 	}
 	operator bool() const
 	{
-		return (m_surface != NULL);
+		return (m_surface != nullptr);
 	}
 protected:
 	cairo_surface_t *m_surface;

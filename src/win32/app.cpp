@@ -36,7 +36,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 	_wsetlocale(LC_CTYPE, L"C");
 
-	::CreateMutex(NULL, TRUE, L"iNFektNfoViewerOneInstanceMutex");
+	::CreateMutex(nullptr, TRUE, L"iNFektNfoViewerOneInstanceMutex");
 	bool l_prevInstance = (::GetLastError() == ERROR_ALREADY_EXISTS);
 
 	try
@@ -61,7 +61,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 		// we need COM for default app stuff on Vista+,
 		// and OLE for file drag&drop.
-		OleInitialize(NULL);
+		OleInitialize(nullptr);
 
 		// Run the application:
 		int l_exitCode = theApp.Run();
@@ -130,7 +130,7 @@ bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
 
 			l_error = true; // assume the worst ;)
 
-			if (wcsstr(l_buf, L"%") == NULL && ::PathIsRelative(l_buf))
+			if (wcsstr(l_buf, L"%") == nullptr && ::PathIsRelative(l_buf))
 			{
 				const std::wstring l_dir = CUtilWin32::GetExeDir() + L"\\" + l_buf;
 
@@ -291,7 +291,7 @@ bool CNFOApp::SwitchToPrevInstance()
 	if (l_singleInstanceMode)
 	{
 		// find previous instance main window:
-		HWND l_prevMainWin = ::FindWindowEx(0, 0, INFEKT_MAIN_WINDOW_CLASS_NAME, NULL);
+		HWND l_prevMainWin = ::FindWindowEx(0, 0, INFEKT_MAIN_WINDOW_CLASS_NAME, nullptr);
 
 		if (l_prevMainWin)
 		{
@@ -319,7 +319,7 @@ BOOL CNFOApp::InitInstance()
 {
 	if (!m_frame.Create())
 	{
-		::MessageBox(NULL, L"Failed to create Frame window", L"ERROR", MB_ICONERROR);
+		::MessageBox(nullptr, L"Failed to create Frame window", L"ERROR", MB_ICONERROR);
 		return FALSE;
 	}
 
@@ -379,7 +379,7 @@ int CNFOApp::IsDefaultNfoViewer()
 
 bool CNFOApp::MakeDefaultNfoViewer()
 {
-	CWinDefaultApp* l_defApp = NULL;
+	CWinDefaultApp* l_defApp = nullptr;
 
 #if _WIN32_WINNT < 0x600
 	if (CUtilWin32::IsWinXP())

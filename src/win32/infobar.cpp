@@ -50,7 +50,7 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 		l_class.style = CS_HREDRAW | CS_VREDRAW;
 		l_class.lpszClassName = INFOBAR_CTRL_CLASS_NAME;
 		l_class.lpfnWndProc = &_WindowProc;
-		l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+		l_class.hCursor = ::LoadCursor(nullptr, IDC_ARROW);
 
 		if (::RegisterClassEx(&l_class) == 0)
 		{
@@ -64,10 +64,10 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 	m_height = a_height;
 
 	m_hwnd = ::CreateWindowEx(::IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
-		INFOBAR_CTRL_CLASS_NAME, NULL,
+		INFOBAR_CTRL_CLASS_NAME, nullptr,
 		WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
-		m_parent, NULL, m_instance, NULL);
+		m_parent, nullptr, m_instance, nullptr);
 
 	if (!m_hwnd)
 	{

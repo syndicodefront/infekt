@@ -15,7 +15,7 @@
 #include "stdafx.h"
 #include "infekt.h" // ONLY for plugins shipping with iNFekt
 
-static CRescenePlugin* s_pPlugin = NULL;
+static CRescenePlugin* s_pPlugin = nullptr;
 
 
 /************************************************************************/
@@ -65,7 +65,7 @@ INFEKT_PLUGIN_METHOD(infektPluginMain)
 		if (s_pPlugin)
 		{
 			delete s_pPlugin;
-			s_pPlugin = NULL;
+			s_pPlugin = nullptr;
 			return IPE_SUCCESS;
 		}
 		break;

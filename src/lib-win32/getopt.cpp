@@ -56,7 +56,7 @@ extern char __declspec(dllimport) *__progname;
 int optind = 1;				/* index for first non-option arg     */
 int opterr = 1;				/* enable built-in error messages     */
 
-TCHAR *optarg = NULL;			/* pointer to current option argument */
+TCHAR *optarg = nullptr;			/* pointer to current option argument */
 
 #define getopt_switchar         '-'	/* option prefix character in argv    */
 #define getopt_pluschar         '+'	/* prefix for POSIX mode in optstring */
@@ -209,7 +209,7 @@ const TCHAR *getopt_match( TCHAR lookup, const TCHAR *opt_string )
     ++opt_string;
   do if( lookup == *opt_string ) return opt_string;
      while( *++opt_string );
-  return NULL;
+  return nullptr;
 }
 
 static __inline__
@@ -263,7 +263,7 @@ struct option *opt, int index, int *retindex, const TCHAR *optstring )
   /* Helper function to establish appropriate return conditions,
    * on resolution of a long form option.
    */
-  if( retindex != NULL )
+  if( retindex != nullptr )
     *retindex = index;
 
   /* On return, `optind' should normally refer to the argument, if any,
@@ -280,7 +280,7 @@ struct option *opt, int index, int *retindex, const TCHAR *optstring )
     return getopt_argerror( mode, _T("option `%s%s' doesn't accept an argument\n"),
 	PROGNAME, opt + index, getopt_unknown );
 
-  else if( (optarg == NULL) && (opt[index].has_arg == required_argument) )
+  else if( (optarg == nullptr) && (opt[index].has_arg == required_argument) )
   {
     /* similarly, it is an error if no argument is specified
      * with an option which requires one ...
@@ -301,7 +301,7 @@ struct option *opt, int index, int *retindex, const TCHAR *optstring )
 
   /* when the caller has provided a return buffer ...
    */
-  if( opt[index].flag != NULL )
+  if( opt[index].flag != nullptr )
   {
     /* ... then we place the proper return value there,
      * and return a status code of zero ...
@@ -322,7 +322,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
    */
   static int argind = 0;
   static int optbase = 0;
-  static const TCHAR *nextchar = NULL;
+  static const TCHAR *nextchar = nullptr;
   static int optmark = 0;
 
   if( (optreset |= (optind < 1)) || (optind < optbase) )
@@ -356,7 +356,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
      * one less than `optind', without fear of making them negative.
      */
     optmark = optbase = argind = optind - 1;
-    nextchar = NULL;
+    nextchar = nullptr;
   }
   
   /* From a POSIX perspective, the following is `undefined behaviour';
@@ -381,7 +381,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
      * without any further processing of such abandoned text, assuming
      * that the caller is equipped to handle it appropriately.
      */
-    nextchar = NULL;
+    nextchar = nullptr;
   }
 
   if( nextchar && *nextchar )
@@ -389,7 +389,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
     /* we are parsing a standard, or short format, option argument ...
      */
     const TCHAR *optchar;
-    if( (optchar = getopt_match( optopt = *nextchar++, optstring )) != NULL )
+    if( (optchar = getopt_match( optopt = *nextchar++, optstring )) != nullptr )
     {
       /* we have identified it as valid ...
        */
@@ -406,7 +406,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
 	     * but this GNU extension marks it as optional,
 	     * so we don't provide one on this occasion.
 	     */
-	    optarg = NULL;
+	    optarg = nullptr;
 
 	  /* otherwise this option takes a mandatory argument,
 	   * so, provided there is one available ...
@@ -429,10 +429,10 @@ int getopt_parse( int mode, getopt_std_args, ... )
 	  }
 	}
 	optind = argind + 1;
-	nextchar = NULL;
+	nextchar = nullptr;
       }
       else
-	optarg = NULL;
+	optarg = nullptr;
       optind = (nextchar && *nextchar) ? argind : argind + 1;
       return optopt;
     }
@@ -442,7 +442,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
     if( mode == getopt_mode_long_only )
     {
       complain( "unrecognised option `-%s'", --nextchar );
-      nextchar = NULL;
+      nextchar = nullptr;
       optopt = 0;
     }
     else
@@ -592,7 +592,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
 	/* ensuring that `optarg' does not inherit any junk, from parsing
 	 * preceding arguments ...
 	 */
-	optarg = NULL;
+	optarg = nullptr;
 	for( lookup = 0; longopts && longopts[lookup].name; ++lookup )
 	{
 	  /* scan the list of defined long form options ...
@@ -604,11 +604,11 @@ int getopt_parse( int mode, getopt_std_args, ... )
             case getopt_exact_match:
 	      /*
 	       * when an exact match is found,
-	       * return it immediately, setting `nextchar' to NULL,
+	       * return it immediately, setting `nextchar' to nullptr,
 	       * to ensure we don't mistakenly try to match any
 	       * subsequent characters as short form options.
 	       */
-	      nextchar = NULL;
+	      nextchar = nullptr;
 	      return getopt_resolved( mode, argc, argv, &argind,
 		  longopts, lookup, optindex, optstring );
 
@@ -621,7 +621,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
 		/* if this is not the first, then we have an ambiguity ...
 		 */
 		optopt = 0;
-		nextchar = NULL;
+		nextchar = nullptr;
 		optind = argind + 1;
 		complain( "option `%s' is ambiguous", argv[argind] );
 		return getopt_unknown;
@@ -636,7 +636,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
 	  /* if we get to here, then we found exactly one partial match,
 	   * so return it, as for an exact match.
 	   */
-	  nextchar = NULL;
+	  nextchar = nullptr;
 	  return getopt_resolved( mode, argc, argv, &argind,
 	      longopts, matched, optindex, optstring );
 	}
@@ -647,7 +647,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
 	   * allows us to still try to match it as a short form option).
 	   */
 	  optopt = 0;
-	  nextchar = NULL;
+	  nextchar = nullptr;
 	  optind = argind + 1;
 	  complain( "unrecognised option `%s'", argv[argind] );
 	  return getopt_unknown;
@@ -673,7 +673,7 @@ int getopt_parse( int mode, getopt_std_args, ... )
        * arguments in strict order, as pseudo-arguments to a special
        * option, with return value defined as `getopt_ordered'.
        */
-      nextchar = NULL;
+      nextchar = nullptr;
       optind = argind + 1;
       optarg = argv[argind];
       return getopt_ordered;

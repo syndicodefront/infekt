@@ -270,13 +270,13 @@ bool CContentScraper::DoScrape(const std::string& a_content)
 					else if(*itfn == "int")
 					{
 						std::stringstream ss;
-						ss << _strtoi64(l_temp.c_str(), NULL, 10);
+						ss << _strtoi64(l_temp.c_str(), nullptr, 10);
 						l_temp = ss.str();
 					}
 					else if(*itfn == "float")
 					{
 						std::stringstream ss;
-						ss << strtod(l_temp.c_str(), NULL);
+						ss << strtod(l_temp.c_str(), nullptr);
 						l_temp = ss.str();
 					}
 				}

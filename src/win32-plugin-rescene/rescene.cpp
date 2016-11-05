@@ -46,7 +46,7 @@ INFEKT_PLUGIN_METHOD(CRescenePlugin::ResceneMainEventCallback)
 {
 	CRescenePlugin* pInstance = reinterpret_cast<CRescenePlugin*>(pUser);
 
-	_ASSERTE(pUser != NULL);
+	_ASSERTE(pUser != nullptr);
 
 	switch (lCall)
 	{

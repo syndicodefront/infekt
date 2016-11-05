@@ -22,7 +22,7 @@ using namespace std;
 
 
 CNFOData::CNFOData() :
-	m_grid(NULL),
+	m_grid(nullptr),
 	m_loaded(false), m_sourceCharset(NFOC_AUTO),
 	m_lineWrap(false), m_isAnsi(false),
 	m_ansiHintWidth(0), m_ansiHintHeight(0)
@@ -32,7 +32,7 @@ CNFOData::CNFOData() :
 
 bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 {
-	FILE *l_file = NULL;
+	FILE *l_file = nullptr;
 	size_t l_fileBytes;
 
 #ifdef _WIN32
@@ -592,7 +592,7 @@ bool CNFOData::PostProcessLoadedContent()
 	}
 
 	// copy lines to grid:
-	delete m_grid; m_grid = NULL;
+	delete m_grid; m_grid = nullptr;
 	m_utf8Map.clear();
 	m_hyperLinks.clear();
 	m_utf8Content.clear();
@@ -665,7 +665,7 @@ bool CNFOData::PostProcessLoadedContent()
 
 			if (m_utf8Map.find(w_at) == m_utf8Map.end())
 			{
-				m_utf8Map[w_at] = (p_next != NULL ? std::string(p_char, static_cast<size_t>(p_next - p)) : std::string(p_char));
+				m_utf8Map[w_at] = (p_next != nullptr ? std::string(p_char, static_cast<size_t>(p_next - p)) : std::string(p_char));
 			}
 
 			p = p_next;
@@ -748,7 +748,7 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 
 bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
-	if (utf8_validate((const char*)a_data, a_dataLen, NULL))
+	if (utf8_validate((const char*)a_data, a_dataLen, nullptr))
 	{
 		const string l_utf((const char*)a_data, a_dataLen);
 
@@ -813,7 +813,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		}
 	}
 
-	// kill trailing NULL chars that some NFOs have so our
+	// kill trailing nullptr chars that some NFOs have so our
 	// binary file check doesn't trigger.
 	while (a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
 
@@ -1220,7 +1220,7 @@ const std::_tstring CNFOData::GetFileName() const
 
 FILE *CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath)
 {
-	FILE *l_file = NULL;
+	FILE *l_file = nullptr;
 
 #ifdef _WIN32
 	if (_tfopen_s(&l_file, a_filePath.c_str(), _T("wb")) != 0 || !l_file)
@@ -1235,7 +1235,7 @@ FILE *CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePa
 			L"Unable to open file for writing. Please check the file name.");
 #endif
 
-		return NULL;
+		return nullptr;
 	}
 
 	return l_file;
@@ -1415,7 +1415,7 @@ const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1428,7 +1428,7 @@ const CNFOHyperLink* CNFOData::GetLinkByIndex(size_t a_index) const
 		return &it->second;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 

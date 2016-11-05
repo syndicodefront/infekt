@@ -68,7 +68,7 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 
 	if (IsClassicMode())
 	{
-		RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(), false,
+		RenderClassic(GetTextColor(), nullptr, GetHyperLinkColor(), false,
 			(size_t)-1, 0, 0, 0, l_pdfSurface, 0, 0);
 	}
 	else
@@ -83,7 +83,7 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 
 		cairo_destroy(cr);
 
-		RenderText(GetTextColor(), NULL, GetHyperLinkColor(), (size_t)-1, 0, 0, 0, l_pdfSurface, 0, 0);
+		RenderText(GetTextColor(), nullptr, GetHyperLinkColor(), (size_t)-1, 0, 0, 0, l_pdfSurface, 0, 0);
 	}
 
 	cairo_surface_destroy(l_pdfSurface);

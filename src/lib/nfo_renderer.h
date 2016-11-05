@@ -178,10 +178,10 @@ protected:
 	size_t GetStripeExtraLinesTop(size_t a_stripe) const;
 	size_t GetStripeExtraLinesBottom(size_t a_stripe) const;
 	void RenderStripe(size_t a_stripe) const;
-	void RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL) const;
+	void RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = nullptr) const;
 	void RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double a_yBase, cairo_t* a_context) const;
 
-	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = NULL,
+	void RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_context = nullptr,
 		size_t a_rowStart = (size_t)-1, size_t a_rowEnd = 0, double a_xBase = 0, double a_yBase = 0) const;
 	void PreRenderText();
 	void RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
@@ -211,7 +211,7 @@ public:
 	CNFORenderer(bool a_classicMode = false);
 	virtual ~CNFORenderer();
 
-	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = NULL);
+	static ERenderGridShape CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha = nullptr);
 
 	static void SetGlobalUseGPUFlag(bool nb) {
 		ms_useGPU = nb; }

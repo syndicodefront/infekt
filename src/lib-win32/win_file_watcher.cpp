@@ -25,8 +25,8 @@ CWinFileWatcher::CWinFileWatcher(WinFileChangedCallback a_callback) :
 	m_callback(a_callback),
 	m_watching(false)
 {
-	m_hStopEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
-	m_hThreadEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
+	m_hStopEvent = ::CreateEvent(nullptr, TRUE, FALSE, nullptr);
+	m_hThreadEvent = ::CreateEvent(nullptr, FALSE, FALSE, nullptr);
 }
 
 void CWinFileWatcher::SetCallback(WinFileChangedCallback a_callback)
@@ -128,11 +128,11 @@ void CWinFileWatcher::WatchEventThread()
 
 			if (l_lastModTime != l_newTime && m_callback)
 			{
-				FILE *fh = NULL;
+				FILE *fh = nullptr;
 				unsigned int retry_count = 0;
 
 				// wait up to two seconds to avoid access denied errors due to the file still being written:
-				while (retry_count++ < 20 && NULL == (fh = _wfopen(m_filePath.c_str(), L"rb")))
+				while (retry_count++ < 20 && nullptr == (fh = _wfopen(m_filePath.c_str(), L"rb")))
 				{
 					if (!::PathFileExists(m_filePath.c_str()))
 					{

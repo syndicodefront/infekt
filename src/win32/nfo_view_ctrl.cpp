@@ -33,9 +33,9 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 	m_centerNfo(true),
 	m_copyOnSelect(false),
 	m_findPosGlobalCol(0), m_findPosGlobalRow(0),
-	m_contextMenuHandle(NULL),
-	m_contextMenuCommandTarget(NULL),
-	m_linkUnderMenu(NULL),
+	m_contextMenuHandle(nullptr),
+	m_contextMenuCommandTarget(nullptr),
+	m_linkUnderMenu(nullptr),
 	m_leftMouseDown(false), m_movedDownMouse(false)
 {
 	ClearSelection(false);
@@ -59,7 +59,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		l_class.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 		l_class.lpszClassName = NFOVWR_CTRL_CLASS_NAME;
 		l_class.lpfnWndProc = &_WindowProc;
-		l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
+		l_class.hCursor = ::LoadCursor(nullptr, IDC_ARROW);
 
 		if (::RegisterClassEx(&l_class) == 0)
 		{
@@ -73,10 +73,10 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 	m_height = a_height;
 
 	m_hwnd = ::CreateWindowEx(::IsThemeActive() ? 0 : WS_EX_CLIENTEDGE,
-		NFOVWR_CTRL_CLASS_NAME, NULL,
+		NFOVWR_CTRL_CLASS_NAME, nullptr,
 		WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
-		m_parent, NULL,
+		m_parent, nullptr,
 		m_instance, this);
 
 	if (!m_hwnd)
@@ -201,7 +201,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if (m_linkUnderMenu)
 				{
 					CUtilWin32GUI::TextToClipboard(m_hwnd, m_linkUnderMenu->GetHref());
-					m_linkUnderMenu = NULL;
+					m_linkUnderMenu = nullptr;
 				}
 			}
 			else
@@ -225,7 +225,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void CNFOViewControl::SetZoom(unsigned int a_percent)
 {
-	::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+	::SetCursor(::LoadCursor(nullptr, m_cursor = IDC_WAIT));
 
 	CNFORenderer::SetZoom(a_percent);
 
@@ -235,7 +235,7 @@ void CNFOViewControl::SetZoom(unsigned int a_percent)
 	}
 
 	UpdateScrollbars(false);
-	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_FRAME);
+	::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE | RDW_FRAME);
 }
 
 
@@ -279,7 +279,7 @@ void CNFOViewControl::ZoomToNoHorizontalScrollbars()
 	}
 
 	UpdateScrollbars(false);
-	::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_FRAME);
+	::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE | RDW_FRAME);
 }
 
 
@@ -294,7 +294,7 @@ void CNFOViewControl::OnPaint()
 	// paint/dc helper business:
 	HDC l_dc;
 	PAINTSTRUCT l_ps;
-	cairo_surface_t *l_surface, *l_realSurface = NULL;
+	cairo_surface_t *l_surface, *l_realSurface = nullptr;
 	bool l_textSelected = (m_selStartRow != (size_t)-1 && m_selEndRow != (size_t)-1);
 	bool l_smart = !l_textSelected;
 
@@ -438,16 +438,16 @@ void CNFOViewControl::OnPaint()
 
 	if (m_cursor == IDC_WAIT)
 	{
-		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_ARROW));
+		::SetCursor(::LoadCursor(nullptr, m_cursor = IDC_ARROW));
 	}
 }
 
 
 bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 {
-	::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+	::SetCursor(::LoadCursor(nullptr, m_cursor = IDC_WAIT));
 
-	m_linkUnderMenu = NULL;
+	m_linkUnderMenu = nullptr;
 
 	ClearSelection(false);
 
@@ -466,7 +466,7 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 		UpdateScrollbars(true);
 
-		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 
 		if (GetOnDemandRendering())
 		{
@@ -497,7 +497,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 
-	if (!m_leftMouseDown && m_nfo->GetLink(l_row, l_col) != NULL)
+	if (!m_leftMouseDown && m_nfo->GetLink(l_row, l_col) != nullptr)
 	{
 		m_cursor = IDC_HAND;
 	}
@@ -550,7 +550,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 		{
 			m_selEndRow = l_virtualRow;
 			m_selEndCol = l_virtualCol;
-			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 		}
 	}
 }
@@ -608,7 +608,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 			}
 
 			m_leftMouseDown = false;
-			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 		}
 
 		if (!m_movedDownMouse)
@@ -617,7 +617,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 			if (l_link && ::PathIsURL(l_link->GetHref().c_str()))
 			{
-				::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(), NULL, NULL, SW_SHOWNORMAL);
+				::ShellExecute(nullptr, _T("open"), l_link->GetHref().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 			}
 		}
 	}
@@ -646,7 +646,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 				CopySelectedTextToClipboard();
 			}
 
-			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 		}
 	}
 	else if (a_event == WM_CONTEXTMENU)
@@ -674,14 +674,14 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 		}
 
 		LPTSTR l_oldCursor = m_cursor;
-		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_ARROW));
+		::SetCursor(::LoadCursor(nullptr, m_cursor = IDC_ARROW));
 
 		::ClientToScreen(m_hwnd, &l_pt);
 
 		::TrackPopupMenuEx(l_popup, TPM_LEFTALIGN | TPM_LEFTBUTTON,
-			l_pt.x, l_pt.y, m_hwnd, NULL);
+			l_pt.x, l_pt.y, m_hwnd, nullptr);
 
-		::SetCursor(::LoadCursor(NULL, m_cursor = l_oldCursor));
+		::SetCursor(::LoadCursor(nullptr, m_cursor = l_oldCursor));
 	}
 }
 
@@ -779,7 +779,7 @@ bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	{
 		::ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? (int)GetBlockWidth() * (l_prevPos - l_si.nPos) : 0),
 			(a_dir == SB_VERT ? (int)GetBlockHeight() * (l_prevPos - l_si.nPos) : 0),
-			NULL, NULL);
+			nullptr, nullptr);
 
 		return true;
 	}
@@ -810,7 +810,7 @@ void CNFOViewControl::Show(bool a_show)
 
 LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	CNFOViewControl *l_ctrl = NULL;
+	CNFOViewControl *l_ctrl = nullptr;
 
 	if (uMsg == WM_CREATE)
 	{
@@ -922,7 +922,7 @@ void CNFOViewControl::SelectAll()
 		m_selEndRow = m_gridData->GetRows();
 		m_selEndCol = m_gridData->GetCols();
 
-		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 	}
 }
 
@@ -1109,7 +1109,7 @@ bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 		// ScrollIntoView also triggers a repaint, but only if the scroll pos has changed:
 		if (!ScrollIntoView(l_startRow, l_startCol))
 		{
-			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+			::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 		}
 
 		return true;
@@ -1139,7 +1139,7 @@ void CNFOViewControl::ClearSelection(bool a_redraw)
 
 	if (a_redraw)
 	{
-		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 	}
 #endif
 }
@@ -1164,7 +1164,7 @@ void CNFOViewControl::SetCenterNfo(bool nb)
 
 	if (HasNfoData())
 	{
-		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
+		::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE);
 	}
 }
 
@@ -1175,7 +1175,7 @@ void CNFOViewControl::InjectSettings(const CNFORenderSettings& ns)
 
 	if (!IsRendered())
 	{
-		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
+		::SetCursor(::LoadCursor(nullptr, m_cursor = IDC_WAIT));
 
 		if (IsClassicMode())
 		{
@@ -1183,7 +1183,7 @@ void CNFOViewControl::InjectSettings(const CNFORenderSettings& ns)
 		}
 
 		UpdateScrollbars(false);
-		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_INTERNALPAINT);
+		::RedrawWindow(m_hwnd, nullptr, nullptr, RDW_INVALIDATE | RDW_INTERNALPAINT);
 	}
 }
 

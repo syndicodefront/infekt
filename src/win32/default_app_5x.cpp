@@ -39,7 +39,7 @@ bool CWin5xDefaultApp::IsDefault()
 	DWORD l_dwType = REG_SZ, l_maxBuf = 998 / sizeof(wchar_t);
 	wchar_t l_buf[1002] = { 0 };
 
-	if (RegQueryValueEx(l_hKey, NULL, NULL, &l_dwType, (LPBYTE)l_buf, &l_maxBuf) != ERROR_SUCCESS
+	if (RegQueryValueEx(l_hKey, nullptr, nullptr, &l_dwType, (LPBYTE)l_buf, &l_maxBuf) != ERROR_SUCCESS
 		|| l_dwType != REG_SZ || wcscmp(l_buf, m_appRegistryName.c_str()) != 0)
 	{
 		RegCloseKey(l_hKey);
@@ -79,7 +79,7 @@ bool CWin5xDefaultApp::IsDefault()
 	bool l_result = false;
 
 	memset(l_buf, 0, 1002); l_maxBuf = 998 / sizeof(wchar_t);
-	if (RegQueryValueEx(l_hKey, NULL, 0, &l_dwType, (LPBYTE)l_buf, &l_maxBuf) == ERROR_SUCCESS
+	if (RegQueryValueEx(l_hKey, nullptr, 0, &l_dwType, (LPBYTE)l_buf, &l_maxBuf) == ERROR_SUCCESS
 		&& l_dwType == REG_SZ)
 	{
 		std::wstring l_tmpExePath = CUtilWin32::GetExePath();
@@ -114,30 +114,30 @@ bool CWin5xDefaultApp::RegisterProgIdData()
 	_tstring l_exePath = CUtilWin32::GetExePath();
 
 	HKEY l_hKey;
-	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, nullptr, &l_hKey, nullptr) != ERROR_SUCCESS)
 	{
 		return false;
 	}
 
 	// set DefaultIcon
 	_tstring l_defaultIconInfo = _T("\"") + l_exePath + _T("\", 0");
-	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_defaultIconInfo.c_str(), (DWORD)(l_defaultIconInfo.size() + 1) * sizeof(TCHAR));
+	RegSetValueEx(l_hKey, nullptr, 0, REG_SZ, (LPBYTE)l_defaultIconInfo.c_str(), (DWORD)(l_defaultIconInfo.size() + 1) * sizeof(TCHAR));
 
 	RegCloseKey(l_hKey);
 
 	// now about shell\open\command...
 	l_keyPath = _T("SOFTWARE\\Classes\\") + m_appRegistryName + _T("\\shell\\open\\command");
 
-	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-		KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, l_keyPath.c_str(), 0, nullptr, REG_OPTION_NON_VOLATILE,
+		KEY_ALL_ACCESS, nullptr, &l_hKey, nullptr) != ERROR_SUCCESS)
 	{
 		return false;
 	}
 
 	// set exe path
 	_tstring l_shellOpenCommand = _T("\"") + l_exePath + _T("\" \"%1\"");
-	RegSetValueEx(l_hKey, NULL, 0, REG_SZ, (LPBYTE)l_shellOpenCommand.c_str(), (DWORD)(l_shellOpenCommand.size() + 1) * sizeof(TCHAR));
+	RegSetValueEx(l_hKey, nullptr, 0, REG_SZ, (LPBYTE)l_shellOpenCommand.c_str(), (DWORD)(l_shellOpenCommand.size() + 1) * sizeof(TCHAR));
 
 	RegCloseKey(l_hKey);
 
@@ -163,20 +163,20 @@ bool CWin5xDefaultApp::MakeDefault()
 
 	l_keyPath = _T("Software\\Classes\\") + m_extension;
 
-	if (RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, NULL,
-		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, nullptr,
+		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &l_hKey, nullptr) != ERROR_SUCCESS)
 	{
 		return false;
 	}
 
 	bool l_success = (RegSetValueEx(l_hKey,
-		NULL, 0, REG_SZ, (LPBYTE)m_appRegistryName.c_str(),
+		nullptr, 0, REG_SZ, (LPBYTE)m_appRegistryName.c_str(),
 		sizeof(TCHAR) * (DWORD)(m_appRegistryName.size() + 1))
 		== ERROR_SUCCESS);
 
 	if (l_success)
 	{
-		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
 	}
 
 	return l_success;

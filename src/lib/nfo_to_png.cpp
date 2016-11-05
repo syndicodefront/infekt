@@ -89,11 +89,11 @@ unpremultiply_data(png_structp png, png_row_infop row_info, png_bytep data)
 
 bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 {
-	FILE *fp = NULL;
-	png_bytep *row_ptr = NULL;
+	FILE *fp = nullptr;
+	png_bytep *row_ptr = nullptr;
 	bool l_result = false;
 
-	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 
 	if (!png_ptr)
 	{
@@ -104,7 +104,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 
 	if (!info_ptr)
 	{
-		png_destroy_write_struct(&png_ptr, NULL);
+		png_destroy_write_struct(&png_ptr, nullptr);
 		return false;
 	}
 
@@ -123,7 +123,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 		if (row_ptr)
 		{
 			delete[] row_ptr;
-			row_ptr = NULL;
+			row_ptr = nullptr;
 		}
 
 		return false;
@@ -132,7 +132,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 #ifdef _UNICODE
 	if (_wfopen_s(&fp, a_filePath.c_str(), L"wb") == ERROR_SUCCESS)
 #else
-	if ((fp = fopen(a_filePath.c_str(), "wb")) != NULL)
+	if ((fp = fopen(a_filePath.c_str(), "wb")) != nullptr)
 #endif
 	{
 		bool l_error = true; // we perform some custom user-land error checking, too.
@@ -207,7 +207,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 
 		if (!l_error)
 		{
-			png_write_png(png_ptr, info_ptr, 0, NULL);
+			png_write_png(png_ptr, info_ptr, 0, nullptr);
 
 			fclose(fp);
 
@@ -222,7 +222,7 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 		if (row_ptr)
 		{
 			delete[] row_ptr;
-			row_ptr = NULL;
+			row_ptr = nullptr;
 		}
 	}
 

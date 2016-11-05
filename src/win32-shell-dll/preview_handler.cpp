@@ -38,8 +38,8 @@ public:
 	CNFOPreviewHandler()
 	{
 		m_cRef = 1;
-		m_pStream = NULL;
-		m_punkSite = NULL;
+		m_pStream = nullptr;
+		m_punkSite = nullptr;
 		m_hwndParent = 0;
 	}
 
@@ -53,7 +53,7 @@ public:
 	// IUnknown
 	IFACEMETHODIMP QueryInterface(REFIID riid, void **ppv)
 	{
-		*ppv = NULL;
+		*ppv = nullptr;
 
 		static const QITAB qit[] =
 		{
@@ -158,7 +158,7 @@ HRESULT CNFOPreviewHandler::QueryFocus(HWND *phwnd)
 HRESULT CNFOPreviewHandler::TranslateAccelerator(MSG *pmsg)
 {
 	HRESULT hr = S_FALSE;
-	IPreviewHandlerFrame *pFrame = NULL;
+	IPreviewHandlerFrame *pFrame = nullptr;
 
 	if (m_punkSite && SUCCEEDED(m_punkSite->QueryInterface(&pFrame)))
 	{
@@ -278,7 +278,7 @@ HRESULT CNFOPreviewHandler::SetSite(IUnknown *punkSite)
 
 HRESULT CNFOPreviewHandler::GetSite(REFIID riid, void **ppv)
 {
-	*ppv = NULL;
+	*ppv = nullptr;
 	return m_punkSite ? m_punkSite->QueryInterface(riid, ppv) : E_FAIL;
 }
 
@@ -311,7 +311,7 @@ HRESULT CNFOPreviewHandler::ContextSensitiveHelp(BOOL)
 
 HRESULT CNFOPreviewHandler_CreateInstance(REFIID riid, void **ppv)
 {
-	*ppv = NULL;
+	*ppv = nullptr;
 
 	CNFOPreviewHandler *pNew = new (std::nothrow) CNFOPreviewHandler();
 

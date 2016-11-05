@@ -47,7 +47,7 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 	BOOL bSuccess = TRUE;
 
 	hInet = InternetOpen(L"Mozilla/5.0 (compatible; HttpThread/1.0)",
-		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+		INTERNET_OPEN_TYPE_PRECONFIG, nullptr, nullptr, 0);
 
 	if (hInet)
 	{
@@ -57,7 +57,7 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 		if (l_url.find(L"https://") == 0)
 			dwFlags |= INTERNET_FLAG_SECURE;
 
-		hRequest = InternetOpenUrl(hInet, l_url.c_str(), NULL, 0, dwFlags, 0);
+		hRequest = InternetOpenUrl(hInet, l_url.c_str(), nullptr, 0, dwFlags, 0);
 
 		if (hRequest)
 		{
@@ -65,9 +65,9 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 			wchar_t wszSizeBuffer[32];
 			DWORD dwLengthSizeBuffer = 32;
 
-			if (HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH, wszSizeBuffer, &dwLengthSizeBuffer, NULL) == TRUE)
+			if (HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH, wszSizeBuffer, &dwLengthSizeBuffer, nullptr) == TRUE)
 			{
-				uFileSize = _wcstoi64(wszSizeBuffer, NULL, 10);
+				uFileSize = _wcstoi64(wszSizeBuffer, nullptr, 10);
 
 				SendMessage(l_hDlg, WM_DOWNLOAD_STARTED, (UINT_PTR)&uFileSize, 0);
 			}
@@ -76,7 +76,7 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 			{
 				char szBuffer[8192];
 				DWORD dwRead;
-				FILE *fFile = NULL;
+				FILE *fFile = nullptr;
 
 				if (_wfopen_s(&fFile, l_tempLocalPath.c_str(), L"wb") != 0)
 				{
@@ -161,7 +161,7 @@ bool StartHttpDownload(HWND hDlg, const std::wstring& a_url, const std::wstring&
 	s_hDlg = hDlg;
 
 	// track thread startup using an event:
-	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
+	HANDLE hStartEvent = ::CreateEvent(nullptr, TRUE, FALSE, nullptr);
 
 	if (_beginthread(HttpThread, 0, hStartEvent))
 	{

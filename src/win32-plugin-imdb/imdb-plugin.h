@@ -29,7 +29,7 @@ public:
 	CImdbPlugin(const infekt_plugin_load_t* a_load);
 	virtual ~CImdbPlugin();
 
-	long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam, void *pUser = NULL);
+	long PluginSend(infektPluginCallId lCall, long long lParam, void* pParam, void *pUser = nullptr);
 
 protected:
 	static INFEKT_PLUGIN_METHOD(ImdbMainEventCallback);

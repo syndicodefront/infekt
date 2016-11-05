@@ -34,7 +34,7 @@ CWinHttpClient::CWinHttpClient(HINSTANCE a_hInstance)
 	m_instanceReggedClass = (::RegisterClassEx(&l_cls) != 0);
 
 	m_hwndMessageOnlyWin = ::CreateWindowEx(0, WINHTTP_MESSAGE_ONLY_WINDOW_CLASSNAME,
-		NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, 0, NULL);
+		nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, 0, nullptr);
 
 	m_userAgent = L"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586";
 }
@@ -60,7 +60,7 @@ PWinHttpRequest CWinHttpClient::CreateRequestForTextFile(const std::wstring& a_u
 
 bool CWinHttpClient::StartRequest(PWinHttpRequest& a_req)
 {
-	if (a_req->GetCallback() != NULL)
+	if (a_req->GetCallback() != nullptr)
 	{
 		_beginthread(&CWinHttpClient::RequestThreadMain, 0, a_req.get());
 
@@ -203,7 +203,7 @@ CWinHttpRequest::CWinHttpRequest(int a_reqId, shared_ptr<CWinHttpClient>& a_owne
 		WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS,
 		0);
 
-	_ASSERT(m_hSession != NULL);
+	_ASSERT(m_hSession != nullptr);
 
 	// note: we'll be doing synchronous WinHTTP requests here.
 	// I know there's a native asynchronous mode in WinHTTP, but
@@ -220,7 +220,7 @@ void CWinHttpRequest::_RunRequest()
 {
 	URL_COMPONENTS l_urlComps = { sizeof(URL_COMPONENTS), 0 };
 	std::wstring l_urlHost, l_urlPath, l_urlScheme;
-	HINTERNET hConnect = NULL, hRequest = NULL;
+	HINTERNET hConnect = nullptr, hRequest = nullptr;
 
 	m_doingStuff = true;
 	m_cancel = false;
@@ -245,14 +245,14 @@ void CWinHttpRequest::_RunRequest()
 		goto RunRequest_Cleanup;
 
 	// set up request handle:
-	hRequest = ::WinHttpOpenRequest(hConnect, L"GET", l_urlPath.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
+	hRequest = ::WinHttpOpenRequest(hConnect, L"GET", l_urlPath.c_str(), nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
 		(m_bypassCache ? WINHTTP_FLAG_REFRESH : 0) | (!_wcsicmp(l_urlScheme.c_str(), L"https") ? WINHTTP_FLAG_SECURE : 0));
 	if (!hRequest)
 		goto RunRequest_Cleanup;
 
 	// send request and wait for initial response:
-	if (::WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, NULL)
-		&& ::WinHttpReceiveResponse(hRequest, NULL))
+	if (::WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, (DWORD_PTR)nullptr)
+		&& ::WinHttpReceiveResponse(hRequest, nullptr))
 	{
 		size_t l_fileSize = 0;
 
@@ -264,7 +264,7 @@ void CWinHttpRequest::_RunRequest()
 			if (::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH, WINHTTP_HEADER_NAME_BY_INDEX,
 				szSizeBuffer, &dwLengthSizeBuffer, WINHTTP_NO_HEADER_INDEX))
 			{
-				int64_t l_tmp = _wcstoi64(szSizeBuffer, NULL, 10);
+				int64_t l_tmp = _wcstoi64(szSizeBuffer, nullptr, 10);
 
 				if (l_fileSize > 0 && static_cast<uint64_t>(l_fileSize) <= std::numeric_limits<size_t>::max())
 				{
@@ -309,7 +309,7 @@ RunRequest_Cleanup:
 
 void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, size_t a_contentLength)
 {
-	FILE *fFile = NULL;
+	FILE *fFile = nullptr;
 
 	if (_wfopen_s(&fFile, m_downloadFilePath.c_str(), L"wb") != 0)
 	{

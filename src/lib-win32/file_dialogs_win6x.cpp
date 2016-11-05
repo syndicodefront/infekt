@@ -25,7 +25,7 @@ std::wstring Win6x_OpenFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 	std::wstring l_path;
 
 	IFileOpenDialog *pfod;
-	hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfod));
+	hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pfod));
 
 	if (SUCCEEDED(hr))
 	{
@@ -48,7 +48,7 @@ std::wstring Win6x_OpenFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 			if (SUCCEEDED(hr))
 			{
 				// extract the path:
-				LPOLESTR pszPath = NULL;
+				LPOLESTR pszPath = nullptr;
 
 				hr = ppsi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
 				if (SUCCEEDED(hr))
@@ -75,7 +75,7 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 	std::wstring l_path;
 
 	IFileSaveDialog *pfsd;
-	hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfsd));
+	hr = CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pfsd));
 
 	if (SUCCEEDED(hr))
 	{
@@ -94,14 +94,14 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 		if (!a_initialPath.empty())
 		{
 			// force initially selected folder
-			IShellItem *ppsif = NULL;
+			IShellItem *ppsif = nullptr;
 
 			typedef HRESULT(STDAPICALLTYPE *fshcifpn)(PCWSTR, IBindCtx*, REFIID, void**);
 			fshcifpn fnc = (fshcifpn)GetProcAddress(GetModuleHandleW(L"shell32.dll"), "SHCreateItemFromParsingName");
 
 			if (fnc)
 			{
-				hr = fnc(a_initialPath.c_str(), NULL, IID_PPV_ARGS(&ppsif));
+				hr = fnc(a_initialPath.c_str(), nullptr, IID_PPV_ARGS(&ppsif));
 
 				if (SUCCEEDED(hr))
 				{
@@ -124,7 +124,7 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 			if (SUCCEEDED(hr))
 			{
 				// extract the path:
-				LPOLESTR pszPath = NULL;
+				LPOLESTR pszPath = nullptr;
 
 				hr = ppsi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
 				if (SUCCEEDED(hr))

@@ -45,7 +45,7 @@ class CSettingsTabDialog;
 class CSettingsWindowDialog : public CDialog
 {
 public:
-	CSettingsWindowDialog(HWND hWndParent = NULL);
+	CSettingsWindowDialog(HWND hWndParent = nullptr);
 	virtual ~CSettingsWindowDialog();
 
 	void SetMainWin(CMainFrame* a_mainWin) { m_mainWin = a_mainWin; }
@@ -128,7 +128,7 @@ protected:
 class CAdvancedSettingsWindowDialog : public CDialog
 {
 public:
-	CAdvancedSettingsWindowDialog(HWND hWndParent = NULL);
+	CAdvancedSettingsWindowDialog(HWND hWndParent = nullptr);
 
 	void SetMainSettings(PMainSettings a_mainSettings) { m_settings = a_mainSettings; }
 protected:

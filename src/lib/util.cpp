@@ -96,7 +96,7 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 // ATTENTION CALLERS: a_buf must have 6 chars space.
 bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 {
-	return (::WideCharToMultiByte(CP_UTF8, 0, &a_char, 1, a_buf, 7, NULL, NULL) > 0);
+	return (::WideCharToMultiByte(CP_UTF8, 0, &a_char, 1, a_buf, 7, nullptr, nullptr) > 0);
 }
 
 #else /* _WIN32 */
@@ -113,9 +113,9 @@ string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePag
 		return "";
 	}
 
-	char *l_sResult = NULL;
+	char *l_sResult = nullptr;
 	if (iconv_string(l_targetCodePage, "wchar_t", (char*)a_wideStr.c_str(),
-		(char*)(a_wideStr.c_str() + a_wideStr.size() + 1), &l_sResult, NULL) >= 0)
+		(char*)(a_wideStr.c_str() + a_wideStr.size() + 1), &l_sResult, nullptr) >= 0)
 	{
 		string l_result = l_sResult;
 		free(l_sResult);
@@ -138,10 +138,10 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 		return L"";
 	}
 
-	wchar_t *l_wResult = NULL;
+	wchar_t *l_wResult = nullptr;
 	if (iconv_string("wchar_t", l_originCodePage,
 		a_str.c_str(), a_str.c_str() + a_str.size() + 1,
-		(char**)&l_wResult, NULL) >= 0)
+		(char**)&l_wResult, nullptr) >= 0)
 	{
 		wstring l_result = l_wResult;
 		free(l_wResult);
@@ -155,7 +155,7 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 // ATTENTION CALLERS: a_buf must have 6 chars space.
 bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 {
-	char *l_buf = NULL;
+	char *l_buf = nullptr;
 	size_t l_len = 9;
 	wchar_t l_tmp[2] = { a_char, 0 };
 

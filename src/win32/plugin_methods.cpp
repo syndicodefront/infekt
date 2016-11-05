@@ -144,7 +144,7 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 
 	long l_count = 0;
 
-	l_callback(NULL, 0, IPV_ENUM_BEGIN, l_count, NULL, a_pUser);
+	l_callback(nullptr, 0, IPV_ENUM_BEGIN, l_count, nullptr, a_pUser);
 
 	while (const CNFOHyperLink* l_link = l_nfoData->GetLinkByIndex(l_count))
 	{
@@ -156,7 +156,7 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 		l_linkInfo.linkId = l_link->GetLinkID();
 		l_linkInfo.row = l_link->GetRow();
 
-		if (l_callback(NULL, 0, IPV_ENUM_ITEM, l_count, &l_linkInfo, a_pUser) == IPE_STOP)
+		if (l_callback(nullptr, 0, IPV_ENUM_ITEM, l_count, &l_linkInfo, a_pUser) == IPE_STOP)
 		{
 			break;
 		}
@@ -164,7 +164,7 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 		l_count++;
 	}
 
-	l_callback(NULL, 0, IPV_ENUM_END, l_count, NULL, a_pUser);
+	l_callback(nullptr, 0, IPV_ENUM_END, l_count, nullptr, a_pUser);
 
 	return l_count;
 }
@@ -176,7 +176,7 @@ long CPluginManager::DoRegister(const std::string& a_guid, bool a_unregister, EP
 	if (l_find == m_loadedPlugins.end()) return IPE_NO_FILE;
 	PLoadedPlugin l_plugin = l_find->second;
 
-	infektPluginMethod l_callback = NULL;
+	infektPluginMethod l_callback = nullptr;
 	switch (a_regType)
 	{
 	default:

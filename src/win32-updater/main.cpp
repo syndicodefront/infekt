@@ -173,11 +173,11 @@ static void RunMainProgram()
 
 			if (::PathFileExists(l_exePath64.c_str()))
 			{
-				::ShellExecute(HWND_DESKTOP, L"open", l_exePath64.c_str(), NULL, NULL, SW_SHOWNORMAL);
+				::ShellExecute(HWND_DESKTOP, L"open", l_exePath64.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 			}
 			else if (::PathFileExists(l_exePath32.c_str()))
 			{
-				::ShellExecute(HWND_DESKTOP, L"open", l_exePath32.c_str(), NULL, NULL, SW_SHOWNORMAL);
+				::ShellExecute(HWND_DESKTOP, L"open", l_exePath32.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 			}
 		}
 
@@ -191,9 +191,9 @@ static void OnInstallerComplete(HWND hDlg, bool a_success)
 	// schedule temp files for deletion on reboot:
 	std::wstring l_exePath = GetExePath();
 	// delete this exe, remember it should have been copied to temp dir
-	::MoveFileEx(l_exePath.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
+	::MoveFileEx(l_exePath.c_str(), nullptr, MOVEFILE_DELAY_UNTIL_REBOOT);
 	// delete downloaded installer
-	::MoveFileEx(s_installerPath.c_str(), NULL, MOVEFILE_DELAY_UNTIL_REBOOT);
+	::MoveFileEx(s_installerPath.c_str(), nullptr, MOVEFILE_DELAY_UNTIL_REBOOT);
 
 	DisablePgbMarquee(hDlg);
 	SendDlgItemMessage(hDlg, IDC_PGB, PBM_SETPOS, 1000, 0);
@@ -226,7 +226,7 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 	case WM_INITDIALOG:
 		InitialWindowSetup(hDlg);
 
-		::SetTimer(hDlg, IDT_TIMER_ID, 100, NULL);
+		::SetTimer(hDlg, IDT_TIMER_ID, 100, nullptr);
 
 		::ShowWindow(hDlg, SW_SHOWNORMAL);
 
@@ -325,8 +325,8 @@ static WPARAM MainMessageLoop()
 	HWND hDlg;
 	int iStatus;
 
-	hDlg = ::CreateDialog(g_hInstance, MAKEINTRESOURCE(IDD_DLGMAIN), NULL, DialogProc);
-	if (hDlg == NULL)
+	hDlg = ::CreateDialog(g_hInstance, MAKEINTRESOURCE(IDD_DLGMAIN), nullptr, DialogProc);
+	if (hDlg == nullptr)
 		return 1;
 
 	while ((iStatus = ::GetMessage(&msg, 0, 0, 0)) != 0)

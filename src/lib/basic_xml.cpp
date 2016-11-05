@@ -74,7 +74,7 @@ std::string CXMLParser::XmlDecode(const std::string& sString, bool a_decodeHtmlE
 
 				if(bOk && (!bHex || sEntity.size() >= 3))
 				{
-					const unsigned long long lle = _strtoui64(sEntity.c_str() + (bHex ? 2 : 1), NULL, (bHex ? 16 : 10));
+					const unsigned long long lle = _strtoui64(sEntity.c_str() + (bHex ? 2 : 1), nullptr, (bHex ? 16 : 10));
 
 					if(lle > 0 && lle <= std::numeric_limits<wchar_t>::max())
 					{
@@ -368,7 +368,7 @@ PXMLTag CXMLParser::ParseString(const std::string& sXmlString)
 PXMLTag CXMLParser::ParseFile(const std::wstring& a_filePath)
 {
 	std::string l_buf;
-	FILE *fFile = NULL;
+	FILE *fFile = nullptr;
 
 	if(_wfopen_s(&fFile, a_filePath.c_str(), L"r") != 0)
 	{

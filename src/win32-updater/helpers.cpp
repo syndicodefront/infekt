@@ -64,7 +64,7 @@ std::wstring GetExePath()
 	TCHAR l_buf[1000] = { 0 };
 	TCHAR l_buf2[1000] = { 0 };
 
-	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
 
 	return l_buf2;
@@ -115,13 +115,13 @@ std::wstring SHA1_File(const std::wstring& a_filePath)
 	HCRYPTPROV hProv;
 	std::wstring l_result;
 
-	if (::CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET))
+	if (::CryptAcquireContext(&hProv, nullptr, nullptr, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET))
 	{
 		HCRYPTHASH hHash;
 
-		if (::CryptCreateHash(hProv, CALG_SHA1, NULL, 0, &hHash))
+		if (::CryptCreateHash(hProv, CALG_SHA1, (HCRYPTKEY)nullptr, 0, &hHash))
 		{
-			FILE *fInput = NULL;
+			FILE *fInput = nullptr;
 
 			if (_wfopen_s(&fInput, a_filePath.c_str(), L"rb") == 0)
 			{

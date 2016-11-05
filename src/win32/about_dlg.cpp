@@ -20,25 +20,25 @@
 
 CAboutDialog::CAboutDialog(HWND hWndParent) :
 	CDialog(IDD_ABOUT, hWndParent),
-	m_mainWin(NULL), m_boldFont(NULL), m_icon(NULL),
+	m_mainWin(nullptr), m_boldFont(nullptr), m_icon(nullptr),
 	m_linkCtrl((HWND)-1)
 {
 }
 
 
 #define _CREATE_STATIC(A_NAME, A_TEXT, A_TOP, A_HEIGHT) \
-	HWND A_NAME = ::CreateWindowEx(WS_EX_LEFT | WS_EX_NOPARENTNOTIFY, WC_STATIC, NULL, \
+	HWND A_NAME = ::CreateWindowEx(WS_EX_LEFT | WS_EX_NOPARENTNOTIFY, WC_STATIC, nullptr, \
 	WS_CHILDWINDOW | WS_VISIBLE | SS_LEFT, l_left, A_TOP, 270, A_HEIGHT, \
-		m_hWnd, NULL, g_hInstance, NULL); \
+		m_hWnd, nullptr, g_hInstance, nullptr); \
 	{ const std::wstring l_tmp(A_TEXT); \
 	::SetWindowText(A_NAME, l_tmp.c_str()); \
 	::SendMessage(A_NAME, WM_SETFONT, (WPARAM)l_defaultFont, 1); }
 
 #define _CREATE_SYSLINK(A_NAME, A_TEXT, A_TOP, A_HEIGHT) \
-	HWND A_NAME = ::CreateWindowEx(0, L"SysLink", NULL, \
+	HWND A_NAME = ::CreateWindowEx(0, L"SysLink", nullptr, \
 		WS_VISIBLE | WS_CHILD | WS_TABSTOP, \
 		l_left, A_TOP, 280, A_HEIGHT, \
-		m_hWnd, NULL, g_hInstance, NULL); \
+		m_hWnd, nullptr, g_hInstance, nullptr); \
 		{ const std::_tstring l_tmp(A_TEXT); \
 		::SetWindowText(A_NAME, l_tmp.c_str()); \
 		::SendMessage(A_NAME, WM_SETFONT, (WPARAM)l_defaultFont, 1); }
@@ -125,7 +125,7 @@ BOOL CAboutDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT: {
 		PAINTSTRUCT ps;
 		HDC hdc = ::BeginPaint(GetHwnd(), &ps);
-		::DrawIconEx(hdc, 10, 15, m_icon, 48, 48, 0, NULL, DI_NORMAL);
+		::DrawIconEx(hdc, 10, 15, m_icon, 48, 48, 0, nullptr, DI_NORMAL);
 		::EndPaint(GetHwnd(), &ps);
 		return TRUE; }
 	}
@@ -143,7 +143,7 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 	case NM_RETURN:
 		if (nh->hwndFrom == m_linkCtrl)
 		{
-			::ShellExecute(NULL, L"open", L"http://infekt.ws/", NULL, NULL, SW_SHOWNORMAL);
+			::ShellExecute(nullptr, L"open", L"http://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
 			return 0;
 		}
 		break;

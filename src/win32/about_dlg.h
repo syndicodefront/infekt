@@ -20,7 +20,7 @@
 class CAboutDialog : public CDialog
 {
 public:
-	CAboutDialog(HWND hWndParent = NULL);
+	CAboutDialog(HWND hWndParent = nullptr);
 	virtual ~CAboutDialog();
 
 	void SetMainWin(CMainFrame* a_mainWin) { m_mainWin = a_mainWin; }
