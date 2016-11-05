@@ -50,9 +50,9 @@ std::wstring CUtilWin32::PathRemoveExtension(const std::wstring& a_path)
 
 std::wstring CUtilWin32::GetTempDir()
 {
-	wchar_t l_tmpPathBuf[1000] = {0};
+	wchar_t l_tmpPathBuf[1000] = { 0 };
 
-	if(::GetTempPath(999, l_tmpPathBuf))
+	if (::GetTempPath(999, l_tmpPathBuf))
 	{
 		::PathAddBackslash(l_tmpPathBuf);
 
@@ -65,21 +65,21 @@ std::wstring CUtilWin32::GetTempDir()
 
 std::wstring CUtilWin32::GetAppDataDir(bool a_local, const std::wstring& a_appName)
 {
-	wchar_t l_tmpPathBuf[1000] = {0};
+	wchar_t l_tmpPathBuf[1000] = { 0 };
 
-	if(::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, NULL,
+	if (::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, NULL,
 		SHGFP_TYPE_CURRENT, l_tmpPathBuf) == S_OK)
 	{
 		::PathAddBackslash(l_tmpPathBuf);
 
 		::PathAppend(l_tmpPathBuf, a_appName.c_str());
 
-		if(!::PathIsDirectory(l_tmpPathBuf))
+		if (!::PathIsDirectory(l_tmpPathBuf))
 		{
 			::SHCreateDirectoryEx(NULL, l_tmpPathBuf, NULL);
 		}
 
-		if(::PathIsDirectory(l_tmpPathBuf))
+		if (::PathIsDirectory(l_tmpPathBuf))
 		{
 			::PathAddBackslash(l_tmpPathBuf);
 
@@ -98,14 +98,14 @@ HMODULE CUtilWin32::SilentLoadLibrary(const std::wstring& a_path)
 	HMODULE l_hResult = NULL;
 	DWORD dwErrorMode = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS;
 
-	if(CUtilWin32::IsAtLeastWin7())
+	if (CUtilWin32::IsAtLeastWin7())
 	{
 		// BOOL SetThreadErrorMode(DWORD dwNewMode, LPDWORD lpOldMode);
-		typedef BOOL (WINAPI *fstem)(DWORD, LPDWORD);
+		typedef BOOL(WINAPI *fstem)(DWORD, LPDWORD);
 
 		fstem fnc = (fstem)::GetProcAddress(::GetModuleHandle(L"Kernel32.dll"), "SetThreadErrorMode");
 
-		if(fnc)
+		if (fnc)
 		{
 			DWORD l_oldErrorMode = 0;
 			fnc(dwErrorMode, &l_oldErrorMode);
@@ -132,8 +132,8 @@ bool CUtilWin32::RemoveCwdFromDllSearchPath()
 
 std::wstring CUtilWin32::GetExePath()
 {
-	TCHAR l_buf[1000] = {0};
-	TCHAR l_buf2[1000] = {0};
+	TCHAR l_buf[1000] = { 0 };
+	TCHAR l_buf2[1000] = { 0 };
 
 	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
@@ -144,8 +144,8 @@ std::wstring CUtilWin32::GetExePath()
 
 std::wstring CUtilWin32::GetExeDir()
 {
-	TCHAR l_buf[1000] = {0};
-	TCHAR l_buf2[1000] = {0};
+	TCHAR l_buf[1000] = { 0 };
+	TCHAR l_buf2[1000] = { 0 };
 
 	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
@@ -161,9 +161,9 @@ bool CUtilWin32::HardenHeap()
 #ifndef _DEBUG
 	// Activate program termination on heap corruption.
 	// http://msdn.microsoft.com/en-us/library/aa366705%28VS.85%29.aspx
-	typedef BOOL (WINAPI *fhsi)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
+	typedef BOOL(WINAPI *fhsi)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
 	fhsi l_fHSI = (fhsi)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "HeapSetInformation");
-	if(l_fHSI)
+	if (l_fHSI)
 	{
 		return (l_fHSI(GetProcessHeap(), HeapEnableTerminationOnCorruption, NULL, 0) != FALSE);
 	}
@@ -180,9 +180,9 @@ bool CUtilWin32::EnforceDEP()
 #ifndef _WIN64
 	// Explicitly activate DEP, especially important for XP SP3.
 	// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
-	typedef BOOL (WINAPI *fspdp)(DWORD);
+	typedef BOOL(WINAPI *fspdp)(DWORD);
 	fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
-	if(l_fSpDp)
+	if (l_fSpDp)
 	{
 		return (l_fSpDp(PROCESS_DEP_ENABLE) != FALSE);
 	}
@@ -202,13 +202,13 @@ static bool IS_WIN_XX(DWORD MAJ, DWORD MIN, bool OR_HIGHER)
 {
 	OSVERSIONINFOEXW osvi = { sizeof(OSVERSIONINFOEXW), 0 };
 	DWORDLONG dwlConditionMask = 0;
-	
+
 	osvi.dwMajorVersion = MAJ;
 	osvi.dwMinorVersion = MIN;
-	
+
 	VER_SET_CONDITION(dwlConditionMask, VER_MAJORVERSION, OR_HIGHER ? VER_GREATER_EQUAL : VER_EQUAL);
 	VER_SET_CONDITION(dwlConditionMask, VER_MINORVERSION, OR_HIGHER ? VER_GREATER_EQUAL : VER_EQUAL);
-	
+
 	return ::VerifyVersionInfoW(&osvi, VER_MAJORVERSION | VER_MINORVERSION, dwlConditionMask) == TRUE;
 }
 
@@ -266,25 +266,25 @@ bool CUtilWin32::IsWinServerOS()
 {
 	OSVERSIONINFOEXW osvi = { sizeof(OSVERSIONINFOEXW), 0 };
 	DWORDLONG dwlConditionMask = 0;
-	
+
 	osvi.wProductType = VER_NT_SERVER;
-	
+
 	VER_SET_CONDITION(dwlConditionMask, VER_PRODUCT_TYPE, VER_EQUAL);
-	
+
 	return ::VerifyVersionInfoW(&osvi, VER_PRODUCT_TYPE, dwlConditionMask) == TRUE;
 }
 
 bool CUtilWin32::IsWow64()
 {
-	typedef BOOL (WINAPI *fiw6p)(HANDLE, PBOOL);
+	typedef BOOL(WINAPI *fiw6p)(HANDLE, PBOOL);
 
 	fiw6p l_fiw6p = (fiw6p)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "IsWow64Process");
 
-	if(l_fiw6p)
+	if (l_fiw6p)
 	{
 		BOOL l_bIsWow64;
 
-		if(l_fiw6p(GetCurrentProcess(), &l_bIsWow64))
+		if (l_fiw6p(GetCurrentProcess(), &l_bIsWow64))
 		{
 			return (l_bIsWow64 != FALSE);
 		}
@@ -337,7 +337,7 @@ double CBenchmarkTimer::StopTimer(void)
 double CBenchmarkTimer::StopDumpTimer(const char* a_name)
 {
 	double l_secs = StopTimer();
-	char l_buf[256] = {0};
+	char l_buf[256] = { 0 };
 
 	sprintf_s(l_buf, 255, "BenchmarkTimer: [%s] %.2f msec\r\n", a_name, l_secs);
 

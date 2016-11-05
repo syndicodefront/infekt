@@ -49,28 +49,28 @@ int CUtilWin32GUI::AddPngToImageList(HIMAGELIST a_imgList,
 	HINSTANCE a_instance, int a_resourceId, int a_width, int a_height)
 {
 	HRSRC l_res = ::FindResource(a_instance, MAKEINTRESOURCE(a_resourceId), L"PNG");
-	if(!l_res) return -1;
+	if (!l_res) return -1;
 
 	HGLOBAL l_hr = ::LoadResource(a_instance, l_res);
-	if(!l_hr) return -1;
+	if (!l_hr) return -1;
 
 	_buf_info l_buf;
 	l_buf.len = ::SizeofResource(a_instance, l_res);
 	l_buf.pos = 0;
 	l_buf.data = ::LockResource(l_hr);
 
-	if(!l_buf.data) return -1;
+	if (!l_buf.data) return -1;
 
 	cairo_surface_t* l_surfacePng =
 		cairo_image_surface_create_from_png_stream(&_read_from_resource, &l_buf);
 
 	UnlockResource(l_hr);
 
-	if(!l_surfacePng) return -1;
+	if (!l_surfacePng) return -1;
 
 	int l_resultId = -1;
 
-	BITMAPINFO l_bi = {0};
+	BITMAPINFO l_bi = { 0 };
 	l_bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	l_bi.bmiHeader.biWidth = a_width;
 	l_bi.bmiHeader.biHeight = -a_height;
@@ -81,14 +81,14 @@ int CUtilWin32GUI::AddPngToImageList(HIMAGELIST a_imgList,
 	unsigned char* l_rawData;
 	HBITMAP l_hBitmap = ::CreateDIBSection(NULL, &l_bi, DIB_RGB_COLORS, (void**)&l_rawData, NULL, 0);
 
-	if(l_hBitmap)
+	if (l_hBitmap)
 	{
-		BITMAP l_bitmap = {0};
+		BITMAP l_bitmap = { 0 };
 		::GetObject(l_hBitmap, sizeof(BITMAP), &l_bitmap);
 		cairo_surface_t* l_surfaceOut = cairo_image_surface_create_for_data(
 			l_rawData, CAIRO_FORMAT_ARGB32, a_width, a_height, l_bitmap.bmWidthBytes);
 
-		if(l_surfaceOut)
+		if (l_surfaceOut)
 		{
 			cairo_t *cr = cairo_create(l_surfaceOut);
 
@@ -129,7 +129,7 @@ static TLegacyFilterSpec ComDlgFilterSpecToLegacy(const COMDLG_FILTERSPEC* a_fil
 {
 	std::vector<wchar_t> l_filter;
 
-	for(UINT i = 0; i < a_nFilterSpec; i++)
+	for (UINT i = 0; i < a_nFilterSpec; i++)
 	{
 		const COMDLG_FILTERSPEC& l_spec = a_filterSpec[i];
 
@@ -147,10 +147,10 @@ static TLegacyFilterSpec ComDlgFilterSpecToLegacy(const COMDLG_FILTERSPEC* a_fil
 wstring CUtilWin32GUI::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
 {
 #if _WIN32_WINNT < 0x600
-	if(!CUtilWin32::IsAtLeastWinVista())
+	if (!CUtilWin32::IsAtLeastWinVista())
 	{
-		OPENFILENAME ofn = {0};
-		TCHAR szBuf[1000] = {0};
+		OPENFILENAME ofn = { 0 };
+		TCHAR szBuf[1000] = { 0 };
 
 		TLegacyFilterSpec l_filter = ComDlgFilterSpecToLegacy(a_filterSpec, a_nFilterSpec);
 
@@ -163,7 +163,7 @@ wstring CUtilWin32GUI::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const
 		ofn.nMaxFile = 999;
 		ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT;
 
-		if(::GetOpenFileName(&ofn))
+		if (::GetOpenFileName(&ofn))
 		{
 			return ofn.lpstrFile;
 		}
@@ -182,19 +182,19 @@ wstring CUtilWin32GUI::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const
 	const LPCTSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath)
 {
 #if _WIN32_WINNT < 0x600
-	if(!CUtilWin32::IsAtLeastWinVista())
+	if (!CUtilWin32::IsAtLeastWinVista())
 	{
-		OPENFILENAME ofn = {0};
-		TCHAR szBuf[1000] = {0};
+		OPENFILENAME ofn = { 0 };
+		TCHAR szBuf[1000] = { 0 };
 
 		TLegacyFilterSpec l_filter = ComDlgFilterSpecToLegacy(a_filterSpec, a_nFilterSpec);
 
-		if(!a_currentFileName.empty())
+		if (!a_currentFileName.empty())
 		{
 			_tcscpy_s(szBuf, 1000, a_currentFileName.c_str());
 		}
 
-		if(!a_initialPath.empty())
+		if (!a_initialPath.empty())
 		{
 			ofn.lpstrInitialDir = a_initialPath.c_str();
 		}
@@ -209,7 +209,7 @@ wstring CUtilWin32GUI::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const
 		ofn.nMaxFile = 999;
 		ofn.Flags = OFN_ENABLESIZING | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT;
 
-		if(::GetSaveFileName(&ofn))
+		if (::GetSaveFileName(&ofn))
 		{
 			return ofn.lpstrFile;
 		}
@@ -236,7 +236,7 @@ void CUtilWin32GUI::PopUpLastWin32Error()
 		NULL, ::GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR)&lpMsgBuf, 0, NULL);
 
-	if(lpMsgBuf && dwSize)
+	if (lpMsgBuf && dwSize)
 	{
 		::MessageBox(0, lpMsgBuf, L"Error", MB_ICONSTOP);
 		::LocalFree(lpMsgBuf);
@@ -246,17 +246,17 @@ void CUtilWin32GUI::PopUpLastWin32Error()
 
 void CUtilWin32GUI::FormatFileTimeSize(const std::wstring& a_filePath, std::wstring& ar_timeInfo, std::wstring& ar_sizeInfo)
 {
-	WIN32_FIND_DATA l_ff = {0};
+	WIN32_FIND_DATA l_ff = { 0 };
 
-	if(HANDLE l_hFile = ::FindFirstFile(a_filePath.c_str(), &l_ff))
+	if (HANDLE l_hFile = ::FindFirstFile(a_filePath.c_str(), &l_ff))
 	{
-		SYSTEMTIME l_sysTimeUTC = {0}, l_sysTime = {0};
-		if(::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTimeUTC) &&
+		SYSTEMTIME l_sysTimeUTC = { 0 }, l_sysTime = { 0 };
+		if (::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTimeUTC) &&
 			::SystemTimeToTzSpecificLocalTime(NULL, &l_sysTimeUTC, &l_sysTime))
 		{
-			TCHAR l_date[100] = {0};
+			TCHAR l_date[100] = { 0 };
 
-			if(::GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &l_sysTime,
+			if (::GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &l_sysTime,
 				NULL, l_date, 99) != 0)
 			{
 				ar_timeInfo = l_date;
@@ -264,7 +264,7 @@ void CUtilWin32GUI::FormatFileTimeSize(const std::wstring& a_filePath, std::wstr
 
 			memset(l_date, 0, 100);
 
-			if(::GetTimeFormat(LOCALE_USER_DEFAULT, 0, &l_sysTime, NULL,
+			if (::GetTimeFormat(LOCALE_USER_DEFAULT, 0, &l_sysTime, NULL,
 				l_date, 99) != 0)
 			{
 				ar_timeInfo += L" ";
@@ -276,9 +276,9 @@ void CUtilWin32GUI::FormatFileTimeSize(const std::wstring& a_filePath, std::wstr
 		l_tmpFileSize.HighPart = l_ff.nFileSizeHigh;
 		l_tmpFileSize.LowPart = l_ff.nFileSizeLow;
 
-		TCHAR l_sizeBuf[100] = {0};
+		TCHAR l_sizeBuf[100] = { 0 };
 
-		if(::StrFormatByteSizeW(l_tmpFileSize.QuadPart, l_sizeBuf, 99))
+		if (::StrFormatByteSizeW(l_tmpFileSize.QuadPart, l_sizeBuf, 99))
 		{
 			ar_sizeInfo = l_sizeBuf;
 		}
@@ -293,7 +293,7 @@ int CUtilWin32GUI::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 	// Credit: Notepad2 by Florian Balmer (BSD License)
 
 	SIZE  size;
-	HDC   hdc   = GetDC(hwnd);
+	HDC   hdc = GetDC(hwnd);
 	HFONT hfont = (HFONT)SendMessage(hwnd, WM_GETFONT, 0, 0);
 	HFONT hfold = (HFONT)SelectObject(hdc, hfont);
 	int   mmode = SetMapMode(hdc, MM_TEXT);
@@ -310,7 +310,7 @@ int CUtilWin32GUI::StatusCalcPaneWidth(HWND hwnd, LPCTSTR lpsz)
 
 BOOL CUtilWin32GUI::GenericOnSetCursor(const LPTSTR a_cursor, LPARAM lParam)
 {
-	switch(LOWORD(lParam)) // hit test code
+	switch (LOWORD(lParam)) // hit test code
 	{
 	case HTCLIENT:
 		::SetCursor(::LoadCursor(NULL, a_cursor));
@@ -329,18 +329,18 @@ bool CUtilWin32GUI::TextToClipboard(HWND a_hwnd, const wstring& a_text)
 {
 	bool l_ok = false;
 
-	if(::OpenClipboard(a_hwnd))
+	if (::OpenClipboard(a_hwnd))
 	{
 		size_t l_size = sizeof(wchar_t) * (a_text.size() + 1);
 		HGLOBAL l_hGlobal = ::GlobalAlloc(GMEM_MOVEABLE, l_size);
 
-		if(l_hGlobal)
+		if (l_hGlobal)
 		{
 			wchar_t* l_hCopy = (wchar_t*)::GlobalLock(l_hGlobal);
 
 			memcpy_s(l_hCopy, l_size, a_text.c_str(), sizeof(wchar_t) * a_text.size());
 			l_hCopy[a_text.size()] = 0;
-			::GlobalUnlock(l_hCopy); 
+			::GlobalUnlock(l_hCopy);
 
 			::EmptyClipboard();
 			::SetClipboardData(CF_UNICODETEXT, l_hGlobal);

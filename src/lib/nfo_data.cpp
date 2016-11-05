@@ -36,9 +36,9 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	size_t l_fileBytes;
 
 #ifdef _WIN32
-	if(_tfopen_s(&l_file, a_filePath.c_str(), _T("rb")) != 0 || !l_file)
+	if (_tfopen_s(&l_file, a_filePath.c_str(), _T("rb")) != 0 || !l_file)
 #else
-	if(!(l_file = fopen(a_filePath.c_str(), "rb")))
+	if (!(l_file = fopen(a_filePath.c_str(), "rb")))
 #endif
 	{
 		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL,
@@ -54,7 +54,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 #ifdef _WIN32
 	l_fileBytes = _filelength(_fileno(l_file));
 
-	if(l_fileBytes < 0)
+	if (l_fileBytes < 0)
 	{
 		SetLastError(NDE_FAILED_TO_DETERMINE_SIZE, L"Unable to get NFO file size.");
 
@@ -62,8 +62,8 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		return false;
 	}
 #else
-	struct stat l_fst = {0};
-	if(stat(a_filePath.c_str(), &l_fst) == 0 && S_ISREG(l_fst.st_mode))
+	struct stat l_fst = { 0 };
+	if (stat(a_filePath.c_str(), &l_fst) == 0 && S_ISREG(l_fst.st_mode))
 	{
 		l_fileBytes = l_fst.st_size;
 	}
@@ -76,7 +76,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	}
 #endif
 
-	if(l_fileBytes > 1024 * 1024 * 3)
+	if (l_fileBytes > 1024 * 1024 * 3)
 	{
 		SetLastError(NDE_SIZE_EXCEEDS_LIMIT, L"NFO file is too large (> 3 MB)");
 
@@ -93,17 +93,17 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	size_t l_totalBytesRead = 0;
 	bool l_error = false;
 
-	while(!feof(l_file))
+	while (!feof(l_file))
 	{
 		unsigned char l_chunkBuf[8192];
 		size_t l_bytesRead;
 
 		l_bytesRead = fread_s(&l_chunkBuf, sizeof(l_chunkBuf), sizeof(unsigned char), 8192, l_file);
-		if(l_bytesRead > 0)
+		if (l_bytesRead > 0)
 		{
 			l_totalBytesRead += l_bytesRead;
 
-			if(l_totalBytesRead > l_fileBytes)
+			if (l_totalBytesRead > l_fileBytes)
 			{
 				l_error = true;
 				break;
@@ -113,7 +113,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 			l_ptr += l_bytesRead;
 		}
-		else if(ferror(l_file))
+		else if (ferror(l_file))
 		{
 			l_error = true;
 			break;
@@ -126,7 +126,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	m_filePath = a_filePath;
 	m_vFileName = _T("");
 
-	if(!l_error)
+	if (!l_error)
 	{
 		m_loaded = LoadFromMemoryInternal(l_buf, l_fileBytes);
 	}
@@ -141,7 +141,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	fclose(l_file);
 
-	if(!m_loaded)
+	if (!m_loaded)
 	{
 		m_filePath = _T("");
 	}
@@ -162,7 +162,7 @@ bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 
 bool CNFOData::LoadStripped(const CNFOData& a_source)
 {
-	if(!a_source.HasData())
+	if (!a_source.HasData())
 	{
 		return false;
 	}
@@ -199,11 +199,11 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 
 	l_pos = a_text.find_first_of(L"\r\t\xA0");
 
-	while(l_pos != wstring::npos)
+	while (l_pos != wstring::npos)
 	{
 		l_text.append(a_text, l_prevPos, l_pos - l_prevPos);
 
-		if(a_text[l_pos] == L'\t' || a_text[l_pos] == 0xA0)
+		if (a_text[l_pos] == L'\t' || a_text[l_pos] == 0xA0)
 		{
 			l_text += L' ';
 		}
@@ -212,7 +212,7 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 		l_pos = a_text.find_first_of(L"\r\t\xA0", l_prevPos);
 	}
 
-	if(l_prevPos != 0)
+	if (l_prevPos != 0)
 	{
 		l_text.append(a_text.substr(l_prevPos));
 		a_text = l_text;
@@ -233,7 +233,7 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 	a_maxLineLen = 1;
 
 	// read lines:
-	while(l_pos != wstring::npos)
+	while (l_pos != wstring::npos)
 	{
 		wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
 
@@ -242,7 +242,7 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 
 		a_lines.push_back(l_line);
 
-		if(l_line.size() > a_maxLineLen)
+		if (l_line.size() > a_maxLineLen)
 		{
 			a_maxLineLen = l_line.size();
 		}
@@ -251,12 +251,12 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 		l_pos = a_text.find(L'\n', l_prevPos);
 	}
 
-	if(l_prevPos < a_text.size() - 1)
+	if (l_prevPos < a_text.size() - 1)
 	{
 		wstring l_line = a_text.substr(l_prevPos);
 		CUtil::StrTrimRight(l_line);
 		a_lines.push_back(l_line);
-		if(l_line.size() > a_maxLineLen) a_maxLineLen = l_line.size();
+		if (l_line.size() > a_maxLineLen) a_maxLineLen = l_line.size();
 	}
 }
 
@@ -269,32 +269,32 @@ static void _InternalLoad_FixLfLf(wstring& a_text, CNFOData::TLineContainer& a_l
 	int l_evenEmpty = 0, l_oddEmpty = 0;
 
 	size_t i = 0;
-	for(auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
+	for (auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
 	{
-		if(it->empty())
+		if (it->empty())
 		{
-			if(i % 2) ++l_oddEmpty; else ++l_evenEmpty;
+			if (i % 2) ++l_oddEmpty; else ++l_evenEmpty;
 		}
 	}
 
 	int l_kill = -1;
-	if(l_evenEmpty <= 0.1 * a_lines.size() && l_oddEmpty > 0.4 * a_lines.size() && l_oddEmpty < 0.6 * a_lines.size())
+	if (l_evenEmpty <= 0.1 * a_lines.size() && l_oddEmpty > 0.4 * a_lines.size() && l_oddEmpty < 0.6 * a_lines.size())
 	{
 		l_kill = 1;
 	}
-	else if(l_oddEmpty <= 0.1 * a_lines.size() && l_evenEmpty > 0.4 * a_lines.size() && l_evenEmpty < 0.6 * a_lines.size())
+	else if (l_oddEmpty <= 0.1 * a_lines.size() && l_evenEmpty > 0.4 * a_lines.size() && l_evenEmpty < 0.6 * a_lines.size())
 	{
 		l_kill = 0;
 	}
 
-	if(l_kill >= 0)
+	if (l_kill >= 0)
 	{
 		wstring l_newContent; l_newContent.reserve(a_text.size());
 		CNFOData::TLineContainer l_newLines;
 		i = 0;
-		for(auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
+		for (auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
 		{
-			if(!it->empty() || i % 2 != l_kill)
+			if (!it->empty() || i % 2 != l_kill)
 			{
 				l_newLines.push_back(*it);
 				l_newContent += *it;
@@ -315,60 +315,60 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 	wstring::size_type l_pos = a_text.find_first_of(L"\xA2\x2190"), l_prevPos = 0;
 	wstring l_newText;
 
-	while(l_pos != wstring::npos)
+	while (l_pos != wstring::npos)
 	{
 		bool l_go = false;
 
 		l_newText += a_text.substr(l_prevPos, l_pos - l_prevPos);
 
-		if(a_text[l_pos] == 0xA2)
+		if (a_text[l_pos] == 0xA2)
 			l_go = true; // single byte CIS
-		else if(a_text[l_pos] == 0x2190 && l_pos + 1 < a_text.size() && a_text[l_pos + 1] == L'[')
+		else if (a_text[l_pos] == 0x2190 && l_pos + 1 < a_text.size() && a_text[l_pos + 1] == L'[')
 		{
 			l_go = true;
 			++l_pos;
 		}
 
-		if(l_go)
+		if (l_go)
 		{
 			wstring::size_type p = l_pos + 1;
 			wstring l_numBuf;
 			wchar_t l_finalChar = 0;
 
-			while(p < a_text.size() && ((a_text[p] >= L'0' && a_text[p] <= L'9') || a_text[p] == L';'))
+			while (p < a_text.size() && ((a_text[p] >= L'0' && a_text[p] <= L'9') || a_text[p] == L';'))
 			{
 				l_numBuf += a_text[p];
 				++p;
 			}
 
-			if(p < a_text.size()) { l_finalChar = a_text[p]; }
+			if (p < a_text.size()) { l_finalChar = a_text[p]; }
 
-			if(!l_numBuf.empty() && l_finalChar > 0)
+			if (!l_numBuf.empty() && l_finalChar > 0)
 			{
 				// we only honor the first number:
 				l_numBuf.erase(l_numBuf.find(L';'));
 
 				long l_number = std::wcstol(l_numBuf.c_str(), nullptr, 10);
 
-				switch(l_finalChar)
+				switch (l_finalChar)
 				{
 				case L'C': // Cursor Forward
-					if(l_number < 1) l_number = 1;
-					else if(l_number > 1024) l_number = 1024;
+					if (l_number < 1) l_number = 1;
+					else if (l_number > 1024) l_number = 1024;
 
-					for(long i = 0; i < l_number; i++) l_newText += L' ';
+					for (long i = 0; i < l_number; i++) l_newText += L' ';
 					break;
 				}
 
 				l_pos = p;
 			}
-			else if(l_numBuf.empty() && ((l_finalChar >= L'A' && l_finalChar <= L'G') || l_finalChar == L'J'
+			else if (l_numBuf.empty() && ((l_finalChar >= L'A' && l_finalChar <= L'G') || l_finalChar == L'J'
 				|| l_finalChar == L'K' || l_finalChar == L'S' || l_finalChar == L'T' || l_finalChar == L's' || l_finalChar == L'u'))
 			{
 				// skip some known, but unsupported codes
 				l_pos = p;
 			}
-			else if(a_text[l_pos] == 0xA2)
+			else if (a_text[l_pos] == 0xA2)
 			{
 				// dont' strip \xA2 if it's not actually an escape sequence indicator
 				l_newText += a_text[l_pos];
@@ -381,9 +381,9 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 		l_pos = a_text.find_first_of(L"\xA2\x2190", l_prevPos);
 	}
 
-	if(l_prevPos > 0)
+	if (l_prevPos > 0)
 	{
-		if(l_prevPos < a_text.size() - 1)
+		if (l_prevPos < a_text.size() - 1)
 		{
 			l_newText += a_text.substr(l_prevPos);
 		}
@@ -404,9 +404,9 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 	CNFOData::TLineContainer l_newLines;
 	size_t lines_processed = 0;
 
-	for(const std::wstring& line : a_lines)
+	for (const std::wstring& line : a_lines)
 	{
-		if(line.size() <= l_maxLen
+		if (line.size() <= l_maxLen
 			// don't touch lines with blockchars:
 			|| line.find_first_of(L"\x2580\x2584\x2588\x258C\x2590\x2591\x2592\x2593") != wstring::npos)
 		{
@@ -417,20 +417,20 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 		++lines_processed;
 
 		wstring::size_type l_spaces = line.find_first_not_of(L' ');
-		if(l_spaces == wstring::npos)
+		if (l_spaces == wstring::npos)
 			l_spaces = 0;
 
 		wstring l_line(line);
 		bool l_firstRun = true;
 
-		while(l_line.size() > 0)
+		while (l_line.size() > 0)
 		{
 			wstring::size_type l_cut = l_line.rfind(' ', l_maxLen);
-			if(l_cut == wstring::npos || l_cut < l_spaces || l_cut == 0 || l_line.size() < l_maxLen)
+			if (l_cut == wstring::npos || l_cut < l_spaces || l_cut == 0 || l_line.size() < l_maxLen)
 				l_cut = l_maxLen;
 
 			wstring l_new = l_line.substr(0, l_cut);
-			if(!l_firstRun)
+			if (!l_firstRun)
 			{
 				CUtil::StrTrimLeft(l_new);
 
@@ -440,8 +440,8 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 					, ' ');
 			}
 			l_newLines.push_back(l_new);
-			
-			if(l_cut != l_maxLen)
+
+			if (l_cut != l_maxLen)
 				l_line.erase(0, l_cut + 1);
 			else
 				l_line.erase(0, l_cut);
@@ -474,27 +474,27 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 
 	m_isAnsi = false; // modifying this state here (and in ReadSAUCE) is not nice
 
-	if(!ReadSAUCE(a_data, l_dataLen))
+	if (!ReadSAUCE(a_data, l_dataLen))
 	{
 		return false;
 	}
 
-	switch(m_sourceCharset)
+	switch (m_sourceCharset)
 	{
 	case NFOC_AUTO:
 		l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
-		if(!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_TRY);
-		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
-		if(HasFileExtension(_T(".nfo")) || HasFileExtension(_T(".diz")))
+		if (!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_TRY);
+		if (!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
+		if (HasFileExtension(_T(".nfo")) || HasFileExtension(_T(".diz")))
 		{
 			// other files are likely ANSI art, so only try non-BOM-UTF-8 for .nfo and .diz
-			if(!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
+			if (!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
 		}
-		if(!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_TRY);
+		if (!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_TRY);
 		break;
 	case NFOC_UTF16:
 		l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FALSE);
-		if(!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
+		if (!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
 		break;
 	case NFOC_UTF8_SIG:
 		l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
@@ -522,11 +522,11 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 		break;
 	}
 
-	if(l_loaded)
+	if (l_loaded)
 	{
 		return PostProcessLoadedContent();
 	}
-	else if(!IsInError())
+	else if (!IsInError())
 	{
 		SetLastError(NDE_ENCODING_PROBLEM, L"There appears to be a charset/encoding problem.");
 	}
@@ -543,9 +543,9 @@ bool CNFOData::PostProcessLoadedContent()
 
 	m_colorMap.reset();
 
-	if(!m_isAnsi)
+	if (!m_isAnsi)
 	{
-		if(m_sourceCharset != NFOC_CP437_STRICT)
+		if (m_sourceCharset != NFOC_CP437_STRICT)
 		{
 			_InternalLoad_NormalizeWhitespace(m_textContent);
 			_InternalLoad_FixAnsiEscapeCodes(m_textContent);
@@ -553,19 +553,19 @@ bool CNFOData::PostProcessLoadedContent()
 
 		_InternalLoad_SplitIntoLines(m_textContent, l_maxLineLen, l_lines);
 
-		if(m_sourceCharset != NFOC_CP437_STRICT)
+		if (m_sourceCharset != NFOC_CP437_STRICT)
 		{
 			_InternalLoad_FixLfLf(m_textContent, l_lines);
 		}
 
-		if(m_lineWrap)
+		if (m_lineWrap)
 		{
 			_InternalLoad_WrapLongLines(l_lines, l_maxLineLen);
 		}
 	}
 	else
 	{
-		if(m_ansiHintWidth == 0)
+		if (m_ansiHintWidth == 0)
 		{
 			m_ansiHintWidth = 80;
 		}
@@ -576,7 +576,7 @@ bool CNFOData::PostProcessLoadedContent()
 
 			l_ansiError = !l_ansiArtProcessor.Parse(m_textContent) || !l_ansiArtProcessor.Process();
 
-			if(!l_ansiError)
+			if (!l_ansiError)
 			{
 				l_lines = l_ansiArtProcessor.GetLines();
 				l_maxLineLen = l_ansiArtProcessor.GetMaxLineLength();
@@ -584,7 +584,7 @@ bool CNFOData::PostProcessLoadedContent()
 				m_colorMap = l_ansiArtProcessor.GetColorMap();
 			}
 		}
-		catch(const std::exception& ex)
+		catch (const std::exception& ex)
 		{
 			l_ansiError = true;
 			(void)ex;
@@ -597,20 +597,20 @@ bool CNFOData::PostProcessLoadedContent()
 	m_hyperLinks.clear();
 	m_utf8Content.clear();
 
-	if(l_ansiError)
+	if (l_ansiError)
 	{
 		SetLastError(NDE_ANSI_INTERNAL,
 			L"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.");
 		return false;
 	}
 
-	if(l_lines.size() == 0 || l_maxLineLen == 0)
+	if (l_lines.size() == 0 || l_maxLineLen == 0)
 	{
 		SetLastError(NDE_EMPTY_FILE, L"Unable to find any lines in this file.");
 		return false;
 	}
 
-	if(l_maxLineLen > WIDTH_LIMIT)
+	if (l_maxLineLen > WIDTH_LIMIT)
 	{
 		SetLastError(NDE_MAXIMUM_LINE_LENGTH_EXCEEDED,
 #ifdef HAVE_BOOST
@@ -621,7 +621,7 @@ bool CNFOData::PostProcessLoadedContent()
 		return false;
 	}
 
-	if(l_lines.size() > LINES_LIMIT)
+	if (l_lines.size() > LINES_LIMIT)
 	{
 		SetLastError(NDE_MAXIMUM_NUMBER_OF_LINES_EXCEEDED,
 #ifdef HAVE_BOOST
@@ -642,12 +642,12 @@ bool CNFOData::PostProcessLoadedContent()
 
 	// go through line by line:
 	size_t i = 0; // line (row) index
-	for(TLineContainer::const_iterator it = l_lines.cbegin(); it != l_lines.cend(); it++, i++)
+	for (TLineContainer::const_iterator it = l_lines.cbegin(); it != l_lines.cend(); it++, i++)
 	{
 		int l_lineLen = static_cast<int>(it->length());
 
-		#pragma omp parallel for
-		for(int j = 0; j < l_lineLen; j++)
+#pragma omp parallel for
+		for (int j = 0; j < l_lineLen; j++)
 		{
 			(*m_grid)[i][j] = (*it)[j];
 		}
@@ -657,13 +657,13 @@ bool CNFOData::PostProcessLoadedContent()
 		const char* const p_start = l_utf8Line.c_str();
 		const char* p = p_start;
 		size_t char_index = 0;
-		while(*p)
+		while (*p)
 		{
 			wchar_t w_at = (*m_grid)[i][char_index++];
 			const char *p_char = p;
 			const char *p_next = utf8_find_next_char(p);
 
-			if(m_utf8Map.find(w_at) == m_utf8Map.end())
+			if (m_utf8Map.find(w_at) == m_utf8Map.end())
 			{
 				m_utf8Map[w_at] = (p_next != NULL ? std::string(p_char, static_cast<size_t>(p_next - p)) : std::string(p_char));
 			}
@@ -672,21 +672,21 @@ bool CNFOData::PostProcessLoadedContent()
 		}
 
 		// find hyperlinks:
-		if(/* m_bFindHyperlinks == */true)
+		if (/* m_bFindHyperlinks == */true)
 		{
 			size_t l_linkPos = (size_t)-1, l_linkLen;
 			bool l_linkContinued;
 			wstring l_url, l_prevUrlCopy = l_prevLinkUrl;
 			size_t l_offset = 0;
 
-			while(CNFOHyperLink::FindLink(*it, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
+			while (CNFOHyperLink::FindLink(*it, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
 			{
 				int l_linkID = (l_linkContinued ? l_maxLinkId - 1 : l_maxLinkId);
 
 				std::multimap<size_t, CNFOHyperLink>::iterator l_newItem =
 					m_hyperLinks.emplace(i, CNFOHyperLink(l_linkID, l_url, i, l_linkPos, l_linkLen));
 
-				if(!l_linkContinued)
+				if (!l_linkContinued)
 				{
 					l_maxLinkId++;
 					l_prevLinkUrl = l_url;
@@ -696,7 +696,7 @@ bool CNFOData::PostProcessLoadedContent()
 				{
 					(*l_newItem).second.SetHref(l_url);
 
-					if(l_prevLinkIt != m_hyperLinks.end())
+					if (l_prevLinkIt != m_hyperLinks.end())
 					{
 						_ASSERT((*l_prevLinkIt).second.GetLinkID() == l_linkID);
 						// update href of link's first line:
@@ -709,7 +709,7 @@ bool CNFOData::PostProcessLoadedContent()
 				l_prevUrlCopy.clear();
 			}
 
-			if(l_linkPos == (size_t)-1)
+			if (l_linkPos == (size_t)-1)
 			{
 				// do not try to continue links when a line without any link on it is met.
 				l_prevLinkUrl.clear();
@@ -723,7 +723,7 @@ bool CNFOData::PostProcessLoadedContent()
 
 bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataLen)
 {
-	if(a_dataLen < 3 || a_data[0] != 0xEF || a_data[1] != 0xBB || a_data[2] != 0xBF)
+	if (a_dataLen < 3 || a_data[0] != 0xEF || a_data[1] != 0xBB || a_data[2] != 0xBF)
 	{
 		// no UTF-8 signature found.
 		return false;
@@ -732,9 +732,9 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 	a_data += 3;
 	a_dataLen -= 3;
 
-	if(TryLoad_UTF8(a_data, a_dataLen, EA_TRY))
+	if (TryLoad_UTF8(a_data, a_dataLen, EA_TRY))
 	{
-		if(m_sourceCharset == NFOC_UTF8)
+		if (m_sourceCharset == NFOC_UTF8)
 		{
 			m_sourceCharset = NFOC_UTF8_SIG;
 		}
@@ -748,14 +748,14 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 
 bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
-	if(utf8_validate((const char*)a_data, a_dataLen, NULL))
+	if (utf8_validate((const char*)a_data, a_dataLen, NULL))
 	{
 		const string l_utf((const char*)a_data, a_dataLen);
 
 		// the following is a typical collection of characters that indicate
 		// a CP437 representation that has been (very badly) UTF-8 encoded
 		// using an "ISO-8559-1 to UTF-8" or similar routine.
-		if(a_fix == EA_FORCE || (a_fix == EA_TRY && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
+		if (a_fix == EA_FORCE || (a_fix == EA_TRY && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
 			/* one "Eszett" or LATIN CAPITAL LETTER I WITH ACUTE (horizontal double line in 437) */ &&
 			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos)
 			/* two consecutive 'LATIN CAPITAL LETTER U WITH DIAERESIS' or 'LATIN CAPITAL LETTER U WITH CIRCUMFLEX' */ &&
@@ -763,12 +763,12 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */)
 			/* following is more detection stuff for double-encoded CP437 NFOs that were converted to UTF-8 */
 			|| (a_fix == EA_TRY && (l_utf.find("\xC2\x9A\xC2\x9A") != std::string::npos && l_utf.find("\xC3\xA1\xC3\xA1") != std::string::npos))
-		)
+			)
 		{
 			std::vector<char> l_cp437(a_dataLen + 1);
 			size_t l_newLength = utf8_to_latin9(l_cp437.data(), (const char*)a_data, a_dataLen);
 
-			if(l_newLength > 0 && TryLoad_CP437((unsigned char*)l_cp437.data(), l_newLength, EA_TRY))
+			if (l_newLength > 0 && TryLoad_CP437((unsigned char*)l_cp437.data(), l_newLength, EA_TRY))
 			{
 				m_sourceCharset = (m_sourceCharset == NFOC_CP437_IN_CP437 ? NFOC_CP437_IN_CP437_IN_UTF8 : NFOC_CP437_IN_UTF8);
 
@@ -801,12 +801,12 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 {
 	m_textContent.clear();
 
-	if(a_fix == EA_TRY)
+	if (a_fix == EA_TRY)
 	{
 		const std::string l_txt((const char*)a_data, a_dataLen);
 
 		// look for bad full blocks and shadowed full blocks or black half blocks:
-		if(l_txt.find("\x9A\x9A") != std::string::npos && (l_txt.find("\xFD\xFD") != std::string::npos
+		if (l_txt.find("\x9A\x9A") != std::string::npos && (l_txt.find("\xFD\xFD") != std::string::npos
 			|| l_txt.find("\xE1\xE1") != std::string::npos))
 		{
 			a_fix = EA_FORCE;
@@ -815,10 +815,10 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 	// kill trailing NULL chars that some NFOs have so our
 	// binary file check doesn't trigger.
-	while(a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
+	while (a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
 
 	// kill UTF-8 signature, if we got here, the NFO was not valid UTF-8:
-	if(a_fix == EA_TRY && a_data[0] == 0xEF && a_data[1] == 0xBB && a_data[2] == 0xBF)
+	if (a_fix == EA_TRY && a_data[0] == 0xEF && a_data[1] == 0xBB && a_data[2] == 0xBF)
 	{
 		a_data += 3;
 		a_dataLen -= 3;
@@ -827,7 +827,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	bool l_containsCR = false;
 	bool l_containsLF = false;
 
-	for(int i = 0; i < static_cast<int>(a_dataLen) && (!l_containsCR || !l_containsLF); ++i)
+	for (int i = 0; i < static_cast<int>(a_dataLen) && (!l_containsCR || !l_containsLF); ++i)
 	{
 		if (a_data[i] == '\r')
 			l_containsCR = true;
@@ -839,14 +839,14 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 	m_textContent.resize(a_dataLen);
 
-	#pragma omp parallel for
-	for(int i = 0; i < static_cast<int>(a_dataLen); i++)
+#pragma omp parallel for
+	for (int i = 0; i < static_cast<int>(a_dataLen); i++)
 	{
 		unsigned char p = a_data[i];
-		
-		if(p >= CP437_MAP_LOW)
+
+		if (p >= CP437_MAP_LOW)
 		{
-			if(a_fix != EA_FORCE)
+			if (a_fix != EA_FORCE)
 			{
 				m_textContent[i] = map_cp437_to_unicode_high_bit[p - CP437_MAP_LOW];
 			}
@@ -858,19 +858,19 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 					map_cp437_to_unicode_high_bit[(l_temp & 0xFF) - CP437_MAP_LOW] : l_temp);
 			}
 		}
-		else if(p <= 0x1F)
+		else if (p <= 0x1F)
 		{
-			if(p == 0)
+			if (p == 0)
 			{
 				// "allow" \0 chars for ANSI files with SAUCE record...
 				l_foundBinary = true;
 				m_textContent[i] = L'?';
 			}
-			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
+			else if (p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
 			{
 				m_textContent[i] = L'\r';
 			}
-			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 2 && a_data[i + 1] == 0x0D && a_data[i + 2] == 0x0A)
+			else if (p == 0x0D && i < static_cast<int>(a_dataLen) - 2 && a_data[i + 1] == 0x0D && a_data[i + 2] == 0x0A)
 			{
 				// https://github.com/syndicodefront/infekt/issues/92
 				// http://stackoverflow.com/questions/6998506/text-file-with-0d-0d-0a-line-breaks
@@ -892,7 +892,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 			m_textContent[i] = (wchar_t)p;
 
-			if(a_fix == EA_FORCE && (p == 0x55 || p == 0x59 || p == 0x5F))
+			if (a_fix == EA_FORCE && (p == 0x55 || p == 0x59 || p == 0x5F))
 			{
 				// untransliterated CAPITAL U WITH CIRCUMFLEX
 				// => regular U (0x55) -- was full block (0x2588)
@@ -900,25 +900,25 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 				unsigned char l_next = (i < static_cast<int>(a_dataLen) - 1 ? a_data[i + 1] : 0),
 					l_prev = (i > 0 ? a_data[i - 1] : 0);
 
-				if((l_next >= 'a' && l_next <= 'z') || (l_prev >= 'a' && l_prev <= 'z') ||
+				if ((l_next >= 'a' && l_next <= 'z') || (l_prev >= 'a' && l_prev <= 'z') ||
 					(l_next >= 'A' && l_next <= 'Z' && l_next != 'U' && l_next != 'Y' && l_next != '_') || (l_prev >= 'A' && l_prev <= 'Z' && l_prev != 'U' && l_prev != 'Y' && l_prev != '_') ||
 					(l_next >= '0' && l_next <= '9') || (l_prev >= '0' && l_prev <= '9'))
 				{
 					// most probably a regular 'U'/'Y'/'_'
 				}
-				else if(p == 0x55)
+				else if (p == 0x55)
 					m_textContent[i] = 0x2588;
-				else if(p == 0x59)
+				else if (p == 0x59)
 					m_textContent[i] = 0x258C;
-				else if(p == 0x5F)
+				else if (p == 0x5F)
 					m_textContent[i] = 0x2590;
-			}			
+			}
 		}
 	}
 
 	bool l_ansi = m_isAnsi || DetectAnsi();
 
-	if(l_foundBinary && !l_ansi)
+	if (l_foundBinary && !l_ansi)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
@@ -946,26 +946,26 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 
 	m_textContent.resize(a_dataLen);
 
-	#pragma omp parallel for
-	for(int i = 0; i < static_cast<int>(a_dataLen); i++)
+#pragma omp parallel for
+	for (int i = 0; i < static_cast<int>(a_dataLen); i++)
 	{
 		unsigned char p = a_data[i];
-		
-		if(p >= CP437_MAP_LOW)
+
+		if (p >= CP437_MAP_LOW)
 		{
 			m_textContent[i] = map_cp437_strict_to_unicode_high_bit[p - CP437_MAP_LOW];
 		}
-		else if(p <= 0x1F)
+		else if (p <= 0x1F)
 		{
-			if(p == 0)
+			if (p == 0)
 			{
 				l_error = true;
 			}
-			else if(p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
+			else if (p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
 			{
 				m_textContent[i] = L'\r';
 			}
-			else if(p == 0x0A && i > 0 && a_data[i - 1] == 0x0D)
+			else if (p == 0x0A && i > 0 && a_data[i - 1] == 0x0D)
 			{
 				m_textContent[i] = L'\n';
 			}
@@ -978,11 +978,11 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 		{
 			_ASSERT(p > 0x1F && p < CP437_MAP_LOW);
 
-			m_textContent[i] = (wchar_t)p;		
+			m_textContent[i] = (wchar_t)p;
 		}
 	}
 
-	if(l_error)
+	if (l_error)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
@@ -1029,7 +1029,7 @@ bool CNFOData::DetectAnsi() const
 
 bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
-	if(a_dataLen < 2 || a_data[0] != 0xFF || a_data[1] != 0xFE)
+	if (a_dataLen < 2 || a_data[0] != 0xFF || a_data[1] != 0xFE)
 	{
 		// no BOM!
 		return false;
@@ -1041,7 +1041,7 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	// ...and load
 	m_textContent = wstring().append((wchar_t*)(a_data), (a_dataLen - 2) / sizeof(wchar_t));
 
-	if(m_textContent.find(L'\0') != wstring::npos)
+	if (m_textContent.find(L'\0') != wstring::npos)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
@@ -1051,13 +1051,13 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	}
 
 	// see comments in TryLoad_UTF8...
-	if(a_fix == EA_FORCE || (a_fix == EA_TRY && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
+	if (a_fix == EA_FORCE || (a_fix == EA_TRY && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
 		(m_textContent.find(L"\u00DC\u00DC") != wstring::npos || m_textContent.find(L"\u00DB\u00DB") != wstring::npos) &&
 		(m_textContent.find(L"\u00B1") != wstring::npos || m_textContent.find(L"\u00B2") != wstring::npos)))
 	{
 		const string l_cp437 = CUtil::FromWideStr(m_textContent, CP_ACP);
 
-		if(!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EA_FALSE))
+		if (!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EA_FALSE))
 		{
 			m_sourceCharset = NFOC_CP437_IN_UTF16;
 
@@ -1075,18 +1075,18 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 #if !defined(_WIN32)
 static inline unsigned short _byteswap_ushort(unsigned short val)
 {
-	return (val >> CHAR_BIT) | (val << CHAR_BIT);    
+	return (val >> CHAR_BIT) | (val << CHAR_BIT);
 }
 #endif
 
 bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 {
-	if(sizeof(wchar_t) != sizeof(unsigned short))
+	if (sizeof(wchar_t) != sizeof(unsigned short))
 	{
 		return false;
 	}
 
-	if(a_dataLen < 2 || a_data[0] != 0xFE || a_data[1] != 0xFF)
+	if (a_dataLen < 2 || a_data[0] != 0xFE || a_data[1] != 0xFF)
 	{
 		// no BOM!
 		return false;
@@ -1100,11 +1100,11 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 	wchar_t *l_newBuf = new wchar_t[l_numWChars + 1];
 	memset(l_newBuf, 0, l_numWChars + 1);
 
-	for(size_t p = 0; p < l_numWChars; p++)
+	for (size_t p = 0; p < l_numWChars; p++)
 	{
 		l_newBuf[p] = _byteswap_ushort(l_bufStart[p]);
 
-		if(l_newBuf[p] == 0)
+		if (l_newBuf[p] == 0)
 		{
 			SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 			delete[] l_newBuf;
@@ -1132,32 +1132,32 @@ bool CNFOData::TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen)
 
 bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 {
-	if(ar_dataLen <= SAUCE_RECORD_SIZE)
+	if (ar_dataLen <= SAUCE_RECORD_SIZE)
 	{
 		// no SAUCE record, no error.
 		return true;
 	}
 
-	SAUCE l_record = {0};
+	SAUCE l_record = { 0 };
 
 	memcpy(&l_record, a_data + ar_dataLen - SAUCE_RECORD_SIZE, SAUCE_RECORD_SIZE);
 
 	// validate SAUCE header + supported features:
 
-	if(memcmp(l_record.ID, "SAUCE", 5) != 0)
+	if (memcmp(l_record.ID, "SAUCE", 5) != 0)
 	{
 		// no SAUCE record, no error.
 		return true;
 	}
 
-	if(memcmp(l_record.Version, "00", 2) != 0)
+	if (memcmp(l_record.Version, "00", 2) != 0)
 	{
 		SetLastError(NDE_SAUCE_INTERNAL, L"SAUCE: Unsupported file version.");
 
 		return false;
 	}
 
-	if(l_record.DataType != SAUCEDT_CHARACTER || (l_record.FileType != SAUCEFT_CHAR_ANSI && l_record.FileType != SAUCEFT_CHAR_ASCII))
+	if (l_record.DataType != SAUCEDT_CHARACTER || (l_record.FileType != SAUCEFT_CHAR_ANSI && l_record.FileType != SAUCEFT_CHAR_ASCII))
 	{
 		m_lastErrorDescr = L"SAUCE: Unsupported file format type.";
 
@@ -1169,7 +1169,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 	size_t l_bytesToTrim = SAUCE_RECORD_SIZE + (l_record.Comments > 0
 		? l_record.Comments * SAUCE_COMMENT_LINE_SIZE + SAUCE_HEADER_ID_SIZE : 0);
 
-	if(l_record.Comments > SAUCE_MAX_COMMENTS || ar_dataLen < l_bytesToTrim)
+	if (l_record.Comments > SAUCE_MAX_COMMENTS || ar_dataLen < l_bytesToTrim)
 	{
 		SetLastError(NDE_SAUCE_INTERNAL, L"SAUCE: Bad comments definition.");
 
@@ -1178,19 +1178,19 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	ar_dataLen = ar_dataLen - l_bytesToTrim;
 
-	while(ar_dataLen > 0 && a_data[ar_dataLen - 1] == SAUCE_EOF)
+	while (ar_dataLen > 0 && a_data[ar_dataLen - 1] == SAUCE_EOF)
 	{
 		--ar_dataLen;
 	}
 
 	m_isAnsi = (l_record.FileType == SAUCEFT_CHAR_ANSI);
 
-	if(l_record.TInfo1 > 0 && l_record.TInfo1 < WIDTH_LIMIT * 2) // width in characters
+	if (l_record.TInfo1 > 0 && l_record.TInfo1 < WIDTH_LIMIT * 2) // width in characters
 	{
 		m_ansiHintWidth = l_record.TInfo1;
 	}
 
-	if(l_record.TInfo2 > 0 && l_record.TInfo2 < LINES_LIMIT * 2) // height in lines
+	if (l_record.TInfo2 > 0 && l_record.TInfo2 < LINES_LIMIT * 2) // height in lines
 	{
 		m_ansiHintHeight = l_record.TInfo2;
 	}
@@ -1201,7 +1201,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 const std::_tstring CNFOData::GetFileName() const
 {
-	if(!m_vFileName.empty())
+	if (!m_vFileName.empty())
 	{
 		return m_vFileName;
 	}
@@ -1223,9 +1223,9 @@ FILE *CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePa
 	FILE *l_file = NULL;
 
 #ifdef _WIN32
-	if(_tfopen_s(&l_file, a_filePath.c_str(), _T("wb")) != 0 || !l_file)
+	if (_tfopen_s(&l_file, a_filePath.c_str(), _T("wb")) != 0 || !l_file)
 #else
-	if(!(l_file = fopen(a_filePath.c_str(), "wb")))
+	if (!(l_file = fopen(a_filePath.c_str(), "wb")))
 #endif
 	{
 		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL,
@@ -1246,7 +1246,7 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 {
 	FILE *l_file = OpenFileForWritingWithErrorMessage(a_filePath);
 
-	if(!l_file)
+	if (!l_file)
 	{
 		return false;
 	}
@@ -1254,7 +1254,7 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 	size_t l_written = 0;
 	bool l_success;
 
-	if(a_utf8)
+	if (a_utf8)
 	{
 		unsigned char l_signature[3] = { 0xEF, 0xBB, 0xBF };
 		l_written += fwrite(l_signature, 1, sizeof(l_signature), l_file);
@@ -1289,7 +1289,7 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 
 const std::string& CNFOData::GetTextUtf8()
 {
-	if(m_utf8Content.empty())
+	if (m_utf8Content.empty())
 	{
 		m_utf8Content = CUtil::FromWideStr(m_textContent, CP_UTF8);
 	}
@@ -1338,7 +1338,7 @@ const std::string CNFOData::GetGridCharUtf8(wchar_t a_wideChar) const
 
 const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 {
-	switch(a_charset)
+	switch (a_charset)
 	{
 	case NFOC_AUTO:
 		return L"(auto)";
@@ -1370,7 +1370,7 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 
 const std::wstring CNFOData::GetCharsetName() const
 {
-	if(m_isAnsi)
+	if (m_isAnsi)
 		return GetCharsetName(m_sourceCharset) + L" (ANSI ART)";
 	else
 		return GetCharsetName(m_sourceCharset);
@@ -1385,9 +1385,9 @@ wstring CNFOData::GetWithBoxedWhitespace() const
 {
 	wstring l_result;
 
-	for(size_t rr = 0; rr < m_grid->GetRows(); rr++)
+	for (size_t rr = 0; rr < m_grid->GetRows(); rr++)
 	{
-		for(size_t cc = 0; cc < m_grid->GetCols(); cc++)
+		for (size_t cc = 0; cc < m_grid->GetCols(); cc++)
 		{
 			wchar_t l_tmp = (*m_grid)[rr][cc];
 			l_result += (l_tmp != 0 ? l_tmp : L' ');
@@ -1409,7 +1409,7 @@ const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 
 	for (auto it = l_range.first; it != l_range.second; it++)
 	{
-		if(a_col >= it->second.GetColStart() && a_col <= it->second.GetColEnd())
+		if (a_col >= it->second.GetColStart() && a_col <= it->second.GetColEnd())
 		{
 			return &it->second;
 		}
@@ -1421,10 +1421,10 @@ const CNFOHyperLink* CNFOData::GetLink(size_t a_row, size_t a_col) const
 
 const CNFOHyperLink* CNFOData::GetLinkByIndex(size_t a_index) const
 {
-	if(a_index < m_hyperLinks.size())
+	if (a_index < m_hyperLinks.size())
 	{
 		multimap<size_t, CNFOHyperLink>::const_iterator it = m_hyperLinks.cbegin();
-		for(size_t i = 0; i < a_index; i++, it++) ;
+		for (size_t i = 0; i < a_index; i++, it++);
 		return &it->second;
 	}
 
@@ -1459,7 +1459,7 @@ static wstring _TrimParagraph(const wstring& a_text)
 	wstring::size_type l_pos = a_text.find(L'\n'), l_prevPos = 0;
 	wstring::size_type l_minWhite = numeric_limits<wstring::size_type>::max();
 
-	while(l_pos != wstring::npos)
+	while (l_pos != wstring::npos)
 	{
 		const wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
 
@@ -1469,19 +1469,19 @@ static wstring _TrimParagraph(const wstring& a_text)
 		l_pos = a_text.find(L'\n', l_prevPos);
 	}
 
-	if(l_prevPos < a_text.size() - 1)
+	if (l_prevPos < a_text.size() - 1)
 	{
 		l_lines.push_back(a_text.substr(l_prevPos));
 	}
 
 	// find out the minimum number of leading whitespace characters.
 	// all other lines will be reduced to this number.
-	for(auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
+	for (auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
 	{
 		wstring::size_type p = 0;
-		while(p < it->size() && (*it)[p] == L' ') p++;
+		while (p < it->size() && (*it)[p] == L' ') p++;
 
-		if(p < l_minWhite)
+		if (p < l_minWhite)
 		{
 			l_minWhite = p;
 		}
@@ -1491,7 +1491,7 @@ static wstring _TrimParagraph(const wstring& a_text)
 	wstring l_result;
 	l_result.reserve(a_text.size());
 
-	for(auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
+	for (auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
 	{
 		l_result += (*it).substr(l_minWhite);
 		l_result += L'\n';
@@ -1606,12 +1606,12 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 	map<wchar_t, char> l_transl;
 	vector<char> l_converted;
 
-	for(int j = 0; j < 32; j++)
+	for (int j = 0; j < 32; j++)
 	{
 		l_transl[map_cp437_to_unicode_control_range[j]] = j;
 	}
 
-	for(int j = CP437_MAP_LOW; j <= 0xFF; j++)
+	for (int j = CP437_MAP_LOW; j <= 0xFF; j++)
 	{
 		l_transl[map_cp437_to_unicode_high_bit[j - CP437_MAP_LOW]] = j;
 	}
@@ -1620,23 +1620,23 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 
 	l_converted.resize(l_input.size(), ' ');
 
-	#pragma omp parallel for
-	for(int i = 0; i < static_cast<int>(l_input.size()); i++)
+#pragma omp parallel for
+	for (int i = 0; i < static_cast<int>(l_input.size()); i++)
 	{
 		wchar_t wc = l_input[i];
 		map<wchar_t, char>::const_iterator it;
 
-		if((wc > 0x1F && wc < CP437_MAP_LOW) || wc == L'\n' || wc == L'\r')
+		if ((wc > 0x1F && wc < CP437_MAP_LOW) || wc == L'\n' || wc == L'\r')
 		{
 			l_converted[i] = (char)wc;
 		}
-		else if((it = l_transl.find(wc)) != l_transl.end())
+		else if ((it = l_transl.find(wc)) != l_transl.end())
 		{
 			l_converted[i] = it->second;
 		}
 		else
 		{
-			#pragma omp atomic
+#pragma omp atomic
 			ar_charsNotConverted++;
 		}
 	}
@@ -1649,7 +1649,7 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 {
 	FILE *fp = OpenFileForWritingWithErrorMessage(a_filePath);
 
-	if(!fp)
+	if (!fp)
 	{
 		return false;
 	}

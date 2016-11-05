@@ -27,7 +27,7 @@ std::wstring Win6x_OpenFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 	IFileOpenDialog *pfod;
 	hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfod));
 
-	if(SUCCEEDED(hr))
+	if (SUCCEEDED(hr))
 	{
 		// set up some options:
 		pfod->SetFileTypes(a_nFilterSpec, a_filterSpec);
@@ -38,20 +38,20 @@ std::wstring Win6x_OpenFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 		// show the dialog:
 		hr = pfod->Show(a_parent);
 
-		if(SUCCEEDED(hr))
+		if (SUCCEEDED(hr))
 		{
 			IShellItem *ppsi;
 
 			// this will fail if Cancel has been clicked:
 			hr = pfod->GetResult(&ppsi);
 
-			if(SUCCEEDED(hr))
+			if (SUCCEEDED(hr))
 			{
 				// extract the path:
 				LPOLESTR pszPath = NULL;
 
 				hr = ppsi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
-				if(SUCCEEDED(hr))
+				if (SUCCEEDED(hr))
 				{
 					l_path = pszPath;
 					CoTaskMemFree(pszPath);
@@ -77,7 +77,7 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 	IFileSaveDialog *pfsd;
 	hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfsd));
 
-	if(SUCCEEDED(hr))
+	if (SUCCEEDED(hr))
 	{
 		// set up some options:
 		pfsd->SetFileTypes(a_nFilterSpec, a_filterSpec);
@@ -86,24 +86,24 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 
 		pfsd->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_DONTADDTORECENT);
 
-		if(!a_currentFileName.empty())
+		if (!a_currentFileName.empty())
 		{
 			pfsd->SetFileName(a_currentFileName.c_str());
 		}
 
-		if(!a_initialPath.empty())
+		if (!a_initialPath.empty())
 		{
 			// force initially selected folder
 			IShellItem *ppsif = NULL;
 
-			typedef HRESULT (STDAPICALLTYPE *fshcifpn)(PCWSTR, IBindCtx*, REFIID, void**);
+			typedef HRESULT(STDAPICALLTYPE *fshcifpn)(PCWSTR, IBindCtx*, REFIID, void**);
 			fshcifpn fnc = (fshcifpn)GetProcAddress(GetModuleHandleW(L"shell32.dll"), "SHCreateItemFromParsingName");
 
-			if(fnc)
+			if (fnc)
 			{
 				hr = fnc(a_initialPath.c_str(), NULL, IID_PPV_ARGS(&ppsif));
 
-				if(SUCCEEDED(hr))
+				if (SUCCEEDED(hr))
 				{
 					hr = pfsd->SetFolder(ppsif);
 					ppsif->Release();
@@ -114,20 +114,20 @@ std::wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filt
 		// show the dialog:
 		hr = pfsd->Show(a_parent);
 
-		if(SUCCEEDED(hr))
+		if (SUCCEEDED(hr))
 		{
 			IShellItem *ppsi;
 
 			// this will fail if Cancel has been clicked:
 			hr = pfsd->GetResult(&ppsi);
 
-			if(SUCCEEDED(hr))
+			if (SUCCEEDED(hr))
 			{
 				// extract the path:
 				LPOLESTR pszPath = NULL;
 
 				hr = ppsi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
-				if(SUCCEEDED(hr))
+				if (SUCCEEDED(hr))
 				{
 					l_path = pszPath;
 					CoTaskMemFree(pszPath);

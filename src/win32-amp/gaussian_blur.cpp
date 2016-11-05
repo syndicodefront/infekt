@@ -27,7 +27,7 @@ __inline unsigned int argbFloatToInt(float4 argb) restrict(amp)
 	argb.z = direct3d::saturate(argb.z);
 	argb.y = direct3d::saturate(argb.y);
 	argb.w = direct3d::saturate(argb.w);
-	return (unsigned int(argb.x*255)<<24) | (unsigned int(argb.z*255)<<16) | (unsigned int(argb.y*255)<<8) | unsigned int(argb.w*255);
+	return (unsigned int(argb.x * 255) << 24) | (unsigned int(argb.z * 255) << 16) | (unsigned int(argb.y * 255) << 8) | unsigned int(argb.w * 255);
 }
 
 // convert from 32-bit ARGB int to float4
@@ -35,9 +35,9 @@ __inline float4 argbIntToFloat(unsigned int c) restrict(amp)
 {
 	float4 argb;
 	argb.w = (c & 0xff) / 255.0f;
-	argb.y = ((c>>8) & 0xff) / 255.0f;
-	argb.z = ((c>>16) & 0xff) / 255.0f;
-	argb.x = ((c>>24) & 0xff) / 255.0f;
+	argb.y = ((c >> 8) & 0xff) / 255.0f;
+	argb.z = ((c >> 16) & 0xff) / 255.0f;
+	argb.x = ((c >> 24) & 0xff) / 255.0f;
 	return argb;
 }
 
@@ -55,7 +55,7 @@ static void recursive_gaussian_first(const array_view<const unsigned int, 2>& da
 	xp = argbIntToFloat(data_in(0, idx[0]));
 	yb = yp = coefp * xp;
 
-	for(int j = 0; j < max; j++)
+	for (int j = 0; j < max; j++)
 	{
 		index<2> idxPos(j, idx[0]);
 
@@ -79,7 +79,7 @@ static void recursive_gaussian_first(const array_view<const unsigned int, 2>& da
 	xn = argbIntToFloat(data_in(max - 1, idx[0]));
 	yn = ya = coefn * xn;
 
-	for(int j = max - 1; j >= 0; j--)
+	for (int j = max - 1; j >= 0; j--)
 	{
 		index<2> idxPos(j, idx[0]);
 
@@ -106,7 +106,7 @@ static void recursive_gaussian_second(const array_view<const float4, 2>& data_in
 	xp = data_in(idx[0], 0);
 	yb = yp = coefp * xp;
 
-	for(int j = 0; j < max; j++)
+	for (int j = 0; j < max; j++)
 	{
 		index<2> idxPos(idx[0], j);
 
@@ -130,7 +130,7 @@ static void recursive_gaussian_second(const array_view<const float4, 2>& data_in
 	xn = data_in(idx[0], max - 1);
 	yn = ya = coefn * xn;
 
-	for(int j = max - 1; j >= 0; j--)
+	for (int j = max - 1; j >= 0; j--)
 	{
 		index<2> idxPos(idx[0], j);
 
@@ -146,9 +146,9 @@ static void recursive_gaussian_second(const array_view<const float4, 2>& data_in
 
 void gaussian_filter_amp(unsigned int *img_data, int width, int height, float sigma)
 {
-	if(sigma > 22)
+	if (sigma > 22)
 		sigma = 22;
-	else if(sigma < 0.1f)
+	else if (sigma < 0.1f)
 		sigma = 0.1f;
 
 	// compute filter coefficient (a.k.a. MAGIC):

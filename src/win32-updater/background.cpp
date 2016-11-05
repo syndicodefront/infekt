@@ -55,7 +55,7 @@ bool StartTaskKill(HWND hDlg)
 
 	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 
-	if(_beginthread(TaskKillThread, 0, hStartEvent))
+	if (_beginthread(TaskKillThread, 0, hStartEvent))
 	{
 		::WaitForSingleObject(hStartEvent, INFINITE);
 	}
@@ -95,7 +95,7 @@ bool StartInstaller(HWND hDlg, const std::wstring& a_installerPath)
 
 	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 
-	if(_beginthread(InstallerThread, 0, hStartEvent))
+	if (_beginthread(InstallerThread, 0, hStartEvent))
 	{
 		::WaitForSingleObject(hStartEvent, INFINITE);
 	}

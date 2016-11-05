@@ -33,7 +33,7 @@ CRescenePlugin::CRescenePlugin(const infekt_plugin_load_t* a_load)
 
 long CRescenePlugin::PluginSend(infektPluginCallId lCall, long long lParam, void* pParam, void *pUser)
 {
-	if(m_fPluginToCore)
+	if (m_fPluginToCore)
 	{
 		return m_fPluginToCore(MYGUID, 0, lCall, lParam, pParam, pUser);
 	}
@@ -47,37 +47,37 @@ INFEKT_PLUGIN_METHOD(CRescenePlugin::ResceneMainEventCallback)
 	CRescenePlugin* pInstance = reinterpret_cast<CRescenePlugin*>(pUser);
 
 	_ASSERTE(pUser != NULL);
-	
-	switch(lCall)
+
+	switch (lCall)
 	{
 	case IPV_TRY_OPEN_FILE_FORMAT:
 		return pInstance->TryLoadSrrToViewer(reinterpret_cast<infekt_file_format_open_info_t*>(pParam));
 	}
-	
+
 	return IPE_NOT_IMPLEMENTED;
 }
 
 
 long CRescenePlugin::TryLoadSrrToViewer(const infekt_file_format_open_info_t* a_file)
 {
-	if(!a_file->filePath)
+	if (!a_file->filePath)
 		return IPE_NOT_IMPLEMENTED;
 
 	const wchar_t* l_extension = ::PathFindExtension(a_file->filePath);
 
-	if(!l_extension || _wcsicmp(l_extension, L".srr"))
+	if (!l_extension || _wcsicmp(l_extension, L".srr"))
 		return IPE_NOT_IMPLEMENTED;
 
 	// extension matches, so let's try to handle this file!
 
 	SRR::CContainer container;
 
-	if(container.ReadFile(a_file->filePath))
+	if (container.ReadFile(a_file->filePath))
 	{
 		// now find .nfo and call Show...
 		std::vector<SRR::PStoredFile> l_nfos;
 
-		if(container.FindStoredFiles(L".nfo", true, l_nfos))
+		if (container.FindStoredFiles(L".nfo", true, l_nfos))
 		{
 			infektDeclareStruct(infekt_show_nfo_t, nfo);
 

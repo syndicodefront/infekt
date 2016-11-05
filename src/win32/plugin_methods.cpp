@@ -32,7 +32,7 @@ using namespace std::placeholders;
 long CPluginManager::PluginToCoreCallback(const char* szGuid, long lCall, long long lParam, void* pParam, void* pUser)
 {
 #ifdef INFEKT_PLUGIN_HOST
-	switch(lCall)
+	switch (lCall)
 	{
 	case IPCI_GET_LOADED_NFO_TEXTWIDE:
 	case IPCI_GET_LOADED_NFO_TEXTUTF8:
@@ -80,7 +80,7 @@ long CPluginManager::DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8)
 {
 	PNFOData l_nfoData = GetAppView()->GetNfoData();
 
-	if(!l_nfoData || !l_nfoData->HasData())
+	if (!l_nfoData || !l_nfoData->HasData())
 	{
 		return IPE_NO_FILE;
 	}
@@ -89,12 +89,12 @@ long CPluginManager::DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8)
 		l_nfoData->GetTextUtf8().size() + 1 :
 		l_nfoData->GetTextWide().size() + 1);
 
-	if(l_bufSize > (size_t)std::numeric_limits<long>::max())
+	if (l_bufSize > (size_t)std::numeric_limits<long>::max())
 	{
 		return IPE_TOO_LARGE;
 	}
 
-	if(!a_buf || !a_bufLen)
+	if (!a_buf || !a_bufLen)
 	{
 		// return required buffer size
 		// (UTF-8: in bytes, otherwise: in characters)
@@ -105,12 +105,12 @@ long CPluginManager::DoGetLoadedNfoText(long a_bufLen, void* a_buf, bool a_utf8)
 	{
 		// copy shit to buffer
 
-		if(a_bufLen < static_cast<long>(l_bufSize))
+		if (a_bufLen < static_cast<long>(l_bufSize))
 		{
 			return IPE_BUF_TOO_SMALL;
 		}
 
-		if(a_utf8)
+		if (a_utf8)
 		{
 			strncpy_s(static_cast<char*>(a_buf), static_cast<size_t>(a_bufLen),
 				l_nfoData->GetTextUtf8().c_str(), l_nfoData->GetTextUtf8().size());
@@ -130,14 +130,14 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 {
 	PNFOData l_nfoData = GetAppView()->GetNfoData();
 
-	if(!l_nfoData || !l_nfoData->HasData())
+	if (!l_nfoData || !l_nfoData->HasData())
 	{
 		return IPE_NO_FILE;
 	}
 
 	infektPluginMethod l_callback = (infektPluginMethod)a_pCallback;
 
-	if(!l_callback)
+	if (!l_callback)
 	{
 		return IPE_NULLCALLBACK;
 	}
@@ -146,7 +146,7 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 
 	l_callback(NULL, 0, IPV_ENUM_BEGIN, l_count, NULL, a_pUser);
 
-	while(const CNFOHyperLink* l_link = l_nfoData->GetLinkByIndex(l_count))
+	while (const CNFOHyperLink* l_link = l_nfoData->GetLinkByIndex(l_count))
 	{
 		infektDeclareStruct(infekt_nfo_link_t, l_linkInfo);
 
@@ -156,7 +156,7 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 		l_linkInfo.linkId = l_link->GetLinkID();
 		l_linkInfo.row = l_link->GetRow();
 
-		if(l_callback(NULL, 0, IPV_ENUM_ITEM, l_count, &l_linkInfo, a_pUser) == IPE_STOP)
+		if (l_callback(NULL, 0, IPV_ENUM_ITEM, l_count, &l_linkInfo, a_pUser) == IPE_STOP)
 		{
 			break;
 		}
@@ -173,17 +173,17 @@ long CPluginManager::DoEnumLoadedNfoLinks(void* a_pCallback, void* a_pUser)
 long CPluginManager::DoRegister(const std::string& a_guid, bool a_unregister, EPluginReg a_regType, void* a_pParam, void* a_userData)
 {
 	TMGuidPlugins::iterator l_find = m_loadedPlugins.find(a_guid);
-	if(l_find == m_loadedPlugins.end()) return IPE_NO_FILE;
+	if (l_find == m_loadedPlugins.end()) return IPE_NO_FILE;
 	PLoadedPlugin l_plugin = l_find->second;
 
 	infektPluginMethod l_callback = NULL;
-	switch(a_regType)
+	switch (a_regType)
 	{
 	default:
 		l_callback = reinterpret_cast<infektPluginMethod>(a_pParam);
 	}
 
-	if(a_unregister)
+	if (a_unregister)
 	{
 		return l_plugin->RemoveReg(a_regType, l_callback);
 	}
@@ -201,9 +201,9 @@ static void _DoHttpRequest_Callback(PWinHttpRequest a_req, infektPluginMethod a_
 	infektDeclareStruct(infekt_http_result_t, l_res);
 	l_res.requestId = a_req->GetReqId();
 
-	if(a_req->DidDownloadSucceed())
+	if (a_req->DidDownloadSucceed())
 	{
-		if(!a_req->GetDownloadFilePath().empty())
+		if (!a_req->GetDownloadFilePath().empty())
 		{
 			l_res.downloadFileName = a_req->GetDownloadFilePath().c_str();
 		}
@@ -221,20 +221,20 @@ static void _DoHttpRequest_Callback(PWinHttpRequest a_req, infektPluginMethod a_
 long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_request_t* a_pReq, void* a_pUser)
 {
 	TMGuidPlugins::iterator l_find = m_loadedPlugins.find(a_guid);
-	if(l_find == m_loadedPlugins.end()) return IPE_NO_FILE;
+	if (l_find == m_loadedPlugins.end()) return IPE_NO_FILE;
 	PLoadedPlugin l_plugin = l_find->second;
 
-	if(!a_pReq || !a_pReq->url)
+	if (!a_pReq || !a_pReq->url)
 	{
 		return IPE_INVALIDPARAM;
 	}
-	else if(!a_pReq->callback)
+	else if (!a_pReq->callback)
 	{
 		return IPE_NULLCALLBACK;
 	}
 
 	// check for our "local" "hard" cache, if requested:
-	if((a_pReq->flags & INFEKT_HTTP_REQ_CACHE_PERM) != 0 ||
+	if ((a_pReq->flags & INFEKT_HTTP_REQ_CACHE_PERM) != 0 ||
 		(a_pReq->flags & INFEKT_HTTP_REQ_CACHE_TEMP) != 0)
 	{
 		std::wstring l_cachePath = ((a_pReq->flags & INFEKT_HTTP_REQ_CACHE_PERM) != 0 ?
@@ -244,7 +244,7 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 
 		l_cachePath = l_cachePath + l_cacheFileName;
 
-		if(::PathFileExists(l_cachePath.c_str()))
+		if (::PathFileExists(l_cachePath.c_str()))
 		{
 			// short cut.
 			infektDeclareStruct(infekt_http_result_t, l_res);
@@ -263,7 +263,7 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 
 	l_req->SetUrl(a_pReq->url);
 
-	if(a_pReq->downloadToFileName)
+	if (a_pReq->downloadToFileName)
 	{
 		l_req->SetDownloadFilePath(a_pReq->downloadToFileName);
 	}
@@ -272,7 +272,7 @@ long CPluginManager::DoHttpRequest(const std::string& a_guid, const infekt_http_
 
 	l_req->SetCallback(std::bind(&_DoHttpRequest_Callback, _1, a_pReq->callback, a_pUser));
 
-	if(l_plugin->GetHttpClient()->StartRequest(l_req))
+	if (l_plugin->GetHttpClient()->StartRequest(l_req))
 	{
 		return l_req->GetReqId();
 	}
@@ -287,23 +287,23 @@ long CPluginManager::DoShowNfo(const infekt_show_nfo_t* a_nfo)
 {
 	PNFOData l_nfo(new CNFOData());
 
-	if(!a_nfo->filePath || !a_nfo->fileName)
+	if (!a_nfo->filePath || !a_nfo->fileName)
 	{
 		return IPE_INVALIDPARAM;
 	}
 
-	if(a_nfo->req_charset >= NFOC_AUTO && a_nfo->req_charset < _NFOC_MAX)
+	if (a_nfo->req_charset >= NFOC_AUTO && a_nfo->req_charset < _NFOC_MAX)
 	{
 		l_nfo->SetCharsetToTry((ENfoCharset)a_nfo->req_charset);
 	}
 
 	l_nfo->SetWrapLines(GetApp()->GetMainFrame().GetSettings()->bWrapLines); // how nice...
 
-	if(l_nfo->LoadFromMemory((const unsigned char*)a_nfo->buffer, a_nfo->bufferLength))
+	if (l_nfo->LoadFromMemory((const unsigned char*)a_nfo->buffer, a_nfo->bufferLength))
 	{
 		l_nfo->SetVirtualFileName(a_nfo->filePath, a_nfo->fileName);
 
-		if(GetApp()->GetMainFrame().OpenLoadedFile(l_nfo))
+		if (GetApp()->GetMainFrame().OpenLoadedFile(l_nfo))
 		{
 			return IPE_SUCCESS;
 		}

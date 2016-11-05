@@ -75,7 +75,7 @@ bool CNFOHyperLink::FindLink(const std::wstring& sLine, size_t& uirOffset, size_
 			linkStartPos = newPos;
 
 			matchContinuesLink = linkRegEx.IsContinuation();
-			
+
 			if (linkRegEx.IsMailLink())
 			{
 				matchLinkLength = match.length();

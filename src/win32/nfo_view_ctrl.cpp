@@ -44,14 +44,14 @@ CNFOViewControl::CNFOViewControl(HINSTANCE a_hInstance, HWND a_parent, bool a_cl
 
 bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_height)
 {
-	if(ControlCreated())
+	if (ControlCreated())
 	{
 		return false;
 	}
 
-	WNDCLASSEX l_class = {0};
+	WNDCLASSEX l_class = { 0 };
 
-	if(::GetClassInfoEx(m_instance, NFOVWR_CTRL_CLASS_NAME, &l_class) == 0)
+	if (::GetClassInfoEx(m_instance, NFOVWR_CTRL_CLASS_NAME, &l_class) == 0)
 	{
 		l_class.cbSize = sizeof(WNDCLASSEX);
 
@@ -61,7 +61,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		l_class.lpfnWndProc = &_WindowProc;
 		l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 
-		if(::RegisterClassEx(&l_class) == 0)
+		if (::RegisterClassEx(&l_class) == 0)
 		{
 			return false;
 		}
@@ -79,7 +79,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		m_parent, NULL,
 		m_instance, this);
 
-	if(!m_hwnd)
+	if (!m_hwnd)
 	{
 		return false;
 	}
@@ -93,13 +93,13 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 void CNFOViewControl::UpdateScrollbars(bool a_resetPos)
 {
 	// init struct:
-	SCROLLINFO l_si = {0};
+	SCROLLINFO l_si = { 0 };
 	l_si.cbSize = sizeof(SCROLLINFO);
 
 	// set common flags:
 	l_si.fMask = SIF_RANGE | SIF_PAGE | (a_resetPos ? SIF_POS : 0);
 
-	if(HasNfoData())
+	if (HasNfoData())
 	{
 		// update horizontal scrollbar info:
 		l_si.nPage = static_cast<UINT>(m_width / GetBlockWidth());
@@ -122,7 +122,7 @@ void CNFOViewControl::UpdateScrollbars(bool a_resetPos)
 
 LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_PAINT:
 		OnPaint();
@@ -136,9 +136,9 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		HandleScrollEvent(SB_HORZ, LOWORD(wParam), 0);
 		return 0;
 	case WM_MOUSEWHEEL:
-		if(LOWORD(wParam) & MK_CONTROL)
+		if (LOWORD(wParam) & MK_CONTROL)
 		{
-			if(GET_WHEEL_DELTA_WPARAM(wParam) < 0)
+			if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
 				ZoomOut();
 			else
 				ZoomIn();
@@ -146,12 +146,12 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		else
 		{
 			UINT l_lines = 0;
-			if(::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0))
+			if (::SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &l_lines, 0))
 			{
 				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
 
 				// increase scroll speed when zoomed out:
-				if(GetZoom() < 100)
+				if (GetZoom() < 100)
 				{
 					l_lines = l_lines + static_cast<UINT>(l_lines * (100 - GetZoom()) / 50.0);
 				}
@@ -161,17 +161,17 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		return 0;
 	case WM_MOUSEHWHEEL: // Windows Vista & higher only...
+	{
+		UINT l_chars = 0;
+		if (::SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0))
 		{
-			UINT l_chars = 0;
-			if(::SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0))
-			{
-				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-				HandleScrollEvent(SB_HORZ, INT_MIN, -l_delta * l_chars);
-			}
+			int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+			HandleScrollEvent(SB_HORZ, INT_MIN, -l_delta * l_chars);
 		}
-		// Source: http://msdn.microsoft.com/en-us/library/ms997498.aspx#mshrdwre_topic2
-		// The MSDN page for WM_MOUSEHWHEEL says "return zero" though... wait till someone complains.
-		return TRUE;
+	}
+	// Source: http://msdn.microsoft.com/en-us/library/ms997498.aspx#mshrdwre_topic2
+	// The MSDN page for WM_MOUSEHWHEEL says "return zero" though... wait till someone complains.
+	return TRUE;
 	case WM_SIZE:
 		m_width = LOWORD(lParam);
 		m_height = HIWORD(lParam);
@@ -194,11 +194,11 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		OnMouseClickEvent(uMsg, pt.x, pt.y);
 		return 0; }
 	case WM_COMMAND:
-		if(HIWORD(wParam) == 0) // is it a menu?
+		if (HIWORD(wParam) == 0) // is it a menu?
 		{
-			if(LOWORD(wParam) == IDMC_COPYSHORTCUT)
+			if (LOWORD(wParam) == IDMC_COPYSHORTCUT)
 			{
-				if(m_linkUnderMenu)
+				if (m_linkUnderMenu)
 				{
 					CUtilWin32GUI::TextToClipboard(m_hwnd, m_linkUnderMenu->GetHref());
 					m_linkUnderMenu = NULL;
@@ -212,7 +212,7 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return 0;
 #endif
 	case WM_THEMECHANGED:
-		if(::IsThemeActive())
+		if (::IsThemeActive())
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
 		else
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);
@@ -229,7 +229,7 @@ void CNFOViewControl::SetZoom(unsigned int a_percent)
 
 	CNFORenderer::SetZoom(a_percent);
 
-	if(IsClassicMode())
+	if (IsClassicMode())
 	{
 		CalcClassicModeBlockSizes(true);
 	}
@@ -243,7 +243,7 @@ void CNFOViewControl::ZoomIn()
 {
 	unsigned int l_oldZoom = GetZoom();
 
-	if(l_oldZoom < 10000)
+	if (l_oldZoom < 10000)
 	{
 		SetZoom(l_oldZoom + 10);
 	}
@@ -254,7 +254,7 @@ void CNFOViewControl::ZoomOut()
 {
 	unsigned int l_oldZoom = GetZoom();
 
-	if(l_oldZoom > 20)
+	if (l_oldZoom > 20)
 	{
 		SetZoom(l_oldZoom - 10);
 	}
@@ -267,13 +267,13 @@ void CNFOViewControl::ZoomToNoHorizontalScrollbars()
 
 	CNFORenderer::SetZoom(100);
 
-	while(CNFORenderer::GetZoom() > 20 && m_width > 0
+	while (CNFORenderer::GetZoom() > 20 && m_width > 0
 		&& GetWidth() + ::GetSystemMetrics(SM_CXVSCROLL) > static_cast<size_t>(m_width))
 	{
 		CNFORenderer::SetZoom(GetZoom() - 5);
 	}
 
-	if(CNFORenderer::GetZoom() != l_oldZoom && IsClassicMode())
+	if (CNFORenderer::GetZoom() != l_oldZoom && IsClassicMode())
 	{
 		CalcClassicModeBlockSizes(true);
 	}
@@ -302,7 +302,7 @@ void CNFOViewControl::OnPaint()
 	int l_x, l_y;
 	GetScrollPositions(l_x, l_y);
 
-	if(l_smart)
+	if (l_smart)
 	{
 		// smart = buffer invalidated rect only
 
@@ -326,15 +326,15 @@ void CNFOViewControl::OnPaint()
 	}
 
 	int l_destx = 0;
-	if(m_centerNfo && m_width > (int)GetWidth())
+	if (m_centerNfo && m_width > (int)GetWidth())
 		l_destx = (m_width - (int)GetWidth()) / 2;
 
 	// erase the background if necessary:
-	if(l_ps.fErase)
+	if (l_ps.fErase)
 	{
 		cairo_t* l_cr = cairo_create(!HasNfoData() ? l_realSurface : l_surface);
 		cairo_set_source_rgb(l_cr, S_COLOR_T_CAIRO(GetBackColor()));
-		if(HasNfoData())
+		if (HasNfoData())
 		{
 			double dh = static_cast<double>(GetHeight()),
 				dw = static_cast<double>(GetWidth());
@@ -359,7 +359,7 @@ void CNFOViewControl::OnPaint()
 	}
 
 	// draw draw fight the power!
-	if(l_smart)
+	if (l_smart)
 	{
 		DrawToSurface(l_surface, 0, 0,
 			l_x * (int)GetBlockWidth() + l_ps.rcPaint.left - l_destx,
@@ -376,12 +376,12 @@ void CNFOViewControl::OnPaint()
 	}
 
 	// draw highlighted (selected) text:
-	if(l_textSelected)
+	if (l_textSelected)
 	{
 		const S_COLOR_T l_back = GetBackColor().Invert();
 		double l_bw = (double)GetBlockWidth(), l_bh = (double)GetBlockHeight();
 
-		if(!IsClassicMode())
+		if (!IsClassicMode())
 		{
 			RenderText(GetTextColor().Invert(), &l_back, GetHyperLinkColor().Invert(),
 				m_selStartRow, m_selStartCol, m_selEndRow, m_selEndCol,
@@ -396,12 +396,12 @@ void CNFOViewControl::OnPaint()
 	}
 
 	// copy from buffer to screen:
-	if(HasNfoData())
+	if (HasNfoData())
 	{
 		cairo_t *cr = cairo_create(l_realSurface);
 		cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
 
-		if(l_smart)
+		if (l_smart)
 		{
 			cairo_set_source_surface(cr, l_surface,
 				/*dest_x - source_x*/ l_ps.rcPaint.left - 0,
@@ -425,7 +425,7 @@ void CNFOViewControl::OnPaint()
 	cairo_surface_destroy(l_realSurface);
 	cairo_surface_destroy(l_surface);
 
-	if(l_smart)
+	if (l_smart)
 	{
 		::EndPaint(m_hwnd, &l_ps);
 	}
@@ -436,7 +436,7 @@ void CNFOViewControl::OnPaint()
 		::ReleaseDC(m_hwnd, l_dc);
 	}
 
-	if(m_cursor == IDC_WAIT)
+	if (m_cursor == IDC_WAIT)
 	{
 		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_ARROW));
 	}
@@ -453,9 +453,9 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 	StopPreRendering(true);
 
-	if(CNFORenderer::AssignNFO(a_nfo))
+	if (CNFORenderer::AssignNFO(a_nfo))
 	{
-		if(!GetOnDemandRendering())
+		if (!GetOnDemandRendering())
 		{
 			Render();
 		}
@@ -468,7 +468,7 @@ bool CNFOViewControl::AssignNFO(const PNFOData& a_nfo)
 
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 
-		if(GetOnDemandRendering())
+		if (GetOnDemandRendering())
 		{
 			PreRender();
 		}
@@ -489,7 +489,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 	int l_scrollPadding = GetPadding();
 	const int l_scrollSpeedDiv = 2; // slow down selection scrolling a bit
 
-	if(!HasNfoData())
+	if (!HasNfoData())
 	{
 		m_cursor = IDC_ARROW;
 		return;
@@ -497,47 +497,47 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 
-	if(!m_leftMouseDown && m_nfo->GetLink(l_row, l_col) != NULL)
+	if (!m_leftMouseDown && m_nfo->GetLink(l_row, l_col) != NULL)
 	{
 		m_cursor = IDC_HAND;
 	}
-	else if(IsTextChar(l_row, l_col))
+	else if (IsTextChar(l_row, l_col))
 	{
 		m_cursor = IDC_IBEAM;
 	}
-	else if(m_cursor != IDC_WAIT)
+	else if (m_cursor != IDC_WAIT)
 	{
 		m_cursor = IDC_ARROW;
 	}
 
-	if(m_leftMouseDown && !m_movedDownMouse)
+	if (m_leftMouseDown && !m_movedDownMouse)
 	{
 		// user starts selecting text
-		if(l_row != m_selStartRow || l_col != m_selStartCol)
+		if (l_row != m_selStartRow || l_col != m_selStartCol)
 		{
 			m_movedDownMouse = true;
 			::SetCapture(m_hwnd);
 		}
 	}
 
-	if(m_leftMouseDown && m_movedDownMouse)
+	if (m_leftMouseDown && m_movedDownMouse)
 	{
 		int l_bw = static_cast<int>(GetBlockWidth()), l_bh = static_cast<int>(GetBlockHeight());
 
-		if(a_y >= m_height - l_scrollPadding)
+		if (a_y >= m_height - l_scrollPadding)
 		{
 			HandleScrollEvent(SB_VERT, INT_MIN, (a_y - m_height + l_scrollPadding) / l_bh / l_scrollSpeedDiv);
 		}
-		else if(a_y <= l_scrollPadding)
+		else if (a_y <= l_scrollPadding)
 		{
 			HandleScrollEvent(SB_VERT, INT_MIN, -(int)((l_scrollPadding - a_y) / l_bh / l_scrollSpeedDiv));
 		}
 
-		if(a_x >= m_width - l_scrollPadding)
+		if (a_x >= m_width - l_scrollPadding)
 		{
 			HandleScrollEvent(SB_HORZ, INT_MIN, (a_x - m_width + l_scrollPadding) / l_bw / l_scrollSpeedDiv);
 		}
-		else if(a_x <= l_scrollPadding)
+		else if (a_x <= l_scrollPadding)
 		{
 			HandleScrollEvent(SB_HORZ, INT_MIN, -(int)((l_scrollPadding - a_x) / l_bw / l_scrollSpeedDiv));
 		}
@@ -546,7 +546,7 @@ void CNFOViewControl::OnMouseMove(int a_x, int a_y)
 			l_virtualCol = (l_col < 0 ? 0 : l_col);
 
 		// user selects text, selection "endpoint" has changed
-		if(m_selEndRow != l_virtualRow || m_selEndCol != l_virtualCol)
+		if (m_selEndRow != l_virtualRow || m_selEndCol != l_virtualCol)
 		{
 			m_selEndRow = l_virtualRow;
 			m_selEndCol = l_virtualCol;
@@ -560,16 +560,16 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 {
 	ssize_t l_row, l_col;
 
-	if(!HasNfoData())
+	if (!HasNfoData())
 	{
 		return;
 	}
 
 	CalcFromMouseCoords(a_x, a_y, l_row, l_col);
 
-	if(a_event == WM_LBUTTONDOWN)
+	if (a_event == WM_LBUTTONDOWN)
 	{
-		if(m_selStartRow != (size_t)-1)
+		if (m_selStartRow != (size_t)-1)
 		{
 			ClearSelection(true);
 		}
@@ -579,18 +579,18 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 		m_selStartRow = l_row;
 		m_selStartCol = l_col;
 	}
-	else if(a_event == WM_LBUTTONUP)
+	else if (a_event == WM_LBUTTONUP)
 	{
-		if(m_leftMouseDown)
+		if (m_leftMouseDown)
 		{
 			bool l_reset = true;
 
-			if(m_movedDownMouse)
+			if (m_movedDownMouse)
 			{
 				m_selEndRow = (l_row < 0 ? 0 : l_row);
 				m_selEndCol = (l_col < 0 ? 0 : l_col);
 
-				if(m_copyOnSelect)
+				if (m_copyOnSelect)
 				{
 					CopySelectedTextToClipboard();
 				}
@@ -602,7 +602,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 				::ReleaseCapture();
 			}
 
-			if(l_reset)
+			if (l_reset)
 			{
 				ClearSelection(false);
 			}
@@ -610,38 +610,38 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 			m_leftMouseDown = false;
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
-		
-		if(!m_movedDownMouse)
+
+		if (!m_movedDownMouse)
 		{
 			const CNFOHyperLink *l_link = m_nfo->GetLink(l_row, l_col);
 
-			if(l_link && ::PathIsURL(l_link->GetHref().c_str()))
+			if (l_link && ::PathIsURL(l_link->GetHref().c_str()))
 			{
 				::ShellExecute(NULL, _T("open"), l_link->GetHref().c_str(), NULL, NULL, SW_SHOWNORMAL);
 			}
 		}
 	}
-	else if(a_event == WM_LBUTTONDBLCLK)
+	else if (a_event == WM_LBUTTONDBLCLK)
 	{
-		if(IsTextChar(l_row, l_col))
+		if (IsTextChar(l_row, l_col))
 		{
 			size_t lc = l_col;
 
 			m_selStartRow = m_selEndRow = l_row;
 			m_selStartCol = m_selEndCol = l_col;
 
-			while(IsTextChar(l_row, lc - 1) && iswalnum(m_nfo->GetGridChar(l_row, lc - 1)))
+			while (IsTextChar(l_row, lc - 1) && iswalnum(m_nfo->GetGridChar(l_row, lc - 1)))
 			{
 				m_selStartCol = --lc;
 			}
 
 			lc = l_col;
-			while(IsTextChar(l_row, lc + 1) && iswalnum(m_nfo->GetGridChar(l_row, lc + 1)))
+			while (IsTextChar(l_row, lc + 1) && iswalnum(m_nfo->GetGridChar(l_row, lc + 1)))
 			{
 				m_selEndCol = ++lc;
 			}
 
-			if(m_copyOnSelect)
+			if (m_copyOnSelect)
 			{
 				CopySelectedTextToClipboard();
 			}
@@ -649,7 +649,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
 	}
-	else if(a_event == WM_CONTEXTMENU)
+	else if (a_event == WM_CONTEXTMENU)
 	{
 		POINT l_pt;
 		HMENU l_popup;
@@ -664,7 +664,7 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 		::EnableMenuItem(l_popup, IDMC_COPY, (m_selStartRow == (size_t)-1 ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 		::EnableMenuItem(l_popup, IDMC_COPYSHORTCUT, (!m_linkUnderMenu ? MF_GRAYED | MF_DISABLED : MF_ENABLED));
 
-		if(::GetWindowLong(m_contextMenuCommandTarget, GWL_EXSTYLE) & WS_EX_TOPMOST)
+		if (::GetWindowLong(m_contextMenuCommandTarget, GWL_EXSTYLE) & WS_EX_TOPMOST)
 		{
 			::CheckMenuItem(l_popup, IDMC_ALWAYSONTOP, MF_CHECKED | MF_BYCOMMAND);
 		}
@@ -688,13 +688,13 @@ void CNFOViewControl::OnMouseClickEvent(UINT a_event, int a_x, int a_y)
 
 void CNFOViewControl::CalcFromMouseCoords(int a_x, int a_y, ssize_t& ar_row, ssize_t& ar_col)
 {
-	if(m_nfo)
+	if (m_nfo)
 	{
 		int l_x, l_y;
 		GetScrollPositions(l_x, l_y);
 
 		int l_centerx = 0;
-		if(m_centerNfo && m_width > (int)GetWidth())
+		if (m_centerNfo && m_width > (int)GetWidth())
 			l_centerx = (m_width - (int)GetWidth()) / 2;
 
 		// calc real positions:
@@ -726,7 +726,7 @@ bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 {
 	int l_prevPos;
 
-	SCROLLINFO l_si = {0};
+	SCROLLINFO l_si = { 0 };
 	l_si.cbSize = sizeof(SCROLLINFO);
 	l_si.fMask = SIF_ALL;
 
@@ -736,7 +736,7 @@ bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 
 	static_assert(SB_LINEUP == SB_LINELEFT && SB_LINEDOWN == SB_LINERIGHT && SB_PAGEDOWN == SB_PAGERIGHT && SB_PAGEUP == SB_PAGELEFT, "SB constants");
 
-	switch(a_event)
+	switch (a_event)
 	{
 	case INT_MIN:
 		l_si.nPos += a_change;
@@ -775,7 +775,7 @@ bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 	::GetScrollInfo(m_hwnd, a_dir, &l_si);
 
 	// If the position has changed, scroll the window:
-	if(l_si.nPos != l_prevPos)
+	if (l_si.nPos != l_prevPos)
 	{
 		::ScrollWindow(m_hwnd, (a_dir == SB_HORZ ? (int)GetBlockWidth() * (l_prevPos - l_si.nPos) : 0),
 			(a_dir == SB_VERT ? (int)GetBlockHeight() * (l_prevPos - l_si.nPos) : 0),
@@ -801,7 +801,7 @@ bool CNFOViewControl::ScrollIntoView(size_t a_row, size_t a_col)
 
 void CNFOViewControl::Show(bool a_show)
 {
-	if(m_hwnd)
+	if (m_hwnd)
 	{
 		::ShowWindow(m_hwnd, (a_show ? SW_SHOW : SW_HIDE));
 	}
@@ -812,7 +812,7 @@ LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wP
 {
 	CNFOViewControl *l_ctrl = NULL;
 
-	if(uMsg == WM_CREATE)
+	if (uMsg == WM_CREATE)
 	{
 		const CREATESTRUCT *lpc = reinterpret_cast<CREATESTRUCT*>(lParam);
 
@@ -825,7 +825,7 @@ LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wP
 		l_ctrl = reinterpret_cast<CNFOViewControl*>((INT_PTR)::GetWindowLongPtr(hWindow, GWLP_USERDATA));
 	}
 
-	if(l_ctrl)
+	if (l_ctrl)
 	{
 		return l_ctrl->WindowProc(uMsg, wParam, lParam);
 	}
@@ -837,7 +837,7 @@ LRESULT CALLBACK CNFOViewControl::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wP
 #ifndef NFOVWR_NO_INTERACTIVE_UI
 const std::wstring CNFOViewControl::GetSelectedText() const
 {
-	if(m_selStartRow == (size_t)-1 || m_selEndRow == (size_t)-1)
+	if (m_selStartRow == (size_t)-1 || m_selEndRow == (size_t)-1)
 		return L"";
 
 	std::wstring l_text;
@@ -850,37 +850,37 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 
 	do
 	{
-		for(size_t row = l_rowStart; row <= l_rowEnd; row++)
+		for (size_t row = l_rowStart; row <= l_rowEnd; row++)
 		{
 			bool l_textStarted = false;
 
-			for(size_t col = 0; col < m_gridData->GetCols(); col++)
+			for (size_t col = 0; col < m_gridData->GetCols(); col++)
 			{
-				if(row == l_rowStart && col < l_colStart)
+				if (row == l_rowStart && col < l_colStart)
 					continue;
-				else if(row == l_rowEnd && col > l_colEnd)
+				else if (row == l_rowEnd && col > l_colEnd)
 					break;
 
-				if(!IsTextChar(row, col, true))
+				if (!IsTextChar(row, col, true))
 				{
-					if(!l_dryRun && l_textStarted) l_text += L' ';
-						continue;
+					if (!l_dryRun && l_textStarted) l_text += L' ';
+					continue;
 				}
 
-				if(l_dryRun)
+				if (l_dryRun)
 				{
-					if(col < l_leftStart) l_leftStart = col;
+					if (col < l_leftStart) l_leftStart = col;
 				}
 				else
 				{
-					if(!l_textStarted)
+					if (!l_textStarted)
 					{
-						for(size_t p = 0; p < col - l_leftStart; p++)
+						for (size_t p = 0; p < col - l_leftStart; p++)
 							l_text += L' ';
 					}
 
 					wchar_t x = m_nfo->GetGridChar(row, col);
-					if(x)
+					if (x)
 						l_text += x;
 					else
 						break; // reached end of this line
@@ -889,16 +889,16 @@ const std::wstring CNFOViewControl::GetSelectedText() const
 				l_textStarted = true;
 			}
 
-			if(!l_dryRun)
+			if (!l_dryRun)
 			{
 				// do not erase newlines/linebreaks here:
 				CUtil::StrTrimRight(l_text, L" ");
 
-				if(row != l_rowEnd)
+				if (row != l_rowEnd)
 					l_text += L"\r\n"; // SetClipboardContent with CF_UNICODETEXT wants \r\n instead of \n...
 			}
 		}
-	} while(l_dryRun--);
+	} while (l_dryRun--);
 
 	CUtil::StrTrimLeft(l_text, L"\r\n");
 
@@ -916,7 +916,7 @@ void CNFOViewControl::CopySelectedTextToClipboard() const
 
 void CNFOViewControl::SelectAll()
 {
-	if(m_gridData)
+	if (m_gridData)
 	{
 		m_selStartCol = m_selStartRow = 0;
 		m_selEndRow = m_gridData->GetRows();
@@ -935,19 +935,19 @@ bool CNFOViewControl::FindTermDown(const std::wstring& a_term, size_t& a_startRo
 	size_t l_termStartCol = 0;
 	bool l_first = true;
 
-	for(size_t row = a_startRow; row < m_gridData->GetRows(); )
+	for (size_t row = a_startRow; row < m_gridData->GetRows(); )
 	{
-		for(size_t col = (l_first ? a_startCol : 0); col < m_gridData->GetCols(); col++)
+		for (size_t col = (l_first ? a_startCol : 0); col < m_gridData->GetCols(); col++)
 		{
-			if(!IsTextChar(row, col, true))
+			if (!IsTextChar(row, col, true))
 			{
 				l_termIndex = 0;
 				continue;
 			}
 
 			wchar_t l_char = m_nfo->GetGridChar(row, col);
-			
-			if(_wcsnicmp(&l_char, &a_term[l_termIndex], 1) != 0)
+
+			if (_wcsnicmp(&l_char, &a_term[l_termIndex], 1) != 0)
 			{
 				l_termIndex = 0;
 				continue;
@@ -956,13 +956,13 @@ bool CNFOViewControl::FindTermDown(const std::wstring& a_term, size_t& a_startRo
 			// on track...
 			l_termIndex++;
 
-			if(l_termIndex == 1)
+			if (l_termIndex == 1)
 			{
 				l_termStartRow = row;
 				l_termStartCol = col;
 			}
 
-			if(l_termIndex == a_term.size())
+			if (l_termIndex == a_term.size())
 			{
 				// done!
 				a_startRow = l_termStartRow;
@@ -972,7 +972,7 @@ bool CNFOViewControl::FindTermDown(const std::wstring& a_term, size_t& a_startRo
 			}
 		}
 
-		if(!l_wrapped && row + 1 == m_gridData->GetRows())
+		if (!l_wrapped && row + 1 == m_gridData->GetRows())
 		{
 			row = 0;
 			l_wrapped = true;
@@ -996,24 +996,24 @@ bool CNFOViewControl::FindTermUp(const std::wstring& a_term, size_t& a_startRow,
 	size_t l_startRow = a_startRow;
 
 	// "manually" wrap for corner case where search term is at col 0:
-	if(a_startCol == 0)
+	if (a_startCol == 0)
 	{
 		l_wrapped = true;
 		l_startRow = (a_startRow == 0 ? m_gridData->GetRows() - 1 : a_startRow - 1);
 		l_first = false;
 	}
 
-	for(size_t row = l_startRow; row >= 0; )
+	for (size_t row = l_startRow; row >= 0; )
 	{
-		for(size_t col = (l_first ? a_startCol : m_gridData->GetCols()); col >= 0; col--)
+		for (size_t col = (l_first ? a_startCol : m_gridData->GetCols()); col >= 0; col--)
 		{
-			if(IsTextChar(row, col, true))
+			if (IsTextChar(row, col, true))
 			{
 				wchar_t l_char = m_nfo->GetGridChar(row, col);
 
-				if(_wcsnicmp(&l_char, &a_term[l_termIndex], 1) == 0)
+				if (_wcsnicmp(&l_char, &a_term[l_termIndex], 1) == 0)
 				{
-					if(l_termIndex == 0)
+					if (l_termIndex == 0)
 					{
 						// done!
 						a_startRow = row;
@@ -1034,15 +1034,15 @@ bool CNFOViewControl::FindTermUp(const std::wstring& a_term, size_t& a_startRow,
 				l_termIndex = a_term.size() - 1;
 			}
 
-			if(col == 0) break;
+			if (col == 0) break;
 		}
 
-		if(!l_wrapped && row == 0)
+		if (!l_wrapped && row == 0)
 		{
 			row = m_gridData->GetRows() - 1;
 			l_wrapped = true;
 		}
-		else if(row > 0)
+		else if (row > 0)
 		{
 			row--;
 		}
@@ -1060,10 +1060,10 @@ bool CNFOViewControl::FindTermUp(const std::wstring& a_term, size_t& a_startRow,
 
 bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 {
-	if(!HasNfoData())
+	if (!HasNfoData())
 		return false;
 
-	if(a_term.empty())
+	if (a_term.empty())
 	{
 		m_lastFindTerm = L"";
 		ClearSelection(true);
@@ -1072,7 +1072,7 @@ bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 
 	size_t l_startRow, l_startCol;
 
-	if(m_lastFindTerm != a_term)
+	if (m_lastFindTerm != a_term)
 	{
 		l_startRow = 0;
 		l_startCol = 0;
@@ -1082,18 +1082,18 @@ bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 		l_startRow = m_findPosGlobalRow;
 		l_startCol = m_findPosGlobalCol;
 
-		if(!a_up)
+		if (!a_up)
 		{
 			l_startCol += a_term.size();
 		}
-		else if(l_startCol > 0)
+		else if (l_startCol > 0)
 		{
 			// important for 1-char searches, but also recurring chars:
 			l_startCol--;
 		}
 	}
 
-	if((a_up && FindTermUp(a_term, l_startRow, l_startCol))
+	if ((a_up && FindTermUp(a_term, l_startRow, l_startCol))
 		|| (!a_up && FindTermDown(a_term, l_startRow, l_startCol)))
 	{
 		m_selStartRow = l_startRow;
@@ -1107,7 +1107,7 @@ bool CNFOViewControl::FindAndSelectTerm(const std::wstring& a_term, bool a_up)
 		m_lastFindTerm = a_term;
 
 		// ScrollIntoView also triggers a repaint, but only if the scroll pos has changed:
-		if(!ScrollIntoView(l_startRow, l_startCol))
+		if (!ScrollIntoView(l_startRow, l_startCol))
 		{
 			::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 		}
@@ -1137,7 +1137,7 @@ void CNFOViewControl::ClearSelection(bool a_redraw)
 #ifndef NFOVWR_NO_INTERACTIVE_UI
 	m_selStartRow = m_selStartCol = m_selEndRow = m_selEndCol = (size_t)-1;
 
-	if(a_redraw)
+	if (a_redraw)
 	{
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 	}
@@ -1147,7 +1147,7 @@ void CNFOViewControl::ClearSelection(bool a_redraw)
 
 void CNFOViewControl::SetParent(HWND a_new)
 {
-	if(m_parent != a_new)
+	if (m_parent != a_new)
 	{
 		m_parent = a_new;
 		::SetParent(m_hwnd, m_parent);
@@ -1157,12 +1157,12 @@ void CNFOViewControl::SetParent(HWND a_new)
 
 void CNFOViewControl::SetCenterNfo(bool nb)
 {
-	if(nb == m_centerNfo)
+	if (nb == m_centerNfo)
 		return;
 
 	m_centerNfo = nb;
 
-	if(HasNfoData())
+	if (HasNfoData())
 	{
 		::RedrawWindow(m_hwnd, NULL, NULL, RDW_INVALIDATE);
 	}
@@ -1173,11 +1173,11 @@ void CNFOViewControl::InjectSettings(const CNFORenderSettings& ns)
 {
 	CNFORenderer::InjectSettings(ns);
 
-	if(!IsRendered())
+	if (!IsRendered())
 	{
 		::SetCursor(::LoadCursor(NULL, m_cursor = IDC_WAIT));
 
-		if(IsClassicMode())
+		if (IsClassicMode())
 		{
 			CalcClassicModeBlockSizes();
 		}
@@ -1192,7 +1192,7 @@ CNFOViewControl::~CNFOViewControl()
 {
 	::UnregisterClass(NFOVWR_CTRL_CLASS_NAME, m_instance);
 
-	if(m_hwnd)
+	if (m_hwnd)
 	{
 		::DestroyWindow(m_hwnd);
 		// MSDN: "If the specified window is a parent window, DestroyWindow

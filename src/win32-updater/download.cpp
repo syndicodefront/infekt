@@ -49,57 +49,57 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 	hInet = InternetOpen(L"Mozilla/5.0 (compatible; HttpThread/1.0)",
 		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 
-	if(hInet)
+	if (hInet)
 	{
 		HINTERNET hRequest;
 		DWORD dwFlags = 0;
 
-		if(l_url.find(L"https://") == 0)
+		if (l_url.find(L"https://") == 0)
 			dwFlags |= INTERNET_FLAG_SECURE;
 
 		hRequest = InternetOpenUrl(hInet, l_url.c_str(), NULL, 0, dwFlags, 0);
 
-		if(hRequest)
+		if (hRequest)
 		{
 			__int64 uFileSize = 0;
 			wchar_t wszSizeBuffer[32];
 			DWORD dwLengthSizeBuffer = 32;
 
-			if(HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH, wszSizeBuffer, &dwLengthSizeBuffer, NULL) == TRUE)
+			if (HttpQueryInfo(hRequest, HTTP_QUERY_CONTENT_LENGTH, wszSizeBuffer, &dwLengthSizeBuffer, NULL) == TRUE)
 			{
 				uFileSize = _wcstoi64(wszSizeBuffer, NULL, 10);
 
 				SendMessage(l_hDlg, WM_DOWNLOAD_STARTED, (UINT_PTR)&uFileSize, 0);
 			}
 
-			if(uFileSize > 0)
+			if (uFileSize > 0)
 			{
 				char szBuffer[8192];
 				DWORD dwRead;
 				FILE *fFile = NULL;
 
-				if(_wfopen_s(&fFile, l_tempLocalPath.c_str(), L"wb") != 0)
+				if (_wfopen_s(&fFile, l_tempLocalPath.c_str(), L"wb") != 0)
 				{
 					SendMessage(l_hDlg, WM_DOWNLOAD_FAILED, 0, 0);
 				}
 
 				s_uBytesReceived = 0;
 
-				while(InternetReadFile(hRequest, szBuffer, 8191, &dwRead))
+				while (InternetReadFile(hRequest, szBuffer, 8191, &dwRead))
 				{
-					if(!dwRead || dwRead > 8191)
+					if (!dwRead || dwRead > 8191)
 					{
 						break;
 					}
 
 					size_t dwWritten = 0;
 
-					if(fFile)
+					if (fFile)
 					{
 						dwWritten = fwrite(szBuffer, dwRead, 1, fFile);
 					}
 
-					if(dwWritten != 1)
+					if (dwWritten != 1)
 					{
 						bSuccess = FALSE;
 						break;
@@ -111,7 +111,7 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 				fclose(fFile);
 			}
 
-			if(bSuccess) bSuccess = (s_uBytesReceived == uFileSize);
+			if (bSuccess) bSuccess = (s_uBytesReceived == uFileSize);
 
 			InternetCloseHandle(hRequest);
 		}
@@ -119,7 +119,7 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 		InternetCloseHandle(hInet);
 	}
 
-	if(!bSuccess)
+	if (!bSuccess)
 	{
 		SendMessage(l_hDlg, WM_DOWNLOAD_FAILED, 0, 0);
 	}
@@ -139,16 +139,16 @@ static void __cdecl HttpThread(void *pvStartupInfo)
 
 bool StartHttpDownload(HWND hDlg, const std::wstring& a_url, const std::wstring& a_localPath)
 {
-	if(s_bDownloading || a_localPath.empty())
+	if (s_bDownloading || a_localPath.empty())
 	{
 		return false;
 	}
 
 	s_bDownloading = true;
 
-	if(::PathFileExists(a_localPath.c_str()))
+	if (::PathFileExists(a_localPath.c_str()))
 	{
-		if(!::DeleteFile(a_localPath.c_str()))
+		if (!::DeleteFile(a_localPath.c_str()))
 		{
 			s_bDownloading = false;
 			return false;
@@ -163,7 +163,7 @@ bool StartHttpDownload(HWND hDlg, const std::wstring& a_url, const std::wstring&
 	// track thread startup using an event:
 	HANDLE hStartEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 
-	if(_beginthread(HttpThread, 0, hStartEvent))
+	if (_beginthread(HttpThread, 0, hStartEvent))
 	{
 		::WaitForSingleObject(hStartEvent, INFINITE);
 	}

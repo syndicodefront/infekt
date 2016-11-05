@@ -27,14 +27,14 @@ extern "C" __declspec(dllexport) int IsGpuUsable()
 		accelerator l_defaultDevice;
 
 		// http://msdn.microsoft.com/en-us/library/hh873132.aspx
-		if(l_defaultDevice.is_emulated ||
+		if (l_defaultDevice.is_emulated ||
 			l_defaultDevice.device_path == accelerator::direct3d_ref ||
 			l_defaultDevice.device_path == accelerator::cpu_accelerator)
 		{
 			return 0;
 		}
 	}
-	catch(runtime_exception& ex)
+	catch (runtime_exception& ex)
 	{
 		(void)ex;
 
@@ -58,7 +58,7 @@ extern "C" __declspec(dllexport) int GaussianBlurARGB32(unsigned int *img_data, 
 
 		return 1;
 	}
-	catch(runtime_exception& ex)
+	catch (runtime_exception& ex)
 	{
 		(void)ex;
 

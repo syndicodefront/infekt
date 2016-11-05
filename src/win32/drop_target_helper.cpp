@@ -31,7 +31,7 @@ CMainDropTargetHelper::CMainDropTargetHelper(HWND a_hwnd)
 
 HRESULT _stdcall CMainDropTargetHelper::QueryInterface(REFIID iid, void** ppvObject)
 {
-	if(iid == IID_IDropTarget || iid == IID_IUnknown)
+	if (iid == IID_IDropTarget || iid == IID_IUnknown)
 	{
 		AddRef();
 		*ppvObject = this;
@@ -55,7 +55,7 @@ ULONG _stdcall CMainDropTargetHelper::Release()
 {
 	LONG l_new = ::InterlockedDecrement(&m_refCount);
 
-	if(l_new == 0)
+	if (l_new == 0)
 	{
 		delete this;
 	}
@@ -68,7 +68,7 @@ HRESULT _stdcall CMainDropTargetHelper::DragEnter(IDataObject* pDataObject, DWOR
 {
 	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 
-	if(pDataObject->QueryGetData(&fmtetc) == S_OK)
+	if (pDataObject->QueryGetData(&fmtetc) == S_OK)
 	{
 		*pdwEffect = DROPEFFECT_MOVE;
 
@@ -101,7 +101,7 @@ HRESULT _stdcall CMainDropTargetHelper::DragLeave()
 
 HRESULT _stdcall CMainDropTargetHelper::Drop(IDataObject* pDataObject, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
-	if(!m_allowDrop)
+	if (!m_allowDrop)
 	{
 		return E_UNEXPECTED;
 	}
@@ -109,20 +109,20 @@ HRESULT _stdcall CMainDropTargetHelper::Drop(IDataObject* pDataObject, DWORD grf
 	FORMATETC fmtetc = { CF_HDROP, 0, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	STGMEDIUM stgmed;
 
-	if(pDataObject->GetData(&fmtetc, &stgmed) == S_OK)
+	if (pDataObject->GetData(&fmtetc, &stgmed) == S_OK)
 	{
 		HDROP l_hDrop = (HDROP)::GlobalLock(stgmed.hGlobal);
 
-		if(l_hDrop)
+		if (l_hDrop)
 		{
 			UINT l_numFiles = ::DragQueryFile(l_hDrop, 0xFFFFFFFF, NULL, 0);
 
-			if(l_numFiles > 0)
+			if (l_numFiles > 0)
 			{
-				wchar_t l_fileNameBuf[1000] = {0};
+				wchar_t l_fileNameBuf[1000] = { 0 };
 				UINT l_charsCopied = ::DragQueryFile(l_hDrop, 0, l_fileNameBuf, 999); // get the first file.
 
-				if(l_charsCopied > 0 && l_charsCopied < 1000)
+				if (l_charsCopied > 0 && l_charsCopied < 1000)
 				{
 					::SendMessage(m_hwnd, WM_LOAD_NFO, (WPARAM)l_fileNameBuf, l_charsCopied);
 				}

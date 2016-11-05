@@ -69,7 +69,7 @@ bool CRegistrySettingsBackend::OpenSectionForReading(const std::wstring& a_name,
 	HKEY l_hKey;
 	const std::wstring l_path = m_appIdf + a_name;
 
-	if(RegOpenKeyEx(GetHive(), l_path.c_str(), 0, KEY_QUERY_VALUE, &l_hKey) != ERROR_SUCCESS)
+	if (RegOpenKeyEx(GetHive(), l_path.c_str(), 0, KEY_QUERY_VALUE, &l_hKey) != ERROR_SUCCESS)
 	{
 		//_ASSERT(false);
 		return false;
@@ -86,7 +86,7 @@ bool CRegistrySettingsBackend::OpenSectionForWriting(const std::wstring& a_name,
 	HKEY l_hKey;
 	const std::wstring l_path = m_appIdf + a_name;
 
-	if(RegCreateKeyEx(GetHive(), l_path.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
+	if (RegCreateKeyEx(GetHive(), l_path.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
 		KEY_WRITE | KEY_QUERY_VALUE, NULL, &l_hKey, NULL) != ERROR_SUCCESS)
 	{
 		_ASSERT(false);
@@ -117,7 +117,7 @@ DWORD CRegistrySettingsSection::ReadDword(const wchar_t* a_szName, DWORD a_defau
 	DWORD l_dwBuf = 0;
 	DWORD l_dwBufSz = sizeof(DWORD);
 
-	if(RegQueryValueEx(m_hKey, a_szName, NULL, &l_dwType,
+	if (RegQueryValueEx(m_hKey, a_szName, NULL, &l_dwType,
 		(LPBYTE)&l_dwBuf, &l_dwBufSz) == ERROR_SUCCESS && l_dwType == REG_DWORD)
 	{
 		return l_dwBuf;
@@ -137,10 +137,10 @@ bool CRegistrySettingsSection::WriteDword(const wchar_t* a_szName, DWORD a_newVa
 
 std::wstring CRegistrySettingsSection::ReadString(const wchar_t* a_szName, std::wstring a_default)
 {
-	wchar_t l_buffer[1000] = {0};
+	wchar_t l_buffer[1000] = { 0 };
 	DWORD l_dwType, l_dwSize = 999 * sizeof(wchar_t);
 
-	if(RegQueryValueEx(m_hKey, a_szName, 0, &l_dwType, (LPBYTE)l_buffer,
+	if (RegQueryValueEx(m_hKey, a_szName, 0, &l_dwType, (LPBYTE)l_buffer,
 		&l_dwSize) == ERROR_SUCCESS && l_dwType == REG_SZ)
 	{
 		return l_buffer;
@@ -174,7 +174,7 @@ bool CRegistrySettingsSection::DeletePair(const wchar_t* a_szKey)
 CINISettingsBackend::CINISettingsBackend(const std::wstring& a_iniPath) :
 	CSettingsBackend(a_iniPath)
 {
-	
+
 }
 
 CINISettingsBackend::~CINISettingsBackend()
@@ -183,7 +183,7 @@ CINISettingsBackend::~CINISettingsBackend()
 
 bool CINISettingsBackend::OpenSectionForReading(const std::wstring& a_name, PSettingsSection& ar_section)
 {
-	if(_waccess_s(m_appIdf.c_str(), 4) != 0) // 4 = reading
+	if (_waccess_s(m_appIdf.c_str(), 4) != 0) // 4 = reading
 	{
 		return false;
 	}
@@ -195,7 +195,7 @@ bool CINISettingsBackend::OpenSectionForReading(const std::wstring& a_name, PSet
 
 bool CINISettingsBackend::OpenSectionForWriting(const std::wstring& a_name, PSettingsSection& ar_section)
 {
-	if(_waccess_s(m_appIdf.c_str(), 6) != 0) // 6 = reading and writing
+	if (_waccess_s(m_appIdf.c_str(), 6) != 0) // 6 = reading and writing
 	{
 		return false;
 	}
@@ -230,9 +230,9 @@ bool CINISettingsSection::WriteDword(const wchar_t* a_szName, DWORD a_newValue)
 
 std::wstring CINISettingsSection::ReadString(const wchar_t* a_szName, std::wstring a_default)
 {
-	wchar_t l_buf[1000] = {0};
+	wchar_t l_buf[1000] = { 0 };
 
-	if(GetPrivateProfileString(m_name.c_str(), a_szName, a_default.c_str(), l_buf, 999, m_iniPath.c_str()) < 1000)
+	if (GetPrivateProfileString(m_name.c_str(), a_szName, a_default.c_str(), l_buf, 999, m_iniPath.c_str()) < 1000)
 	{
 		return l_buf;
 	}

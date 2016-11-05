@@ -33,7 +33,7 @@ bool CWin6xDefaultApp::IsDefault()
 
 	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
 
-	if(SUCCEEDED(hr))
+	if (SUCCEEDED(hr))
 	{
 		hr = pAAR->QueryAppIsDefault(m_extension.c_str(),
 			AT_FILEEXTENSION,
@@ -41,7 +41,7 @@ bool CWin6xDefaultApp::IsDefault()
 			m_appRegistryName.c_str(),
 			&pfHasExt);
 
- 		m_noSuchProgName = (hr == 0x80070002); // is there not a #define for this?!
+		m_noSuchProgName = (hr == 0x80070002); // is there not a #define for this?!
 		// 0x80070002 = No such file or directory
 
 		pAAR->Release();
@@ -57,7 +57,7 @@ bool CWin6xDefaultApp::MakeDefault()
 
 	HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistration, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pAAR));
 
-	if(SUCCEEDED(hr))
+	if (SUCCEEDED(hr))
 	{
 		hr = pAAR->SetAppAsDefault(m_appRegistryName.c_str(), m_extension.c_str(), AT_FILEEXTENSION);
 

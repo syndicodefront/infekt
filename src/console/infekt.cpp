@@ -61,7 +61,7 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 	printf("iNFekt: Renders almost any NFO file into a nice PNG image, with all the "
 		"options you could ever imagine!\n\n");
 
-	if(a_exeNameW)
+	if (a_exeNameW)
 		wprintf(L"USAGE: %s [options] <input-file.nfo>\n", a_exeNameW);
 	else
 		printf("USAGE: %s [options] <input-file.nfo>\n", a_exeNameA);
@@ -166,12 +166,12 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDceSw"), g_longOpts, &l_optIdx)) != -1)
+	while ((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDceSw"), g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
 
-		switch(l_arg)
+		switch (l_arg)
 		{
 		case 'h':
 			OutputHelp();
@@ -183,11 +183,11 @@ int main(int argc, char* argv[])
 		case 'O':
 			l_outFileName = ::optarg;
 			break;
-		_CHECK_COLOR_OPT('T', "text-color", cTextColor,);
-		_CHECK_COLOR_OPT('B', "back-color", cBackColor,);
-		_CHECK_COLOR_OPT('A', "block-color", cArtColor, l_setBlockColor = true);
-		_CHECK_COLOR_OPT('G', "glow-color", cGaussColor, l_setGlowColor = true);
-		_CHECK_COLOR_OPT('U', "link-color", cHyperlinkColor,);
+			_CHECK_COLOR_OPT('T', "text-color", cTextColor, );
+			_CHECK_COLOR_OPT('B', "back-color", cBackColor, );
+			_CHECK_COLOR_OPT('A', "block-color", cArtColor, l_setBlockColor = true);
+			_CHECK_COLOR_OPT('G', "glow-color", cGaussColor, l_setGlowColor = true);
+			_CHECK_COLOR_OPT('U', "link-color", cHyperlinkColor, );
 		case 'g':
 			l_pngSettings.bGaussShadow = false;
 			break;
@@ -199,7 +199,7 @@ int main(int argc, char* argv[])
 			break;
 		case 'W':
 			l_int = _tstoi(::optarg);
-			if(l_int < 3 || l_int > 100)
+			if (l_int < 3 || l_int > 100)
 			{
 				fprintf(stderr, "ERROR: Invalid or unsupported block-width.\n");
 				return 1;
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 			break;
 		case 'H':
 			l_int = _tstoi(::optarg);
-			if(l_int < 3 || l_int > 170)
+			if (l_int < 3 || l_int > 170)
 			{
 				fprintf(stderr, "ERROR: Invalid or unsupported block-height.\n");
 				return 1;
@@ -217,7 +217,7 @@ int main(int argc, char* argv[])
 			break;
 		case 'R':
 			l_int = _tstoi(::optarg);
-			if(l_int < 1 || l_int > 1000)
+			if (l_int < 1 || l_int > 1000)
 			{
 				fprintf(stderr, "ERROR: Invalid or unsupported glow-radius.\n");
 				return 1;
@@ -269,18 +269,18 @@ int main(int argc, char* argv[])
 	std::_tstring l_nfoFileName;
 
 	// the file name has to be the last argument:
-	if(::optind < argc)
+	if (::optind < argc)
 	{
 		l_nfoFileName = argv[::optind];
 	}
 
-	if(l_nfoFileName.empty())
+	if (l_nfoFileName.empty())
 	{
 		fprintf(stderr, "Missing argument: Please specify <input-file.nfo> or try --help\n");
 
 #ifdef _WIN32
 		/* for stupid people trying to double click infekt-cmd.exe */
-		if(argc == 1)
+		if (argc == 1)
 		{
 			printf("\n\nPress any key to continue...");
 			_getch();
@@ -294,18 +294,18 @@ int main(int argc, char* argv[])
 	PNFOData l_nfoData(new CNFOData());
 	l_nfoData->SetWrapLines(l_wrap && !l_textOnly);
 
-	if(!l_nfoData->LoadFromFile(l_nfoFileName))
+	if (!l_nfoData->LoadFromFile(l_nfoFileName))
 	{
 		fwprintf(stderr, L"ERROR: Unable to load NFO file: %ls\n", l_nfoData->GetLastErrorDescription().c_str());
 		return 1;
 	}
 
-	if(l_textOnly)
+	if (l_textOnly)
 	{
 		PNFOData l_stripped(new CNFOData());
 		l_stripped->SetWrapLines(l_wrap);
 
-		if(!l_stripped->LoadStripped(*l_nfoData))
+		if (!l_stripped->LoadStripped(*l_nfoData))
 		{
 			fwprintf(stderr, L"ERROR: Unable to convert to text-only: %ls\n", l_nfoData->GetLastErrorDescription().c_str());
 			return 1;
@@ -315,33 +315,33 @@ int main(int argc, char* argv[])
 	}
 
 	// determine output file name if none has been given:
-	if(l_outFileName.empty())
+	if (l_outFileName.empty())
 	{
 		l_outFileName = l_nfoFileName;
 
 		size_t l_pos = l_nfoFileName.rfind(_T(".nfo")); // case sensitive, hooray.
-		if(l_pos != std::string::npos && l_pos == l_nfoFileName.size() - 4)
+		if (l_pos != std::string::npos && l_pos == l_nfoFileName.size() - 4)
 		{
 			l_outFileName.erase(l_nfoFileName.size() - 4);
 		}
 
-		if(l_makePng)
+		if (l_makePng)
 		{
 			l_outFileName += _T(".png");
 		}
-		else if(l_htmlOut)
+		else if (l_htmlOut)
 		{
 			l_outFileName += _T(".html");
 		}
-		else if(l_makePdf)
+		else if (l_makePdf)
 		{
 			l_outFileName += _T(".pdf");
 		}
-		else if(l_textCp437)
+		else if (l_textCp437)
 		{
 			l_outFileName += _T("-dos.nfo");
 		}
-		else if(l_textUtf8)
+		else if (l_textUtf8)
 		{
 			l_outFileName += _T("-utf8.nfo");
 		}
@@ -353,21 +353,21 @@ int main(int argc, char* argv[])
 
 	bool l_exportSuccess = false;
 
-	if(l_makePng)
+	if (l_makePng)
 	{
 		// Renderer instance that we are going to use:
 		CNFOToPNG l_exporter(l_classic);
 
 		l_exporter.InjectSettings(l_pngSettings);
 
-		if(!l_classic)
+		if (!l_classic)
 		{
-			if(!l_setBlockColor)
+			if (!l_setBlockColor)
 			{
 				l_exporter.SetArtColor(l_exporter.GetTextColor());
 			}
 
-			if(!l_setGlowColor && l_exporter.GetEnableGaussShadow())
+			if (!l_setGlowColor && l_exporter.GetEnableGaussShadow())
 			{
 				l_exporter.SetGaussColor(l_exporter.GetArtColor());
 			}
@@ -377,7 +377,7 @@ int main(int argc, char* argv[])
 
 		l_exportSuccess = l_exporter.SavePNG(l_outFileName);
 	}
-	else if(l_makePdf)
+	else if (l_makePdf)
 	{
 #ifdef CAIRO_HAS_PDF_SURFACE
 		CNFOToPDF l_exporter(l_classic);
@@ -388,7 +388,7 @@ int main(int argc, char* argv[])
 		l_exportSuccess = l_exporter.SavePDF(l_outFileName);
 #endif
 	}
-	else if(l_htmlOut)
+	else if (l_htmlOut)
 	{
 		// html export
 
@@ -399,9 +399,9 @@ int main(int argc, char* argv[])
 
 		FILE* l_file;
 #ifdef _WIN32
-		if(_tfopen_s(&l_file, l_outFileName.c_str(), _T("wb")) == 0 && l_file)
+		if (_tfopen_s(&l_file, l_outFileName.c_str(), _T("wb")) == 0 && l_file)
 #else
-		if(l_file = fopen(l_outFileName.c_str(), _T("wb")))
+		if (l_file = fopen(l_outFileName.c_str(), _T("wb")))
 #endif
 		{
 			l_exportSuccess = (fwrite(l_utf8.c_str(), 1, l_utf8.size(), l_file) == l_utf8.size());
@@ -412,13 +412,13 @@ int main(int argc, char* argv[])
 	{
 		// text export
 
-		if(l_textCp437)
+		if (l_textCp437)
 		{
 			size_t l_inconvertible;
 
 			l_exportSuccess = l_nfoData->SaveToCP437File(l_outFileName, l_inconvertible, l_compoundWhitespace);
 
-			if(l_inconvertible > 0)
+			if (l_inconvertible > 0)
 			{
 				_ftprintf(stderr, _T("WARNING: %zd characters in NFO do not have a CP 437 equivalent and were dropped.\n"), l_inconvertible);
 			}
@@ -429,7 +429,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if(l_exportSuccess)
+	if (l_exportSuccess)
 	{
 		_tprintf(_T("Saved `%s` to `%s`!\n"), l_nfoFileName.c_str(), l_outFileName.c_str());
 	}

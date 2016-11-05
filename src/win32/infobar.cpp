@@ -35,14 +35,14 @@ CInfektInfoBar::CInfektInfoBar(HINSTANCE a_hInstance, HWND a_parent)
 
 bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_height)
 {
-	if(ControlCreated())
+	if (ControlCreated())
 	{
 		return false;
 	}
 
-	WNDCLASSEX l_class = {0};
+	WNDCLASSEX l_class = { 0 };
 
-	if(::GetClassInfoEx(m_instance, INFOBAR_CTRL_CLASS_NAME, &l_class) == 0)
+	if (::GetClassInfoEx(m_instance, INFOBAR_CTRL_CLASS_NAME, &l_class) == 0)
 	{
 		l_class.cbSize = sizeof(WNDCLASSEX);
 
@@ -52,7 +52,7 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 		l_class.lpfnWndProc = &_WindowProc;
 		l_class.hCursor = ::LoadCursor(NULL, IDC_ARROW);
 
-		if(::RegisterClassEx(&l_class) == 0)
+		if (::RegisterClassEx(&l_class) == 0)
 		{
 			return false;
 		}
@@ -67,9 +67,9 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 		INFOBAR_CTRL_CLASS_NAME, NULL,
 		WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_VISIBLE,
 		m_left, m_top, m_width, m_height,
-		m_parent, NULL,	m_instance, NULL);
+		m_parent, NULL, m_instance, NULL);
 
-	if(!m_hwnd)
+	if (!m_hwnd)
 	{
 		return false;
 	}
@@ -84,7 +84,7 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 
 void CInfektInfoBar::Show(bool a_show)
 {
-	if(m_hwnd)
+	if (m_hwnd)
 	{
 		::ShowWindow(m_hwnd, (a_show ? SW_SHOW : SW_HIDE));
 	}
@@ -116,7 +116,7 @@ void CInfektInfoBar::OnPaint()
 
 LRESULT CInfektInfoBar::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_PAINT:
 		OnPaint();
@@ -126,7 +126,7 @@ LRESULT CInfektInfoBar::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SETCURSOR:
 		return CUtilWin32GUI::GenericOnSetCursor(m_cursor, lParam);
 	case WM_THEMECHANGED:
-		if(::IsThemeActive())
+		if (::IsThemeActive())
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) & ~WS_EX_CLIENTEDGE);
 		else
 			SetWindowLong(m_hwnd, GWL_EXSTYLE, GetWindowLong(m_hwnd, GWL_EXSTYLE) | WS_EX_CLIENTEDGE);
@@ -141,7 +141,7 @@ LRESULT CALLBACK CInfektInfoBar::_WindowProc(HWND hWindow, UINT uMsg, WPARAM wPa
 {
 	CInfektInfoBar *l_ctrl = (CInfektInfoBar*)(void*)(INT_PTR)::GetWindowLongPtr(hWindow, GWLP_USERDATA);
 
-	if(l_ctrl)
+	if (l_ctrl)
 	{
 		return l_ctrl->WindowProc(uMsg, wParam, lParam);
 	}
@@ -154,7 +154,7 @@ CInfektInfoBar::~CInfektInfoBar()
 {
 	::UnregisterClass(INFOBAR_CTRL_CLASS_NAME, m_instance);
 
-	if(m_hwnd)
+	if (m_hwnd)
 	{
 		::DestroyWindow(m_hwnd);
 	}

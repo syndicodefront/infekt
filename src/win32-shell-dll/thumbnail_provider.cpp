@@ -63,7 +63,7 @@ public:
 	IFACEMETHODIMP_(ULONG) Release()
 	{
 		ULONG cRef = InterlockedDecrement(&m_cRef);
-		if(!cRef)
+		if (!cRef)
 		{
 			delete this;
 		}
@@ -86,7 +86,7 @@ IFACEMETHODIMP CNFOThumbProvider::Initialize(IStream *pStream, DWORD)
 {
 	HRESULT hr = E_UNEXPECTED; // can only be initialized once
 
-	if(!m_pStream)
+	if (!m_pStream)
 	{
 		// take a reference to the stream if we have not been initialized yet
 		hr = pStream->QueryInterface(&m_pStream);
@@ -99,7 +99,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 {
 	PNFOData l_nfoData;
 
-	if(!LoadNFOFromStream(m_pStream, l_nfoData))
+	if (!LoadNFOFromStream(m_pStream, l_nfoData))
 	{
 		return E_FAIL;
 	}
@@ -107,13 +107,13 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 	// set up renderer:
 	CNFORenderer l_renderer;
 
-	if(!l_renderer.AssignNFO(l_nfoData))
+	if (!l_renderer.AssignNFO(l_nfoData))
 	{
 		return E_FAIL;
 	}
 
 	// make some guesses based on the requested thumb nail size:
-	if(cx < 256)
+	if (cx < 256)
 	{
 		l_renderer.SetBlockSize(4, 7);
 	}
@@ -122,14 +122,14 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 	int l_imgWidth = (int)l_renderer.GetWidth(), l_imgHeight = (int)l_renderer.GetHeight();
 	bool l_cut = false;
 
-	if(l_imgHeight > 600)
+	if (l_imgHeight > 600)
 	{
 		// https://github.com/syndicodefront/infekt/issues/89
 		l_imgHeight = 600;
 		l_cut = true;
 	}
 
-	BITMAPINFO l_bi = {0};
+	BITMAPINFO l_bi = { 0 };
 	l_bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	l_bi.bmiHeader.biWidth = l_imgWidth;
 	l_bi.bmiHeader.biHeight = -l_imgHeight;
@@ -142,26 +142,26 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 
 	HRESULT hr = E_FAIL;
 
-	if(l_hBitmap)
+	if (l_hBitmap)
 	{
-		BITMAP l_bitmap = {0};
+		BITMAP l_bitmap = { 0 };
 		GetObject(l_hBitmap, sizeof(BITMAP), &l_bitmap);
 		cairo_surface_t* l_surfaceOut = cairo_image_surface_create_for_data(
 			l_rawData, CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight, l_bitmap.bmWidthBytes);
 
-		if(l_surfaceOut)
+		if (l_surfaceOut)
 		{
-			if(l_renderer.DrawToSurface(l_surfaceOut, 0, 0, 0, 0, l_imgWidth, l_imgHeight))
+			if (l_renderer.DrawToSurface(l_surfaceOut, 0, 0, 0, 0, l_imgWidth, l_imgHeight))
 			{
 				// fade out:
-				if(l_cut)
+				if (l_cut)
 				{
 					const int FADE_HEIGHT = 100;
 
 					cairo_t* cr = cairo_create(l_surfaceOut);
 					cairo_set_line_width(cr, 1);
 
-					for(int y = 0; y < FADE_HEIGHT; y++)
+					for (int y = 0; y < FADE_HEIGHT; y++)
 					{
 						cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_renderer.GetBackColor()),
 							/*alpha=*/ y / static_cast<double>(FADE_HEIGHT - l_renderer.GetPadding()));
@@ -183,7 +183,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 			cairo_surface_destroy(l_surfaceOut);
 		}
 
-		if(!SUCCEEDED(hr))
+		if (!SUCCEEDED(hr))
 		{
 			DeleteObject(l_hBitmap);
 		}
@@ -203,7 +203,7 @@ HRESULT CNFOThumbProvider_CreateInstance(REFIID riid, void **ppv)
 
 	CNFOThumbProvider *pNew = new (std::nothrow) CNFOThumbProvider();
 
-	if(pNew)
+	if (pNew)
 	{
 		HRESULT hr = pNew->QueryInterface(riid, ppv);
 		pNew->Release();

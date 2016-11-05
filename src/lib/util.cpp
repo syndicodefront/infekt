@@ -105,7 +105,7 @@ string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePag
 {
 	const char* l_targetCodePage;
 
-	switch(a_targetCodePage)
+	switch (a_targetCodePage)
 	{
 	case CP_UTF8: l_targetCodePage = "UTF-8"; break;
 	case CP_ACP: l_targetCodePage = "ISO-8859-1"; break;
@@ -114,7 +114,7 @@ string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePag
 	}
 
 	char *l_sResult = NULL;
-	if(iconv_string(l_targetCodePage, "wchar_t", (char*)a_wideStr.c_str(),
+	if (iconv_string(l_targetCodePage, "wchar_t", (char*)a_wideStr.c_str(),
 		(char*)(a_wideStr.c_str() + a_wideStr.size() + 1), &l_sResult, NULL) >= 0)
 	{
 		string l_result = l_sResult;
@@ -130,7 +130,7 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 {
 	const char* l_originCodePage;
 
-	switch(a_originCodePage)
+	switch (a_originCodePage)
 	{
 	case CP_UTF8: l_originCodePage = "UTF-8"; break;
 	case CP_ACP: l_originCodePage = "ISO-8859-1"; break;
@@ -139,7 +139,7 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 	}
 
 	wchar_t *l_wResult = NULL;
-	if(iconv_string("wchar_t", l_originCodePage,
+	if (iconv_string("wchar_t", l_originCodePage,
 		a_str.c_str(), a_str.c_str() + a_str.size() + 1,
 		(char**)&l_wResult, NULL) >= 0)
 	{
@@ -159,11 +159,11 @@ bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 	size_t l_len = 9;
 	wchar_t l_tmp[2] = { a_char, 0 };
 
-	if(iconv_string("UTF-8", "wchar_t", (char*)&l_tmp, (char*)(&l_tmp + 1), &l_buf, &l_len) >= 0)
+	if (iconv_string("UTF-8", "wchar_t", (char*)&l_tmp, (char*)(&l_tmp + 1), &l_buf, &l_len) >= 0)
 	{
 		strncpy(a_buf, l_buf, l_len);
 
-		free(l_buf);	
+		free(l_buf);
 
 		return (l_len > 0);
 	}
@@ -183,7 +183,7 @@ template<typename STRTYPE> static void inline _StrTrimLeft(STRTYPE& a_str, const
 {
 	typename STRTYPE::size_type l_pos = a_str.find_first_not_of(a_chars);
 
-	if(l_pos != STRTYPE::npos)
+	if (l_pos != STRTYPE::npos)
 		a_str.erase(0, l_pos);
 	else
 		a_str.clear();
@@ -193,7 +193,7 @@ template<typename STRTYPE> static void inline _StrTrimRight(STRTYPE& a_str, cons
 {
 	typename STRTYPE::size_type l_pos = a_str.find_last_not_of(a_chars);
 
-	if(l_pos != STRTYPE::npos)
+	if (l_pos != STRTYPE::npos)
 	{
 		a_str.erase(l_pos + 1);
 	}
@@ -219,7 +219,7 @@ template<typename T> static T _StrReplace(const T& a_find, const T& a_replace, c
 	typename T::size_type l_pos = a_input.find(a_find), l_prevPos = 0;
 	T l_new;
 
-	while(l_pos != T::npos)
+	while (l_pos != T::npos)
 	{
 		l_new.append(a_input.substr(l_prevPos, l_pos - l_prevPos));
 
@@ -229,7 +229,7 @@ template<typename T> static T _StrReplace(const T& a_find, const T& a_replace, c
 		l_pos = a_input.find(a_find, l_prevPos);
 	}
 
-	if(l_prevPos == 0)
+	if (l_prevPos == 0)
 	{
 		return a_input;
 	}
@@ -256,7 +256,7 @@ template<typename T> static std::vector<T> _StrSplit(const T& a_str, const T& a_
 	std::vector<T> result;
 	typename T::size_type prev_pos = 0, pos = a_str.find(a_separator);
 
-	while(pos != T::npos)
+	while (pos != T::npos)
 	{
 		result.push_back(a_str.substr(prev_pos, pos - prev_pos));
 
@@ -287,9 +287,9 @@ static void _ParseVersionNumber(const wstring& vs, vector<int>* ret)
 {
 	wstring l_buf;
 
-	for(wstring::size_type p = 0; p < vs.size(); p++)
+	for (wstring::size_type p = 0; p < vs.size(); p++)
 	{
-		if(vs[p] == L'.')
+		if (vs[p] == L'.')
 		{
 			ret->push_back(std::wcstol(l_buf.c_str(), nullptr, 10));
 
@@ -301,16 +301,16 @@ static void _ParseVersionNumber(const wstring& vs, vector<int>* ret)
 		}
 	}
 
-	if(!l_buf.empty())
+	if (!l_buf.empty())
 	{
 		ret->push_back(std::wcstol(l_buf.c_str(), nullptr, 10));
 	}
-	else if(ret->empty())
+	else if (ret->empty())
 	{
 		ret->push_back(0);
 	}
 
-	while(ret->size() > 1 && (*ret)[ret->size() - 1] == 0) ret->erase(ret->begin() + (ret->size() - 1));
+	while (ret->size() > 1 && (*ret)[ret->size() - 1] == 0) ret->erase(ret->begin() + (ret->size() - 1));
 }
 
 int CUtil::VersionCompare(const wstring& a_vA, const wstring& a_vB)
@@ -320,11 +320,11 @@ int CUtil::VersionCompare(const wstring& a_vA, const wstring& a_vB)
 	_ParseVersionNumber(a_vB, &l_vB);
 
 	size_t l_max = std::min(l_vA.size(), l_vB.size());
-	for(size_t p = 0; p < l_max; p++)
+	for (size_t p = 0; p < l_max; p++)
 	{
-		if(l_vA[p] < l_vB[p])
+		if (l_vA[p] < l_vB[p])
 			return -1;
-		else if(l_vA[p] > l_vB[p])
+		else if (l_vA[p] > l_vB[p])
 			return 1;
 	}
 

@@ -17,7 +17,6 @@
 #include "settings_backend.h"
 #include "app.h"
 
-
 /************************************************************************/
 /* CMAINSETTINGS                                                        */
 /************************************************************************/
@@ -26,7 +25,7 @@ bool CMainSettings::SaveToRegistry()
 {
 	PSettingsSection l_sect;
 
-	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForWriting(L"MainSettings", l_sect))
+	if (!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForWriting(L"MainSettings", l_sect))
 	{
 		return false;
 	}
@@ -59,7 +58,7 @@ bool CMainSettings::LoadFromRegistry()
 {
 	PSettingsSection l_sect;
 
-	if(!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
+	if (!CNFOApp::GetInstance()->GetSettingsBackend()->OpenSectionForReading(L"MainSettings", l_sect))
 	{
 		return false;
 	}
@@ -67,12 +66,12 @@ bool CMainSettings::LoadFromRegistry()
 	DWORD dwDefaultView = l_sect->ReadDword(L"DefaultView"),
 		dwLastView = l_sect->ReadDword(L"LastView");
 
-	if(dwDefaultView == -1 || (dwDefaultView >= MAIN_VIEW_RENDERED && dwDefaultView < _MAIN_VIEW_MAX))
+	if (dwDefaultView == -1 || (dwDefaultView >= MAIN_VIEW_RENDERED && dwDefaultView < _MAIN_VIEW_MAX))
 	{
 		this->iDefaultView = dwDefaultView;
 	}
 
-	if(dwLastView >= MAIN_VIEW_RENDERED && dwLastView < _MAIN_VIEW_MAX)
+	if (dwLastView >= MAIN_VIEW_RENDERED && dwLastView < _MAIN_VIEW_MAX)
 	{
 		this->iLastView = dwLastView;
 	}

@@ -38,7 +38,7 @@ static void EnablePgbMarquee(HWND hDlg)
 {
 	HWND hPgb = ::GetDlgItem(hDlg, IDC_PGB);
 
-	if((GetWindowLongPtr(hPgb, GWL_STYLE) & PBS_MARQUEE) == 0)
+	if ((GetWindowLongPtr(hPgb, GWL_STYLE) & PBS_MARQUEE) == 0)
 	{
 		SetWindowLongPtr(hPgb, GWL_STYLE, GetWindowLongPtr(hPgb, GWL_STYLE) | PBS_MARQUEE);
 	}
@@ -53,7 +53,7 @@ static void DisablePgbMarquee(HWND hDlg)
 
 	SendMessage(hPgb, PBM_SETMARQUEE, 0, 0);
 
-	if(GetWindowLongPtr(hPgb, GWL_STYLE) & PBS_MARQUEE)
+	if (GetWindowLongPtr(hPgb, GWL_STYLE) & PBS_MARQUEE)
 	{
 		SetWindowLongPtr(hPgb, GWL_STYLE, GetWindowLongPtr(hPgb, GWL_STYLE) & ~PBS_MARQUEE);
 	}
@@ -77,7 +77,7 @@ static void BeginUpdate(HWND hDlg)
 
 	std::wstring l_tempExePath = GetTempFilePath(L"-iNFekt-setup.exe");
 
-	if(!StartHttpDownload(hDlg, s_installerUrl, l_tempExePath))
+	if (!StartHttpDownload(hDlg, s_installerUrl, l_tempExePath))
 	{
 		SetDlgItemText(hDlg, IDC_STATUS, L"ERROR: Couldn't initialize download.");
 	}
@@ -101,16 +101,16 @@ void ShowDownloadProgress(HWND hDlg)
 	double secsIn = ((GetTickCount() - s_uTimeDlStarted) / 1000.0);
 	double fBytesPerSec = bytesReceived / secsIn;
 
-	if(s_uBytesTotal > 0)
+	if (s_uBytesTotal > 0)
 	{
 		int etaH = 0, etaM = 0, etaS = (int)(s_uBytesTotal / fBytesPerSec - secsIn) + 1;
-		if(etaS < 0) etaS = 0;
-		if(etaS >= 60)
+		if (etaS < 0) etaS = 0;
+		if (etaS >= 60)
 		{
 			etaM = etaS / 60;
 			etaS = etaS % 60;
 		}
-		if(etaM >= 60)
+		if (etaM >= 60)
 		{
 			etaH = etaM / 60;
 			etaM = etaM % 60;
@@ -156,12 +156,12 @@ static void RunMainProgram()
 	const wchar_t *l_keyPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}_is1";
 	HKEY l_hKey;
 
-	if(::RegOpenKeyEx(HKEY_LOCAL_MACHINE, l_keyPath, 0, KEY_QUERY_VALUE | KEY_WOW64_64KEY, &l_hKey) == ERROR_SUCCESS)
+	if (::RegOpenKeyEx(HKEY_LOCAL_MACHINE, l_keyPath, 0, KEY_QUERY_VALUE | KEY_WOW64_64KEY, &l_hKey) == ERROR_SUCCESS)
 	{
-		wchar_t l_buffer[1000] = {0};
+		wchar_t l_buffer[1000] = { 0 };
 		DWORD l_dwType, l_dwSize = 999 * sizeof(wchar_t);
 
-		if(::RegQueryValueEx(l_hKey, L"InstallLocation", 0, &l_dwType, (LPBYTE)l_buffer,
+		if (::RegQueryValueEx(l_hKey, L"InstallLocation", 0, &l_dwType, (LPBYTE)l_buffer,
 			&l_dwSize) == ERROR_SUCCESS && l_dwType == REG_SZ &&
 			::PathIsDirectory(l_buffer))
 		{
@@ -171,11 +171,11 @@ static void RunMainProgram()
 				l_exePath64 = l_installDir + L"infekt-win64.exe",
 				l_exePath32 = l_installDir + L"infekt-win32.exe";
 
-			if(::PathFileExists(l_exePath64.c_str()))
+			if (::PathFileExists(l_exePath64.c_str()))
 			{
 				::ShellExecute(HWND_DESKTOP, L"open", l_exePath64.c_str(), NULL, NULL, SW_SHOWNORMAL);
 			}
-			else if(::PathFileExists(l_exePath32.c_str()))
+			else if (::PathFileExists(l_exePath32.c_str()))
 			{
 				::ShellExecute(HWND_DESKTOP, L"open", l_exePath32.c_str(), NULL, NULL, SW_SHOWNORMAL);
 			}
@@ -198,7 +198,7 @@ static void OnInstallerComplete(HWND hDlg, bool a_success)
 	DisablePgbMarquee(hDlg);
 	SendDlgItemMessage(hDlg, IDC_PGB, PBM_SETPOS, 1000, 0);
 
-	if(a_success)
+	if (a_success)
 	{
 		SetDlgItemText(hDlg, IDC_STATUS, L"Update has been installed!");
 
@@ -221,7 +221,7 @@ static void OnInstallerComplete(HWND hDlg, bool a_success)
 
 static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_INITDIALOG:
 		InitialWindowSetup(hDlg);
@@ -234,7 +234,7 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return TRUE;
 
 	case WM_COMMAND:
-		if(LOWORD(wParam) == IDCANCEL)
+		if (LOWORD(wParam) == IDCANCEL)
 		{
 			::PostMessage(hDlg, WM_CLOSE, 0, 0);
 		}
@@ -250,7 +250,7 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return TRUE;
 
 	case WM_DOWNLOAD_COMPLETE:
-		if(ValidateDownloadedFile())
+		if (ValidateDownloadedFile())
 		{
 			EnablePgbMarquee(hDlg);
 
@@ -279,21 +279,21 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return TRUE;
 
 	case WM_TIMER:
-		if(wParam == IDT_TIMER_ID && HttpIsDownloading())
+		if (wParam == IDT_TIMER_ID && HttpIsDownloading())
 		{
 			ShowDownloadProgress(hDlg);
 		}
 		return TRUE;
 
 	case WM_COPYDATA: // installer sends status messages via WM_COPYDATA:
-		if(wParam == 0 && lParam != 0)
+		if (wParam == 0 && lParam != 0)
 		{
 			PCOPYDATASTRUCT cd = reinterpret_cast<PCOPYDATASTRUCT>(lParam);
 
-			if(cd->dwData == 666 && cd->cbData > 0 && cd->cbData < 256)
+			if (cd->dwData == 666 && cd->cbData > 0 && cd->cbData < 256)
 			{
-				char msg[256] = {0};
-				if(strncpy_s(msg, 255, reinterpret_cast<char*>(cd->lpData), cd->cbData) == 0)
+				char msg[256] = { 0 };
+				if (strncpy_s(msg, 255, reinterpret_cast<char*>(cd->lpData), cd->cbData) == 0)
 					SetDlgItemTextA(hDlg, IDC_STATUS, msg);
 			}
 		}
@@ -305,7 +305,7 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 		return TRUE;
 
 	case WM_CLOSE:
-		if(!HttpIsDownloading() || MessageBox(hDlg,
+		if (!HttpIsDownloading() || MessageBox(hDlg,
 			L"Warning: A download is running and will be aborted if you continue! Do you want to close the program?", L"Confirm", MB_ICONQUESTION | MB_YESNO)
 			== IDYES)
 		{
@@ -326,15 +326,15 @@ static WPARAM MainMessageLoop()
 	int iStatus;
 
 	hDlg = ::CreateDialog(g_hInstance, MAKEINTRESOURCE(IDD_DLGMAIN), NULL, DialogProc);
-	if(hDlg == NULL)
+	if (hDlg == NULL)
 		return 1;
 
-	while((iStatus = ::GetMessage(&msg, 0, 0, 0)) != 0)
+	while ((iStatus = ::GetMessage(&msg, 0, 0, 0)) != 0)
 	{
-		if(iStatus == -1)
+		if (iStatus == -1)
 			return -1;
 
-		if(!::IsDialogMessage(hDlg, &msg))
+		if (!::IsDialogMessage(hDlg, &msg))
 		{
 			::TranslateMessage(&msg);
 			::DispatchMessage(&msg);
@@ -360,25 +360,25 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	std::wstring l_cmdLine(wszCommandLine);
 	std::wstring::size_type l_splitPos = l_cmdLine.find(' ');
 
-	if(l_splitPos == std::wstring::npos)
+	if (l_splitPos == std::wstring::npos)
 	{
 		return 1;
 	}
 
 	std::wstring l_url = l_cmdLine.substr(0, l_splitPos),
 		l_hash = l_cmdLine.substr(l_splitPos + 1);
-	
+
 	LPWSTR l_quotedUrl = _wcsdup(l_url.c_str());
 	::PathUnquoteSpaces(l_quotedUrl);
 	l_url = l_quotedUrl;
 	free(l_quotedUrl);
 
-	if(::PathIsURL(l_url.c_str()))
+	if (::PathIsURL(l_url.c_str()))
 	{
 		s_installerUrl = l_url;
 		s_installerHash = l_hash;
 
-		if(s_installerUrl.find(L"https://") == 0 || s_installerUrl.find(L"http://") == 0)
+		if (s_installerUrl.find(L"https://") == 0 || s_installerUrl.find(L"http://") == 0)
 		{
 			InitCommonControls();
 

@@ -45,17 +45,17 @@ bool CAnsiArt::Parse(const wstring& a_text)
 	parser_state_e parser_state = ANYTEXT;
 	wstring data;
 
-	for(wchar_t c : a_text)
+	for (wchar_t c : a_text)
 	{
-		if(c == L'\x2190')
+		if (c == L'\x2190')
 		{
-			if(parser_state != ANYTEXT)
+			if (parser_state != ANYTEXT)
 			{
 				parser_state = PARSERERROR;
 				break;
 			}
 
-			if(!data.empty())
+			if (!data.empty())
 			{
 				ansi_command_t tmp = { 0, data };
 				m_commands.push_back(tmp);
@@ -64,17 +64,17 @@ bool CAnsiArt::Parse(const wstring& a_text)
 
 			parser_state = ESC_BRACKET;
 		}
-		else if(c == L'[' && parser_state == ESC_BRACKET)
+		else if (c == L'[' && parser_state == ESC_BRACKET)
 		{
 			parser_state = ESC_DATA;
 		}
-		else if(parser_state == ESC_DATA)
+		else if (parser_state == ESC_DATA)
 		{
-			if(iswdigit(c) || c == L';' || c == L'?')
+			if (iswdigit(c) || c == L';' || c == L'?')
 			{
 				data += c;
 			}
-			else if(iswalpha(c))
+			else if (iswalpha(c))
 			{
 				ansi_command_t tmp = { c, data };
 				m_commands.push_back(tmp);
@@ -94,7 +94,7 @@ bool CAnsiArt::Parse(const wstring& a_text)
 				break;
 			}
 		}
-		else if(parser_state == ANYTEXT)
+		else if (parser_state == ANYTEXT)
 		{
 			data += c;
 		}
@@ -105,9 +105,9 @@ bool CAnsiArt::Parse(const wstring& a_text)
 		}
 	}
 
-	if(parser_state == ANYTEXT)
+	if (parser_state == ANYTEXT)
 	{
-		if(!data.empty())
+		if (!data.empty())
 		{
 			ansi_command_t tmp = { 0, data };
 			m_commands.push_back(tmp);
@@ -124,7 +124,7 @@ bool CAnsiArt::Parse(const wstring& a_text)
 
 bool CAnsiArt::Process()
 {
-	if(m_commands.empty())
+	if (m_commands.empty())
 	{
 		// handle empty files...? naaah
 		return false;
@@ -140,19 +140,19 @@ bool CAnsiArt::Process()
 	std::stack<std::pair<size_t, size_t> > saved_positions;
 	size_t x = 0, y = 0;
 
-	for(const ansi_command_t& cmd : m_commands)
+	for (const ansi_command_t& cmd : m_commands)
 	{
 		long x_delta = 0, y_delta = 0;
 		long n = 0, m = 0;
 
-		if(cmd.cmd != 0 && cmd.cmd != L'm')
+		if (cmd.cmd != 0 && cmd.cmd != L'm')
 		{
 			// this could be done somewhat nicer, but okay for now:
 			wstring::size_type pos;
 
 			n = std::max(std::wcstol(cmd.data.c_str(), nullptr, 10), 1l);
 
-			if((pos = cmd.data.find(L';')) != wstring::npos)
+			if ((pos = cmd.data.find(L';')) != wstring::npos)
 			{
 				m = std::max(std::wcstol(cmd.data.substr(pos + 1).c_str(), nullptr, 10), 1l);
 			}
@@ -162,211 +162,211 @@ bool CAnsiArt::Process()
 			}
 		}
 
-		switch(cmd.cmd)
+		switch (cmd.cmd)
 		{
-			case 0: { // put text to current position
-				size_t used_x_start = x, used_x = 0;
+		case 0: { // put text to current position
+			size_t used_x_start = x, used_x = 0;
 
-				for(wchar_t c : cmd.data)
+			for (wchar_t c : cmd.data)
+			{
+				if (c == L'\r')
 				{
-					if(c == L'\r')
+					// ignore CR
+				}
+				else if (c == L'\n' || (m_hintWidth != 0 && x == m_hintWidth - 1))
+				{
+					if (y >= screen.GetRows() - 1)
 					{
-						// ignore CR
+						size_t new_rows = screen.GetRows() + std::max(size_t(50), y - (screen.GetRows() - 1));
+
+						if (new_rows > m_heightLimit || new_rows < screen.GetRows() /* overflow safeguard */)
+						{
+							return false;
+						}
+
+						screen.Extend(new_rows, screen.GetCols(), L' ');
 					}
-					else if(c == L'\n' || (m_hintWidth != 0 && x == m_hintWidth - 1))
+
+					if (c != L'\n')
 					{
-						if(y >= screen.GetRows() - 1)
-						{
-							size_t new_rows = screen.GetRows() + std::max(size_t(50), y - (screen.GetRows() - 1));
-
-							if(new_rows > m_heightLimit || new_rows < screen.GetRows() /* overflow safeguard */)
-							{
-								return false;
-							}
-
-							screen.Extend(new_rows, screen.GetCols(), L' ');
-						}
-
-						if(c != L'\n')
-						{
-							// when line wrapping, do not forget this character!
-							screen[y][x] = c;
-
-							++used_x;
-						}
-
-						if(used_x > 0)
-						{
-							m_colorMap->PushUsedSection(y, used_x_start, used_x);
-						}
-
-						++y;
-						x = 0;
-
-						used_x_start = 0;
-						used_x = 0;
-					}
-					else
-					{
-						if(x >= screen.GetCols() - 1)
-						{
-							size_t new_cols = screen.GetCols() + std::max(size_t(50), x - (screen.GetCols() - 1));
-
-							if(new_cols > m_widthLimit || new_cols < screen.GetCols() /* overflow safeguard */)
-							{
-								return false;
-							}
-
-							screen.Extend(screen.GetRows(), new_cols, L' ');
-						}
-
+						// when line wrapping, do not forget this character!
 						screen[y][x] = c;
-						++x;
 
 						++used_x;
 					}
-				}
 
-				if(used_x > 0)
-				{
-					m_colorMap->PushUsedSection(y, used_x_start, used_x);
-				}
-				break;
-			}
-			case L'A': { // cursor up
-				y_delta = -n;
-				break;
-			}
-			case L'B': { // cursor down
-				y_delta = n;
-				break;
-			}
-			case L'C': { // cursor forward
-				x_delta = n;
-				break;
-			}
-			case L'D': { // cursor back
-				x_delta = -n;
-				break;
-			}
-			case L'E': { // cursor to beginning of next line
-				y_delta = n;
-				x = 0;
-				break;
-			}
-			case L'F': { // cursor to beginning of previous line
-				y_delta = -n;
-				x = 0;
-				break;
-			}
-			case L'G': { // move to given column
-				x = n - 1;
-				break;
-			}
-			case L'H':
-			case L'f': { // moves the cursor to row n, column m
-				y = n - 1;
-				x = m - 1;
-				break;
-			}
-			case L'J': { // erase display
-				// only cursor pos change is supported, ignoring erase command:
-				if(n == 2)
-				{
-					x = y = 0;
-				}
-				break;
-			}
-			case L'K': { // erase in line
-				// unsupported
-				break;
-			}
-			case L's': { // save cursor pos
-				saved_positions.push(std::pair<size_t, size_t>(x, y));
-				break;
-			}
-			case L'u': { // restore cursor pos
-				if(!saved_positions.empty()) {
-					const std::pair<size_t, size_t> pos = saved_positions.top();
-					x = pos.first;
-					y = pos.second;
-					saved_positions.pop();
-				}
-				break;
-			}
-			case L'm': { // rainbows and stuff!
-				std::vector<uint8_t> params;
-
-				for(const wstring& s : CUtil::StrSplit(cmd.data, L";"))
-				{
-					long n = std::wcstol(s.c_str(), nullptr, 10);
-
-					if(n >= 0 && n <= 255)
+					if (used_x > 0)
 					{
-						params.push_back(static_cast<uint8_t>(n));
+						m_colorMap->PushUsedSection(y, used_x_start, used_x);
 					}
-				}
 
-				if(!params.empty())
-				{
-					m_colorMap->PushGraphicRendition(y, x, params);
+					++y;
+					x = 0;
+
+					used_x_start = 0;
+					used_x = 0;
 				}
-				break;
+				else
+				{
+					if (x >= screen.GetCols() - 1)
+					{
+						size_t new_cols = screen.GetCols() + std::max(size_t(50), x - (screen.GetCols() - 1));
+
+						if (new_cols > m_widthLimit || new_cols < screen.GetCols() /* overflow safeguard */)
+						{
+							return false;
+						}
+
+						screen.Extend(screen.GetRows(), new_cols, L' ');
+					}
+
+					screen[y][x] = c;
+					++x;
+
+					++used_x;
+				}
 			}
-			case L'h': // Changes the screen width or type
-				if(n == 7)
+
+			if (used_x > 0)
+			{
+				m_colorMap->PushUsedSection(y, used_x_start, used_x);
+			}
+			break;
+		}
+		case L'A': { // cursor up
+			y_delta = -n;
+			break;
+		}
+		case L'B': { // cursor down
+			y_delta = n;
+			break;
+		}
+		case L'C': { // cursor forward
+			x_delta = n;
+			break;
+		}
+		case L'D': { // cursor back
+			x_delta = -n;
+			break;
+		}
+		case L'E': { // cursor to beginning of next line
+			y_delta = n;
+			x = 0;
+			break;
+		}
+		case L'F': { // cursor to beginning of previous line
+			y_delta = -n;
+			x = 0;
+			break;
+		}
+		case L'G': { // move to given column
+			x = n - 1;
+			break;
+		}
+		case L'H':
+		case L'f': { // moves the cursor to row n, column m
+			y = n - 1;
+			x = m - 1;
+			break;
+		}
+		case L'J': { // erase display
+			// only cursor pos change is supported, ignoring erase command:
+			if (n == 2)
+			{
+				x = y = 0;
+			}
+			break;
+		}
+		case L'K': { // erase in line
+			// unsupported
+			break;
+		}
+		case L's': { // save cursor pos
+			saved_positions.push(std::pair<size_t, size_t>(x, y));
+			break;
+		}
+		case L'u': { // restore cursor pos
+			if (!saved_positions.empty()) {
+				const std::pair<size_t, size_t> pos = saved_positions.top();
+				x = pos.first;
+				y = pos.second;
+				saved_positions.pop();
+			}
+			break;
+		}
+		case L'm': { // rainbows and stuff!
+			std::vector<uint8_t> params;
+
+			for (const wstring& s : CUtil::StrSplit(cmd.data, L";"))
+			{
+				long n = std::wcstol(s.c_str(), nullptr, 10);
+
+				if (n >= 0 && n <= 255)
 				{
-					// enable line wrapping
+					params.push_back(static_cast<uint8_t>(n));
 				}
-				break;
-			case L'l': // Reset screen width or type
-				if(n == 7)
-				{
-					// disable line wrapping
-				}
-				break;
+			}
+
+			if (!params.empty())
+			{
+				m_colorMap->PushGraphicRendition(y, x, params);
+			}
+			break;
+		}
+		case L'h': // Changes the screen width or type
+			if (n == 7)
+			{
+				// enable line wrapping
+			}
+			break;
+		case L'l': // Reset screen width or type
+			if (n == 7)
+			{
+				// disable line wrapping
+			}
+			break;
 			// some more info about h + l: http://ascii-table.com/ansi-escape-sequences.php
-			case L'S': // scroll up
-			case L'T': // scroll down
-			case L'n': // report cursor position
-				// unsupported, ignore
-				break;
-			default:
-				// unknown
-				_ASSERT(false);
+		case L'S': // scroll up
+		case L'T': // scroll down
+		case L'n': // report cursor position
+			// unsupported, ignore
+			break;
+		default:
+			// unknown
+			_ASSERT(false);
 		}
-		
-		if(y_delta < 0 && static_cast<size_t>(std::abs(y_delta)) <= y)
+
+		if (y_delta < 0 && static_cast<size_t>(std::abs(y_delta)) <= y)
 		{
 			y += y_delta;
 		}
-		else if(y_delta > 0)
+		else if (y_delta > 0)
 		{
 			y += y_delta;
 		}
-		else if(y_delta != 0)
+		else if (y_delta != 0)
 		{
 			// out of bounds, confine to screen
 			y = 0;
 		}
 
-		if(x_delta < 0 && static_cast<size_t>(std::abs(x_delta)) <= x)
+		if (x_delta < 0 && static_cast<size_t>(std::abs(x_delta)) <= x)
 		{
 			x += x_delta;
 		}
-		else if(x_delta > 0)
+		else if (x_delta > 0)
 		{
 			x += x_delta;
 		}
-		else if(x_delta != 0)
+		else if (x_delta != 0)
 		{
 			// out of bounds, confine to screen
 			x = 0;
 		}
 
-		if(x >= screen.GetCols() || y >= screen.GetRows())
+		if (x >= screen.GetCols() || y >= screen.GetRows())
 		{
-			if(x >= m_widthLimit || y >= m_heightLimit)
+			if (x >= m_widthLimit || y >= m_heightLimit)
 			{
 				return false;
 			}
@@ -380,13 +380,13 @@ bool CAnsiArt::Process()
 	m_maxLineLength = 0;
 	m_lines.clear();
 
-	for(size_t row = 0; row < screen.GetRows(); ++row)
+	for (size_t row = 0; row < screen.GetRows(); ++row)
 	{
 		size_t line_used = 0;
 
-		for(size_t col = screen.GetCols() - 1; col >= 0 && col < screen.GetCols(); col--)
+		for (size_t col = screen.GetCols() - 1; col >= 0 && col < screen.GetCols(); col--)
 		{
-			if(screen[row][col] != L' ')
+			if (screen[row][col] != L' ')
 			{
 				line_used = col + 1;
 				break;
@@ -395,7 +395,7 @@ bool CAnsiArt::Process()
 
 		m_lines.push_back(wstring(screen[row].begin(), screen[row].begin() + line_used));
 
-		if(line_used > m_maxLineLength)
+		if (line_used > m_maxLineLength)
 		{
 			m_maxLineLength = line_used;
 		}
@@ -403,9 +403,9 @@ bool CAnsiArt::Process()
 
 	// kill empty trailing lines:
 
-	while(!m_lines.empty())
+	while (!m_lines.empty())
 	{
-		if(m_lines.back().find_first_not_of(L" ") != wstring::npos)
+		if (m_lines.back().find_first_not_of(L" ") != wstring::npos)
 		{
 			break;
 		}
@@ -421,7 +421,7 @@ wstring CAnsiArt::GetAsClassicText() const
 {
 	wstring result;
 
-	for(const wstring& line : m_lines)
+	for (const wstring& line : m_lines)
 	{
 		result += line;
 		result += L'\n';

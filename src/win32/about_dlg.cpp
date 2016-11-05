@@ -120,7 +120,7 @@ BOOL CAboutDialog::OnInitDialog()
 
 BOOL CAboutDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_PAINT: {
 		PAINTSTRUCT ps;
@@ -137,11 +137,11 @@ BOOL CAboutDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 {
 	LPNMHDR nh = (LPNMHDR)lParam;
-	switch(nh->code)
+	switch (nh->code)
 	{
 	case NM_CLICK:
 	case NM_RETURN:
-		if(nh->hwndFrom == m_linkCtrl)
+		if (nh->hwndFrom == m_linkCtrl)
 		{
 			::ShellExecute(NULL, L"open", L"http://infekt.ws/", NULL, NULL, SW_SHOWNORMAL);
 			return 0;
@@ -155,15 +155,15 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 
 /*static*/ std::wstring CAboutDialog::GetWindowsClientOSName()
 {
-	if(CUtilWin32::IsWinXP())
+	if (CUtilWin32::IsWinXP())
 		return L"XP";
-	else if(CUtilWin32::IsWinVista())
+	else if (CUtilWin32::IsWinVista())
 		return L"Vista";
-	else if(CUtilWin32::IsWin7())
+	else if (CUtilWin32::IsWin7())
 		return L"7";
-	else if(CUtilWin32::IsWin8())
+	else if (CUtilWin32::IsWin8())
 		return L"8";
-	else if(CUtilWin32::IsWin10())
+	else if (CUtilWin32::IsWin10())
 		return L"10";
 	else
 		return L"";
@@ -172,15 +172,15 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 
 /*static*/ std::wstring CAboutDialog::GetWindowsServerOSName()
 {
-	if(CUtilWin32::IsWinXP())
+	if (CUtilWin32::IsWinXP())
 		return L"2003";
-	else if(CUtilWin32::IsWinVista())
+	else if (CUtilWin32::IsWinVista())
 		return L"2008";
-	else if(CUtilWin32::IsWin7())
+	else if (CUtilWin32::IsWin7())
 		return L"2008R2";
-	else if(CUtilWin32::IsWin8())
+	else if (CUtilWin32::IsWin8())
 		return L"2012";
-	else if(CUtilWin32::IsWin10())
+	else if (CUtilWin32::IsWin10())
 		return L"2016";
 	else
 		return L"";
@@ -189,7 +189,7 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 
 CAboutDialog::~CAboutDialog()
 {
-	if(m_icon) ::DestroyIcon(m_icon);
-	if(m_boldFont) ::DeleteObject(m_boldFont);
+	if (m_icon) ::DestroyIcon(m_icon);
+	if (m_boldFont) ::DeleteObject(m_boldFont);
 }
 

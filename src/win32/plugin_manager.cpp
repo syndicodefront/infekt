@@ -17,7 +17,6 @@
 #include "util.h"
 #include "app.h"
 
-
 /************************************************************************/
 /* Plugin Manager Implementation                                        */
 /************************************************************************/
@@ -30,7 +29,7 @@ static PPluginManager s_plManInst;
 
 PPluginManager CPluginManager::GetInstance()
 {
-	if(!s_plManInst)
+	if (!s_plManInst)
 	{
 		s_plManInst.reset(new CPluginManager());
 	}
@@ -43,17 +42,17 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 {
 	HMODULE l_hModule = CUtilWin32::SilentLoadLibrary(a_dllPath);
 
-	if(!l_hModule)
+	if (!l_hModule)
 	{
 		m_lastErrorMsg = _T("Unable to open/load DLL file.");
 		return false;
 	}
 
-	typedef long (*infektPluginVersion)();
+	typedef long(*infektPluginVersion)();
 
 	infektPluginVersion l_fPluginVersion = (infektPluginVersion)GetProcAddress(l_hModule, "infektPluginVersion");
 
-	if(!l_fPluginVersion)
+	if (!l_fPluginVersion)
 	{
 		m_lastErrorMsg = _T("Unable to find plugin version information.");
 		FreeLibrary(l_hModule);
@@ -64,7 +63,7 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 	WORD l_pluginHeaderVer = LOWORD(l_pluginVerInfo);
 	WORD l_pluginMinVer = HIWORD(l_pluginVerInfo);
 
-	if(l_pluginMinVer > INFEKT_PLUGIN_H_VERSION)
+	if (l_pluginMinVer > INFEKT_PLUGIN_H_VERSION)
 	{
 		m_lastErrorMsg = _T("This plugin requires a newer version of iNFekt.");
 		FreeLibrary(l_hModule);
@@ -76,7 +75,7 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 
 	infektPluginMethod l_fPluginMain = (infektPluginMethod)GetProcAddress(l_hModule, "infektPluginMain");
 
-	if(!l_fPluginMain)
+	if (!l_fPluginMain)
 	{
 		m_lastErrorMsg = _T("The DLL does not contain a method named 'infektPluginMain'.");
 		FreeLibrary(l_hModule);
@@ -86,14 +85,14 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 	infektDeclareStruct(infekt_plugin_info_t, l_info);
 	long l_infoResult = l_fPluginMain(NULL, 0, IPV_PLUGIN_INFO, 0, &l_info, NULL);
 
-	if(l_infoResult != IPE_SUCCESS || !l_info.guid[0])
+	if (l_infoResult != IPE_SUCCESS || !l_info.guid[0])
 	{
 		m_lastErrorMsg = _T("The plugin did not properly respond to our request for information.");
 		FreeLibrary(l_hModule);
 		return false;
 	}
 
-	if(a_probeInfoOnly)
+	if (a_probeInfoOnly)
 	{
 		m_probedName = l_info.name;
 		m_probedVer = l_info.version;
@@ -105,7 +104,7 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 		return true;
 	}
 
-	if(m_loadedPlugins.find(l_info.guid) != m_loadedPlugins.end())
+	if (m_loadedPlugins.find(l_info.guid) != m_loadedPlugins.end())
 	{
 		m_lastErrorMsg = _T("This plugin or a plugin that erroneously uses the same GUID has already been loaded.");
 		FreeLibrary(l_hModule);
@@ -116,7 +115,7 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 
 	m_loadedPlugins[l_info.guid] = l_newPlugin;
 
-	if(l_newPlugin->_DoLoad())
+	if (l_newPlugin->_DoLoad())
 	{
 		return true;
 	}
@@ -149,7 +148,7 @@ bool CPluginManager::IsPluginLoaded(const std::string& a_guid) const
 
 void CPluginManager::GetLoadedPlugins(std::vector<std::wstring>& ar_dllPaths)
 {
-	for(const auto& pl : m_loadedPlugins)
+	for (const auto& pl : m_loadedPlugins)
 	{
 		ar_dllPaths.push_back(pl.second->GetDllPath());
 	}
@@ -169,7 +168,7 @@ struct _sync_call_data
 {
 	PPluginManager l_mgr = CPluginManager::GetInstance();
 
-	if(l_mgr)
+	if (l_mgr)
 	{
 		_sync_call_data l_data;
 		l_data.szGuid = szGuid;
@@ -196,7 +195,7 @@ long CPluginManager::SynchedPluginToCore(void *a_data)
 bool CPluginManager::UnLoadPlugin(const std::string& a_guid)
 {
 	TMGuidPlugins::iterator l_find = m_loadedPlugins.find(a_guid);
-	if(l_find == m_loadedPlugins.end()) return false;
+	if (l_find == m_loadedPlugins.end()) return false;
 
 	m_loadedPlugins.erase(l_find);
 
@@ -206,7 +205,7 @@ bool CPluginManager::UnLoadPlugin(const std::string& a_guid)
 
 void CPluginManager::TriggerRegEvents(EPluginReg a_reg, infektPluginEventId a_event, long long a_lParam, void* a_pParam)
 {
-	for(const auto& plp : m_loadedPlugins)
+	for (const auto& plp : m_loadedPlugins)
 	{
 		plp.second->TriggerRegEvent(a_reg, a_event, a_lParam, a_pParam);
 	}
@@ -237,7 +236,7 @@ CLoadedPlugin::CLoadedPlugin(const std::wstring& a_dllPath, HMODULE a_hModule, i
 	m_version = a_info->version;
 	m_description = a_info->description;
 
-	if(a_info->cap_infobar) m_capabs |= CAPAB_INFOBAR;
+	if (a_info->cap_infobar) m_capabs |= CAPAB_INFOBAR;
 
 	m_successfullyLoaded = false;
 }
@@ -245,12 +244,12 @@ CLoadedPlugin::CLoadedPlugin(const std::wstring& a_dllPath, HMODULE a_hModule, i
 
 bool CLoadedPlugin::_DoLoad()
 {
-	if(m_successfullyLoaded)
+	if (m_successfullyLoaded)
 		return false;
 
 	infektPluginMethod l_fPluginMain = (infektPluginMethod)GetProcAddress(m_hModule, "infektPluginMain");
 
-	if(l_fPluginMain)
+	if (l_fPluginMain)
 	{
 		infektDeclareStruct(infekt_plugin_load_t, l_loadInfo);
 
@@ -264,7 +263,7 @@ bool CLoadedPlugin::_DoLoad()
 		// send the load event to the plugin:
 		long l_loadResult = l_fPluginMain(NULL, 0, IPV_PLUGIN_LOAD, 0, &l_loadInfo, NULL);
 
-		if(l_loadResult == IPE_SUCCESS)
+		if (l_loadResult == IPE_SUCCESS)
 		{
 			m_successfullyLoaded = true;
 		}
@@ -276,9 +275,9 @@ bool CLoadedPlugin::_DoLoad()
 
 long CLoadedPlugin::AddReg(EPluginReg a_reg, infektPluginMethod a_callback, void* a_userData)
 {
-	if(!a_callback)
+	if (!a_callback)
 		return IPE_NULLCALLBACK;
-	else if(HasRegSet(a_reg))
+	else if (HasRegSet(a_reg))
 		return IPE_ALREADY;
 
 	reg_event_data l_data = { a_callback, a_userData };
@@ -291,14 +290,14 @@ long CLoadedPlugin::AddReg(EPluginReg a_reg, infektPluginMethod a_callback, void
 
 long CLoadedPlugin::RemoveReg(EPluginReg a_reg, infektPluginMethod a_callback)
 {
-	if(!a_callback)
+	if (!a_callback)
 		return IPE_NULLCALLBACK;
-	else if(!HasRegSet(a_reg))
+	else if (!HasRegSet(a_reg))
 		return IPE_NOT_FOUND;
 
 	TMRegData::iterator l_remove = m_activeRegs.find(a_reg);
 
-	if(l_remove != m_activeRegs.end())
+	if (l_remove != m_activeRegs.end())
 	{
 		m_activeRegs.erase(l_remove);
 		m_activeRegBits = m_activeRegBits & ~a_reg;
@@ -314,7 +313,7 @@ long CLoadedPlugin::TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_even
 {
 	TMRegData::const_iterator l_itCallback = m_activeRegs.find(a_reg);
 
-	if(l_itCallback != m_activeRegs.end())
+	if (l_itCallback != m_activeRegs.end())
 	{
 		return l_itCallback->second.pCallback(NULL, 0, a_event, a_lParam, a_pParam, l_itCallback->second.pUser);
 	}
@@ -325,7 +324,7 @@ long CLoadedPlugin::TriggerRegEvent(EPluginReg a_reg, infektPluginEventId a_even
 
 PWinHttpClient CLoadedPlugin::GetHttpClient()
 {
-	if(!m_httpClient)
+	if (!m_httpClient)
 	{
 		m_httpClient = PWinHttpClient(new CWinHttpClient(GetApp()->GetInstanceHandle()));
 	}
@@ -336,11 +335,11 @@ PWinHttpClient CLoadedPlugin::GetHttpClient()
 
 CLoadedPlugin::~CLoadedPlugin()
 {
-	if(m_successfullyLoaded)
+	if (m_successfullyLoaded)
 	{
 		infektPluginMethod l_fPluginMain = (infektPluginMethod)GetProcAddress(m_hModule, "infektPluginMain");
 
-		if(l_fPluginMain)
+		if (l_fPluginMain)
 		{
 			l_fPluginMain(NULL, 0, IPV_PLUGIN_UNLOAD, 0, NULL, NULL);
 		}

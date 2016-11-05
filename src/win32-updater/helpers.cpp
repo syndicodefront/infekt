@@ -22,9 +22,9 @@
 
 std::wstring GetSysDirPath()
 {
-	wchar_t l_buf[1000] = {0};
+	wchar_t l_buf[1000] = { 0 };
 
-	if(::GetSystemDirectory(l_buf, 999))
+	if (::GetSystemDirectory(l_buf, 999))
 	{
 		::PathRemoveBackslash(l_buf);
 
@@ -37,20 +37,20 @@ std::wstring GetSysDirPath()
 
 std::wstring GetTempFilePath(const std::wstring& a_suffix)
 {
-	wchar_t l_buf[1000] = {0};
+	wchar_t l_buf[1000] = { 0 };
 
-	if(::GetTempPath(999, l_buf))
+	if (::GetTempPath(999, l_buf))
 	{
 		::PathAddBackslash(l_buf);
 
 		std::wstring l_tempDir = l_buf, l_path;
 
-		do 
+		do
 		{
 			swprintf_s(l_buf, 999, L"%x", GetTickCount());
 
 			l_path = l_tempDir + std::wstring(l_buf) + a_suffix;
-		} while(::PathFileExists(l_path.c_str()));
+		} while (::PathFileExists(l_path.c_str()));
 
 		return l_path;
 	}
@@ -61,8 +61,8 @@ std::wstring GetTempFilePath(const std::wstring& a_suffix)
 
 std::wstring GetExePath()
 {
-	TCHAR l_buf[1000] = {0};
-	TCHAR l_buf2[1000] = {0};
+	TCHAR l_buf[1000] = { 0 };
+	TCHAR l_buf2[1000] = { 0 };
 
 	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
@@ -72,7 +72,7 @@ std::wstring GetExePath()
 
 
 bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_parameters,
-						 int nShowCmd, bool a_requireZeroExitCode, DWORD dwMaxWait)
+	int nShowCmd, bool a_requireZeroExitCode, DWORD dwMaxWait)
 {
 	SHELLEXECUTEINFO l_sei = { sizeof(SHELLEXECUTEINFO), 0 };
 
@@ -82,11 +82,11 @@ bool ShellExecuteAndWait(const std::wstring& a_path, const std::wstring& a_param
 	l_sei.nShow = nShowCmd;
 	l_sei.fMask = SEE_MASK_NOCLOSEPROCESS;
 
-	if(::ShellExecuteEx(&l_sei))
+	if (::ShellExecuteEx(&l_sei))
 	{
-		if(::WaitForSingleObject(l_sei.hProcess, dwMaxWait) == WAIT_OBJECT_0)
+		if (::WaitForSingleObject(l_sei.hProcess, dwMaxWait) == WAIT_OBJECT_0)
 		{
-			if(a_requireZeroExitCode)
+			if (a_requireZeroExitCode)
 			{
 				DWORD dwExitCode = 0;
 				::GetExitCodeProcess(l_sei.hProcess, &dwExitCode);
@@ -115,19 +115,19 @@ std::wstring SHA1_File(const std::wstring& a_filePath)
 	HCRYPTPROV hProv;
 	std::wstring l_result;
 
-	if(::CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET))
+	if (::CryptAcquireContext(&hProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | CRYPT_MACHINE_KEYSET))
 	{
 		HCRYPTHASH hHash;
 
-		if(::CryptCreateHash(hProv, CALG_SHA1, NULL, 0, &hHash))
+		if (::CryptCreateHash(hProv, CALG_SHA1, NULL, 0, &hHash))
 		{
 			FILE *fInput = NULL;
 
-			if(_wfopen_s(&fInput, a_filePath.c_str(), L"rb") == 0)
+			if (_wfopen_s(&fInput, a_filePath.c_str(), L"rb") == 0)
 			{
-				char pbBuf[4096] = {0};
+				char pbBuf[4096] = { 0 };
 
-				while(!feof(fInput))
+				while (!feof(fInput))
 				{
 					DWORD dwRead = static_cast<DWORD>(
 						fread_s(pbBuf, 4096, sizeof(char), 4096, fInput));
@@ -140,16 +140,16 @@ std::wstring SHA1_File(const std::wstring& a_filePath)
 				DWORD dwHashLen = 0;
 				DWORD dwHashLenSize = sizeof(DWORD);
 
-				if(::CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE*)&dwHashLen, &dwHashLenSize, 0))
+				if (::CryptGetHashParam(hHash, HP_HASHSIZE, (BYTE*)&dwHashLen, &dwHashLenSize, 0))
 				{
 					BYTE *pbHashBuf = new BYTE[dwHashLen];
 					memset(pbHashBuf, 0, dwHashLen);
 
-					if(::CryptGetHashParam(hHash, HP_HASHVAL, pbHashBuf, &dwHashLen, 0))
+					if (::CryptGetHashParam(hHash, HP_HASHVAL, pbHashBuf, &dwHashLen, 0))
 					{
-						wchar_t wbHex[3] = {0};
+						wchar_t wbHex[3] = { 0 };
 
-						for(DWORD i = 0; i < dwHashLen; i++)
+						for (DWORD i = 0; i < dwHashLen; i++)
 						{
 							swprintf_s(wbHex, 3, L"%02x", pbHashBuf[i]);
 							l_result += wbHex;

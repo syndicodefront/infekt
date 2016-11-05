@@ -23,10 +23,10 @@
 
 static std::wstring GetExeDir()
 {
-	TCHAR l_buf[1000] = {0};
-	TCHAR l_buf2[1000] = {0};
+	TCHAR l_buf[1000] = { 0 };
+	TCHAR l_buf2[1000] = { 0 };
 
-	::GetModuleFileName(NULL, (LPTCH)l_buf, 999);
+	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
 	::PathRemoveFileSpec(l_buf2);
 	::PathRemoveBackslash(l_buf2);
@@ -36,25 +36,25 @@ static std::wstring GetExeDir()
 
 INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszCommandLine, int nShowCmd)
 {
-	std::wstring l_path = GetExeDir(),
+	const std::wstring l_path = GetExeDir(),
 		l_dataPath = l_path + L"\\Data",
 		l_defaultDataPath = l_path + L"\\App\\DefaultData";
 
-	if(!::PathIsDirectory(l_dataPath.c_str()) && ::PathIsDirectory(l_defaultDataPath.c_str()))
+	if (!::PathIsDirectory(l_dataPath.c_str()) && ::PathIsDirectory(l_defaultDataPath.c_str()))
 	{
 		_wmkdir(l_dataPath.c_str());
 	}
 
 	std::wstring l_portableIniPath = l_dataPath + L"\\portable.ini";
 
-	if(!::PathFileExists(l_portableIniPath.c_str()) && ::PathIsDirectory(l_dataPath.c_str()))
+	if (!::PathFileExists(l_portableIniPath.c_str()) && ::PathIsDirectory(l_dataPath.c_str()))
 	{
 		const std::wstring l_copyFrom = l_defaultDataPath + L"\\portable.ini";
 
 		::CopyFile(l_copyFrom.c_str(), l_portableIniPath.c_str(), TRUE);
 	}
 
-	if(!::PathIsDirectory(l_dataPath.c_str()) || !::PathFileExists(l_portableIniPath.c_str()))
+	if (!::PathIsDirectory(l_dataPath.c_str()) || !::PathFileExists(l_portableIniPath.c_str()))
 	{
 		::MessageBox(HWND_DESKTOP, L"The configuration folder (\"Data\") seems obstructed.", L"iNFekt Portable", MB_ICONEXCLAMATION);
 
@@ -64,6 +64,6 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	{
 		const std::wstring l_exePath = l_path + L"\\App\\iNFekt\\infekt-win32.exe";
 
-		return (INT)::ShellExecute(HWND_DESKTOP, L"open", l_exePath.c_str(), wszCommandLine, NULL, nShowCmd);
+		return (INT)::ShellExecute(HWND_DESKTOP, L"open", l_exePath.c_str(), wszCommandLine, nullptr, nShowCmd);
 	}
 }

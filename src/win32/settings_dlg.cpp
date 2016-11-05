@@ -49,7 +49,7 @@ CSettingsWindowDialog::CSettingsWindowDialog(HWND hWndParent) :
 {
 	m_mainWin = NULL;
 
-	m_tabPageGeneral = m_tabPageRendered = m_tabPageClassic = 
+	m_tabPageGeneral = m_tabPageRendered = m_tabPageClassic =
 		m_tabPageTextOnly = m_tabPagePlugins = NULL;
 }
 
@@ -98,7 +98,7 @@ void CSettingsWindowDialog::OnOK()
 
 	b = b && (!m_tabPagePlugins || m_tabPagePlugins->SaveSettings());
 
-	if(!b)
+	if (!b)
 	{
 		MessageBox(L"An error occurred while saving settings. Some settings may not have been saved.", L"Error", MB_ICONEXCLAMATION);
 	}
@@ -127,7 +127,7 @@ void CSettingsWindowDialog::OnCancel()
 }
 
 
-typedef struct 
+typedef struct
 {
 	std::vector<PFontListEntry>* ptr;
 	bool fixed;
@@ -139,9 +139,9 @@ const std::vector<PFontListEntry>& CSettingsWindowDialog::GetFonts(bool a_getAll
 {
 	std::vector<PFontListEntry>* l_pList = (a_getAll ? &m_allFonts : &m_fonts);
 
-	if(l_pList->empty())
+	if (l_pList->empty())
 	{
-		LOGFONT l_lf = {0};
+		LOGFONT l_lf = { 0 };
 		l_lf.lfCharSet = DEFAULT_CHARSET;
 
 		_temp_font_enum_data l_data;
@@ -187,7 +187,7 @@ int CALLBACK CSettingsWindowDialog::FontNamesProc(const ENUMLOGFONTEX *lpelfe, c
 	const _temp_font_enum_data* l_data = (_temp_font_enum_data*)lParam;
 	std::vector<PFontListEntry>* l_fonts = l_data->ptr;
 
-	if(lpelfe->elfLogFont.lfCharSet == ANSI_CHARSET && lpelfe->elfFullName[0] != _T('@') &&
+	if (lpelfe->elfLogFont.lfCharSet == ANSI_CHARSET && lpelfe->elfFullName[0] != _T('@') &&
 		(!l_data->fixed || (lpelfe->elfLogFont.lfPitchAndFamily & FIXED_PITCH) != 0))
 	{
 		const std::string l_fontNameUtf = CUtil::FromWideStr(lpelfe->elfFullName, CP_UTF8);
@@ -195,7 +195,7 @@ int CALLBACK CSettingsWindowDialog::FontNamesProc(const ENUMLOGFONTEX *lpelfe, c
 		// make sure Cairo can use this font:
 		cairo_font_face_t* l_cff = cairo_toy_font_face_create(l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 
-		if(l_cff)
+		if (l_cff)
 		{
 			l_fonts->push_back(PFontListEntry(new CFontListEntry(lpelfe)));
 
@@ -232,7 +232,7 @@ CSettingsTabDialog::CSettingsTabDialog(CSettingsWindowDialog* a_dlg, int a_pageI
 
 BOOL CSettingsTabDialog::OnInitDialog()
 {
-	if(IsViewSettingPage())
+	if (IsViewSettingPage())
 	{
 		//DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_NORMAL, m_pageId == TAB_PAGE_TEXTONLY);
 		//DLG_SHOW_CTRL_IF(IDC_SYNC_FROM_RENDERED, m_pageId != TAB_PAGE_RENDERED);
@@ -251,7 +251,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_LABEL, m_pageId != TAB_PAGE_RENDERED);
 		DLG_SHOW_CTRL_IF(IDC_FONTSIZE_COMBO, m_pageId != TAB_PAGE_RENDERED);
 
-		if(m_pageId == TAB_PAGE_RENDERED)
+		if (m_pageId == TAB_PAGE_RENDERED)
 		{
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETRANGE32, 3, 200);
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETBUDDY, (WPARAM)GetDlgItem(IDC_FONT_SIZE_EDIT), 0);
@@ -274,7 +274,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		CViewContainer* l_view = CNFOApp::GetViewContainerInstance();
 		m_viewSettings = new CNFORenderSettings();
 
-		switch(m_pageId)
+		switch (m_pageId)
 		{
 		case TAB_PAGE_RENDERED: *m_viewSettings = l_view->GetRenderCtrl()->GetSettings(); break;
 		case TAB_PAGE_CLASSIC: *m_viewSettings = l_view->GetClassicCtrl()->GetSettings(); break;
@@ -285,11 +285,11 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 		ViewSettingsToGui();
 	}
-	else if(m_pageId == TAB_PAGE_GENERAL)
+	else if (m_pageId == TAB_PAGE_GENERAL)
 	{
 		const PMainSettings& l_global = m_mainWin->GetSettings();
 
-		if(CUtilWin32::IsAtLeastWinVista())
+		if (CUtilWin32::IsAtLeastWinVista())
 		{
 			int l_status = CNFOApp::GetInstance()->IsDefaultNfoViewer();
 
@@ -320,7 +320,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 		SetDlgItemText(IDC_SETTINGS_BACKEND_STATUS, l_info.c_str());
 	}
 #ifdef INFEKT_PLUGIN_HOST
-	else if(m_pageId == TAB_PAGE_PLUGINS)
+	else if (m_pageId == TAB_PAGE_PLUGINS)
 	{
 		m_pluginListView.AttachDlgItem(IDC_PLUGIN_LIST, this);
 
@@ -343,7 +343,7 @@ void CSettingsTabDialog::ViewSettingsToGui()
 {
 	AddFontListToComboBox(true);
 
-	if(m_viewSettings)
+	if (m_viewSettings)
 	{
 		SET_DLG_CHECKBOX(IDC_HILIGHT_LINKS, m_viewSettings->bHilightHyperlinks);
 		SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
@@ -356,9 +356,9 @@ void CSettingsTabDialog::ViewSettingsToGui()
 		SendMessage(WM_HSCROLL, 0, (LPARAM)GetDlgItem(IDC_GLOW_RADIUS));
 
 		int l_idx = 0;
-		for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++, l_idx++)
+		for (std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++, l_idx++)
 		{
-			if(_tcscmp((*it)->GetShortName(), m_viewSettings->sFontFace) == 0)
+			if (_tcscmp((*it)->GetShortName(), m_viewSettings->sFontFace) == 0)
 			{
 				ComboBox_SetCurSel(GetDlgItem(IDC_FONTNAME_COMBO), l_idx);
 				m_selectedFontIndex = l_idx;
@@ -366,7 +366,7 @@ void CSettingsTabDialog::ViewSettingsToGui()
 			}
 		}
 
-		if(m_pageId == TAB_PAGE_RENDERED)
+		if (m_pageId == TAB_PAGE_RENDERED)
 		{
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_SETPOS32, 0, m_viewSettings->uBlockWidth);
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETPOS32, 0, m_viewSettings->uBlockHeight);
@@ -385,11 +385,11 @@ void CSettingsTabDialog::AddFontListToComboBox(bool a_addCustom)
 
 	ComboBox_ResetContent(GetDlgItem(IDC_FONTNAME_COMBO));
 
-	for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
+	for (std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
 	{
 		int l_id = ComboBox_AddString(GetDlgItem(IDC_FONTNAME_COMBO), (*it)->GetFontName().c_str());
 
-		if(l_id != l_idx)
+		if (l_id != l_idx)
 		{
 			this->MessageBox(_T("There was an error populating the font list."), _T("Fail"), MB_ICONSTOP);
 			break;
@@ -398,7 +398,7 @@ void CSettingsTabDialog::AddFontListToComboBox(bool a_addCustom)
 		l_idx++;
 	}
 
-	if(a_addCustom)
+	if (a_addCustom)
 	{
 		ComboBox_AddString(GetDlgItem(IDC_FONTNAME_COMBO), _T("ZZZ(custom)"));
 	}
@@ -413,7 +413,7 @@ bool CSettingsTabDialog::IsViewSettingPage() const
 
 bool CSettingsTabDialog::IsColorButton(UINT_PTR a_id)
 {
-	switch(a_id)
+	switch (a_id)
 	{
 	case IDC_CLR_TEXT:
 	case IDC_CLR_BACK:
@@ -429,7 +429,7 @@ bool CSettingsTabDialog::IsColorButton(UINT_PTR a_id)
 
 void CSettingsTabDialog::ReadBlockSize()
 {
-	if(m_pageId == TAB_PAGE_RENDERED)
+	if (m_pageId == TAB_PAGE_RENDERED)
 	{
 		m_viewSettings->uBlockWidth = SendDlgItemMessage(IDC_FONT_SIZE_SPIN, UDM_GETPOS32, 0, 0);
 		m_viewSettings->uBlockHeight = SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_GETPOS32, 0, 0);
@@ -439,33 +439,33 @@ void CSettingsTabDialog::ReadBlockSize()
 
 BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_DRAWITEM:
-		if(IsViewSettingPage() && IsColorButton(wParam))
+		if (IsViewSettingPage() && IsColorButton(wParam))
 		{
 			DrawColorButton((LPDRAWITEMSTRUCT)lParam);
 			return TRUE;
 		}
-		else if(IsViewSettingPage() && wParam == IDC_FONTNAME_COMBO)
+		else if (IsViewSettingPage() && wParam == IDC_FONTNAME_COMBO)
 		{
 			DrawFontComboItem((LPDRAWITEMSTRUCT)lParam);
 			return TRUE;
 		}
 	case WM_MEASUREITEM:
-		if(IsViewSettingPage() && wParam == IDC_FONTNAME_COMBO)
+		if (IsViewSettingPage() && wParam == IDC_FONTNAME_COMBO)
 		{
 			MeasureFontComboItems((LPMEASUREITEMSTRUCT)lParam);
 			return TRUE;
 		}
 	case WM_HSCROLL:
-		if(m_pageId == TAB_PAGE_RENDERED && (HWND)lParam == GetDlgItem(IDC_GLOW_RADIUS))
+		if (m_pageId == TAB_PAGE_RENDERED && (HWND)lParam == GetDlgItem(IDC_GLOW_RADIUS))
 		{
 			int l_pos = (int)SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_GETPOS, 0, 0);
 			std::_tstring l_posStr = FORMAT(_T("%d"), l_pos);
 			SetDlgItemText(IDC_GLOW_RADIUS_LABEL, l_posStr.c_str());
 
-			if(m_viewSettings)
+			if (m_viewSettings)
 			{
 				m_viewSettings->uGaussBlurRadius = l_pos;
 			}
@@ -481,20 +481,20 @@ BOOL CSettingsTabDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 {
-	if(IsColorButton(LOWORD(wParam)))
+	if (IsColorButton(LOWORD(wParam)))
 	{
-		if(S_COLOR_T* l_color = ColorFromControlId(LOWORD(wParam)))
+		if (S_COLOR_T* l_color = ColorFromControlId(LOWORD(wParam)))
 		{
-			static COLORREF l_customColors[16] = {0};
+			static COLORREF l_customColors[16] = { 0 };
 
-			CHOOSECOLOR l_cc = {0};
+			CHOOSECOLOR l_cc = { 0 };
 			l_cc.lStructSize = sizeof(CHOOSECOLOR);
 			l_cc.hwndOwner = m_dlgWin->GetHwnd();
 			l_cc.lpCustColors = l_customColors;
 			l_cc.rgbResult = RGB(l_color->R, l_color->G, l_color->B);
 			l_cc.Flags = CC_FULLOPEN | CC_ANYCOLOR | CC_RGBINIT;
 
-			if(::ChooseColor(&l_cc))
+			if (::ChooseColor(&l_cc))
 			{
 				*l_color = _S_COLOR(GetRValue(l_cc.rgbResult), GetGValue(l_cc.rgbResult),
 					GetBValue(l_cc.rgbResult), l_color->A);
@@ -506,9 +506,9 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		return TRUE;
 	}
 
-	if(m_viewSettings)
+	if (m_viewSettings)
 	{
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDC_ACTIVATE_GLOW:
 			m_viewSettings->bGaussShadow = (::IsDlgButtonChecked(m_hWnd, IDC_ACTIVATE_GLOW) != FALSE);
@@ -526,11 +526,11 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			m_viewSettings->bFontAntiAlias = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_ANTIALIAS) != FALSE);
 			break;
 		case IDC_FONTNAME_COMBO:
-			if(HIWORD(wParam) == CBN_SELCHANGE)
+			if (HIWORD(wParam) == CBN_SELCHANGE)
 			{
 				int l_newIdx = ComboBox_GetCurSel((HWND)lParam);
 
-				if(l_newIdx == m_fonts.size())
+				if (l_newIdx == m_fonts.size())
 				{
 					// "Custom..."
 					ComboBox_SetCurSel((HWND)lParam, m_selectedFontIndex);
@@ -539,7 +539,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 
 					this->MessageBox(_T("Not Implemented."), _T("Sorry"), MB_ICONEXCLAMATION);
 				}
-				else if((size_t)l_newIdx < m_fonts.size())
+				else if ((size_t)l_newIdx < m_fonts.size())
 				{
 					m_selectedFontIndex = l_newIdx;
 					_tcsncpy_s(m_viewSettings->sFontFace, LF_FACESIZE + 1, m_fonts[l_newIdx]->GetShortName(), LF_FACESIZE);
@@ -548,11 +548,11 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case IDC_FONTSIZE_COMBO:
-			if(HIWORD(wParam) == CBN_SELCHANGE)
+			if (HIWORD(wParam) == CBN_SELCHANGE)
 			{
 				int l_newIdx = ComboBox_GetCurSel((HWND)lParam);
 
-				if((size_t)l_newIdx < m_fonts.size())
+				if ((size_t)l_newIdx < m_fonts.size())
 				{
 					int l_size = (int)ComboBox_GetItemData((HWND)lParam, l_newIdx);
 					m_viewSettings->uFontSize = l_size;
@@ -569,7 +569,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 	}
 	else
 	{
-		switch(LOWORD(wParam))
+		switch (LOWORD(wParam))
 		{
 		case IDC_BUTTON_DEFAULT_VIEWER:
 			CNFOApp::GetInstance()->CheckDefaultNfoViewer(m_hWnd);
@@ -604,17 +604,17 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 
 LRESULT CSettingsTabDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 {
-	if(m_pageId == TAB_PAGE_PLUGINS)
+	if (m_pageId == TAB_PAGE_PLUGINS)
 	{
 		LPNMHDR l_shit = (LPNMHDR)lParam;
 
-		if(l_shit->idFrom == IDC_PLUGIN_LIST && l_shit->code == LVN_ITEMCHANGING)
+		if (l_shit->idFrom == IDC_PLUGIN_LIST && l_shit->code == LVN_ITEMCHANGING)
 		{
 			LPNMLISTVIEW l_pnmv = (LPNMLISTVIEW)lParam;
 
-			if(l_pnmv->lParam == -1)
+			if (l_pnmv->lParam == -1)
 			{
-				if((l_pnmv->uNewState & LVIS_FOCUSED) != 0 ||
+				if ((l_pnmv->uNewState & LVIS_FOCUSED) != 0 ||
 					(l_pnmv->uNewState & LVIS_STATEIMAGEMASK) != 0)
 				{
 					SetWindowLongPtr(DWLP_MSGRESULT, TRUE); // cancel change
@@ -630,37 +630,37 @@ LRESULT CSettingsTabDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 
 void CSettingsTabDialog::UpdateFontSizesCombo(size_t a_selSize)
 {
-	if(m_pageId != TAB_PAGE_RENDERED)
+	if (m_pageId != TAB_PAGE_RENDERED)
 	{
 		HWND l_hFontCombo = GetDlgItem(IDC_FONTSIZE_COMBO);
 
 		ComboBox_ResetContent(l_hFontCombo);
 
-		if(m_fonts.empty())
+		if (m_fonts.empty())
 		{
 			// we're totally screwed but well, we shouldn't crash...
 			return;
 		}
 
-		if(a_selSize == 0)
+		if (a_selSize == 0)
 		{
 			a_selSize = m_fonts[m_selectedFontIndex]->GetNiceSize();
 		}
 
 		int l_idx = 0;
-		for(std::set<int>::const_iterator it = m_fonts[m_selectedFontIndex]->SizesBegin();
+		for (std::set<int>::const_iterator it = m_fonts[m_selectedFontIndex]->SizesBegin();
 			it != m_fonts[m_selectedFontIndex]->SizesEnd(); it++, l_idx++)
 		{
-			TCHAR l_buf[10] = {0};
+			TCHAR l_buf[10] = { 0 };
 			_stprintf(l_buf, _T("%d"), *it);
 			int l_item = ComboBox_AddString(l_hFontCombo, l_buf);
 
-			if(l_item != l_idx)
+			if (l_item != l_idx)
 				break;
 
 			ComboBox_SetItemData(l_hFontCombo, l_idx, *it);
 
-			if(*it == a_selSize) ComboBox_SetCurSel(l_hFontCombo, l_idx);
+			if (*it == a_selSize) ComboBox_SetCurSel(l_hFontCombo, l_idx);
 		}
 	}
 }
@@ -670,7 +670,7 @@ void CSettingsTabDialog::DoPreview()
 {
 	CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
 
-	if(!l_view->GetNfoData() || !l_view->GetNfoData()->HasData())
+	if (!l_view->GetNfoData() || !l_view->GetNfoData()->HasData())
 	{
 		this->MessageBox(_T("Please open an NFO file first."), _T("Error"), MB_ICONEXCLAMATION);
 		return;
@@ -679,7 +679,7 @@ void CSettingsTabDialog::DoPreview()
 	PNFOViewControl l_ctrl;
 	EMainView l_newViewType;
 
-	switch(m_pageId)
+	switch (m_pageId)
 	{
 	case TAB_PAGE_RENDERED:
 		l_ctrl = l_view->GetRenderCtrl();
@@ -697,13 +697,13 @@ void CSettingsTabDialog::DoPreview()
 		return;
 	}
 
-	if(!m_previewSettingsBackup)
+	if (!m_previewSettingsBackup)
 	{
 		m_previewSettingsBackup = new CNFORenderSettings();
 		*m_previewSettingsBackup = l_ctrl->GetSettings();
 	}
 
-	if(m_beforePreviewViewType == _MAIN_VIEW_MAX)
+	if (m_beforePreviewViewType == _MAIN_VIEW_MAX)
 	{
 		m_beforePreviewViewType = l_view->GetViewType();
 	}
@@ -722,78 +722,78 @@ void CSettingsTabDialog::DoPreview()
 
 void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 {
-	if(a_import)
+	if (a_import)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"Theme Info", L"*.ini" }, { L"All Files", L"*" } };
 
 		const std::wstring l_filePath = CUtilWin32GUI::OpenFileDialog(g_hInstance, m_hWnd, l_filter, 2);
 
-		if(l_filePath.empty())
+		if (l_filePath.empty())
 		{
 			return;
 		}
 
 		std::wifstream l_file(l_filePath.c_str());
 
-		if(!l_file.is_open() || !l_file.good())
+		if (!l_file.is_open() || !l_file.good())
 		{
 			MessageBox(_T("Unable to open file for reading."), _T("Error"), MB_ICONEXCLAMATION);
 			return;
 		}
 
 		std::wstring l_dataBuf;
-		wchar_t l_lineBuf[200] = {0};
+		wchar_t l_lineBuf[200] = { 0 };
 		bool l_inData = false;
 		std::wstring l_dataName;
 
-		while(l_file.good())
+		while (l_file.good())
 		{
 			l_file.getline(l_lineBuf, 199);
 			std::wstring l_line = l_lineBuf;
 
 			CUtil::StrTrim(l_line);
 
-			if(l_line.empty() || l_line[0] == L'#')
+			if (l_line.empty() || l_line[0] == L'#')
 			{
 				continue;
 			}
 
-			if(!l_inData && l_line[0] == L'[' && l_line[l_line.size() - 1] == L']')
+			if (!l_inData && l_line[0] == L'[' && l_line[l_line.size() - 1] == L']')
 			{
 				l_inData = true;
 				l_dataName = l_line.substr(1, l_line.size() - 2);
 				CUtil::StrTrim(l_dataName);
 				l_dataBuf.clear();
 			}
-			else if(l_inData)
+			else if (l_inData)
 			{
 				l_dataBuf += l_line;
 
-				if(l_line[l_line.size() - 1] == L'}')
+				if (l_line[l_line.size() - 1] == L'}')
 				{
 					std::wstring l_dataNameFriendly;
-					if(l_dataName == L"rendered") l_dataNameFriendly = L"Rendered";
-					else if(l_dataName == L"classic") l_dataNameFriendly = L"Classic";
-					else if(l_dataName == L"textonly") l_dataNameFriendly = L"Text Only";
+					if (l_dataName == L"rendered") l_dataNameFriendly = L"Rendered";
+					else if (l_dataName == L"classic") l_dataNameFriendly = L"Classic";
+					else if (l_dataName == L"textonly") l_dataNameFriendly = L"Text Only";
 
-					if(!l_dataNameFriendly.empty())
+					if (!l_dataNameFriendly.empty())
 					{
 						std::wstring l_prompt = L"Do you want to import the theme settings for the '" +
 							l_dataNameFriendly + L"' view from this file?";
 
-						if(MessageBox(l_prompt.c_str(), _T("Question"), MB_ICONQUESTION | MB_YESNO) == IDYES)
+						if (MessageBox(l_prompt.c_str(), _T("Question"), MB_ICONQUESTION | MB_YESNO) == IDYES)
 						{
 							CSettingsTabDialog* l_pViewDlg = NULL;
 
-							if(l_dataName == L"rendered") l_pViewDlg = m_tabPageRendered;
-							else if(l_dataName == L"classic") l_pViewDlg = m_tabPageClassic;
-							else if(l_dataName == L"textonly") l_pViewDlg = m_tabPageTextOnly;
+							if (l_dataName == L"rendered") l_pViewDlg = m_tabPageRendered;
+							else if (l_dataName == L"classic") l_pViewDlg = m_tabPageClassic;
+							else if (l_dataName == L"textonly") l_pViewDlg = m_tabPageTextOnly;
 
-							if(!l_pViewDlg || !l_pViewDlg->GetViewSettings()->UnSerialize(l_dataBuf, l_dataName != L"rendered"))
+							if (!l_pViewDlg || !l_pViewDlg->GetViewSettings()->UnSerialize(l_dataBuf, l_dataName != L"rendered"))
 							{
 								MessageBox(_T("Importing the theme failed for an unknown reason."), _T("Error"), MB_ICONSTOP);
 							}
-							else if(l_pViewDlg)
+							else if (l_pViewDlg)
 							{
 								l_pViewDlg->ViewSettingsToGui();
 							}
@@ -812,7 +812,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 	}
 	else
 	{
-		wchar_t l_userName[UNLEN + 1] = {0};
+		wchar_t l_userName[UNLEN + 1] = { 0 };
 		DWORD l_dummy = UNLEN;
 		::GetUserName(l_userName, &l_dummy);
 		::CharLower(l_userName);
@@ -822,7 +822,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 		const std::wstring l_filePath = CUtilWin32GUI::SaveFileDialog(g_hInstance,
 			m_hWnd, l_filter, 1, _T("ini"), std::wstring(l_userName) + _T("-nfo-settings.ini"));
 
-		if(l_filePath.empty())
+		if (l_filePath.empty())
 		{
 			return;
 		}
@@ -830,7 +830,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 		std::wfstream l_file(l_filePath.c_str(), std::ios::out | std::ios::trunc);
 		std::string l_tmp;
 
-		if(!l_file.is_open() || !l_file.good())
+		if (!l_file.is_open() || !l_file.good())
 		{
 			MessageBox(_T("Unable to open file for writing."), _T("Error"), MB_ICONEXCLAMATION);
 			return;
@@ -860,13 +860,13 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 
 void CSettingsTabDialog::OnCancelled()
 {
-	if(m_beforePreviewViewType != _MAIN_VIEW_MAX)
+	if (m_beforePreviewViewType != _MAIN_VIEW_MAX)
 	{
 		CViewContainer *l_view = CNFOApp::GetViewContainerInstance();
 
 		PNFOViewControl l_ctrl;
 
-		switch(m_pageId)
+		switch (m_pageId)
 		{
 		case TAB_PAGE_RENDERED: l_ctrl = l_view->GetRenderCtrl(); break;
 		case TAB_PAGE_CLASSIC: l_ctrl = l_view->GetClassicCtrl(); break;
@@ -875,7 +875,7 @@ void CSettingsTabDialog::OnCancelled()
 			return;
 		}
 
-		if(m_previewSettingsBackup)
+		if (m_previewSettingsBackup)
 		{
 			l_ctrl->InjectSettings(*m_previewSettingsBackup);
 		}
@@ -887,9 +887,9 @@ void CSettingsTabDialog::OnCancelled()
 
 S_COLOR_T* CSettingsTabDialog::ColorFromControlId(UINT a_id)
 {
-	if(!m_viewSettings) return NULL;
+	if (!m_viewSettings) return NULL;
 
-	switch(a_id)
+	switch (a_id)
 	{
 	case IDC_CLR_TEXT:	return &m_viewSettings->cTextColor;
 	case IDC_CLR_BACK:	return &m_viewSettings->cBackColor;
@@ -906,7 +906,7 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 {
 	S_COLOR_T* l_color = ColorFromControlId(a_dis->CtlID);
 
-	if(!l_color || a_dis->itemAction != ODA_DRAWENTIRE)
+	if (!l_color || a_dis->itemAction != ODA_DRAWENTIRE)
 	{
 		return;
 	}
@@ -914,7 +914,7 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 	cairo_surface_t* l_surface = cairo_win32_surface_create(a_dis->hDC);
 	cairo_t* cr = cairo_create(l_surface);
 
-	if(l_color->A != 255)
+	if (l_color->A != 255)
 	{
 		// make a chess board like background for alpha colors...
 		cairo_set_source_rgb(cr, 1, 1, 1);
@@ -925,11 +925,11 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 		const int tileW = 5, tileH = 5;
 		const int areaW = a_dis->rcItem.right, areaH = a_dis->rcItem.bottom;
 
-		for(int x = 0; x <= areaW / tileW + 1; x++)
+		for (int x = 0; x <= areaW / tileW + 1; x++)
 		{
-			for(int y = 0; y < areaH / tileH + 1; y++)
+			for (int y = 0; y < areaH / tileH + 1; y++)
 			{
-				if(x % 2 != y % 2)
+				if (x % 2 != y % 2)
 				{
 					cairo_rectangle(cr, x * tileW, y * tileH, tileW, tileH);
 				}
@@ -957,22 +957,22 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 
 	double l_maxW = 0, l_maxH = 0;
 
-	for(std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
+	for (std::vector<PFontListEntry>::const_iterator it = m_fonts.begin(); it != m_fonts.end(); it++)
 	{
 		const PFontListEntry l_font = *it;
 		const std::string l_fontNameUtf = CUtil::FromWideStr(l_font->GetFontName(), CP_UTF8);
 
 		cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
-		if(cairo_status(cr) == CAIRO_STATUS_SUCCESS)
+		if (cairo_status(cr) == CAIRO_STATUS_SUCCESS)
 		{
 			cairo_set_font_size(cr, l_font->GetNiceSize());
 
-			cairo_text_extents_t l_extents = {0};
+			cairo_text_extents_t l_extents = { 0 };
 			cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
 
-			if(l_extents.width > l_maxW)
+			if (l_extents.width > l_maxW)
 				l_maxW = l_extents.width;
-			if(l_extents.height > l_maxH)
+			if (l_extents.height > l_maxH)
 				l_maxH = l_extents.height;
 		}
 	}
@@ -980,9 +980,9 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 	l_maxW = l_maxW + 2 * ms_fontComboPadding;
 	l_maxH = l_maxH + 2 * ms_fontComboPadding;
 
-	if(l_maxH > 25) l_maxH = 25; // :TODO: measure this instead of using a fixed 25.
+	if (l_maxH > 25) l_maxH = 25; // :TODO: measure this instead of using a fixed 25.
 
-	if(a_mis)
+	if (a_mis)
 	{
 		a_mis->itemWidth = (UINT)l_maxW;
 		a_mis->itemHeight = (UINT)l_maxH;
@@ -996,14 +996,14 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 
 void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 {
-	if(a_dis->itemID != (UINT)-1 && a_dis->itemID <= m_fonts.size())
+	if (a_dis->itemID != (UINT)-1 && a_dis->itemID <= m_fonts.size())
 	{
-		if(a_dis->itemAction == ODA_DRAWENTIRE)
+		if (a_dis->itemAction == ODA_DRAWENTIRE)
 		{
 			std::string l_fontNameUtf, l_displayName;
 			int l_fontSize;
 
-			if(a_dis->itemID < m_fonts.size())
+			if (a_dis->itemID < m_fonts.size())
 			{
 				const PFontListEntry l_font = m_fonts[a_dis->itemID];
 				l_fontNameUtf = l_displayName = CUtil::FromWideStr(l_font->GetFontName(), CP_UTF8);
@@ -1023,13 +1023,13 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 			cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 			cairo_set_font_size(cr, l_fontSize);
 
-			cairo_text_extents_t l_extents = {0};
+			cairo_text_extents_t l_extents = { 0 };
 			cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
 
 			cairo_set_source_rgb(cr, 0, 0, 0);
 
 			cairo_move_to(cr, a_dis->rcItem.left + ms_fontComboPadding - l_extents.x_bearing,
-				a_dis->rcItem.top - l_extents.y_bearing + 
+				a_dis->rcItem.top - l_extents.y_bearing +
 				((a_dis->rcItem.bottom - a_dis->rcItem.top) - l_extents.height) / 2);
 			// the padding is included in (a_dis->rcItem.bottom - a_dis->rcItem.top)
 			// which therefore defines the maximum item height.
@@ -1039,7 +1039,7 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 			cairo_destroy(cr);
 			cairo_surface_destroy(l_surface);
 		}
-		else if(a_dis->itemAction == ODA_FOCUS)
+		else if (a_dis->itemAction == ODA_FOCUS)
 		{
 			::DrawFocusRect(a_dis->hDC, &a_dis->rcItem);
 		}
@@ -1049,12 +1049,12 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 
 bool CSettingsTabDialog::SaveSettings()
 {
-	if(IsViewSettingPage() && m_viewSettings)
+	if (IsViewSettingPage() && m_viewSettings)
 	{
 		std::_tstring l_keyName;
 		bool l_classic = true;
 
-		switch(m_pageId)
+		switch (m_pageId)
 		{
 		case TAB_PAGE_RENDERED: l_keyName = _T("RenderedView"); l_classic = false; break;
 		case TAB_PAGE_CLASSIC: l_keyName = _T("ClassicView"); break;
@@ -1063,32 +1063,32 @@ bool CSettingsTabDialog::SaveSettings()
 
 		ReadBlockSize();
 
-		if(m_beforePreviewViewType != _MAIN_VIEW_MAX)
+		if (m_beforePreviewViewType != _MAIN_VIEW_MAX)
 		{
 			m_mainWin->SwitchView(m_beforePreviewViewType);
 		}
 
 		return m_mainWin->SaveRenderSettingsToRegistry(l_keyName, *m_viewSettings, l_classic);
 	}
-	else if(m_pageId == TAB_PAGE_GENERAL)
+	else if (m_pageId == TAB_PAGE_GENERAL)
 	{
 		PMainSettings l_set = m_mainWin->GetSettings();
 
 		l_set->bCheckDefaultOnStartup = (::IsDlgButtonChecked(GetHwnd(), IDC_CHECK_DEFAULT_VIEWER) != FALSE);
 
 		l_set->iDefaultView = ComboBox_GetCurSel(GetDlgItem(IDC_COMBO_DEFAULTVIEW));
-		if(l_set->iDefaultView < 1 || l_set->iDefaultView >= _MAIN_VIEW_MAX)
+		if (l_set->iDefaultView < 1 || l_set->iDefaultView >= _MAIN_VIEW_MAX)
 			l_set->iDefaultView = -1;
 
 		bool l_oldAsm = l_set->bAlwaysShowMenubar;
 		l_set->bAlwaysShowMenubar = (::IsDlgButtonChecked(GetHwnd(), IDC_MENUBAR_ON_STARTUP) != FALSE);
-		if(l_set->bAlwaysShowMenubar != l_oldAsm) m_mainWin->ShowMenuBar(l_set->bAlwaysShowMenubar);
+		if (l_set->bAlwaysShowMenubar != l_oldAsm) m_mainWin->ShowMenuBar(l_set->bAlwaysShowMenubar);
 
 		l_set->bSingleInstanceMode = (::IsDlgButtonChecked(GetHwnd(), IDC_SINGLEINSTANCEMODE) != FALSE);
 
 		bool l_oldAot = l_set->bAlwaysOnTop;
 		l_set->bAlwaysOnTop = (::IsDlgButtonChecked(GetHwnd(), IDC_ALWAYSONTOP) != FALSE);
-		if(l_set->bAlwaysOnTop != l_oldAot) m_mainWin->UpdateAlwaysOnTop();
+		if (l_set->bAlwaysOnTop != l_oldAot) m_mainWin->UpdateAlwaysOnTop();
 
 		l_set->bKeepOpenMRU = (::IsDlgButtonChecked(GetHwnd(), IDC_REMEMBERMRU) != FALSE);
 		l_set->bCloseOnEsc = (::IsDlgButtonChecked(GetHwnd(), IDC_CLOSE_ON_ESC) != FALSE);
@@ -1099,12 +1099,12 @@ bool CSettingsTabDialog::SaveSettings()
 		return l_set->SaveToRegistry();
 	}
 #ifdef INFEKT_PLUGIN_HOST
-	else if(m_pageId == TAB_PAGE_PLUGINS)
+	else if (m_pageId == TAB_PAGE_PLUGINS)
 	{
 		PPluginManager l_plugMgr = CPluginManager::GetInstance();
 		std::_tstring l_pluginDirPath = CUtilWin32::GetExeDir() + _T("\\plugins\\");
 
-		for(std::map<size_t, std::string>::const_iterator it = m_pluginGuids.begin();
+		for (std::map<size_t, std::string>::const_iterator it = m_pluginGuids.begin();
 			it != m_pluginGuids.end(); it++)
 		{
 			LVFINDINFO l_findInfo = { LVFI_PARAM };
@@ -1112,14 +1112,14 @@ bool CSettingsTabDialog::SaveSettings()
 
 			int l_index = m_pluginListView.FindItem(l_findInfo);
 
-			if(l_index > -1)
+			if (l_index > -1)
 			{
 				bool l_new = (m_pluginListView.GetCheckState(l_index) != FALSE),
 					l_old = l_plugMgr->IsPluginLoaded(it->second);
 
-				if(l_new && !l_old)
+				if (l_new && !l_old)
 				{
-					if(!l_plugMgr->LoadPlugin(l_pluginDirPath + m_pluginFileNames[it->first]))
+					if (!l_plugMgr->LoadPlugin(l_pluginDirPath + m_pluginFileNames[it->first]))
 					{
 						std::_tstring l_msg = _T("An error occured while trying to load a plugin (\"")
 							+ m_pluginFileNames[it->first] + _T("\"):\r\n") +
@@ -1128,7 +1128,7 @@ bool CSettingsTabDialog::SaveSettings()
 						this->MessageBox(l_msg.c_str(), _T("Error"), MB_ICONEXCLAMATION);
 					}
 				}
-				else if(!l_new && l_old)
+				else if (!l_new && l_old)
 				{
 					l_plugMgr->UnLoadPlugin(it->second);
 				}
@@ -1145,9 +1145,9 @@ bool CSettingsTabDialog::SaveSettings()
 #ifdef INFEKT_PLUGIN_HOST
 static int CALLBACK _PluginSortCallback(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort)
 {
-	if(lParam1 == -1)
+	if (lParam1 == -1)
 		return 1;
-	else if(lParam2 == -1)
+	else if (lParam2 == -1)
 		return -1;
 
 	std::map<size_t, std::wstring>* l_map = (std::map<size_t, std::wstring>*)lParamSort;
@@ -1164,10 +1164,10 @@ void CSettingsTabDialog::PopulatePluginList()
 
 	PPluginManager l_plugMgr = CPluginManager::GetInstance();
 
-	WIN32_FIND_DATA l_ffd = {0};
+	WIN32_FIND_DATA l_ffd = { 0 };
 	HANDLE l_fh;
 
-	if((l_fh = ::FindFirstFile(l_pluginDirPattern.c_str(), &l_ffd)) == INVALID_HANDLE_VALUE)
+	if ((l_fh = ::FindFirstFile(l_pluginDirPattern.c_str(), &l_ffd)) == INVALID_HANDLE_VALUE)
 	{
 		return;
 	}
@@ -1179,7 +1179,7 @@ void CSettingsTabDialog::PopulatePluginList()
 			l_pluginVersion, l_pluginDescr, l_saveFileName;
 		std::string l_guid;
 
-		if(l_plugMgr->LoadPlugin(l_dllPath, true))
+		if (l_plugMgr->LoadPlugin(l_dllPath, true))
 		{
 			l_plugMgr->GetLastProbedInfo(l_guid, l_pluginName, l_pluginVersion, l_pluginDescr);
 			l_saveFileName = l_ffd.cFileName;
@@ -1190,19 +1190,19 @@ void CSettingsTabDialog::PopulatePluginList()
 			l_pluginDescr = _T("Error: ") + CPluginManager::GetInstance()->GetLastErrorMessage();
 		}
 
-		LVITEM l_item = {0};
+		LVITEM l_item = { 0 };
 		l_item.iItem = m_pluginListView.GetItemCount();
 		l_item.mask = LVIF_TEXT | LVIF_PARAM;
 		l_item.lParam = (l_saveFileName.empty() ? -1 : l_item.iItem);
 		l_item.pszText = (LPTSTR)l_pluginName.c_str();
 
 		int l_idx = m_pluginListView.InsertItem(l_item);
-		if(l_idx == l_item.iItem)
+		if (l_idx == l_item.iItem)
 		{
 			m_pluginListView.SetItemText(l_idx, 1, l_pluginVersion.c_str());
 			m_pluginListView.SetItemText(l_idx, 2, l_pluginDescr.c_str());
 
-			if(!l_saveFileName.empty())
+			if (!l_saveFileName.empty())
 			{
 				m_pluginListView.SetCheckState(l_idx, l_plugMgr->IsPluginLoaded(l_guid));
 
@@ -1210,11 +1210,11 @@ void CSettingsTabDialog::PopulatePluginList()
 				m_pluginGuids[l_idx] = l_guid;
 			}
 		}
-	} while(::FindNextFile(l_fh, &l_ffd));
+	} while (::FindNextFile(l_fh, &l_ffd));
 
 	m_pluginListView.SortItems(_PluginSortCallback, (DWORD_PTR)&m_pluginFileNames);
 
-	for(WPARAM i = 0; i < 3; i++)
+	for (WPARAM i = 0; i < 3; i++)
 	{
 		m_pluginListView.SendMessage(LVM_SETCOLUMNWIDTH, i, LVSCW_AUTOSIZE_USEHEADER);
 	}
@@ -1224,7 +1224,7 @@ void CSettingsTabDialog::PopulatePluginList()
 #endif
 
 
-CSettingsTabDialog::~CSettingsTabDialog() 
+CSettingsTabDialog::~CSettingsTabDialog()
 {
 	delete m_viewSettings;
 	delete m_previewSettingsBackup;
@@ -1241,7 +1241,7 @@ CFontListEntry::CFontListEntry(const ENUMLOGFONTEX* a_elf)
 	m_name = a_elf->elfFullName;
 
 	// enum font sizes:
-	LOGFONT l_lf = {0};
+	LOGFONT l_lf = { 0 };
 	l_lf.lfCharSet = DEFAULT_CHARSET;
 	_tcscpy_s(&l_lf.lfFaceName[0], LF_FACESIZE, m_logFont.lfFaceName);
 
@@ -1255,7 +1255,7 @@ int CALLBACK CFontListEntry::FontSizesProc(const LOGFONT* plf, const TEXTMETRIC*
 {
 	std::set<int> *l_targetList = (std::set<int>*)lParam;
 
-	if(FontType == TRUETYPE_FONTTYPE)
+	if (FontType == TRUETYPE_FONTTYPE)
 	{
 		static int ls_ttSizes[] = { 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 0 };
 
@@ -1263,8 +1263,7 @@ int CALLBACK CFontListEntry::FontSizesProc(const LOGFONT* plf, const TEXTMETRIC*
 		do
 		{
 			l_targetList->insert(*psz);
-		}
-		while(*++psz);
+		} while (*++psz);
 
 		return 0;
 	}
@@ -1283,17 +1282,17 @@ int CALLBACK CFontListEntry::FontSizesProc(const LOGFONT* plf, const TEXTMETRIC*
 
 int CFontListEntry::GetNiceSize()
 {
-	if(m_sizes.empty())
+	if (m_sizes.empty())
 		return 12;
-	else if(m_sizes.size() == 1)
+	else if (m_sizes.size() == 1)
 		return *m_sizes.begin();
 	else
 	{
 		int l_size = *m_sizes.begin();
 
-		for(std::set<int>::const_iterator it = m_sizes.begin(); it != m_sizes.end(); it++)
+		for (std::set<int>::const_iterator it = m_sizes.begin(); it != m_sizes.end(); it++)
 		{
-			if(*it > 12) break;
+			if (*it > 12) break;
 			else l_size = *it;
 		}
 
@@ -1347,7 +1346,7 @@ void CAdvancedSettingsWindowDialog::OnOK()
 	m_settings->bDefaultExportToNFODir = (::IsDlgButtonChecked(GetHwnd(), IDC_EXPORT_NFO_DIR) != FALSE);
 	m_settings->bMonitorFileChanges = (::IsDlgButtonChecked(GetHwnd(), IDC_MONITOR_FILE_CHANGES) != FALSE);
 
-	m_settings->bOnDemandRendering = (::IsDlgButtonChecked(GetHwnd(), IDC_ONDEMAND_RENDERING) != FALSE);	
+	m_settings->bOnDemandRendering = (::IsDlgButtonChecked(GetHwnd(), IDC_ONDEMAND_RENDERING) != FALSE);
 	m_settings->bUseGPU = (::IsDlgButtonChecked(GetHwnd(), IDC_USE_GPU) != FALSE);
 
 	CDialog::OnOK();

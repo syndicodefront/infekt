@@ -47,7 +47,7 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 	SetHyperLinkColor(_S_COLOR_RGB(0, 0, 0xFF));
 	SetUnderlineHyperLinks(true);
 
-	if(!m_classic)
+	if (!m_classic)
 	{
 		SetBlockSize(7, 12);
 		m_settings.uFontSize = 0;
@@ -107,7 +107,7 @@ void CNFORenderer::UnAssignNFO()
 
 bool CNFORenderer::CalculateGrid()
 {
-	if(!m_nfo || !m_nfo->HasData())
+	if (!m_nfo || !m_nfo->HasData())
 	{
 		return false;
 	}
@@ -124,33 +124,33 @@ bool CNFORenderer::CalculateGrid()
 
 	bool l_hasBlocks = false;
 
-	for(size_t row = 0; row < m_gridData->GetRows(); row++)
+	for (size_t row = 0; row < m_gridData->GetRows(); row++)
 	{
 		bool l_textStarted = false;
 
-		for(size_t col = 0; col < m_gridData->GetCols(); col++)
+		for (size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			CRenderGridBlock *l_block = &l_grid[row][col];
 
 			l_block->shape = CharCodeToGridShape(m_nfo->GetGridChar(row, col), &l_block->alpha);
 
-			if(!l_hasBlocks && l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE) l_hasBlocks = true;
+			if (!l_hasBlocks && l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE) l_hasBlocks = true;
 
-			if(l_block->shape == RGS_WHITESPACE && l_textStarted) l_block->shape = RGS_WHITESPACE_IN_TEXT;
-			else if(l_block->shape == RGS_NO_BLOCK) l_textStarted = true;
+			if (l_block->shape == RGS_WHITESPACE && l_textStarted) l_block->shape = RGS_WHITESPACE_IN_TEXT;
+			else if (l_block->shape == RGS_NO_BLOCK) l_textStarted = true;
 		}
 
-		if(l_textStarted)
+		if (l_textStarted)
 		{
-			for(size_t col = m_gridData->GetCols() - 1; col > 0; col--)
+			for (size_t col = m_gridData->GetCols() - 1; col > 0; col--)
 			{
 				CRenderGridBlock *l_block = &l_grid[row][col];
 
-				if(l_block->shape == RGS_WHITESPACE_IN_TEXT)
+				if (l_block->shape == RGS_WHITESPACE_IN_TEXT)
 				{
 					l_block->shape = RGS_WHITESPACE;
 				}
-				else if(l_block->shape == RGS_NO_BLOCK)
+				else if (l_block->shape == RGS_NO_BLOCK)
 				{
 					break;
 				}
@@ -166,7 +166,7 @@ bool CNFORenderer::CalculateGrid()
 
 /*static*/ ERenderGridShape CNFORenderer::CharCodeToGridShape(wchar_t a_char, uint8_t* ar_alpha)
 {
-	switch(a_char)
+	switch (a_char)
 	{
 	case 0:
 	case 9:
@@ -183,14 +183,14 @@ bool CNFORenderer::CalculateGrid()
 	case 9616: /* right half block */
 		return RGS_BLOCK_RIGHT_HALF;
 	case 9617: /* light shade */
-		if(ar_alpha) *ar_alpha = 90;
+		if (ar_alpha) *ar_alpha = 90;
 		return RGS_FULL_BLOCK;
 	case 9618: /* medium shade */
-		if(ar_alpha) *ar_alpha = 140;
+		if (ar_alpha) *ar_alpha = 140;
 		return RGS_FULL_BLOCK;
 		break;
 	case 9619: /* dark shade */
-		if(ar_alpha) *ar_alpha = 190;
+		if (ar_alpha) *ar_alpha = 190;
 		return RGS_FULL_BLOCK;
 		break;
 	case 9632: /* black square */
@@ -210,19 +210,19 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	int source_x, int source_y, // coordinates between 0 and GetHeight() / GetWidth()
 	int a_width, int a_height)
 {
-	if(m_onDemandRendering && m_numStripes == 0)
+	if (m_onDemandRendering && m_numStripes == 0)
 	{
 		CalcStripeDimensions();
 	}
 
-	if(!m_onDemandRendering || m_numStripes == 1)
+	if (!m_onDemandRendering || m_numStripes == 1)
 	{
-		if(!m_rendered && !Render())
+		if (!m_rendered && !Render())
 		{
 			return false;
 		}
 	}
-	else if(!m_rendered && !m_gridData)
+	else if (!m_rendered && !m_gridData)
 	{
 		// not correctly initialized yet
 		return false;
@@ -234,7 +234,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 	int l_widthFixed = std::min(a_width, (int)GetWidth() - source_x);
 	int l_heightFixed = std::min(a_height, (int)GetHeight() - source_y);
 
-	if(m_numStripes == 1)
+	if (m_numStripes == 1)
 	{
 		cairo_set_source_surface(cr, *m_stripes[0], dest_x - source_x, dest_y - source_y);
 
@@ -252,16 +252,16 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 		l_stripeStart = std::min(l_stripeStart, (int)m_numStripes - 1);
 		l_stripeEnd = std::min(l_stripeEnd, (int)m_numStripes - 1);
 
-		if(m_onDemandRendering)
+		if (m_onDemandRendering)
 		{
 			Render(l_stripeStart, l_stripeEnd);
 		}
 
-		for(int l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
+		for (int l_stripe = l_stripeStart; l_stripe <= l_stripeEnd; l_stripe++)
 		{
 			cairo_surface_t* l_sourceSourface = GetStripeSurface(l_stripe);
 
-			if(!l_sourceSourface)
+			if (!l_sourceSourface)
 			{
 				// happens when zooming out, shouldn't happen otherwise.
 				continue;
@@ -275,7 +275,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 			// height of area of this stripe that is to be painted:
 			int l_height = (l_stripe == l_stripeEnd ? l_heightFixed : GetStripeHeight(l_stripe) - l_stripe_source_y);
 
-			if(l_stripe > l_stripeStart)
+			if (l_stripe > l_stripeStart)
 			{
 				// must clip destination or additional pixels that have been added to stripes for
 				// correct blurring will be copied, too:
@@ -290,7 +290,7 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 			cairo_rectangle(cr, dest_x, dest_y, l_widthFixed, l_height);
 			cairo_fill(cr);
 
-			if(l_stripe > l_stripeStart)
+			if (l_stripe > l_stripeStart)
 			{
 				// undo clip:
 				cairo_restore(cr);
@@ -298,13 +298,13 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 		}
 	}
 
-	if(l_heightFixed < a_height)
+	if (l_heightFixed < a_height)
 	{
 		cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(GetBackColor()));
 		cairo_rectangle(cr, dest_x, dest_y + l_heightFixed, a_width, a_height - l_heightFixed);
 		cairo_fill(cr);
 	}
-	if(l_widthFixed < a_width)
+	if (l_widthFixed < a_width)
 	{
 		cairo_set_source_rgb(cr, S_COLOR_T_CAIRO(GetBackColor()));
 		cairo_rectangle(cr, dest_x + l_widthFixed, dest_y, a_width - l_widthFixed, a_height);
@@ -319,14 +319,14 @@ bool CNFORenderer::DrawToSurface(cairo_surface_t *a_surface,
 
 bool CNFORenderer::DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y)
 {
-	if(!m_rendered && !Render())
+	if (!m_rendered && !Render())
 	{
 		return false;
 	}
 
 	cairo_save(a_cr);
 
-	if(m_numStripes == 1)
+	if (m_numStripes == 1)
 	{
 		cairo_set_source_surface(a_cr, *m_stripes[0], dest_x - 0, dest_y - 0);
 		cairo_rectangle(a_cr, dest_x, dest_y,
@@ -346,12 +346,12 @@ bool CNFORenderer::DrawToClippedHandle(cairo_t* a_cr, int dest_x, int dest_y)
 
 bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 {
-	if(!m_nfo)
+	if (!m_nfo)
 	{
 		return false;
 	}
 
-	if(!m_gridData && !CalculateGrid())
+	if (!m_gridData && !CalculateGrid())
 	{
 		return false;
 	}
@@ -360,13 +360,13 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 	_ASSERT(m_gridData->GetCols() == m_nfo->GetGridWidth());
 	_ASSERT(m_gridData->GetRows() == m_nfo->GetGridHeight());
 
-	if(!m_rendered)
+	if (!m_rendered)
 	{
 		StopPreRendering();
 
 		m_stripes.clear();
 
-		if(m_classic)
+		if (m_classic)
 		{
 			// we need the block size to check the minimum maximum (no typo) stripe height:
 			if (!CalcClassicModeBlockSizes())
@@ -386,35 +386,35 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 	std::vector<size_t> l_changedStripes;
 
 	a_stripeTo = std::min(a_stripeTo, m_numStripes - 1);
-	for(size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
+	for (size_t l_stripe = a_stripeFrom; l_stripe <= a_stripeTo; l_stripe++)
 	{
-		while(l_stripe == m_preRenderingStripe)
+		while (l_stripe == m_preRenderingStripe)
 		{
 			// risky business! not entirely sure if this is safe!
 		}
 
 		std::lock_guard<std::mutex> threadlock(m_stripesLock);
 
-		if(!m_stripes[l_stripe])
+		if (!m_stripes[l_stripe])
 		{
 			m_stripes[l_stripe] = PCairoSurface(new _CCairoSurface(
 				cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 				(int)GetWidth(),
-				GetStripeHeightPhysical(l_stripe))
+					GetStripeHeightPhysical(l_stripe))
 			));
 
 			// render each stripe only once:
 			l_changedStripes.push_back(l_stripe);
-		}	
+		}
 	}
 
 	_ASSERT(m_stripes.size() <= m_numStripes);
 
 	// for some weird reason, this conditional saves a lot of CPU time when scrolling?!.
-	if(l_changedStripes.size() > 0)
+	if (l_changedStripes.size() > 0)
 	{
-		#pragma omp parallel for
-		for(int i = 0; i < static_cast<int>(l_changedStripes.size()); i++)
+#pragma omp parallel for
+		for (int i = 0; i < static_cast<int>(l_changedStripes.size()); i++)
 		{
 			RenderStripe(l_changedStripes[i]);
 		}
@@ -428,7 +428,7 @@ bool CNFORenderer::Render(size_t a_stripeFrom, size_t a_stripeTo)
 
 void CNFORenderer::CalcStripeDimensions()
 {
-	if(!m_nfo || !m_gridData)
+	if (!m_nfo || !m_gridData)
 	{
 		return;
 	}
@@ -442,10 +442,10 @@ void CNFORenderer::CalcStripeDimensions()
 	size_t l_stripeHeightMax = std::max(l_stripeHeightMaxForCores, GetBlockHeight() * 2); // MUST not be smaller than one line's height, using two for sanity
 
 	size_t l_numStripes = GetHeight() / l_stripeHeightMax; // implicit floor()
-	if(l_numStripes == 0) l_numStripes = 1;
+	if (l_numStripes == 0) l_numStripes = 1;
 	size_t l_linesPerStripe = m_nfo->GetGridHeight() / l_numStripes; // implicit floor()
 
-	while(l_linesPerStripe * l_numStripes < m_nfo->GetGridHeight())
+	while (l_linesPerStripe * l_numStripes < m_nfo->GetGridHeight())
 	{
 		// correct rounding errors
 		l_numStripes++;
@@ -465,7 +465,7 @@ cairo_surface_t *CNFORenderer::GetStripeSurface(size_t a_stripe) const
 {
 	std::map<size_t, PCairoSurface>::const_iterator it = m_stripes.find(a_stripe);
 
-	if(it != m_stripes.end())
+	if (it != m_stripes.end())
 	{
 		// the actual surface is not really const, but that's safe because
 		// we are parallelizing per stripe, so one surface can never be used by more than one thread.
@@ -480,10 +480,10 @@ int CNFORenderer::GetStripeHeight(size_t a_stripe) const
 {
 	int l_height = m_stripeHeight;
 
-	if(a_stripe == 0)
+	if (a_stripe == 0)
 		l_height += GetPadding();
-	
-	if(a_stripe == m_numStripes - 1)
+
+	if (a_stripe == m_numStripes - 1)
 		l_height += GetPadding();
 
 	return l_height;
@@ -494,11 +494,11 @@ int CNFORenderer::GetStripeHeight(size_t a_stripe) const
 // issues on the lower and upper edges.
 int CNFORenderer::GetStripeHeightPhysical(size_t a_stripe) const
 {
-	if(IsClassicMode() || m_numStripes < 2)
+	if (IsClassicMode() || m_numStripes < 2)
 		return GetStripeHeight(a_stripe);
-	else if(a_stripe == 0)
+	else if (a_stripe == 0)
 		return GetStripeHeightExtraBottom(a_stripe) + GetStripeHeight(a_stripe);
-	else if(a_stripe == m_numStripes - 1)
+	else if (a_stripe == m_numStripes - 1)
 		return GetStripeHeightExtraTop(a_stripe) + GetStripeHeight(a_stripe);
 	else
 		return GetStripeHeightExtraTop(a_stripe) + GetStripeHeightExtraBottom(a_stripe) + GetStripeHeight(a_stripe);
@@ -519,7 +519,7 @@ int CNFORenderer::GetStripeHeightExtraBottom(size_t a_stripe) const
 
 size_t CNFORenderer::GetStripeExtraLinesTop(size_t a_stripe) const
 {
-	if(IsClassicMode() || !GetEnableGaussShadow() || a_stripe == 0)
+	if (IsClassicMode() || !GetEnableGaussShadow() || a_stripe == 0)
 		return 0;
 
 	return static_cast<size_t>(ceil(static_cast<double>(GetGaussBlurRadius()) / static_cast<double>(GetBlockHeight())));
@@ -528,7 +528,7 @@ size_t CNFORenderer::GetStripeExtraLinesTop(size_t a_stripe) const
 
 size_t CNFORenderer::GetStripeExtraLinesBottom(size_t a_stripe) const
 {
-	if(IsClassicMode() || !GetEnableGaussShadow() || a_stripe == m_numStripes - 1)
+	if (IsClassicMode() || !GetEnableGaussShadow() || a_stripe == m_numStripes - 1)
 		return 0;
 
 	return static_cast<size_t>(ceil(static_cast<double>(GetGaussBlurRadius()) / static_cast<double>(GetBlockHeight())));
@@ -541,7 +541,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 
 	_ASSERT(l_surface != NULL);
 
-	if((!m_hasBlocks || m_classic) && GetBackColor().A > 0)
+	if ((!m_hasBlocks || m_classic) && GetBackColor().A > 0)
 	{
 		cairo_t* cr = cairo_create(l_surface);
 		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
@@ -555,7 +555,7 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 	size_t l_rowStart = (m_numStripes > 1 ? a_stripe * m_linesPerStripe - GetStripeExtraLinesTop(a_stripe) : (size_t)-1),
 		l_rowEnd = a_stripe * m_linesPerStripe + m_linesPerStripe + GetStripeExtraLinesBottom(a_stripe);
 
-	if(m_classic)
+	if (m_classic)
 	{
 		RenderClassic(GetTextColor(), NULL, GetHyperLinkColor(),
 			false,
@@ -564,9 +564,9 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 	}
 	else
 	{
-		if(m_hasBlocks && GetEnableGaussShadow() && ((m_partial & NRP_RENDER_BLOCKS) != 0 || (m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0))
+		if (m_hasBlocks && GetEnableGaussShadow() && ((m_partial & NRP_RENDER_BLOCKS) != 0 || (m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0))
 		{
-			if((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
+			if ((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
 				shared_ptr<CCairoBoxBlur> p_blur(new CCairoBoxBlur(
 					(int)GetWidth(), GetStripeHeightPhysical(a_stripe),
@@ -578,14 +578,14 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				RenderBackgrounds(l_rowStart, l_rowEnd, l_baseY, cr);
 
 				// shadow effect:
-				if(!m_cancelRenderingImmediately)
+				if (!m_cancelRenderingImmediately)
 				{
 					RenderStripeBlocks(a_stripe, false, true, p_blur->GetContext());
 
 					// important when running in CPU fallback mode only:
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetGaussColor()));
-					
-					if(!p_blur->Paint(cr) && p_blur->IsFallbackAllowed())
+
+					if (!p_blur->Paint(cr) && p_blur->IsFallbackAllowed())
 					{
 						// retry once.
 
@@ -601,23 +601,23 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 				cairo_destroy(cr);
 			}
 
-			if((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0 && !m_cancelRenderingImmediately)
+			if ((m_partial & NRP_RENDER_GAUSS_BLOCKS) != 0 && (m_partial & NRP_RENDER_GAUSS_SHADOW) == 0 && !m_cancelRenderingImmediately)
 			{
 				// render blocks in gaussian color
 				RenderStripeBlocks(a_stripe, false, true);
 			}
-			else if((m_partial & NRP_RENDER_BLOCKS) != 0 && !m_cancelRenderingImmediately)
+			else if ((m_partial & NRP_RENDER_BLOCKS) != 0 && !m_cancelRenderingImmediately)
 			{
 				// normal mode
 				RenderStripeBlocks(a_stripe, false, false);
 			}
 		}
-		else if(m_hasBlocks && (m_partial & NRP_RENDER_BLOCKS) != 0 && !m_cancelRenderingImmediately)
+		else if (m_hasBlocks && (m_partial & NRP_RENDER_BLOCKS) != 0 && !m_cancelRenderingImmediately)
 		{
 			RenderStripeBlocks(a_stripe, true, false);
 		}
 
-		if((m_partial & NRP_RENDER_TEXT) != 0 && !m_cancelRenderingImmediately)
+		if ((m_partial & NRP_RENDER_TEXT) != 0 && !m_cancelRenderingImmediately)
 		{
 			RenderText(GetTextColor(), NULL, GetHyperLinkColor(),
 				l_rowStart, 0, l_rowEnd, m_nfo->GetGridWidth() - 1,
@@ -631,24 +631,24 @@ void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double 
 {
 	cairo_save(cr);
 
-	if(GetBackColor().A > 0)
+	if (GetBackColor().A > 0)
 	{
 		cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetBackColor()));
 		cairo_paint(cr);
 	}
 
-	if(m_nfo->HasColorMap())
+	if (m_nfo->HasColorMap())
 	{
 		double dbw = static_cast<double>(GetBlockWidth());
 		double dbh = static_cast<double>(GetBlockHeight());
 		uint32_t l_defaultColor = GetBackColor().AsWord();
 
-		for(size_t row = (a_rowStart == -1 ? 0 : a_rowStart); row <= a_rowEnd; row++)
+		for (size_t row = (a_rowStart == -1 ? 0 : a_rowStart); row <= a_rowEnd; row++)
 		{
 			std::vector<size_t> l_columns;
 			std::vector<uint32_t> l_colors;
 
-			if(!m_nfo->GetColorMap()->GetLineBackgrounds(row, l_defaultColor, m_gridData->GetCols(), l_columns, l_colors))
+			if (!m_nfo->GetColorMap()->GetLineBackgrounds(row, l_defaultColor, m_gridData->GetCols(), l_columns, l_colors))
 				continue;
 
 			_ASSERT(l_colors.size() == l_columns.size());
@@ -656,7 +656,7 @@ void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double 
 
 			size_t col = 0;
 
-			for(size_t section = 0; section < l_colors.size(); section++)
+			for (size_t section = 0; section < l_colors.size(); section++)
 			{
 				_ASSERT(l_columns[section] > 0);
 				_ASSERT(l_columns[section] <= m_gridData->GetCols());
@@ -665,7 +665,7 @@ void CNFORenderer::RenderBackgrounds(size_t a_rowStart, size_t a_rowEnd, double 
 
 				_ASSERT(col_to > col);
 
-				if(l_colors[section] != l_defaultColor)
+				if (l_colors[section] != l_defaultColor)
 				{
 					double x_from = col * dbw, x_to = col_to * dbw;
 
@@ -699,7 +699,7 @@ void CNFORenderer::RenderStripeBlocks(size_t a_stripe, bool a_opaqueBg, bool a_g
 		// see comment in RenderStripe():
 		0, (a_stripe == 0 ? 0 : -GetPadding() - (double)a_stripe * m_stripeHeight) + GetStripeHeightExtraTop(a_stripe));
 
-	if(!a_context)
+	if (!a_context)
 	{
 		cairo_destroy(l_context);
 	}
@@ -711,7 +711,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 	double l_off_x = GetPadding() + a_xBase, l_off_y = GetPadding() + a_yBase;
 
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
-	if(a_rowStart != (size_t)-1)
+	if (a_rowStart != (size_t)-1)
 	{
 		l_rowStart = std::max(a_rowStart, l_rowStart);
 		l_rowEnd = std::min(a_rowEnd, l_rowEnd);
@@ -720,7 +720,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 	cairo_t * const cr = a_context;
 	cairo_save(cr);
 
-	if(a_opaqueBg)
+	if (a_opaqueBg)
 	{
 		RenderBackgrounds(l_rowStart, l_rowEnd, a_yBase, cr);
 	}
@@ -737,19 +737,19 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 	const double bhd = static_cast<double>(GetBlockHeight());
 	const double bwd05 = bwd * 0.5;
 	const double bhd05 = bhd * 0.5;
-	
-	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
+
+	for (size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
-		if(m_cancelRenderingImmediately)
+		if (m_cancelRenderingImmediately)
 		{
 			break;
 		}
 
-		for(size_t col = 0; col < m_gridData->GetCols(); col++)
+		for (size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-			if(l_block->shape == RGS_NO_BLOCK ||
+			if (l_block->shape == RGS_NO_BLOCK ||
 				l_block->shape == RGS_WHITESPACE ||
 				l_block->shape == RGS_WHITESPACE_IN_TEXT)
 			{
@@ -758,7 +758,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 			S_COLOR_T l_drawingColor = a_gaussStep ? GetGaussColor() : GetArtColor();
 
-			if(l_hasColorMap)
+			if (l_hasColorMap)
 			{
 				uint32_t clr;
 
@@ -767,10 +767,10 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 				l_drawingColor = S_COLOR_T(clr);
 			}
 
-			if(l_first 
+			if (l_first
 				|| (l_block->alpha != l_oldAlpha)  // R,G,B never change during the loop (unless there's a colormap)
 				|| (l_hasColorMap && l_drawingColor != l_oldColor)
-			) {
+				) {
 				cairo_fill(cr); // complete previous drawing operation(s)
 
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_drawingColor), (l_block->alpha / 255.0) * (l_drawingColor.A / 255.0));
@@ -784,7 +784,7 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 			double l_pos_x = col * bwd, l_pos_y = row * bhd, l_width = bwd, l_height = bhd;
 
-			switch(l_block->shape)
+			switch (l_block->shape)
 			{
 			case RGS_BLOCK_LOWER_HALF:
 				l_pos_y += bhd05;
@@ -824,14 +824,14 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 void CNFORenderer::_FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, size_t& a_rowEnd, size_t& a_colEnd)
 {
-	if(a_rowStart != (size_t)-1)
+	if (a_rowStart != (size_t)-1)
 	{
-		if(a_rowEnd < a_rowStart)
+		if (a_rowEnd < a_rowStart)
 		{
 			size_t tmp = a_rowStart; a_rowStart = a_rowEnd; a_rowEnd = tmp;
 			tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
 		}
-		else if(a_rowEnd == a_rowStart && a_colStart > a_colEnd)
+		else if (a_rowEnd == a_rowStart && a_colStart > a_colEnd)
 		{
 			size_t tmp = a_colStart; a_colStart = a_colEnd; a_colEnd = tmp;
 		}
@@ -840,7 +840,7 @@ void CNFORenderer::_FixUpRowColStartEnd(size_t& a_rowStart, size_t& a_colStart, 
 
 static inline void _SetUpHyperLinkUnderlining(const CNFORenderer* r, cairo_t* cr)
 {
-	if(r->GetHilightHyperLinks() && r->GetUnderlineHyperLinks())
+	if (r->GetHilightHyperLinks() && r->GetUnderlineHyperLinks())
 	{
 		cairo_set_line_width(cr, 1);
 		cairo_set_antialias(cr, CAIRO_ANTIALIAS_NONE); // looks better
@@ -866,7 +866,7 @@ static inline void _SetUpDrawingTools(const CNFORenderer* r, cairo_surface_t* a_
 	cairo_select_font_face(cr, l_font.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, cfo);
 
-	if(r->IsClassicMode())
+	if (r->IsClassicMode())
 	{
 		cairo_set_font_size(cr, static_cast<double>(r->GetFontSize()));
 	}
@@ -891,7 +891,7 @@ static inline void _FinalizeDrawingTools(cairo_t** pcr, cairo_font_options_t** p
 
 void CNFORenderer::PreRenderText()
 {
-	if(m_classic || m_fontSize > 0)
+	if (m_classic || m_fontSize > 0)
 	{
 		return;
 	}
@@ -908,20 +908,20 @@ void CNFORenderer::PreRenderText()
 
 	std::set<wchar_t> l_checkChars;
 
-	for(size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
+	for (size_t row = 0; row < m_gridData->GetRows() && !l_broken; row++)
 	{
-		for(size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
+		for (size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
 		{
 			CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-			if(l_block->shape == RGS_NO_BLOCK)
+			if (l_block->shape == RGS_NO_BLOCK)
 			{
 				l_checkChars.insert(m_nfo->GetGridChar(row, col));
 			}
 		}
 	}
 
-	if(l_checkChars.size() > 0)
+	if (l_checkChars.size() > 0)
 	{
 		// add some generic "big" chars for NFOs that e.g.
 		// contain nothing but dots or middots:
@@ -933,9 +933,9 @@ void CNFORenderer::PreRenderText()
 		{
 			cairo_set_font_size(cr, l_fontSize + 1);
 
-			for(std::set<wchar_t>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
+			for (std::set<wchar_t>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
 			{
-				cairo_text_extents_t l_extents = {0};
+				cairo_text_extents_t l_extents = { 0 };
 
 				// measure the inked area of this glyph (char):
 				cairo_scaled_font_t *l_csf = cairo_get_scaled_font(cr);
@@ -944,14 +944,14 @@ void CNFORenderer::PreRenderText()
 
 				const std::string utf8 = m_nfo->GetGridCharUtf8(*it);
 
-				if(cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, utf8.c_str(), -1,
+				if (cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, utf8.c_str(), -1,
 					&l_glyphs, &l_numGlyphs, NULL, NULL, NULL) == CAIRO_STATUS_SUCCESS)
 				{
 					cairo_scaled_font_glyph_extents(l_csf, l_glyphs, l_numGlyphs, &l_extents);
 					cairo_glyph_free(l_glyphs);
 
 					// find char that covers the largest area...
-					if(l_extents.width > GetBlockWidth() || l_extents.height > GetBlockHeight())
+					if (l_extents.width > GetBlockWidth() || l_extents.height > GetBlockHeight())
 					{
 						l_broken = true;
 					}
@@ -960,11 +960,11 @@ void CNFORenderer::PreRenderText()
 				}
 			}
 
-			if(!l_broken)
+			if (!l_broken)
 			{
 				l_fontSize++;
 			}
-		} while(!l_broken && l_foundText);
+		} while (!l_broken && l_foundText);
 	}
 
 	m_fontSize = l_fontSize + 1;
@@ -973,9 +973,9 @@ void CNFORenderer::PreRenderText()
 }
 
 void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
-							  const S_COLOR_T& a_hyperLinkColor,
-							  size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-							  cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
+	const S_COLOR_T& a_hyperLinkColor,
+	size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
+	cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
 {
 	double l_off_x = a_xBase + GetPadding(), l_off_y = a_yBase + GetPadding();
 
@@ -990,7 +990,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	// m_fontSize has been calculated by PreRenderText:
 	cairo_set_font_size(cr, m_fontSize);
 
-	if(m_fontSize < 4)
+	if (m_fontSize < 4)
 	{
 		// disable anti-alias to avoid colorful artifacts in low zoom levels:
 		cairo_font_options_set_antialias(l_fontOptions, CAIRO_ANTIALIAS_NONE);
@@ -1003,7 +1003,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 	// determine ranges to draw (important for selection/highlights):
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
-	if(a_rowStart != (size_t)-1)
+	if (a_rowStart != (size_t)-1)
 	{
 		l_rowStart = std::max(a_rowStart, l_rowStart);
 		l_rowEnd = std::min(a_rowEnd, l_rowEnd);
@@ -1019,42 +1019,42 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 	std::string l_utfBuf;
 	l_utfBuf.reserve(m_nfo->GetGridWidth());
 
-	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
+	for (size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
 		size_t l_firstCol = (size_t)-1;
 
-		if(m_cancelRenderingImmediately)
+		if (m_cancelRenderingImmediately)
 		{
 			break;
 		}
 
 		// collect an UTF-8 buffer of each line:
-		for(size_t col = 0; col < m_gridData->GetCols(); col++)
+		for (size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
 			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-			if(l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE_IN_TEXT)
+			if (l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE_IN_TEXT)
 			{
-				if(l_firstCol != (size_t)-1)
+				if (l_firstCol != (size_t)-1)
 					l_utfBuf += ' '; // add whitespace between non-whitespace chars that are skipped
 
 				continue;
 			}
 
-			if(a_rowStart != (size_t)-1)
+			if (a_rowStart != (size_t)-1)
 			{
-				if(row == a_rowStart && col < a_colStart)
+				if (row == a_rowStart && col < a_colStart)
 					continue;
-				else if(row == a_rowEnd && col > a_colEnd)
+				else if (row == a_rowEnd && col > a_colEnd)
 					break;
 			}
 
 			l_utfBuf += m_nfo->GetGridCharUtf8(row, col);
 
-			if(col < l_firstCol) l_firstCol = col;
+			if (col < l_firstCol) l_firstCol = col;
 		}
 
-		if(l_firstCol != (size_t)-1)
+		if (l_firstCol != (size_t)-1)
 		{
 			cairo_glyph_t *l_glyphs = NULL, *l_pg;
 			int l_numGlyphs = -1, i;
@@ -1070,13 +1070,13 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				l_utfBuf.c_str(), (int)l_utfBuf.size(), &l_glyphs, &l_numGlyphs, NULL, NULL, NULL);
 
 			// put each char/glyph into its cell in the grid:
-			for(l_pg = l_glyphs, i = 0; i < l_numGlyphs; i++, l_pg++)
+			for (l_pg = l_glyphs, i = 0; i < l_numGlyphs; i++, l_pg++)
 			{
 				l_pg->x = l_off_x + (l_firstCol + i) * GetBlockWidth();
 			}
 
 			// draw background for highlights/selection etc:
-			if(a_backColor)
+			if (a_backColor)
 			{
 				cairo_save(cr);
 				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
@@ -1089,19 +1089,19 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 			// check for hyperlinks...
 			const std::vector<const CNFOHyperLink*> l_links = m_nfo->GetLinksForLine(row);
 
-			if(l_links.size() == 0 || !GetHilightHyperLinks())
+			if (l_links.size() == 0 || !GetHilightHyperLinks())
 			{
 				// ... no hyperlinks, draw the entire line in one go:
 				cairo_show_glyphs(cr, l_glyphs, l_numGlyphs);
 			}
-			else if(a_rowStart == (size_t)-1 || !a_backColor)
+			else if (a_rowStart == (size_t)-1 || !a_backColor)
 			{
 				size_t l_nextCol = l_firstCol;
 
 				cairo_save(cr);
 
 				// go through each hyperlink and hilight them as requested:
-				for(std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
+				for (std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
 				{
 					const CNFOHyperLink* l_link = *it;
 
@@ -1112,7 +1112,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
 
-					if(GetUnderlineHyperLinks())
+					if (GetUnderlineHyperLinks())
 					{
 						cairo_move_to(cr, l_off_x + l_link->GetColStart() * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
 						cairo_rel_line_to(cr, static_cast<double>(l_link->GetLength() * GetBlockWidth()), 0);
@@ -1127,7 +1127,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				cairo_restore(cr);
 
 				// draw remaining text following the last link:
-				if(l_nextCol - l_firstCol < (size_t)l_numGlyphs)
+				if (l_nextCol - l_firstCol < (size_t)l_numGlyphs)
 				{
 					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol,
 						static_cast<int>(l_numGlyphs + l_firstCol - l_nextCol));
@@ -1143,15 +1143,15 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 				cairo_save(cr);
 
-				for(int p = 0; p <= l_numGlyphs; p++) /* excess run: draw remaining stuff */
+				for (int p = 0; p <= l_numGlyphs; p++) /* excess run: draw remaining stuff */
 				{
 					bool l_linkAtPos = (l_linkRest > 0);
 
-					if(p == 0 || (!l_linkAtPos && p < l_numGlyphs))
+					if (p == 0 || (!l_linkAtPos && p < l_numGlyphs))
 					{
-						for(std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
+						for (std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
 						{
-							if(p + l_firstCol >= (*it)->GetColStart() && p + l_firstCol <= (*it)->GetColEnd())
+							if (p + l_firstCol >= (*it)->GetColStart() && p + l_firstCol <= (*it)->GetColEnd())
 							{
 								l_linkAtPos = true;
 								l_linkRest = (*it)->GetLength() - (p + l_firstCol - (*it)->GetColStart()) - 1;
@@ -1159,28 +1159,28 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 							}
 						}
 
-						if(p == 0) l_inLink = l_linkAtPos;
+						if (p == 0) l_inLink = l_linkAtPos;
 					}
 					else
 						l_linkRest--;
 
-					if(l_linkAtPos == l_inLink)
+					if (l_linkAtPos == l_inLink)
 					{
 						l_showLen++;
 					}
 
-					if((l_linkAtPos != l_inLink || p == l_numGlyphs) && l_showLen > 0)
+					if ((l_linkAtPos != l_inLink || p == l_numGlyphs) && l_showLen > 0)
 					{
-						if(p == l_numGlyphs && l_linkAtPos == l_inLink)
+						if (p == l_numGlyphs && l_linkAtPos == l_inLink)
 						{
 							l_showLen--;
 						}
 
-						if(l_inLink) // "buffer" contains hyperlink text
+						if (l_inLink) // "buffer" contains hyperlink text
 						{
 							cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
 
-							if(GetUnderlineHyperLinks())
+							if (GetUnderlineHyperLinks())
 							{
 								cairo_move_to(cr, l_off_x + (l_showStart + l_firstCol) * GetBlockWidth(), l_off_y + (row + 1) * GetBlockHeight());
 								cairo_rel_line_to(cr, static_cast<double>(l_showLen * GetBlockWidth()), 0);
@@ -1194,7 +1194,7 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 
 						cairo_show_glyphs(cr, l_glyphs + l_showStart, l_showLen);
 
-						if(p < l_numGlyphs)
+						if (p < l_numGlyphs)
 						{
 							l_showStart = (size_t)p;
 							l_showLen = 1;
@@ -1222,7 +1222,7 @@ bool CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
 {
 	bool success = true;
 
-	if(m_classic && (m_fontSize < 0 || a_force))
+	if (m_classic && (m_fontSize < 0 || a_force))
 	{
 		cairo_surface_t* l_tmpSurface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 100, 100);
 
@@ -1230,7 +1230,7 @@ bool CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
 		cairo_font_options_t* l_fontOptions;
 		_SetUpDrawingTools(this, l_tmpSurface, &cr, &l_fontOptions);
 
-		wchar_t l_blockStr[2] = { 9608, 0}; // full block + null terminator
+		wchar_t l_blockStr[2] = { 9608, 0 }; // full block + null terminator
 		const std::string l_blockStrUtf = CUtil::FromWideStr(l_blockStr, CP_UTF8);
 
 		cairo_text_extents_t l_extents;
@@ -1258,9 +1258,9 @@ bool CNFORenderer::CalcClassicModeBlockSizes(bool a_force)
 
 
 void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
-								 const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
-								 size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-								 cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
+	const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
+	size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
+	cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
 {
 	double l_off_x = a_xBase + GetPadding(), l_off_y = a_yBase + GetPadding();
 
@@ -1276,7 +1276,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 	cairo_font_extents(cr, &l_font_extents);
 
 	size_t l_rowStart = 0, l_rowEnd = m_gridData->GetRows() - 1;
-	if(a_rowStart != (size_t)-1)
+	if (a_rowStart != (size_t)-1)
 	{
 		l_rowStart = std::max(a_rowStart, l_rowStart);
 		l_rowEnd = std::min(a_rowEnd, l_rowEnd);
@@ -1293,40 +1293,40 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 	std::string l_utfBuf;
 	l_utfBuf.reserve(m_nfo->GetGridWidth());
 
-	for(size_t row = l_rowStart; row <= l_rowEnd; row++)
+	for (size_t row = l_rowStart; row <= l_rowEnd; row++)
 	{
 		_block_color_type l_curType = _BT_UNDEF;
 		size_t l_bufStart = (size_t)-1;
 
-		if(m_cancelRenderingImmediately)
+		if (m_cancelRenderingImmediately)
 		{
 			break;
 		}
 
-		for(size_t col = 0; col <= m_gridData->GetCols(); col++)
+		for (size_t col = 0; col <= m_gridData->GetCols(); col++)
 		{
-			if(a_rowStart != (size_t)-1)
+			if (a_rowStart != (size_t)-1)
 			{
-				if(row == a_rowStart && col < a_colStart)
+				if (row == a_rowStart && col < a_colStart)
 					continue;
-				else if(row == a_rowEnd && col > a_colEnd)
+				else if (row == a_rowEnd && col > a_colEnd)
 					col = m_gridData->GetCols();
 			}
 
 			_block_color_type l_type;
 
-			if(col != m_gridData->GetCols())
+			if (col != m_gridData->GetCols())
 			{
 				const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
 
-				if(l_block->shape == RGS_NO_BLOCK)
+				if (l_block->shape == RGS_NO_BLOCK)
 				{
-					if(GetHilightHyperLinks() && m_nfo->GetLink(row, col) != NULL)
+					if (GetHilightHyperLinks() && m_nfo->GetLink(row, col) != NULL)
 						l_type = BT_LINK;
 					else
 						l_type = BT_TEXT;
 				}
-				else if(l_block->shape == RGS_WHITESPACE_IN_TEXT && l_curType != BT_LINK)
+				else if (l_block->shape == RGS_WHITESPACE_IN_TEXT && l_curType != BT_LINK)
 				{
 					l_type = l_curType;
 				}
@@ -1340,16 +1340,16 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 				l_type = _BT_UNDEF;
 			}
 
-			if(l_type == l_curType && l_type != _BT_UNDEF)
+			if (l_type == l_curType && l_type != _BT_UNDEF)
 			{
 				l_utfBuf += m_nfo->GetGridCharUtf8(row, col);
-				if(l_bufStart == (size_t)-1) l_bufStart = col;
+				if (l_bufStart == (size_t)-1) l_bufStart = col;
 
 				continue;
 			}
 			/* else */
 
-			if(l_curType != _BT_UNDEF && !l_utfBuf.empty() &&
+			if (l_curType != _BT_UNDEF && !l_utfBuf.empty() &&
 				!(l_curType == BT_BLOCK && (m_partial & NRP_RENDER_BLOCKS) == 0) &&
 				!((l_curType == BT_TEXT || l_curType == BT_LINK) && (m_partial & NRP_RENDER_TEXT) == 0))
 			{
@@ -1358,7 +1358,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 					(col - l_bufStart));
 
 				// draw char background for highlights/selection etc:
-				if(a_backColor && (l_curType != BT_BLOCK || a_backBlocks))
+				if (a_backColor && (l_curType != BT_BLOCK || a_backBlocks))
 				{
 					cairo_save(cr);
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(*a_backColor));
@@ -1371,7 +1371,7 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 					cairo_restore(cr);
 				}
 
-				if(l_curType == BT_LINK && GetUnderlineHyperLinks())
+				if (l_curType == BT_LINK && GetUnderlineHyperLinks())
 				{
 					cairo_move_to(cr,
 						static_cast<double>(l_off_x + l_bufStart * GetBlockWidth()),
@@ -1389,17 +1389,17 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 			// set up new type
 			l_curType = l_type;
 
-			if(l_type != _BT_UNDEF)
+			if (l_type != _BT_UNDEF)
 			{
-				if(l_type == BT_LINK)
+				if (l_type == BT_LINK)
 				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_hyperLinkColor));
 				}
-				else if(l_type == BT_TEXT || a_backBlocks)
+				else if (l_type == BT_TEXT || a_backBlocks)
 				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
 				}
-				else if(l_type == BT_BLOCK)
+				else if (l_type == BT_BLOCK)
 				{
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(GetArtColor()));
 				}
@@ -1416,13 +1416,13 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 
 bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace) const
 {
-	if(!m_gridData) return false;
+	if (!m_gridData) return false;
 
-	if(a_row < m_gridData->GetRows() && a_col < m_gridData->GetCols())
+	if (a_row < m_gridData->GetRows() && a_col < m_gridData->GetCols())
 	{
 		const CRenderGridBlock *l_block = &(*m_gridData)[a_row][a_col];
 
-		if(m_classic)
+		if (m_classic)
 		{
 			return a_allowWhiteSpace || (l_block->shape != RGS_WHITESPACE);
 		}
@@ -1441,7 +1441,7 @@ void CNFORenderer::SetZoom(unsigned int a_percent)
 {
 	unsigned int l_oldPercent = static_cast<unsigned int>(m_zoomFactor * 100);
 
-	if(a_percent != l_oldPercent)
+	if (a_percent != l_oldPercent)
 	{
 		m_zoomFactor = a_percent / 100.0f;
 
@@ -1455,7 +1455,7 @@ void CNFORenderer::SetZoom(unsigned int a_percent)
 
 size_t CNFORenderer::GetWidth() const
 {
-	if(!m_nfo) return 0;
+	if (!m_nfo) return 0;
 
 	return m_nfo->GetGridWidth() * GetBlockWidth() + GetPadding() * 2;
 }
@@ -1463,7 +1463,7 @@ size_t CNFORenderer::GetWidth() const
 
 size_t CNFORenderer::GetHeight() const
 {
-	if(!m_nfo) return 0;
+	if (!m_nfo) return 0;
 
 	return m_nfo->GetGridHeight() * GetBlockHeight() + GetPadding() * 2;
 }
@@ -1471,7 +1471,7 @@ size_t CNFORenderer::GetHeight() const
 
 bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
 {
-	if(ar && _stricmp(a_str, "transparent") == 0)
+	if (ar && _stricmp(a_str, "transparent") == 0)
 	{
 		ar->R = ar->G = ar->B = 255;
 		ar->A = 0;
@@ -1479,15 +1479,15 @@ bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
 	}
 
 	// HTML/CSS style!
-	if(a_str[0] == '#') a_str++;
+	if (a_str[0] == '#') a_str++;
 
 	int R = 0, G = 0, B = 0, A = 255;
 
-	if(ar && (strlen(a_str) == 8 && sscanf(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4) ||
+	if (ar && (strlen(a_str) == 8 && sscanf(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4) ||
 		(strlen(a_str) == 6 && sscanf(a_str, "%2x%2x%2x", &R, &G, &B) == 3))
 	{
 		// it's VERY unlikely these fail with %2x, but whatever...
-		if(R >= 0 && R <= 255 &&
+		if (R >= 0 && R <= 255 &&
 			G >= 0 && G <= 255 &&
 			B >= 0 && B <= 255 &&
 			A >= 0 && A <= 255)
@@ -1517,9 +1517,9 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	// use the setter methods so m_rendered only goes "false"
 	// if there has really been a change.
 
-	if(!m_classic)
+	if (!m_classic)
 	{
-		if(ns.uBlockWidth > 0 && ns.uBlockWidth < 200 &&
+		if (ns.uBlockWidth > 0 && ns.uBlockWidth < 200 &&
 			ns.uBlockHeight > 0 && ns.uBlockHeight < 200)
 		{
 			SetBlockSize(ns.uBlockWidth, ns.uBlockHeight);
@@ -1527,14 +1527,14 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 
 		SetEnableGaussShadow(ns.bGaussShadow, ns.bGaussANSI);
 		SetGaussColor(ns.cGaussColor);
-		if(ns.uGaussBlurRadius <= 100)
+		if (ns.uGaussBlurRadius <= 100)
 			SetGaussBlurRadius(ns.uGaussBlurRadius);
 		else
 			SetGaussBlurRadius(0);
 	}
-	else 
+	else
 	{
-		if(ns.uFontSize >= 3 && ns.uFontSize < 200)
+		if (ns.uFontSize >= 3 && ns.uFontSize < 200)
 			SetFontSize(ns.uFontSize);
 		else
 			SetFontSize(ms_defaultClassicFontSize);
@@ -1554,7 +1554,7 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	SetFontAntiAlias(ns.bFontAntiAlias);
 	SetFontFace(ns.sFontFace);
 
-	if(!m_rendered) // stuff has changed
+	if (!m_rendered) // stuff has changed
 	{
 		ClearStripes();
 	}
@@ -1619,7 +1619,7 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 {
 	CUtil::StrTrim(a_str);
 
-	if(a_str.size() < 3 || a_str[0] != L'{' || a_str[a_str.size() - 1] != L'}')
+	if (a_str.size() < 3 || a_str[0] != L'{' || a_str[a_str.size() - 1] != L'}')
 	{
 		return false;
 	}
@@ -1632,18 +1632,18 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 	CNFORenderSettings l_tmpSets;
 
 	std::wstring::size_type l_colonPos = a_str.find(L':'), l_posBeforeColon = 0;
-	while(l_colonPos != std::wstring::npos)
+	while (l_colonPos != std::wstring::npos)
 	{
 		std::wstring l_key = a_str.substr(l_posBeforeColon, l_colonPos - l_posBeforeColon);
 
 		std::wstring::size_type l_pos = l_colonPos + 1;
-		while(l_pos < a_str.size() && iswspace(a_str[l_pos])) l_pos++;
+		while (l_pos < a_str.size() && iswspace(a_str[l_pos])) l_pos++;
 
-		if(l_pos >= a_str.size() - 1) break;
+		if (l_pos >= a_str.size() - 1) break;
 
 		std::wstring::size_type l_valEndPos;
 
-		if(a_str[l_pos] == L'\'')
+		if (a_str[l_pos] == L'\'')
 		{
 			l_valEndPos = a_str.find(L'\'', l_pos + 1);
 		}
@@ -1652,20 +1652,20 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 			l_valEndPos = a_str.find(L';', l_pos);
 		}
 
-		if(l_valEndPos == std::wstring::npos)
+		if (l_valEndPos == std::wstring::npos)
 		{
 			break;
 		}
 
 		std::wstring l_val = a_str.substr(l_pos, l_valEndPos - l_pos);
 
-		if(a_str[l_pos] == L'\'')
+		if (a_str[l_pos] == L'\'')
 		{
 			l_val.erase(0, 1);
 
 			l_valEndPos = a_str.find(L';', l_valEndPos);
 
-			if(l_valEndPos == std::wstring::npos)
+			if (l_valEndPos == std::wstring::npos)
 			{
 				l_valEndPos = a_str.size();
 			}
@@ -1673,44 +1673,44 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 
 		l_numExtracted++;
 
-		if(l_key == L"blw")
+		if (l_key == L"blw")
 			l_tmpSets.uBlockWidth = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
-		else if(l_key == L"blh")
+		else if (l_key == L"blh")
 			l_tmpSets.uBlockHeight = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
-		else if(l_key == L"fos")
+		else if (l_key == L"fos")
 			l_tmpSets.uFontSize = static_cast<size_t>(wcstoul(l_val.c_str(), NULL, 10));
-		else if(l_key == L"cba")
+		else if (l_key == L"cba")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cBackColor);
-		else if(l_key == L"cte")
+		else if (l_key == L"cte")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cTextColor);
-		else if(l_key == L"car")
+		else if (l_key == L"car")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cArtColor);
-		else if(l_key == L"fof" && l_val.size() <= LF_FACESIZE)
+		else if (l_key == L"fof" && l_val.size() <= LF_FACESIZE)
 		{
 #ifdef _UNICODE
 			wcscpy_s(l_tmpSets.sFontFace, LF_FACESIZE + 1, l_val.c_str());
 #else
 			const std::string l_sff = CUtil::FromWideStr(l_val, CP_UTF8);
 
-			if(l_sff.size() <= LF_FACESIZE)
+			if (l_sff.size() <= LF_FACESIZE)
 			{
 				strcpy_s(l_tmpSets.sFontFace, LF_FACESIZE + 1, l_sff.c_str());
 			}
 #endif
 		}
-		else if(l_key == L"foa")
+		else if (l_key == L"foa")
 			l_tmpSets.bFontAntiAlias = (wcstol(l_val.c_str(), NULL, 10) != 0);
-		else if(l_key == L"cga")
+		else if (l_key == L"cga")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cGaussColor);
-		else if(l_key == L"gas")
+		else if (l_key == L"gas")
 			l_tmpSets.bGaussShadow = (wcstol(l_val.c_str(), NULL, 10) != 0);
-		else if(l_key == L"gar")
+		else if (l_key == L"gar")
 			l_tmpSets.uGaussBlurRadius = static_cast<unsigned int>(wcstoul(l_val.c_str(), NULL, 10));
-		else if(l_key == L"hhl")
+		else if (l_key == L"hhl")
 			l_tmpSets.bHilightHyperlinks = (wcstol(l_val.c_str(), NULL, 10) != 0);
-		else if(l_key == L"chl")
+		else if (l_key == L"chl")
 			CNFORenderer::ParseColor(l_val.c_str(), &l_tmpSets.cHyperlinkColor);
-		else if(l_key == L"hul")
+		else if (l_key == L"hul")
 			l_tmpSets.bUnderlineHyperlinks = (wcstol(l_val.c_str(), NULL, 10) != 0);
 		else
 			l_numExtracted--;
@@ -1719,7 +1719,7 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 		l_colonPos = a_str.find(L':', l_posBeforeColon);
 	}
 
-	if(l_numExtracted > 0)
+	if (l_numExtracted > 0)
 	{
 		// we use this to validate the raw data from a_str:
 		CNFORenderer l_dummyRenderer(a_classic);
@@ -1738,7 +1738,7 @@ void CNFORenderer::WaitForPreRender()
 {
 	shared_ptr<std::thread> l_renderThread(m_preRenderThread);
 
-	if(l_renderThread && l_renderThread->joinable())
+	if (l_renderThread && l_renderThread->joinable())
 	{
 		l_renderThread->join();
 
@@ -1751,7 +1751,7 @@ void CNFORenderer::WaitForPreRender()
 
 void CNFORenderer::StopPreRendering(bool a_cancel)
 {
-	if(!m_preRenderThread || m_stopPreRendering)
+	if (!m_preRenderThread || m_stopPreRendering)
 	{
 		return;
 	}
@@ -1765,7 +1765,7 @@ void CNFORenderer::StopPreRendering(bool a_cancel)
 
 void CNFORenderer::PreRender()
 {
-	if(m_preRenderThread || m_numStripes < 2)
+	if (m_preRenderThread || m_numStripes < 2)
 	{
 		return;
 	}
@@ -1779,16 +1779,16 @@ void CNFORenderer::PreRender()
 
 void CNFORenderer::PreRenderThreadProc()
 {
-	for(size_t l_stripe = 0; l_stripe < m_numStripes && !m_stopPreRendering; ++l_stripe)
+	for (size_t l_stripe = 0; l_stripe < m_numStripes && !m_stopPreRendering; ++l_stripe)
 	{
 		m_stripesLock.lock();
 
-		if(!m_stripes[l_stripe])
+		if (!m_stripes[l_stripe])
 		{
 			m_stripes[l_stripe] = PCairoSurface(new _CCairoSurface(
 				cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 				(int)GetWidth(),
-				GetStripeHeightPhysical(l_stripe))
+					GetStripeHeightPhysical(l_stripe))
 			));
 
 			m_stripesLock.unlock();

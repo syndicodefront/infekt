@@ -22,7 +22,7 @@ void CPluginManager::TriggerNfoLoad(bool a_before, const std::wstring& a_filePat
 {
 	std::wstring l_fileName, l_filePath;
 
-	if(a_before)
+	if (a_before)
 	{
 		l_filePath = a_filePath;
 	}
@@ -69,7 +69,7 @@ bool CPluginManager::TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen
 	(void)a_buf;
 	(void)a_bufLen;
 
-	if(!a_filePath.empty())
+	if (!a_filePath.empty())
 	{
 		l_info.filePath = a_filePath.c_str();
 		l_info.fileName = ::PathFindFileName(a_filePath.c_str());
@@ -81,19 +81,19 @@ bool CPluginManager::TriggerTryOpenFileFormat(const char *a_buf, size_t a_bufLen
 
 	l_info.req_charset = a_charset;
 
-	for(const auto& plp : m_loadedPlugins)
+	for (const auto& plp : m_loadedPlugins)
 	{
 		long ret = plp.second->TriggerRegEvent(REG_FILE_FORMAT_SUPPORT_EVENTS, IPV_TRY_OPEN_FILE_FORMAT, 0, &l_info);
 
-		if(ret == IPE_SUCCESS)
+		if (ret == IPE_SUCCESS)
 		{
 			return true;
 		}
-		else if(ret != _IPE_NOT_IMPLEMENTED_INTERNAL && ret != IPE_NOT_IMPLEMENTED)
+		else if (ret != _IPE_NOT_IMPLEMENTED_INTERNAL && ret != IPE_NOT_IMPLEMENTED)
 		{
 			break;
 		}
 	}
-	
+
 	return false;
 }

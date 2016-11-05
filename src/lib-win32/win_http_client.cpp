@@ -60,7 +60,7 @@ PWinHttpRequest CWinHttpClient::CreateRequestForTextFile(const std::wstring& a_u
 
 bool CWinHttpClient::StartRequest(PWinHttpRequest& a_req)
 {
-	if(a_req->GetCallback() != NULL)
+	if (a_req->GetCallback() != NULL)
 	{
 		_beginthread(&CWinHttpClient::RequestThreadMain, 0, a_req.get());
 
@@ -92,12 +92,12 @@ void CWinHttpClient::RequestThreadMain(void *a_userData)
 
 LRESULT CALLBACK CWinHttpClient::MessageWindowProc(HWND hWindow, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if(uMsg == WM_WINHTTP_REQUEST_CALLBACK)
+	if (uMsg == WM_WINHTTP_REQUEST_CALLBACK)
 	{
 		CWinHttpClient *l_client = reinterpret_cast<CWinHttpClient*>(lParam);
 		int l_reqId = (int)wParam;
 
-		if(l_client && (l_client->m_requests.find(l_reqId) != l_client->m_requests.end()))
+		if (l_client && (l_client->m_requests.find(l_reqId) != l_client->m_requests.end()))
 		{
 			// retrieve instance from our internal list:
 			PWinHttpRequest l_req = l_client->m_requests[l_reqId];
@@ -133,20 +133,20 @@ std::wstring CWinHttpClient::ExtractFileNameFromUrl(const std::wstring& a_url)
 	// find file name part:
 	std::wstring::size_type l_slashPos = l_tmpUrl.rfind(L'/');
 
-	if(l_slashPos != std::wstring::npos)
+	if (l_slashPos != std::wstring::npos)
 	{
 		std::wstring l_fileName = l_tmpUrl.substr(l_slashPos + 1);
 
 		// find query part, remove if there is one:
 		std::wstring::size_type l_queryPos = l_fileName.find(L'?');
 
-		if(l_queryPos != std::wstring::npos)
+		if (l_queryPos != std::wstring::npos)
 		{
 			l_fileName.erase(l_queryPos);
 		}
 	}
 
-	if(l_fileName.empty())
+	if (l_fileName.empty())
 	{
 		// fall back to entire URL if a filename can't be extracted...
 		l_fileName = a_url;
@@ -156,12 +156,12 @@ std::wstring CWinHttpClient::ExtractFileNameFromUrl(const std::wstring& a_url)
 	std::wstring l_fileClean;
 	l_fileClean.reserve(l_fileName.size());
 
-	for(std::wstring::size_type p = 0; p < l_fileName.size(); p++)
+	for (std::wstring::size_type p = 0; p < l_fileName.size(); p++)
 	{
-		if(iswalnum(l_fileName[p]) ||
+		if (iswalnum(l_fileName[p]) ||
 			l_fileName[p] == L'-' || l_fileName[p] == L'.' || l_fileName[p] == L'_')
 		{
-			if(l_fileClean.size() > 48)
+			if (l_fileClean.size() > 48)
 			{
 				l_fileClean.erase(0, 1);
 			}
@@ -176,7 +176,7 @@ std::wstring CWinHttpClient::ExtractFileNameFromUrl(const std::wstring& a_url)
 
 CWinHttpClient::~CWinHttpClient()
 {
-	if(m_instanceReggedClass)
+	if (m_instanceReggedClass)
 	{
 		::UnregisterClass(WINHTTP_MESSAGE_ONLY_WINDOW_CLASSNAME, m_hInstance);
 	}
@@ -231,7 +231,7 @@ void CWinHttpRequest::_RunRequest()
 	l_urlComps.dwHostNameLength = (DWORD)-1;
 	l_urlComps.dwUrlPathLength = (DWORD)-1;
 	l_urlComps.dwSchemeLength = (DWORD)-1;
-	if(!::WinHttpCrackUrl(m_url.c_str(), static_cast<DWORD>(m_url.size()), 0, &l_urlComps))
+	if (!::WinHttpCrackUrl(m_url.c_str(), static_cast<DWORD>(m_url.size()), 0, &l_urlComps))
 		goto RunRequest_Cleanup;
 
 	// ... and store components in appropriate variables:
@@ -241,32 +241,32 @@ void CWinHttpRequest::_RunRequest()
 
 	// set up connect handle:
 	hConnect = ::WinHttpConnect(m_hSession, l_urlHost.c_str(), l_urlComps.nPort, 0);
-	if(!hConnect)
+	if (!hConnect)
 		goto RunRequest_Cleanup;
 
 	// set up request handle:
 	hRequest = ::WinHttpOpenRequest(hConnect, L"GET", l_urlPath.c_str(), NULL, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES,
 		(m_bypassCache ? WINHTTP_FLAG_REFRESH : 0) | (!_wcsicmp(l_urlScheme.c_str(), L"https") ? WINHTTP_FLAG_SECURE : 0));
-	if(!hRequest)
+	if (!hRequest)
 		goto RunRequest_Cleanup;
 
 	// send request and wait for initial response:
-	if(::WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, NULL)
+	if (::WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, NULL)
 		&& ::WinHttpReceiveResponse(hRequest, NULL))
 	{
 		size_t l_fileSize = 0;
 
 		// get file size from content-length header:
 		{
-			wchar_t szSizeBuffer[33] = {0};
+			wchar_t szSizeBuffer[33] = { 0 };
 			DWORD dwLengthSizeBuffer = 32;
 
-			if(::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH, WINHTTP_HEADER_NAME_BY_INDEX,
+			if (::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH, WINHTTP_HEADER_NAME_BY_INDEX,
 				szSizeBuffer, &dwLengthSizeBuffer, WINHTTP_NO_HEADER_INDEX))
 			{
 				int64_t l_tmp = _wcstoi64(szSizeBuffer, NULL, 10);
 
-				if(l_fileSize > 0 && static_cast<uint64_t>(l_fileSize) <= std::numeric_limits<size_t>::max())
+				if (l_fileSize > 0 && static_cast<uint64_t>(l_fileSize) <= std::numeric_limits<size_t>::max())
 				{
 					l_fileSize = static_cast<size_t>(l_tmp);
 				}
@@ -278,7 +278,7 @@ void CWinHttpRequest::_RunRequest()
 			DWORD dwStatusCode = 0;
 			DWORD dwStatusCodeBufSize = sizeof(DWORD);
 
-			if(::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, 0,
+			if (::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, 0,
 				&dwStatusCode, &dwStatusCodeBufSize, WINHTTP_NO_HEADER_INDEX))
 			{
 				m_httpStatusCode = static_cast<int>(dwStatusCode);
@@ -287,7 +287,7 @@ void CWinHttpRequest::_RunRequest()
 
 		// retrieve and save to file, or buffer in memory string.
 		// these two methods also set m_downloadSucceeded to true if applicable.
-		if(!m_downloadFilePath.empty())
+		if (!m_downloadFilePath.empty())
 		{
 			this->DownloadToFile(hRequest, l_fileSize);
 		}
@@ -300,8 +300,8 @@ void CWinHttpRequest::_RunRequest()
 	}
 
 RunRequest_Cleanup:
-	if(hConnect) ::WinHttpCloseHandle(hConnect);
-	if(hRequest) ::WinHttpCloseHandle(hRequest);
+	if (hConnect) ::WinHttpCloseHandle(hConnect);
+	if (hRequest) ::WinHttpCloseHandle(hRequest);
 
 	m_doingStuff = false;
 }
@@ -311,7 +311,7 @@ void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, size_t a_contentLength)
 {
 	FILE *fFile = NULL;
 
-	if(_wfopen_s(&fFile, m_downloadFilePath.c_str(), L"wb") != 0)
+	if (_wfopen_s(&fFile, m_downloadFilePath.c_str(), L"wb") != 0)
 	{
 		return;
 	}
@@ -323,10 +323,10 @@ void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, size_t a_contentLength)
 	{
 		l_available = 0;
 
-		if(!::WinHttpQueryDataAvailable(hRequest, &l_available))
+		if (!::WinHttpQueryDataAvailable(hRequest, &l_available))
 			break;
 
-		if(!l_available)
+		if (!l_available)
 		{
 			l_gotEof = true;
 			break;
@@ -334,24 +334,24 @@ void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, size_t a_contentLength)
 
 		CAutoFreeBuffer<char> l_chunk(l_available + 1);
 
-		if(!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
+		if (!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
 			break;
 
-		if(l_read == 0)
+		if (l_read == 0)
 		{
 			l_gotEof = true;
 			break;
 		}
 
-		if(fwrite(l_chunk.get(), l_read, 1, fFile) != 1)
+		if (fwrite(l_chunk.get(), l_read, 1, fFile) != 1)
 		{
 			break;
 		}
-	} while(l_available > 0 && !m_cancel);
+	} while (l_available > 0 && !m_cancel);
 
 	fclose(fFile);
 
-	if(l_gotEof && !m_cancel)
+	if (l_gotEof && !m_cancel)
 	{
 		m_downloadSucceeded = true;
 	}
@@ -364,7 +364,7 @@ void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, size_t a_contentLength)
 
 void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, size_t a_contentLength)
 {
-	if(a_contentLength > m_maxBuffer)
+	if (a_contentLength > m_maxBuffer)
 	{
 		return;
 	}
@@ -373,36 +373,36 @@ void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, size_t a_contentLengt
 	DWORD l_available, l_read;
 	bool l_gotEof = false;
 
-	do 
+	do
 	{
 		l_available = 0;
 
-		if(!::WinHttpQueryDataAvailable(hRequest, &l_available))
+		if (!::WinHttpQueryDataAvailable(hRequest, &l_available))
 			break;
 
-		if(!l_available)
+		if (!l_available)
 		{
 			l_gotEof = true;
 			break;
 		}
 
-		if(l_buf.size() + l_available > m_maxBuffer)
+		if (l_buf.size() + l_available > m_maxBuffer)
 		{
 			break;
 		}
 
 		CAutoFreeBuffer<char> l_chunk(l_available + 1);
 
-		if(!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
+		if (!::WinHttpReadData(hRequest, l_chunk.get(), l_available, &l_read))
 			break;
 
-		if(l_read == 0)
+		if (l_read == 0)
 		{
 			l_gotEof = true;
 			break;
 		}
 
-		if(lstrlenA(l_chunk.get()) == l_read)
+		if (lstrlenA(l_chunk.get()) == l_read)
 		{
 			l_buf += l_chunk.get();
 		}
@@ -412,9 +412,9 @@ void CWinHttpRequest::DownloadToBuffer(HINTERNET hRequest, size_t a_contentLengt
 			break;
 		}
 
-	} while(l_available > 0 && !m_cancel);
+	} while (l_available > 0 && !m_cancel);
 
-	if(l_gotEof)
+	if (l_gotEof)
 	{
 		m_buffer = l_buf;
 

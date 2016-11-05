@@ -46,7 +46,7 @@ void CViewContainer::OnCreate()
 
 	m_infoBar = shared_ptr<CInfektInfoBar>(new CInfektInfoBar(g_hInstance, GetHwnd()));
 	m_infoBar->CreateControl(0, 0, 100, m_infoBarHeight);
-	if(!m_showInfoBar) ::ShowWindow(m_infoBar->GetHwnd(), SW_HIDE);
+	if (!m_showInfoBar) ::ShowWindow(m_infoBar->GetHwnd(), SW_HIDE);
 }
 
 
@@ -55,9 +55,9 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
 #ifdef INFEKT_PLUGIN_HOST
-	if(0 != _wcsicmp(::PathFindExtension(a_filePath.c_str()), L".nfo")) // never try plugins for .nfo files
+	if (0 != _wcsicmp(::PathFindExtension(a_filePath.c_str()), L".nfo")) // never try plugins for .nfo files
 	{
-		if(CPluginManager::GetInstance()->TriggerTryOpenFileFormat(NULL, 0, a_filePath, a_charset))
+		if (CPluginManager::GetInstance()->TriggerTryOpenFileFormat(NULL, 0, a_filePath, a_charset))
 		{
 			// a file support plugin has hopefully invoked OpenLoadedFile!
 
@@ -67,10 +67,10 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 		}
 	}
 #endif
-	
+
 	PNFOData l_nfoDataBackup = m_nfoData;
 
-	if(m_nfoData)
+	if (m_nfoData)
 	{
 		// reset so we don't run into bugs :P :P
 		m_nfoData.reset();
@@ -82,15 +82,15 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 
 	CPluginManager::GetInstance()->TriggerNfoLoad(true, a_filePath.c_str());
 
-	if(m_nfoData->LoadFromFile(a_filePath))
+	if (m_nfoData->LoadFromFile(a_filePath))
 	{
-		if(m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
-		if(m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
-		if(m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
+		if (m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
+		if (m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
+		if (m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
 
 		CPluginManager::GetInstance()->TriggerNfoLoad(false, a_filePath.c_str());
 
-		if(CurAssignNfo())
+		if (CurAssignNfo())
 		{
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
@@ -114,7 +114,7 @@ bool CViewContainer::OpenLoadedFile(PNFOData a_nfoData)
 {
 	::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 
-	if(m_nfoData)
+	if (m_nfoData)
 	{
 		m_nfoData.reset();
 	}
@@ -123,9 +123,9 @@ bool CViewContainer::OpenLoadedFile(PNFOData a_nfoData)
 
 	CPluginManager::GetInstance()->TriggerNfoLoad(true, m_nfoData->GetFilePath());
 
-	if(m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
-	if(m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
-	if(m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
+	if (m_curViewType != MAIN_VIEW_RENDERED) m_renderControl->UnAssignNFO();
+	if (m_curViewType != MAIN_VIEW_CLASSIC) m_classicControl->UnAssignNFO();
+	if (m_curViewType != MAIN_VIEW_TEXTONLY) m_textOnlyControl->UnAssignNFO();
 
 	CPluginManager::GetInstance()->TriggerNfoLoad(false, m_nfoData->GetFilePath());
 
@@ -133,7 +133,7 @@ bool CViewContainer::OpenLoadedFile(PNFOData a_nfoData)
 
 	::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
-	if(b)
+	if (b)
 	{
 		m_nfoFilePath = m_nfoData->GetFilePath();
 	}
@@ -144,9 +144,9 @@ bool CViewContainer::OpenLoadedFile(PNFOData a_nfoData)
 
 bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 {
-	if(m_nfoData)
+	if (m_nfoData)
 	{
-		if(!::PathFileExists(m_nfoFilePath.c_str()))
+		if (!::PathFileExists(m_nfoFilePath.c_str()))
 		{
 			this->MessageBox(L"The file does no longer exist at its previous location.", L"Sorry", MB_ICONEXCLAMATION);
 		}
@@ -155,13 +155,13 @@ bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 			// save scroll positions:
 			int scroll_x = 0, scroll_y = 0;
 
-			if(m_curViewCtrl)
+			if (m_curViewCtrl)
 			{
 				m_curViewCtrl->GetScrollPositions(scroll_x, scroll_y);
 			}
 
 			// actually reload the file:
-			if(OpenFile(m_nfoFilePath, a_charset))
+			if (OpenFile(m_nfoFilePath, a_charset))
 			{
 				// restore scroll positions:
 				m_curViewCtrl->ScrollIntoView(scroll_y, scroll_x);
@@ -181,7 +181,7 @@ bool CViewContainer::ReloadFile(ENfoCharset a_charset)
 
 void CViewContainer::SetWrapLines(bool a_wrap)
 {
-	if(m_wrapLines == a_wrap)
+	if (m_wrapLines == a_wrap)
 		return;
 
 	m_wrapLines = a_wrap;
@@ -193,7 +193,7 @@ void CViewContainer::SetWrapLines(bool a_wrap)
 
 LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	switch(uMsg)
+	switch (uMsg)
 	{
 	case WM_SIZE:
 		OnAfterResize(false);
@@ -203,7 +203,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		// intercept message to avoid flicker during resize
 		return 1;
 	case WM_PAINT:
-		if(m_showInfoBar)
+		if (m_showInfoBar)
 		{
 			// we need to paint the splitter manually because
 			// we intercept WM_ERASEBKGND.
@@ -223,7 +223,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		else break;
 	case WM_LBUTTONDOWN:
-		if(IsYOnSplitter(GET_Y_LPARAM(lParam)))
+		if (IsYOnSplitter(GET_Y_LPARAM(lParam)))
 		{
 			m_infoBarResizing = true;
 			::SetCursor(::LoadCursor(NULL, IDC_SIZENS));
@@ -231,7 +231,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_LBUTTONUP:
-		if(IsYOnSplitter(GET_Y_LPARAM(lParam)))
+		if (IsYOnSplitter(GET_Y_LPARAM(lParam)))
 		{
 			m_infoBarResizing = false;
 			::SetCursor(::LoadCursor(NULL, IDC_ARROW));
@@ -239,19 +239,19 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_MOUSEMOVE:
-		if(m_infoBarResizing)
+		if (m_infoBarResizing)
 		{
 			RECT l_client = GetClientRect();
 			int l_infoBarHeight = (l_client.bottom - l_client.top -
 				::GetSystemMetrics(SM_CYSIZEFRAME) / 2) - GET_Y_LPARAM(lParam);
 
-			if(l_infoBarHeight > INFOBAR_MINIMUM_HEIGHT && l_infoBarHeight < l_client.bottom - l_client.top - INFOBAR_MINIMUM_HEIGHT)
+			if (l_infoBarHeight > INFOBAR_MINIMUM_HEIGHT && l_infoBarHeight < l_client.bottom - l_client.top - INFOBAR_MINIMUM_HEIGHT)
 			{
 				m_infoBarHeight = l_infoBarHeight;
 				OnAfterResize(false);
 			}
 		}
-		else if(IsYOnSplitter(GET_Y_LPARAM(lParam)))
+		else if (IsYOnSplitter(GET_Y_LPARAM(lParam)))
 		{
 			m_cursor = IDC_SIZENS;
 		}
@@ -273,7 +273,7 @@ LRESULT CViewContainer::WndProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void CViewContainer::OnAfterResize(bool a_fake)
 {
-	if(m_curViewCtrl)
+	if (m_curViewCtrl)
 	{
 		RECT l_viewArea = GetClientRect();
 		int l_viewAreaHeight = l_viewArea.bottom - l_viewArea.top;
@@ -282,7 +282,7 @@ void CViewContainer::OnAfterResize(bool a_fake)
 		::MoveWindow(m_curViewCtrl->GetHwnd(), 0, 0, l_viewArea.right - l_viewArea.left,
 			l_viewAreaHeight - (m_showInfoBar ? m_infoBarHeight + l_splitHeight : 0), TRUE);
 
-		if(m_showInfoBar)
+		if (m_showInfoBar)
 		{
 			::MoveWindow(m_infoBar->GetHwnd(), 0, l_viewAreaHeight - m_infoBarHeight,
 				l_viewArea.right - l_viewArea.left, m_infoBarHeight, TRUE);
@@ -293,7 +293,7 @@ void CViewContainer::OnAfterResize(bool a_fake)
 
 bool CViewContainer::IsYOnSplitter(int a_y)
 {
-	if(!m_showInfoBar)
+	if (!m_showInfoBar)
 	{
 		return false;
 	}
@@ -312,17 +312,17 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 
 	HWND hScrollTarget = m_curViewCtrl->GetHwnd();
 
-	if(!hScrollTarget)
+	if (!hScrollTarget)
 	{
 		return true;
 	}
 
-	if(pMsg->message == WM_KEYDOWN)
+	if (pMsg->message == WM_KEYDOWN)
 	{
 		WORD wScrollNotify = (WORD)-1;
 		UINT uMessage = WM_VSCROLL;
 
-		switch(pMsg->wParam)
+		switch (pMsg->wParam)
 		{
 		case VK_APPS: {
 			POINT pt;
@@ -330,7 +330,7 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 			::PostMessage(hScrollTarget, WM_CONTEXTMENU, 0, MAKELONG(pt.x, pt.y));
 			return false;
 		}
-		// scrolling-related:
+					  // scrolling-related:
 		case VK_UP: wScrollNotify = SB_LINEUP; break;
 		case VK_PRIOR: wScrollNotify = SB_PAGEUP; break;
 		case VK_NEXT: wScrollNotify = SB_PAGEDOWN; break;
@@ -339,14 +339,14 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 		case VK_END: wScrollNotify = SB_BOTTOM; break;
 		default:
 			uMessage = WM_HSCROLL;
-			switch(pMsg->wParam)
+			switch (pMsg->wParam)
 			{
 			case VK_LEFT: wScrollNotify = SB_LINELEFT; break;
 			case VK_RIGHT: wScrollNotify = SB_LINERIGHT; break;
 			}
 		}
 
-		if(wScrollNotify != (WORD)-1)
+		if (wScrollNotify != (WORD)-1)
 		{
 			::PostMessage(hScrollTarget, uMessage, MAKELONG(wScrollNotify, 0), 0L);
 
@@ -388,7 +388,7 @@ void CViewContainer::ScrollPageUp()
 
 void CViewContainer::SwitchView(EMainView a_view)
 {
-	if(a_view >= _MAIN_VIEW_MAX || m_curViewType == a_view)
+	if (a_view >= _MAIN_VIEW_MAX || m_curViewType == a_view)
 	{
 		return;
 	}
@@ -397,14 +397,14 @@ void CViewContainer::SwitchView(EMainView a_view)
 
 	SendMessage(WM_SETREDRAW, 0);
 
-	switch(a_view)
+	switch (a_view)
 	{
 	case MAIN_VIEW_RENDERED: m_curViewCtrl = m_renderControl; break;
 	case MAIN_VIEW_CLASSIC: m_curViewCtrl = m_classicControl; break;
 	case MAIN_VIEW_TEXTONLY: m_curViewCtrl = m_textOnlyControl; break;
 	}
 
-	if(!m_curViewCtrl->ControlCreated())
+	if (!m_curViewCtrl->ControlCreated())
 	{
 		RECT l_viewArea = GetClientRect();
 		m_curViewCtrl->CreateControl(0, 0,
@@ -412,14 +412,14 @@ void CViewContainer::SwitchView(EMainView a_view)
 		m_curViewCtrl->SetContextMenu(m_contextMenuHandle, GetParent());
 	}
 
-	if(m_nfoData && !m_curViewCtrl->HasNfoData())
+	if (m_nfoData && !m_curViewCtrl->HasNfoData())
 	{
 		::SetCursor(::LoadCursor(NULL, IDC_WAIT));
 		CurAssignNfo();
 		::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 	}
 
-	if(m_resized)
+	if (m_resized)
 	{
 		OnAfterResize(true);
 	}
@@ -448,7 +448,7 @@ void CViewContainer::SwitchView(EMainView a_view)
 
 bool CViewContainer::CurAssignNfo()
 {
-	if(m_curViewType != MAIN_VIEW_TEXTONLY)
+	if (m_curViewType != MAIN_VIEW_TEXTONLY)
 	{
 		return m_curViewCtrl->AssignNFO(m_nfoData);
 	}
@@ -456,8 +456,8 @@ bool CViewContainer::CurAssignNfo()
 	{
 		PNFOData l_data(new CNFOData());
 		l_data->SetWrapLines(m_wrapLines);
-		
-		if(l_data->LoadStripped(*m_nfoData))
+
+		if (l_data->LoadStripped(*m_nfoData))
 		{
 			return m_curViewCtrl->AssignNFO(l_data);
 		}
@@ -475,7 +475,7 @@ const std::wstring CViewContainer::GetSelectedText() const
 
 void CViewContainer::CopySelectedTextToClipboard() const
 {
-	if(m_curViewCtrl)
+	if (m_curViewCtrl)
 	{
 		m_curViewCtrl->CopySelectedTextToClipboard();
 	}
@@ -484,7 +484,7 @@ void CViewContainer::CopySelectedTextToClipboard() const
 
 void CViewContainer::SelectAll()
 {
-	if(m_curViewCtrl)
+	if (m_curViewCtrl)
 	{
 		m_curViewCtrl->SelectAll();
 	}
@@ -493,7 +493,7 @@ void CViewContainer::SelectAll()
 
 CViewContainer::~CViewContainer()
 {
-	if(m_contextMenuHandle)
+	if (m_contextMenuHandle)
 	{
 		::DestroyMenu(m_contextMenuHandle);
 	}

@@ -39,32 +39,32 @@ void CWinFileWatcher::SetFile(const std::wstring& a_path)
 	// changing the path of the watched file requires the thread
 	// to be restarted.
 
-	if(a_path != m_filePath)
+	if (a_path != m_filePath)
 	{
 		bool bWasWatching = m_watching;
 
-		if(m_watching)
+		if (m_watching)
 		{
 			StopWatching();
 		}
 
 		m_filePath = a_path;
 
-		if(bWasWatching)
+		if (bWasWatching)
 		{
 			StartWatching();
 		}
-	}	
+	}
 }
 
 bool CWinFileWatcher::StartWatching()
 {
-	if(m_watching)
+	if (m_watching)
 	{
 		return true;
 	}
 
-	if(!m_callback || m_filePath.empty() || !::PathFileExists(m_filePath.c_str()))
+	if (!m_callback || m_filePath.empty() || !::PathFileExists(m_filePath.c_str()))
 	{
 		return false;
 	}
@@ -73,7 +73,7 @@ bool CWinFileWatcher::StartWatching()
 
 	uintptr_t l_thread = _beginthread(_WatchEventThread, 0, this);
 
-	if(l_thread != (uintptr_t)-1)
+	if (l_thread != (uintptr_t)-1)
 	{
 		// wait for thread to launch:
 		::WaitForSingleObject(m_hThreadEvent, INFINITE);
@@ -86,7 +86,7 @@ bool CWinFileWatcher::StartWatching()
 
 bool CWinFileWatcher::StopWatching()
 {
-	if(!m_watching)
+	if (!m_watching)
 	{
 		return false;
 	}
@@ -110,7 +110,7 @@ void CWinFileWatcher::WatchEventThread()
 	bool bStop = false;
 	std::wstring l_FolderPath = CUtilWin32::PathRemoveFileSpec(m_filePath);
 	uint64_t l_lastModTime = GetFileModificationTime();
-	
+
 	::SetEvent(m_hThreadEvent); // thread has started.
 	// placing this call here ensures that accessing m_filePath is locked.
 
@@ -121,20 +121,20 @@ void CWinFileWatcher::WatchEventThread()
 	{
 		DWORD dwEvent = ::WaitForMultipleObjects(2, l_hEvents, FALSE, INFINITE);
 
-		switch(dwEvent)
+		switch (dwEvent)
 		{
 		case WAIT_OBJECT_0: { // file may have changed
 			uint64_t l_newTime = GetFileModificationTime();
 
-			if(l_lastModTime != l_newTime && m_callback)
+			if (l_lastModTime != l_newTime && m_callback)
 			{
 				FILE *fh = NULL;
 				unsigned int retry_count = 0;
 
 				// wait up to two seconds to avoid access denied errors due to the file still being written:
-				while(retry_count++ < 20 && NULL == (fh = _wfopen(m_filePath.c_str(), L"rb")))
+				while (retry_count++ < 20 && NULL == (fh = _wfopen(m_filePath.c_str(), L"rb")))
 				{
-					if(!::PathFileExists(m_filePath.c_str()))
+					if (!::PathFileExists(m_filePath.c_str()))
 					{
 						// File is gone!
 						goto WATCH_BREAK;
@@ -161,10 +161,10 @@ void CWinFileWatcher::WatchEventThread()
 		case WAIT_FAILED:
 			bStop = true;
 			break;
-		default: ;
+		default:;
 			// wut?
 		}
-	} while(!bStop);
+	} while (!bStop);
 
 WATCH_BREAK:
 
@@ -175,11 +175,11 @@ WATCH_BREAK:
 
 uint64_t CWinFileWatcher::GetFileModificationTime()
 {
-	WIN32_FIND_DATA findData = {0};
+	WIN32_FIND_DATA findData = { 0 };
 	HANDLE hFind = ::FindFirstFile(m_filePath.c_str(), &findData);
 	uint64_t iResult = 0;
 
-	if(hFind != INVALID_HANDLE_VALUE)
+	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		// conversion as recommended on: http://msdn.microsoft.com/en-us/library/ms724284%28v=vs.85%29.aspx
 		ULARGE_INTEGER tmp;
@@ -198,7 +198,7 @@ uint64_t CWinFileWatcher::GetFileModificationTime()
 {
 	CWinFileWatcher *pInstance = reinterpret_cast<CWinFileWatcher*>(pUser);
 
-	if(pInstance)
+	if (pInstance)
 	{
 		pInstance->WatchEventThread();
 	}

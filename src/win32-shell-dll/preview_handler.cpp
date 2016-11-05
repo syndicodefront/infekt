@@ -75,7 +75,7 @@ public:
 	IFACEMETHODIMP_(ULONG) Release()
 	{
 		ULONG cRef = InterlockedDecrement(&m_cRef);
-		if(!cRef)
+		if (!cRef)
 		{
 			delete this;
 		}
@@ -110,16 +110,16 @@ public:
 
 HRESULT CNFOPreviewHandler::SetWindow(HWND hwnd, const RECT *prc)
 {
-	if(hwnd && prc)
+	if (hwnd && prc)
 	{
 		m_hwndParent = hwnd;
 		m_rcParent = *prc;
 
-		if(m_view)
+		if (m_view)
 		{
 			m_view->SetParent(m_hwndParent);
 
-			if(prc->right - prc->left > 0 && prc->bottom - prc->top > 0)
+			if (prc->right - prc->left > 0 && prc->bottom - prc->top > 0)
 			{
 				::MoveWindow(m_view->GetHwnd(), m_rcParent.left, m_rcParent.top,
 					m_rcParent.right - m_rcParent.left,
@@ -135,7 +135,7 @@ HRESULT CNFOPreviewHandler::SetWindow(HWND hwnd, const RECT *prc)
 
 HRESULT CNFOPreviewHandler::SetFocus()
 {
-	if(m_view)
+	if (m_view)
 	{
 		::SetFocus(m_view->GetHwnd());
 		return S_OK;
@@ -146,7 +146,7 @@ HRESULT CNFOPreviewHandler::SetFocus()
 
 HRESULT CNFOPreviewHandler::QueryFocus(HWND *phwnd)
 {
-	if(phwnd)
+	if (phwnd)
 	{
 		*phwnd = ::GetFocus();
 		return (*phwnd ? S_OK : HRESULT_FROM_WIN32(GetLastError()));
@@ -160,7 +160,7 @@ HRESULT CNFOPreviewHandler::TranslateAccelerator(MSG *pmsg)
 	HRESULT hr = S_FALSE;
 	IPreviewHandlerFrame *pFrame = NULL;
 
-	if(m_punkSite && SUCCEEDED(m_punkSite->QueryInterface(&pFrame)))
+	if (m_punkSite && SUCCEEDED(m_punkSite->QueryInterface(&pFrame)))
 	{
 		// Our previewer has no tabstops, so we want to just forward this message out:
 		hr = pFrame->TranslateAccelerator(pmsg);
@@ -173,11 +173,11 @@ HRESULT CNFOPreviewHandler::TranslateAccelerator(MSG *pmsg)
 // This method gets called when the size of the previewer window changes (user resizes the Reading Pane)
 HRESULT CNFOPreviewHandler::SetRect(const RECT *prc)
 {
-	if(prc)
+	if (prc)
 	{
 		m_rcParent = *prc;
 
-		if(m_view)
+		if (m_view)
 		{
 			// Preview window is already created, so set its size and position
 			::MoveWindow(m_view->GetHwnd(), m_rcParent.left, m_rcParent.top,
@@ -197,7 +197,7 @@ HRESULT CNFOPreviewHandler::SetRect(const RECT *prc)
 // draws content to the previewer window
 HRESULT CNFOPreviewHandler::DoPreview()
 {
-	if(m_view || !m_pStream)
+	if (m_view || !m_pStream)
 	{
 		// cannot be called more than once (Unload should be called before another DoPreview)
 		return E_PREVIEWHANDLER_NOTFOUND;
@@ -205,17 +205,17 @@ HRESULT CNFOPreviewHandler::DoPreview()
 
 	CNFOViewControl* l_temp = new (std::nothrow) CNFOViewControl(g_hInst, m_hwndParent);
 
-	if(l_temp)
+	if (l_temp)
 	{
 		PNFOViewControl l_view(l_temp);
 		PNFOData l_nfoData;
 
-		if(!LoadNFOFromStream(m_pStream, l_nfoData) || !l_view->AssignNFO(l_nfoData))
+		if (!LoadNFOFromStream(m_pStream, l_nfoData) || !l_view->AssignNFO(l_nfoData))
 		{
 			return E_PREVIEWHANDLER_CORRUPT;
 		}
 
-		if(!l_view->CreateControl(m_rcParent.left, m_rcParent.top,
+		if (!l_view->CreateControl(m_rcParent.left, m_rcParent.top,
 			m_rcParent.right - m_rcParent.left,
 			m_rcParent.bottom - m_rcParent.top))
 		{
@@ -251,7 +251,7 @@ HRESULT CNFOPreviewHandler::Unload()
 
 HRESULT CNFOPreviewHandler::Initialize(IStream *pStream, DWORD)
 {
-	if(pStream)
+	if (pStream)
 	{
 		// Initialize can be called more than once, so release existing valid stream
 		SafeRelease(&m_pStream);
@@ -289,13 +289,13 @@ HRESULT CNFOPreviewHandler::GetSite(REFIID riid, void **ppv)
 
 HRESULT CNFOPreviewHandler::GetWindow(HWND* phwnd)
 {
-	if(!phwnd)
+	if (!phwnd)
 		return E_INVALIDARG;
-	if(!m_view)
+	if (!m_view)
 		return S_FALSE;
 
 	*phwnd = m_view->GetHwnd();
-	
+
 	return S_OK;
 }
 
@@ -315,7 +315,7 @@ HRESULT CNFOPreviewHandler_CreateInstance(REFIID riid, void **ppv)
 
 	CNFOPreviewHandler *pNew = new (std::nothrow) CNFOPreviewHandler();
 
-	if(pNew)
+	if (pNew)
 	{
 		HRESULT hr = pNew->QueryInterface(riid, ppv);
 		pNew->Release();

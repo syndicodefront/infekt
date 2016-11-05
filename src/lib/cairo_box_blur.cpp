@@ -59,15 +59,15 @@ CCairoBoxBlur::CCairoBoxBlur(int a_width, int a_height, int a_blurRadius, bool a
  */
 static void
 BoxBlurHorizontal(unsigned char* aInput,
-                  unsigned char* aOutput,
-                  PRInt32 aLeftLobe,
-                  PRInt32 aRightLobe,
-                  PRInt32 aStride,
-                  PRInt32 aRows)
+	unsigned char* aOutput,
+	PRInt32 aLeftLobe,
+	PRInt32 aRightLobe,
+	PRInt32 aStride,
+	PRInt32 aRows)
 {
 	PRInt32 boxSize = aLeftLobe + aRightLobe + 1;
 
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (PRInt32 y = 0; y < aRows; y++) {
 		PRInt32 alphaSum = 0;
 		for (PRInt32 i = 0; i < boxSize; i++) {
@@ -81,10 +81,10 @@ BoxBlurHorizontal(unsigned char* aInput,
 			PRInt32 last = PR_MAX(tmp, 0);
 			PRInt32 next = PR_MIN(tmp + boxSize, aStride - 1);
 
-			aOutput[aStride * y + x] = alphaSum/boxSize;
+			aOutput[aStride * y + x] = alphaSum / boxSize;
 
 			alphaSum += aInput[aStride * y + next] -
-					aInput[aStride * y + last];
+				aInput[aStride * y + last];
 		}
 	}
 }
@@ -95,15 +95,15 @@ BoxBlurHorizontal(unsigned char* aInput,
  */
 static void
 BoxBlurVertical(unsigned char* aInput,
-                unsigned char* aOutput,
-                PRInt32 aTopLobe,
-                PRInt32 aBottomLobe,
-                PRInt32 aStride,
-                PRInt32 aRows)
+	unsigned char* aOutput,
+	PRInt32 aTopLobe,
+	PRInt32 aBottomLobe,
+	PRInt32 aStride,
+	PRInt32 aRows)
 {
 	PRInt32 boxSize = aTopLobe + aBottomLobe + 1;
 
-	#pragma omp parallel for
+#pragma omp parallel for
 	for (PRInt32 x = 0; x < aStride; x++) {
 		PRInt32 alphaSum = 0;
 		for (PRInt32 i = 0; i < boxSize; i++) {
@@ -117,54 +117,54 @@ BoxBlurVertical(unsigned char* aInput,
 			PRInt32 last = PR_MAX(tmp, 0);
 			PRInt32 next = PR_MIN(tmp + boxSize, aRows - 1);
 
-			aOutput[aStride * y + x] = alphaSum/boxSize;
+			aOutput[aStride * y + x] = alphaSum / boxSize;
 
 			alphaSum += aInput[aStride * next + x] -
-					aInput[aStride * last + x];
+				aInput[aStride * last + x];
 		}
 	}
 }
 
 static void ComputeLobes(PRInt32 aRadius, PRInt32 aLobes[3][2])
 {
-    PRInt32 major, minor, final;
+	PRInt32 major, minor, final;
 
-    /* See http://www.w3.org/TR/SVG/filters.html#feGaussianBlur for
-     * some notes about approximating the Gaussian blur with box-blurs.
-     * The comments below are in the terminology of that page.
-     */
-    PRInt32 z = aRadius/3;
-    switch (aRadius % 3) {
-    case 0:
-        // aRadius = z*3; choose d = 2*z + 1
-        major = minor = final = z;
-        break;
-    case 1:
-        // aRadius = z*3 + 1
-        // This is a tricky case since there is no value of d which will
-        // yield a radius of exactly aRadius. If d is odd, i.e. d=2*k + 1
-        // for some integer k, then the radius will be 3*k. If d is even,
-        // i.e. d=2*k, then the radius will be 3*k - 1.
-        // So we have to choose values that don't match the standard
-        // algorithm.
-        major = z + 1;
-        minor = final = z;
-        break;
-    case 2:
-        // aRadius = z*3 + 2; choose d = 2*z + 2
-        major = final = z + 1;
-        minor = z;
-        break;
-    }
-    NS_ASSERTION(major + minor + final == aRadius,
-                 "Lobes don't sum to the right length");
+	/* See http://www.w3.org/TR/SVG/filters.html#feGaussianBlur for
+	 * some notes about approximating the Gaussian blur with box-blurs.
+	 * The comments below are in the terminology of that page.
+	 */
+	PRInt32 z = aRadius / 3;
+	switch (aRadius % 3) {
+	case 0:
+		// aRadius = z*3; choose d = 2*z + 1
+		major = minor = final = z;
+		break;
+	case 1:
+		// aRadius = z*3 + 1
+		// This is a tricky case since there is no value of d which will
+		// yield a radius of exactly aRadius. If d is odd, i.e. d=2*k + 1
+		// for some integer k, then the radius will be 3*k. If d is even,
+		// i.e. d=2*k, then the radius will be 3*k - 1.
+		// So we have to choose values that don't match the standard
+		// algorithm.
+		major = z + 1;
+		minor = final = z;
+		break;
+	case 2:
+		// aRadius = z*3 + 2; choose d = 2*z + 2
+		major = final = z + 1;
+		minor = z;
+		break;
+	}
+	NS_ASSERTION(major + minor + final == aRadius,
+		"Lobes don't sum to the right length");
 
-    aLobes[0][0] = major;
-    aLobes[0][1] = minor;
-    aLobes[1][0] = minor;
-    aLobes[1][1] = major;
-    aLobes[2][0] = final;
-    aLobes[2][1] = final;
+	aLobes[0][0] = major;
+	aLobes[0][1] = minor;
+	aLobes[1][0] = minor;
+	aLobes[1][1] = major;
+	aLobes[2][0] = final;
+	aLobes[2][1] = final;
 }
 
 
@@ -174,21 +174,21 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 
 	unsigned char* l_boxData = cairo_image_surface_get_data(m_imgSurface);
 
-	if(!l_boxData)
+	if (!l_boxData)
 	{
 		// too large or something...
 		return false;
 	}
 
 #if defined(_WIN32)
-	if(!m_useFallback && cairo_image_surface_get_format(m_imgSurface) == CAIRO_FORMAT_ARGB32)
+	if (!m_useFallback && cairo_image_surface_get_format(m_imgSurface) == CAIRO_FORMAT_ARGB32)
 	{
-		typedef int (__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
+		typedef int(__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
 		bool l_ok = false;
 
 		_ASSERT(m_hAmpDll != NULL);
 
-		if(fnc gb = (fnc)GetProcAddress(m_hAmpDll, "GaussianBlurARGB32"))
+		if (fnc gb = (fnc)GetProcAddress(m_hAmpDll, "GaussianBlurARGB32"))
 		{
 			l_ok = (gb(
 				reinterpret_cast<unsigned int*>(l_boxData),
@@ -197,7 +197,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 				m_blurRadius / 5.0f + 2) != 0);
 		}
 
-		if(!l_ok)
+		if (!l_ok)
 		{
 			// must retry!
 
@@ -214,36 +214,36 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 	}
 	else
 #endif /* _WIN32 */
-	if(IsFallbackAllowed())
-	{
-		// fallback.
+		if (IsFallbackAllowed())
+		{
+			// fallback.
 
-		const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
-		const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
+			const PRInt32 l_stride = cairo_image_surface_get_stride(m_imgSurface);
+			const PRInt32 l_rows = cairo_image_surface_get_height(m_imgSurface);
 
-		PRInt32 l_lobes[3][2];
-		ComputeLobes(m_blurRadius, l_lobes);
+			PRInt32 l_lobes[3][2];
+			ComputeLobes(m_blurRadius, l_lobes);
 
-		unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
+			unsigned char* l_tmpData = new unsigned char[l_stride * l_rows];
 
-		BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
-		BoxBlurHorizontal(l_tmpData, l_boxData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
-		BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
+			BoxBlurHorizontal(l_tmpData, l_boxData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
+			BoxBlurHorizontal(l_boxData, l_tmpData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
 
-		BoxBlurVertical(l_tmpData, l_boxData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
-		BoxBlurVertical(l_boxData, l_tmpData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
-		BoxBlurVertical(l_tmpData, l_boxData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
+			BoxBlurVertical(l_tmpData, l_boxData, l_lobes[0][0], l_lobes[0][1], l_stride, l_rows);
+			BoxBlurVertical(l_boxData, l_tmpData, l_lobes[1][0], l_lobes[1][1], l_stride, l_rows);
+			BoxBlurVertical(l_tmpData, l_boxData, l_lobes[2][0], l_lobes[2][1], l_stride, l_rows);
 
-		delete[] l_tmpData;
-	}
-	else
-	{
-		return false;
-	}
+			delete[] l_tmpData;
+		}
+		else
+		{
+			return false;
+		}
 
 	cairo_surface_mark_dirty(m_imgSurface);
 
-	if(m_useFallback)
+	if (m_useFallback)
 	{
 		// 8 bit mask
 		cairo_mask_surface(a_destination, m_imgSurface, 0, 0);
@@ -272,16 +272,16 @@ CCairoBoxBlur::~CCairoBoxBlur()
 /*static*/ bool CCairoBoxBlur::IsGPUUsable()
 {
 #if defined(_WIN32)
-	if(CUtilWin32::IsAtLeastWinVista())
+	if (CUtilWin32::IsAtLeastWinVista())
 	{
-		if(!m_hAmpDll)
+		if (!m_hAmpDll)
 		{
 			m_hAmpDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
 		}
 
-		typedef int (__cdecl *fnc)();
+		typedef int(__cdecl *fnc)();
 
-		if(fnc igu = (fnc)::GetProcAddress(m_hAmpDll, "IsGpuUsable"))
+		if (fnc igu = (fnc)::GetProcAddress(m_hAmpDll, "IsGpuUsable"))
 		{
 			return (igu() != 0);
 		}
