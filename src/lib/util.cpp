@@ -283,15 +283,16 @@ std::vector<std::wstring> CUtil::StrSplit(const std::wstring& a_str, const std::
 /* Misc                                                                 */
 /************************************************************************/
 
-static void _ParseVersionNumber(const wstring& vs, vector<int>* ret)
+static vector<int> _ParseVersionNumber(const wstring& vs)
 {
+	vector<int> ret;
 	wstring l_buf;
 
 	for (wstring::size_type p = 0; p < vs.size(); p++)
 	{
 		if (vs[p] == L'.')
 		{
-			ret->push_back(std::wcstol(l_buf.c_str(), nullptr, 10));
+			ret.push_back(CUtil::StringToLong(l_buf));
 
 			l_buf.clear();
 		}
@@ -303,23 +304,28 @@ static void _ParseVersionNumber(const wstring& vs, vector<int>* ret)
 
 	if (!l_buf.empty())
 	{
-		ret->push_back(std::wcstol(l_buf.c_str(), nullptr, 10));
+		ret.push_back(CUtil::StringToLong(l_buf));
 	}
-	else if (ret->empty())
+	else if (ret.empty())
 	{
-		ret->push_back(0);
+		ret.push_back(0);
 	}
 
-	while (ret->size() > 1 && (*ret)[ret->size() - 1] == 0) ret->erase(ret->begin() + (ret->size() - 1));
+	while (!ret.empty() && ret.back() == 0)
+	{
+		ret.resize(ret.size() - 1);
+	}
+
+	return ret;
 }
 
 int CUtil::VersionCompare(const wstring& a_vA, const wstring& a_vB)
 {
-	vector<int> l_vA, l_vB;
-	_ParseVersionNumber(a_vA, &l_vA);
-	_ParseVersionNumber(a_vB, &l_vB);
+	const vector<int> l_vA = _ParseVersionNumber(a_vA),
+		l_vB = _ParseVersionNumber(a_vB);
 
 	size_t l_max = std::min(l_vA.size(), l_vB.size());
+
 	for (size_t p = 0; p < l_max; p++)
 	{
 		if (l_vA[p] < l_vB[p])

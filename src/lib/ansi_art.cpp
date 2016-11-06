@@ -150,11 +150,11 @@ bool CAnsiArt::Process()
 			// this could be done somewhat nicer, but okay for now:
 			wstring::size_type pos;
 
-			n = std::max(std::wcstol(cmd.data.c_str(), nullptr, 10), 1l);
+			n = std::max(CUtil::StringToLong(cmd.data), 1l);
 
 			if ((pos = cmd.data.find(L';')) != wstring::npos)
 			{
-				m = std::max(std::wcstol(cmd.data.substr(pos + 1).c_str(), nullptr, 10), 1l);
+				m = std::max(CUtil::StringToLong(cmd.data.substr(pos + 1)), 1l);
 			}
 			else
 			{
@@ -177,7 +177,7 @@ bool CAnsiArt::Process()
 				{
 					if (y >= screen.GetRows() - 1)
 					{
-						size_t new_rows = screen.GetRows() + std::max(size_t(50), y - (screen.GetRows() - 1));
+						size_t new_rows = screen.GetRows() + std::max<size_t>(50, y - (screen.GetRows() - 1));
 
 						if (new_rows > m_heightLimit || new_rows < screen.GetRows() /* overflow safeguard */)
 						{
@@ -210,7 +210,7 @@ bool CAnsiArt::Process()
 				{
 					if (x >= screen.GetCols() - 1)
 					{
-						size_t new_cols = screen.GetCols() + std::max(size_t(50), x - (screen.GetCols() - 1));
+						size_t new_cols = screen.GetCols() + std::max<size_t>(50, x - (screen.GetCols() - 1));
 
 						if (new_cols > m_widthLimit || new_cols < screen.GetCols() /* overflow safeguard */)
 						{
@@ -299,7 +299,7 @@ bool CAnsiArt::Process()
 
 			for (const wstring& s : CUtil::StrSplit(cmd.data, L";"))
 			{
-				long n = std::wcstol(s.c_str(), nullptr, 10);
+				long n = CUtil::StringToLong(s);
 
 				if (n >= 0 && n <= 255)
 				{

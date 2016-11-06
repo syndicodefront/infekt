@@ -341,9 +341,13 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 			if (!l_numBuf.empty() && l_finalChar > 0)
 			{
 				// we only honor the first number:
-				l_numBuf.erase(l_numBuf.find(L';'));
+				std::wstring::size_type l_tmp_pos = l_numBuf.find(L';');
+				if (l_tmp_pos != std::wstring::npos)
+				{
+					l_numBuf.erase(l_tmp_pos);
+				}
 
-				long l_number = std::wcstol(l_numBuf.c_str(), nullptr, 10);
+				long l_number = CUtil::StringToLong(l_numBuf);
 
 				switch (l_finalChar)
 				{
@@ -521,12 +525,17 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 		return PostProcessLoadedContent();
 	}
-	else if (!IsInError())
+	else
 	{
-		SetLastError(NDE_ENCODING_PROBLEM, L"There appears to be a charset/encoding problem.");
-	}
+		if (!IsInError())
+		{
+			SetLastError(NDE_ENCODING_PROBLEM, L"There appears to be a charset/encoding problem.");
+		}
 
-	return false;
+		m_textContent.clear();
+
+		return false;
+	}
 }
 
 
@@ -794,35 +803,11 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
-	m_textContent.clear();
-
-	if (a_fix == EA_TRY)
-	{
-		const std::string l_txt((const char*)a_data, a_dataLen);
-
-		// look for bad full blocks and shadowed full blocks or black half blocks:
-		if (l_txt.find("\x9A\x9A") != std::string::npos && (l_txt.find("\xFD\xFD") != std::string::npos
-			|| l_txt.find("\xE1\xE1") != std::string::npos))
-		{
-			a_fix = EA_FORCE;
-		}
-	}
-
-	// kill trailing nullptr chars that some NFOs have so our
-	// binary file check doesn't trigger.
-	while (a_data[a_dataLen - 1] == 0 && a_dataLen > 0) a_dataLen--;
-
-	// kill UTF-8 signature, if we got here, the NFO was not valid UTF-8:
-	if (a_fix == EA_TRY && a_data[0] == 0xEF && a_data[1] == 0xBB && a_data[2] == 0xBF)
-	{
-		a_data += 3;
-		a_dataLen -= 3;
-	}
-
 	bool l_containsCR = false;
 	bool l_containsLF = false;
 	bool l_containsCRLF = false;
 
+	// perform a detection run first:
 	for (size_t i = 0; i < a_dataLen; ++i)
 	{
 		if (a_data[i] == '\r')
@@ -836,10 +821,37 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 			if (i > 0 && a_data[i - 1] == '\r')
 			{
 				l_containsCRLF = true;
-
-				break;
 			}
 		}
+		else if (a_fix == EA_TRY && i > 0)
+		{
+			// look for bad full blocks and shadowed full blocks or black half blocks:
+
+			if (
+				(a_data[i] == 0x9A && a_data[i - 1] == 0x9A) ||
+				(a_data[i] == 0xFD && a_data[i - 1] == 0xFD) ||
+				(a_data[i] == 0xE1 && a_data[i - 1] == 0xE1)
+				)
+			{
+				a_fix = EA_FORCE;
+			}
+		}
+
+		if (l_containsCRLF && a_fix != EA_TRY)
+		{
+			break;
+		}
+	}
+
+	// kill trailing nullptr chars that some NFOs have so our
+	// binary file check doesn't trigger.
+	while (a_dataLen > 0 && a_data[a_dataLen - 1] == 0) a_dataLen--;
+
+	// kill UTF-8 signature, if we got here, the NFO was not valid UTF-8:
+	if (a_dataLen >= 3 && a_fix == EA_TRY && a_data[0] == 0xEF && a_data[1] == 0xBB && a_data[2] == 0xBF)
+	{
+		a_data += 3;
+		a_dataLen -= 3;
 	}
 
 	bool l_foundBinary = false;
@@ -870,7 +882,6 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 			if (p == 0)
 			{
 				// "allow" \0 chars for ANSI files with SAUCE record...
-				l_foundBinary = true;
 				m_textContent[i] = L'?';
 			}
 			else if (p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
@@ -928,8 +939,6 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	if (l_foundBinary && !l_ansi)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
-
-		m_textContent.clear();
 
 		return false;
 	}
@@ -993,8 +1002,6 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
-		m_textContent.clear();
-
 		return false;
 	}
 	else
@@ -1053,15 +1060,12 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	) {
 		// probably an invalid BOM...
 		// (ex: Jimmy.Kimmel.2014.01.27.Chris.O.Donnell.720p.HDTV.x264-CROOKS)
-		m_textContent.clear();
 
 		return false;
 	}
 	else if (m_textContent.find(L'\0') != wstring::npos)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
-
-		m_textContent.clear();
 
 		return false;
 	}
@@ -1145,7 +1149,7 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 
 bool CNFOData::TryLoad_CP252(const unsigned char* a_data, size_t a_dataLen)
 {
-	m_textContent = CUtil::ToWideStr(std::string().append((const char*)a_data, a_dataLen), CP_ACP);
+	m_textContent = CUtil::ToWideStr(std::string((const char*)a_data, a_dataLen), CP_ACP);
 
 	return (!m_textContent.empty());
 }

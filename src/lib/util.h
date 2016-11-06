@@ -44,6 +44,11 @@ public:
 
 	static std::vector<std::string> StrSplit(const std::string& a_str, const std::string& a_separator);
 	static std::vector<std::wstring> StrSplit(const std::wstring& a_str, const std::wstring& a_separator);
+
+	static long StringToLong(const std::wstring& str)
+	{
+		return (str.empty() ? 0l : std::wcstol(str.c_str(), nullptr, 10));
+	}
 };
 
 
