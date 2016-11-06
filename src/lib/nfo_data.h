@@ -41,7 +41,6 @@ class CNFOData // this could use some refactoring :P
 {
 public:
 	CNFOData();
-	virtual ~CNFOData();
 
 	bool LoadFromFile(const std::_tstring& a_filePath);
 	bool LoadFromMemory(const unsigned char* a_data, size_t a_dataLen);
@@ -108,7 +107,7 @@ private:
 protected:
 	std::wstring m_textContent;
 	std::string m_utf8Content;
-	TwoDimVector<wchar_t> *m_grid;
+	std::unique_ptr<TwoDimVector<wchar_t>> m_grid;
 	std::map<wchar_t, std::string> m_utf8Map;
 	bool m_loaded;
 	std::multimap<size_t, CNFOHyperLink> m_hyperLinks;

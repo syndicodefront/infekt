@@ -121,6 +121,11 @@ public:
 		memmove_s(m_buf, m_bufSize, a_from.m_buf, m_bufSize);
 	}
 
+	T& operator[](size_t index)
+	{
+		return m_buf[index];
+	}
+
 	virtual ~CAutoFreeBuffer()
 	{
 		delete[] m_buf;

@@ -22,7 +22,6 @@ using namespace std;
 
 
 CNFOData::CNFOData() :
-	m_grid(nullptr),
 	m_loaded(false), m_sourceCharset(NFOC_AUTO),
 	m_lineWrap(false), m_isAnsi(false),
 	m_ansiHintWidth(0), m_ansiHintHeight(0)
@@ -84,12 +83,10 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		return false;
 	}
 
-	// we add a trailing \0.
-	unsigned char* l_buf = new unsigned char[l_fileBytes + 1];
-	memset(l_buf, 0, l_fileBytes + 1);
+	CAutoFreeBuffer<unsigned char> l_buf(l_fileBytes + 1);
 
 	// copy file contents into memory buffer:
-	unsigned char *l_ptr = l_buf;
+	unsigned char *l_ptr = l_buf.get();
 	size_t l_totalBytesRead = 0;
 	bool l_error = false;
 
@@ -109,7 +106,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 				break;
 			}
 
-			memmove_s(l_ptr, l_buf + l_fileBytes - l_ptr, l_chunkBuf, l_bytesRead);
+			memmove_s(l_ptr, l_buf.get() + l_fileBytes - l_ptr, l_chunkBuf, l_bytesRead);
 
 			l_ptr += l_bytesRead;
 		}
@@ -128,7 +125,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 	if (!l_error)
 	{
-		m_loaded = LoadFromMemoryInternal(l_buf, l_fileBytes);
+		m_loaded = LoadFromMemoryInternal(l_buf.get(), l_fileBytes);
 	}
 	else
 	{
@@ -136,9 +133,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 		m_loaded = false;
 	}
-
-	delete[] l_buf;
-
+	
 	fclose(l_file);
 
 	if (!m_loaded)
@@ -592,7 +587,6 @@ bool CNFOData::PostProcessLoadedContent()
 	}
 
 	// copy lines to grid:
-	delete m_grid; m_grid = nullptr;
 	m_utf8Map.clear();
 	m_hyperLinks.clear();
 	m_utf8Content.clear();
@@ -633,7 +627,7 @@ bool CNFOData::PostProcessLoadedContent()
 	}
 
 	// allocate mem:
-	m_grid = new TwoDimVector<wchar_t>(l_lines.size(), l_maxLineLen, 0);
+	m_grid = std::make_unique<TwoDimVector<wchar_t>>(l_lines.size(), l_maxLineLen, 0);
 
 	// vars for hyperlink detection:
 	wstring l_prevLinkUrl;
@@ -1039,9 +1033,18 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	a_data += 2;
 
 	// ...and load
-	m_textContent = wstring().append((wchar_t*)(a_data), (a_dataLen - 2) / sizeof(wchar_t));
+	m_textContent.assign((wchar_t*)a_data, (a_dataLen - 2) / sizeof(wchar_t));
 
-	if (m_textContent.find(L'\0') != wstring::npos)
+	if (m_textContent.find_first_of(L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::wstring::npos
+		&& std::string((char*)a_data, a_dataLen).find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") != std::string::npos
+	) {
+		// probably an invalid BOM...
+		// (ex: Jimmy.Kimmel.2014.01.27.Chris.O.Donnell.720p.HDTV.x264-CROOKS)
+		m_textContent.clear();
+
+		return false;
+	}
+	else if (m_textContent.find(L'\0') != wstring::npos)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
@@ -1097,8 +1100,7 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 	wchar_t* l_bufStart = (wchar_t*)(a_data + 2);
 	const size_t l_numWChars = a_dataLen / sizeof(wchar_t);
 
-	wchar_t *l_newBuf = new wchar_t[l_numWChars + 1];
-	memset(l_newBuf, 0, l_numWChars + 1);
+	CAutoFreeBuffer<wchar_t> l_newBuf(l_numWChars + 1);
 
 	for (size_t p = 0; p < l_numWChars; p++)
 	{
@@ -1107,15 +1109,21 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 		if (l_newBuf[p] == 0)
 		{
 			SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
-			delete[] l_newBuf;
+
 			return false;
 		}
 	}
 
-	m_textContent = wstring().append(l_newBuf, l_numWChars);
+	if (m_textContent.find_first_of(L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::wstring::npos
+		&& std::string((char*)a_data, a_dataLen).find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") != std::string::npos
+	) {
+		// probably an invalid BOM...
 
-	delete[] l_newBuf;
+		return false;
+	}
 
+	m_textContent.assign(l_newBuf.get(), l_numWChars);
+	
 	m_sourceCharset = NFOC_UTF16;
 
 	return true;
@@ -1675,10 +1683,4 @@ void CNFOData::ClearLastError()
 {
 	m_lastErrorCode = NDE_NO_ERROR;
 	m_lastErrorDescr = L"";
-}
-
-
-CNFOData::~CNFOData()
-{
-	delete m_grid;
 }
