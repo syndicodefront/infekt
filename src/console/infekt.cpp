@@ -34,9 +34,12 @@ static const struct ::option g_longOpts[] = {
 #ifdef _WIN32
 	{ _T("utf-16"),			no_argument,		0,	't' },
 #endif
+	{ _T("cp-437"),			no_argument,		0,	'e' },
 	{ _T("html"),			no_argument,		0,	'm' },
+#ifdef CAIRO_HAS_PDF_SURFACE
 	{ _T("pdf"),			no_argument,		0,	'd' },
 	{ _T("pdf-din"),		no_argument,		0,	'D' },
+#endif
 	{ _T("out-file"),		required_argument,	0,	'O' },
 
 	{ _T("text-color"),		required_argument,	0,	'T' },
@@ -291,7 +294,7 @@ int main(int argc, char* argv[])
 	}
 
 	// open+load the NFO file:
-	PNFOData l_nfoData(new CNFOData());
+	PNFOData l_nfoData = std::make_shared<CNFOData>();
 	l_nfoData->SetWrapLines(l_wrap && !l_textOnly);
 
 	if (!l_nfoData->LoadFromFile(l_nfoFileName))
@@ -302,7 +305,7 @@ int main(int argc, char* argv[])
 
 	if (l_textOnly)
 	{
-		PNFOData l_stripped(new CNFOData());
+		PNFOData l_stripped = std::make_shared<CNFOData>();
 		l_stripped->SetWrapLines(l_wrap);
 
 		if (!l_stripped->LoadStripped(*l_nfoData))
