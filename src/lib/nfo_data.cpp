@@ -587,6 +587,7 @@ bool CNFOData::PostProcessLoadedContent()
 	}
 
 	// copy lines to grid:
+	m_grid.reset();
 	m_utf8Map.clear();
 	m_hyperLinks.clear();
 	m_utf8Content.clear();
@@ -820,13 +821,25 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 	bool l_containsCR = false;
 	bool l_containsLF = false;
+	bool l_containsCRLF = false;
 
-	for (int i = 0; i < static_cast<int>(a_dataLen) && (!l_containsCR || !l_containsLF); ++i)
+	for (size_t i = 0; i < a_dataLen; ++i)
 	{
 		if (a_data[i] == '\r')
+		{
 			l_containsCR = true;
+		}
 		else if (a_data[i] == '\n')
+		{
 			l_containsLF = true;
+
+			if (i > 0 && a_data[i - 1] == '\r')
+			{
+				l_containsCRLF = true;
+
+				break;
+			}
+		}
 	}
 
 	bool l_foundBinary = false;
@@ -870,7 +883,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 				// http://stackoverflow.com/questions/6998506/text-file-with-0d-0d-0a-line-breaks
 				m_textContent[i] = L' ';
 			}
-			else if (p == 0x0D && !l_containsLF && l_containsCR)
+			else if (p == 0x0D && (!l_containsLF || l_containsCRLF))
 			{
 				// https://github.com/syndicodefront/infekt/issues/103
 				m_textContent[i] = L'\n';
