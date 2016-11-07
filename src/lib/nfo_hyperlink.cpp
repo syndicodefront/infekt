@@ -193,7 +193,8 @@ bool CNFOHyperLink::FindLink(const std::wstring& sLine, size_t& uirOffset, size_
 		sWorkUrl.insert(0, L"http://");
 	}
 
-	if (std::regex_search(sWorkUrl, std::wregex(L"^(http|ftp)s?://([\\w-]+)\\.([\\w.-]+)/?", std::regex::icase)))
+	if (std::regex_search(sWorkUrl, std::wregex(L"^(http|ftp)s?://([\\w-]+)\\.([\\w.-]+)/?", std::regex::icase))
+		&& sWorkUrl.find(L"...") == std::wstring::npos)
 	{
 		srUrl = sWorkUrl;
 	}

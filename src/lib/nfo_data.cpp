@@ -394,7 +394,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 
 static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
-	const int l_maxLen = 90;
+	const int l_maxLen = 100;
 
 	// Please note that this routine is not behaving consistently
 	// when it comes to taking into account leading whitespace or not.
@@ -823,7 +823,9 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 				l_containsCRLF = true;
 			}
 		}
-		else if (a_fix == EA_TRY && i > 0)
+		else if (a_fix == EA_TRY && i > 0
+			&& a_data[0] != 0x1B // assume that ANSI art files start with ESC and that they never are double-encoded...
+		)
 		{
 			// look for bad full blocks and shadowed full blocks or black half blocks:
 
@@ -881,8 +883,10 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		{
 			if (p == 0)
 			{
-				// "allow" \0 chars for ANSI files with SAUCE record...
-				m_textContent[i] = L'?';
+				// "allow" \0 chars, e.g. for ANSI files with SAUCE record ...
+				// ... also allow them for regular files, but trigger some more checks.
+				m_textContent[i] = L' ';
+				l_foundBinary = true;
 			}
 			else if (p == 0x0D && i < static_cast<int>(a_dataLen) - 1 && a_data[i + 1] == 0x0A)
 			{
@@ -1165,7 +1169,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	SAUCE l_record = { 0 };
 	bool l_incompleteRecord = false;
-	size_t l_incompleteRecordLength = 0;
+	size_t l_recordLength = SAUCE_RECORD_SIZE;
 
 	memcpy(&l_record, a_data + ar_dataLen - SAUCE_RECORD_SIZE, SAUCE_RECORD_SIZE);
 
@@ -1182,10 +1186,10 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 				if (0 == memcmp("SAUCE00", a_data + ar_dataLen - SAUCE_RECORD_SIZE + i, strlen("SAUCE00")))
 				{
 					l_incompleteRecord = true;
-					l_incompleteRecordLength = SAUCE_RECORD_SIZE - i;
+					l_recordLength = SAUCE_RECORD_SIZE - i;
 
 					memset(&l_record, 0, sizeof(l_record));
-					memcpy(&l_record, a_data + ar_dataLen - SAUCE_RECORD_SIZE + i, l_incompleteRecordLength);
+					memcpy(&l_record, a_data + ar_dataLen - SAUCE_RECORD_SIZE + i, l_recordLength);
 
 					break;
 				}
@@ -1212,7 +1216,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 		if (l_incompleteRecord && l_record.DataType == 0 && l_record.FileType == 0)
 		{
 			m_isAnsi = true; // wild guess!
-			ar_dataLen -= l_incompleteRecordLength;
+			ar_dataLen -= l_recordLength;
 
 			return true;
 		}
@@ -1224,7 +1228,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	// skip record + comments:
 
-	size_t l_bytesToTrim = SAUCE_RECORD_SIZE + (l_record.Comments > 0
+	size_t l_bytesToTrim = l_recordLength + (l_record.Comments > 0
 		? l_record.Comments * SAUCE_COMMENT_LINE_SIZE + SAUCE_HEADER_ID_SIZE : 0);
 
 	if (l_record.Comments > SAUCE_MAX_COMMENTS || ar_dataLen < l_bytesToTrim)
