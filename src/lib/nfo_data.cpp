@@ -1164,6 +1164,8 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 	}
 
 	SAUCE l_record = { 0 };
+	bool l_incompleteRecord = false;
+	size_t l_incompleteRecordLength = 0;
 
 	memcpy(&l_record, a_data + ar_dataLen - SAUCE_RECORD_SIZE, SAUCE_RECORD_SIZE);
 
@@ -1171,8 +1173,31 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	if (memcmp(l_record.ID, "SAUCE", 5) != 0)
 	{
-		// no SAUCE record, no error.
-		return true;
+		// no complete SAUCE record, look for incomplete one:
+
+		if (ar_dataLen > SAUCE_RECORD_SIZE)
+		{
+			for (size_t i = 0; i < SAUCE_RECORD_SIZE - strlen("SAUCE00"); ++i)
+			{
+				if (0 == memcmp("SAUCE00", a_data + ar_dataLen - SAUCE_RECORD_SIZE + i, strlen("SAUCE00")))
+				{
+					l_incompleteRecord = true;
+					l_incompleteRecordLength = SAUCE_RECORD_SIZE - i;
+
+					memset(&l_record, 0, sizeof(l_record));
+					memcpy(&l_record, a_data + ar_dataLen - SAUCE_RECORD_SIZE + i, l_incompleteRecordLength);
+
+					break;
+				}
+			}
+		}
+
+		if (!l_incompleteRecord)
+		{
+			// REALLY no SAUCE record, okay_sad_face.png
+
+			return true;
+		}
 	}
 
 	if (memcmp(l_record.Version, "00", 2) != 0)
@@ -1184,6 +1209,14 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	if (l_record.DataType != SAUCEDT_CHARACTER || (l_record.FileType != SAUCEFT_CHAR_ANSI && l_record.FileType != SAUCEFT_CHAR_ASCII))
 	{
+		if (l_incompleteRecord && l_record.DataType == 0 && l_record.FileType == 0)
+		{
+			m_isAnsi = true; // wild guess!
+			ar_dataLen -= l_incompleteRecordLength;
+
+			return true;
+		}
+
 		m_lastErrorDescr = L"SAUCE: Unsupported file format type.";
 
 		return false;
@@ -1208,7 +1241,8 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 		--ar_dataLen;
 	}
 
-	m_isAnsi = (l_record.FileType == SAUCEFT_CHAR_ANSI);
+	m_isAnsi = (l_record.FileType == SAUCEFT_CHAR_ANSI)
+		|| (l_incompleteRecord && l_record.FileType == 0);
 
 	if (l_record.TInfo1 > 0 && l_record.TInfo1 < WIDTH_LIMIT * 2) // width in characters
 	{
