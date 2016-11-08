@@ -940,7 +940,10 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 	bool l_ansi = m_isAnsi || DetectAnsi();
 
-	if (l_foundBinary && !l_ansi)
+	if (l_foundBinary && !l_ansi
+		&& std::regex_match(m_textContent, std::wregex(L"\\s+[A-Z][a-z]+\\s+"))
+		// :TODO: improve detection/discrimination of binary files (images, PDFs, PE files...) and NFO files
+	)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
