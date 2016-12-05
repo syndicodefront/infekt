@@ -20,6 +20,7 @@
 #include "plugin_manager.h"
 #include "nfo_renderer_export.h"
 #include "resource.h"
+#include "default_app.h"
 
 
 using namespace std;
@@ -228,7 +229,7 @@ void CMainFrame::OnInitialUpdate()
 
 	if (m_settings->bCheckDefaultOnStartup)
 	{
-		l_app->CheckDefaultNfoViewer(m_hWnd, false);
+		CWinDefaultApp::Factory()->CheckDefaultNfoViewer(m_hWnd);
 	}
 
 	LoadActivePluginsFromRegistry();

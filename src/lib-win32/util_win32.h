@@ -15,6 +15,9 @@
 #ifndef _UTIL_WIN32_H
 #define _UTIL_WIN32_H
 
+#include <string>
+#include <Windows.h>
+
 class CUtilWin32
 {
 public:
@@ -23,6 +26,7 @@ public:
 	static bool IsWinVista();
 	static bool IsAtLeastWin7();
 	static bool IsWin7();
+	static bool IsAtLeastWin8();
 	static bool IsWin8();
 	static bool IsWin10();
 	static bool IsWow64();

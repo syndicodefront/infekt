@@ -19,14 +19,12 @@
 #include "default_app.h"
 #include <shobjidl.h>
 
-
-CWin6xDefaultApp::CWin6xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
+CWin7DefaultApp::CWin7DefaultApp(const std::wstring& a_appRegistryName, const std::wstring& a_fileExtension)
+	: CWinDefaultApp(a_appRegistryName, a_fileExtension)
 {
-	m_noSuchProgName = false;
 }
 
-
-bool CWin6xDefaultApp::IsDefault()
+bool CWin7DefaultApp::IsDefault()
 {
 	IApplicationAssociationRegistration* pAAR = nullptr;
 	BOOL pfHasExt = FALSE;
@@ -50,8 +48,7 @@ bool CWin6xDefaultApp::IsDefault()
 	return SUCCEEDED(hr) && pfHasExt;
 }
 
-
-bool CWin6xDefaultApp::MakeDefault()
+CWin7DefaultApp::MakeDefaultResult CWin7DefaultApp::MakeDefault()
 {
 	IApplicationAssociationRegistration* pAAR = nullptr;
 
@@ -64,6 +61,6 @@ bool CWin6xDefaultApp::MakeDefault()
 		pAAR->Release();
 	}
 
-	return SUCCEEDED(hr);
+	return SUCCEEDED(hr) ? MakeDefaultResult::SUCCEEDED : MakeDefaultResult::FAILED;
 }
 

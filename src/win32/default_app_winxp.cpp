@@ -21,8 +21,7 @@
 
 using namespace std;
 
-
-bool CWin5xDefaultApp::IsDefault()
+bool CWinXPDefaultApp::IsDefault()
 {
 	HKEY l_hKey;
 	std::wstring l_keyPath = m_extension;
@@ -106,8 +105,7 @@ bool CWin5xDefaultApp::IsDefault()
 	return l_result;
 }
 
-
-bool CWin5xDefaultApp::RegisterProgIdData()
+bool CWinXPDefaultApp::RegisterProgIdData()
 {
 	_tstring l_keyPath = _T("SOFTWARE\\Classes\\") + m_appRegistryName + _T("\\DefaultIcon");
 
@@ -144,12 +142,11 @@ bool CWin5xDefaultApp::RegisterProgIdData()
 	return true;
 }
 
-
-bool CWin5xDefaultApp::MakeDefault()
+CWinXPDefaultApp::MakeDefaultResult CWinXPDefaultApp::MakeDefault()
 {
 	if (!RegisterProgIdData())
 	{
-		return false;
+		return MakeDefaultResult::FAILED;
 	}
 
 	HKEY l_hKey;
@@ -166,7 +163,7 @@ bool CWin5xDefaultApp::MakeDefault()
 	if (RegCreateKeyEx(HKEY_CURRENT_USER, l_keyPath.c_str(), 0, nullptr,
 		REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &l_hKey, nullptr) != ERROR_SUCCESS)
 	{
-		return false;
+		return MakeDefaultResult::FAILED;
 	}
 
 	bool l_success = (RegSetValueEx(l_hKey,
@@ -177,9 +174,13 @@ bool CWin5xDefaultApp::MakeDefault()
 	if (l_success)
 	{
 		SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
-	}
 
-	return l_success;
+		return MakeDefaultResult::SUCCEEDED;
+	}
+	else
+	{
+		return MakeDefaultResult::FAILED;
+	}
 }
 
 #endif /* _WIN32_WINNT */

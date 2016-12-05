@@ -22,6 +22,8 @@
 #include "util_win32_gui.h"
 #endif
 
+#include <string>
+#include <vector>
 
 class CUtil
 {

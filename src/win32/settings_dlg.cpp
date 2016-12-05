@@ -17,6 +17,7 @@
 #include "app.h"
 #include "plugin_manager.h"
 #include "resource.h"
+#include "default_app.h"
 
 
 /************************************************************************/
@@ -289,12 +290,7 @@ BOOL CSettingsTabDialog::OnInitDialog()
 	{
 		const PMainSettings& l_global = m_mainWin->GetSettings();
 
-		if (CUtilWin32::IsAtLeastWinVista())
-		{
-			int l_status = CNFOApp::GetInstance()->IsDefaultNfoViewer();
-
-			::EnableWindow(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER), (l_status == -1 ? FALSE : TRUE));
-		}
+		::EnableWindow(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER), CWinDefaultApp::Factory()->CanCheckDefaultNfoViewer() ? TRUE : FALSE);
 
 		SET_DLG_CHECKBOX(IDC_CHECK_DEFAULT_VIEWER, l_global->bCheckDefaultOnStartup && ::IsWindowEnabled(GetDlgItem(IDC_CHECK_DEFAULT_VIEWER)));
 
@@ -572,7 +568,7 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 		switch (LOWORD(wParam))
 		{
 		case IDC_BUTTON_DEFAULT_VIEWER:
-			CNFOApp::GetInstance()->CheckDefaultNfoViewer(m_hWnd);
+			CWinDefaultApp::Factory()->CheckDefaultNfoViewerInteractive(m_hWnd);
 			break;
 		case IDC_THEME_EXPORT:
 			m_dlgWin->DoThemeExImport(false);

@@ -11,11 +11,14 @@ http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 #endif*/
 
 // we are however dropping WinXP 64-bit edition compatibility:
-#if !defined(_TARGETVER_WIN7) && !defined(_TARGETVER_VISTA) && defined(_WIN64)
+#if !defined(_TARGETVER_WIN8) && !defined(_TARGETVER_WIN7) && !defined(_TARGETVER_VISTA) && defined(_WIN64)
 #define _TARGETVER_VISTA
 #endif
 
-#ifdef _TARGETVER_WIN7
+#if defined(_TARGETVER_WIN8)
+#define WINVER			0x0800
+#define _WIN32_IE		0x0A00
+#elif defined(_TARGETVER_WIN7)
 // yes I know about NTDDI_VERSION
 // but I haven't figured out how to make it work without running
 // into circular dependencies yet.

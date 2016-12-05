@@ -40,10 +40,6 @@ public:
 	int ExtractStartupOptions(const std::wstring& a_commandLine);
 	bool SwitchToPrevInstance();
 
-	int IsDefaultNfoViewer();
-	bool MakeDefaultNfoViewer();
-	void CheckDefaultNfoViewer(HWND a_hwnd = 0, bool a_confirmation = true);
-
 	static CNFOApp* GetInstance() { return reinterpret_cast<CNFOApp*>(::Win32xx::GetApp()); }
 	static CViewContainer* GetViewContainerInstance() { return reinterpret_cast<CViewContainer*>(GetInstance()->GetMainFrame().GetView()); }
 protected:

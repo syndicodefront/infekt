@@ -15,43 +15,72 @@
 #ifndef _DEFAULT_APP_H
 #define _DEFAULT_APP_H
 
+#include <memory>
+#include <Windows.h>
 
 // abstract base class
 
 class CWinDefaultApp
 {
 public:
+	static std::unique_ptr<CWinDefaultApp> Factory();
+
+	void CheckDefaultNfoViewer(HWND a_hwnd);
+	void CheckDefaultNfoViewerInteractive(HWND a_hwnd);
+	bool CanCheckDefaultNfoViewer();
+
+	CWinDefaultApp() = delete;
+	virtual ~CWinDefaultApp() {}
+protected:
 	/**
-	 * @param a_appRegistryName e.g. "Company.App.MajorVer"
-	 * @param a_fileExtension e.g. ".htm"
-	 **/
+	* @param a_appRegistryName
+	* @param a_fileExtension e.g. ".htm"
+	**/
 	CWinDefaultApp(const std::wstring& a_appRegistryName, const std::wstring& a_fileExtension) :
-		  m_appRegistryName(a_appRegistryName), m_extension(a_fileExtension)
-	{ }
-	virtual ~CWinDefaultApp()
+		m_appRegistryName(a_appRegistryName), m_extension(a_fileExtension)
 	{ }
 
+	enum class MakeDefaultResult {
+		SUCCEEDED,
+		FAILED,
+		NOT_SUPPORTED
+	};
+
+	bool GotNoSuchProgramName() const { return m_noSuchProgName; }
+
 	virtual bool IsDefault() = 0;
-	virtual bool MakeDefault() = 0;
-protected:
-	std::wstring m_appRegistryName;
-	std::wstring m_extension;
-private:
-	CWinDefaultApp() {}
+	virtual MakeDefaultResult MakeDefault() = 0;
+
+	const std::wstring m_appRegistryName;
+	const std::wstring m_extension;
+
+	bool m_noSuchProgName;
 };
 
 
-// class for Windows Vista and higher, using COM
+// class for Windows Vista and Windows 7, using COM
 
-class CWin6xDefaultApp : public CWinDefaultApp 
+class CWin7DefaultApp : public CWinDefaultApp
 {
 public:
-	CWin6xDefaultApp(const std::wstring& a, const std::wstring& b);
-	bool IsDefault();
-	bool MakeDefault();
-	bool GotNoSuchProgramName() const { return m_noSuchProgName; }
+	CWin7DefaultApp(const std::wstring&, const std::wstring&);
+
 protected:
-	bool m_noSuchProgName;
+	bool IsDefault() override;
+	MakeDefaultResult MakeDefault() override;
+};
+
+
+// class for Windows 8 and later because wtf Microsoft
+
+class CWin8DefaultApp : public CWinDefaultApp
+{
+public:
+	CWin8DefaultApp(const std::wstring&, const std::wstring&);
+
+protected:
+	bool IsDefault() override;
+	MakeDefaultResult MakeDefault() override;
 };
 
 
@@ -59,15 +88,18 @@ protected:
 
 // class for Windows 2000 and XP, using direct registry writes
 
-class CWin5xDefaultApp : public CWinDefaultApp 
+class CWinXPDefaultApp : public CWinDefaultApp 
 {
 public:
-	CWin5xDefaultApp(const std::wstring& a, const std::wstring& b) : CWinDefaultApp(a, b)
+	CWinXPDefaultApp(const std::wstring& a_appRegistryName, const std::wstring& a_fileExtension)
+		: CWinDefaultApp(a_appRegistryName, a_fileExtension)
 	{ }
 
-	bool IsDefault();
-	bool MakeDefault();
 protected:
+	bool IsDefault() override;
+	MakeDefaultResult MakeDefault() override;
+
+private:
 	bool RegisterProgIdData();
 };
 
