@@ -198,9 +198,14 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 	{
 		l_text.append(a_text, l_prevPos, l_pos - l_prevPos);
 
-		if (a_text[l_pos] == L'\t' || a_text[l_pos] == 0xA0)
+		switch (a_text[l_pos])
 		{
-			l_text += L' ';
+		case L'\t':
+			l_text.append(8, L' ');
+			break;
+		case 0xA0:
+			l_text += ' ';
+			break;
 		}
 
 		l_prevPos = l_pos + 1;
@@ -210,7 +215,7 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 	if (l_prevPos != 0)
 	{
 		l_text.append(a_text.substr(l_prevPos));
-		a_text = l_text;
+		a_text.swap(l_text);
 	}
 
 	_ASSERT(a_text.find_first_of(L"\r\t\xA0") == wstring::npos);
