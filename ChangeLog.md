@@ -1,3 +1,12 @@
+## v0.9.7 (???)
+  * Windows default app handling: fixed/added support for Windows 8 and 10 changes (issue #114)
+  * Compatibility: Use 8 spaces for tab characters (issue #116)
+  * Bugfix: Fixed some issues with mixed line endings
+  * Compatibility: Ignore invalid BOMs on some NFOs
+  * Compatibility: Support some (otherwise valid NFO) files with null bytes
+  * CLI version: fix --cp-437
+  * Minor updates to Linux version, PCRE and shim removal, use -std=c++14
+
 ## v0.9.6 (November 3rd 2016)
   * [re-uploaded setup routine after initial publication to fix broken downloads]
   * Switched J and K navigation keys
