@@ -7,8 +7,8 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.9.6
-AppVersion=0.9.6
+AppVerName=iNFekt 0.9.7
+AppVersion=0.9.7
 AppPublisher=syndicode
 AppPublisherURL=http://infekt.ws/
 DefaultDirName={pf}\iNFekt
