@@ -1,10 +1,11 @@
-## v0.9.7 (???)
+## v0.9.7 (January 29th 2017)
   * Windows default app handling: fixed/added support for Windows 8 and 10 changes (issue #114)
   * Compatibility: Use 8 spaces for tab characters (issue #116)
   * Bugfix: Fixed some issues with mixed line endings
   * Compatibility: Ignore invalid BOMs on some NFOs
   * Compatibility: Support some (otherwise valid NFO) files with null bytes
   * CLI version: fix --cp-437
+  * Library update to cairo 1.14.8, libpng v1.6.28, zlib 1.2.11, boost 1.63
   * Minor updates to Linux version, PCRE and shim removal, use -std=c++14
 
 ## v0.9.6 (November 3rd 2016)
