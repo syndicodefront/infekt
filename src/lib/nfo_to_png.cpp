@@ -150,7 +150,6 @@ bool CNFOToPNG::SaveWithLibpng(const std::_tstring& a_filePath)
 		white.red = white.blue = white.green = white.gray = (1 << bpc) - 1;
 		png_set_bKGD(png_ptr, info_ptr, &white);
 
-		png_write_info(png_ptr, info_ptr);
 		png_set_write_user_transform_fn(png_ptr, unpremultiply_data);
 
 		row_ptr = new (std::nothrow) png_bytep[l_imgHeight];
