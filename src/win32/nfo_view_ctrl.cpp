@@ -150,28 +150,35 @@ LRESULT CNFOViewControl::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
 
-				// increase scroll speed when zoomed out:
-				if (GetZoom() < 100)
+				if (l_lines != WHEEL_PAGESCROLL)
 				{
-					l_lines = l_lines + static_cast<UINT>(l_lines * (100 - GetZoom()) / 50.0);
-				}
+					// increase scroll speed when zoomed out:
+					if (GetZoom() < 100)
+					{
+						l_lines = l_lines + static_cast<UINT>(l_lines * (100 - GetZoom()) / 50.0);
+					}
 
-				HandleScrollEvent(SB_VERT, INT_MIN, -l_delta * l_lines);
+					HandleScrollEvent(SB_VERT, INT_MIN, -l_delta * l_lines);
+				}
+				else
+				{
+					HandleScrollEvent(SB_VERT, l_delta > 0 ? SB_PAGEUP : SB_PAGEDOWN, 0);
+				}
 			}
 		}
 		return 0;
 	case WM_MOUSEHWHEEL: // Windows Vista & higher only...
-	{
-		UINT l_chars = 0;
-		if (::SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0))
 		{
-			int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-			HandleScrollEvent(SB_HORZ, INT_MIN, -l_delta * l_chars);
+			UINT l_chars = 0;
+			if (::SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &l_chars, 0))
+			{
+				int l_delta = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+				HandleScrollEvent(SB_HORZ, INT_MIN, -l_delta * l_chars);
+			}
 		}
-	}
-	// Source: http://msdn.microsoft.com/en-us/library/ms997498.aspx#mshrdwre_topic2
-	// The MSDN page for WM_MOUSEHWHEEL says "return zero" though... wait till someone complains.
-	return TRUE;
+		// Source: http://msdn.microsoft.com/en-us/library/ms997498.aspx#mshrdwre_topic2
+		// The MSDN page for WM_MOUSEHWHEEL says "return zero" though... wait till someone complains.
+		return TRUE;
 	case WM_SIZE:
 		m_width = LOWORD(lParam);
 		m_height = HIWORD(lParam);
