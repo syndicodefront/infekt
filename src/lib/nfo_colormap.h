@@ -99,6 +99,6 @@ protected:
 	uint32_t GetRGB(const SNFOColorStop& a_stop) const;
 };
 
-typedef shared_ptr<CNFOColorMap> PNFOColorMap;
+typedef std::shared_ptr<CNFOColorMap> PNFOColorMap;
 
 #endif /* !_NFO_COLORMAP_H */

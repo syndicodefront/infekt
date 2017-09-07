@@ -69,6 +69,6 @@ public:
 	bool bUseGPU;
 };
 
-typedef shared_ptr<CMainSettings> PMainSettings;
+typedef std::shared_ptr<CMainSettings> PMainSettings;
 
 #endif /* !_MAIN_SETTINGS_H */

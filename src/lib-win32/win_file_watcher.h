@@ -47,6 +47,6 @@ protected:
 	uint64_t GetFileModificationTime();
 };
 
-typedef shared_ptr<CWinFileWatcher> PWinFileWatcher;
+typedef std::shared_ptr<CWinFileWatcher> PWinFileWatcher;
 
 #endif /* !_WINFILEWATCHER_H */

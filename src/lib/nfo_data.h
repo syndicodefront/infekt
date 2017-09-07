@@ -154,6 +154,6 @@ protected:
 	void ClearLastError();
 };
 
-typedef shared_ptr<CNFOData> PNFOData;
+typedef std::shared_ptr<CNFOData> PNFOData;
 
 #endif /* !_NFO_DATA_H */

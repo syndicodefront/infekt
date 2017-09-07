@@ -22,12 +22,12 @@
 
 // forward decl for the callback arguments:
 class CWinHttpRequest;
-typedef shared_ptr<CWinHttpRequest> PWinHttpRequest;
+typedef std::shared_ptr<CWinHttpRequest> PWinHttpRequest;
 typedef std::function<void (PWinHttpRequest)> WinHttpRequestCallback;
 
 // forward decl for owner member:
 class CWinHttpClient;
-typedef shared_ptr<CWinHttpClient> PWinHttpClient;
+typedef std::shared_ptr<CWinHttpClient> PWinHttpClient;
 
 /**
  * Encapsulates an HTTP request. Allows options to be set and results to
@@ -69,7 +69,7 @@ public:
 
 protected:
 	// to be used from within CWinHttpClient only:
-	CWinHttpRequest(int a_reqId, shared_ptr<CWinHttpClient>& a_owner);
+	CWinHttpRequest(int a_reqId, std::shared_ptr<CWinHttpClient>& a_owner);
 	void _RunRequest();
 
 private:

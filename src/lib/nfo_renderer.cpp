@@ -568,9 +568,9 @@ void CNFORenderer::RenderStripe(size_t a_stripe) const
 		{
 			if ((m_partial & NRP_RENDER_GAUSS_SHADOW) != 0)
 			{
-				shared_ptr<CCairoBoxBlur> p_blur(new CCairoBoxBlur(
+				auto p_blur = std::make_shared<CCairoBoxBlur>(
 					(int)GetWidth(), GetStripeHeightPhysical(a_stripe),
-					(int)GetGaussBlurRadius(), ms_useGPU && !m_forceGPUOff));
+					(int)GetGaussBlurRadius(), ms_useGPU && !m_forceGPUOff);
 				p_blur->SetAllowFallback(m_allowCPUFallback);
 
 				cairo_t* cr = cairo_create(l_surface);
@@ -1736,7 +1736,7 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 
 void CNFORenderer::WaitForPreRender()
 {
-	shared_ptr<std::thread> l_renderThread(m_preRenderThread);
+	auto l_renderThread = m_preRenderThread;
 
 	if (l_renderThread && l_renderThread->joinable())
 	{
@@ -1772,8 +1772,8 @@ void CNFORenderer::PreRender()
 
 	m_stopPreRendering = false;
 
-	m_preRenderThread = shared_ptr<std::thread>(new std::thread(
-		std::bind(&CNFORenderer::PreRenderThreadProc, this)));
+	m_preRenderThread = std::make_shared<std::thread>(
+		std::bind(&CNFORenderer::PreRenderThreadProc, this));
 }
 
 

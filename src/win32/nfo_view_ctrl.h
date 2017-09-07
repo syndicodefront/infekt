@@ -90,7 +90,7 @@ public:
 };
 
 
-typedef shared_ptr<CNFOViewControl> PNFOViewControl;
+typedef std::shared_ptr<CNFOViewControl> PNFOViewControl;
 
 
 #ifndef WM_MOUSEHWHEEL

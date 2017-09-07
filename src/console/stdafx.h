@@ -47,21 +47,11 @@
 #include <atomic>
 #include <mutex>
 #include <regex>
+#include <functional>
 #include <omp.h>
 
 #ifdef HAVE_BOOST
 #include <boost/format.hpp>
-#endif
-
-#if defined(_MSC_VER) && _MSC_VER >= 1600
-using std::shared_ptr;
-#elif defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 3))
-using std::shared_ptr;
-#elif defined(HAVE_BOOST)
-#include <boost/shared_ptr.hpp>
-using boost::shared_ptr;
-#else
-#error No shared_ptr available...
 #endif
 
 /* cairo and other lib headers */

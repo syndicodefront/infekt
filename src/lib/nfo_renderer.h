@@ -144,7 +144,7 @@ private:
 	int m_stripeHeight; // in pixels
 
 	// for background pre-rendering:
-	shared_ptr<std::thread> m_preRenderThread;
+	std::shared_ptr<std::thread> m_preRenderThread;
 	std::atomic<size_t> m_preRenderingStripe;
 	std::mutex m_stripesLock;
 	bool m_stopPreRendering;

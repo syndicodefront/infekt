@@ -41,7 +41,7 @@ protected:
 	size_t m_dataLength;
 };
 
-typedef shared_ptr<CStoredFile> PStoredFile;
+typedef std::shared_ptr<CStoredFile> PStoredFile;
 
 class CContainer
 {
@@ -57,7 +57,7 @@ protected:
 	std::vector<PStoredFile> m_storedFiles;
 };
 
-typedef shared_ptr<CContainer> PContainer;
+typedef std::shared_ptr<CContainer> PContainer;
 
 } // namespace SRR
 

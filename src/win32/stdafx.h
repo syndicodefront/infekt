@@ -56,13 +56,13 @@
 #include <atomic>
 #include <mutex>
 #include <regex>
+#include <functional>
 #include <omp.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <shellapi.h>
 #include <uxtheme.h>
 #include <boost/format.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/algorithm/string.hpp>
 #include <tchar.h>
 #include <commdlg.h>
@@ -80,12 +80,6 @@
 typedef signed __int64 ssize_t;
 #else
 typedef signed int ssize_t;
-#endif
-
-#if defined(_MSC_VER) && _MSC_VER >= 1600
-using std::shared_ptr;
-#else if defined(HAVE_BOOST)
-using boost::shared_ptr;
 #endif
 
 // disable "switch statement contains 'default' but no 'case' labels"
