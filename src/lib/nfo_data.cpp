@@ -240,12 +240,12 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 		// trim trailing whitespace:
 		CUtil::StrTrimRight(l_line);
 
-		a_lines.push_back(l_line);
-
 		if (l_line.size() > a_maxLineLen)
 		{
 			a_maxLineLen = l_line.size();
 		}
+
+		a_lines.push_back(std::move(l_line));
 
 		l_prevPos = l_pos + 1;
 		l_pos = a_text.find(L'\n', l_prevPos);
@@ -255,8 +255,8 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 	{
 		wstring l_line = a_text.substr(l_prevPos);
 		CUtil::StrTrimRight(l_line);
-		a_lines.push_back(l_line);
 		if (l_line.size() > a_maxLineLen) a_maxLineLen = l_line.size();
+		a_lines.push_back(std::move(l_line));
 	}
 }
 
@@ -1532,9 +1532,9 @@ static wstring _TrimParagraph(const wstring& a_text)
 
 	while (l_pos != wstring::npos)
 	{
-		const wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
+		wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
 
-		l_lines.push_back(l_line);
+		l_lines.push_back(std::move(l_line));
 
 		l_prevPos = l_pos + 1;
 		l_pos = a_text.find(L'\n', l_prevPos);

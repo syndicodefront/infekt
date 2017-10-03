@@ -57,8 +57,7 @@ bool CAnsiArt::Parse(const wstring& a_text)
 
 			if (!data.empty())
 			{
-				ansi_command_t tmp = { 0, data };
-				m_commands.push_back(tmp);
+				m_commands.emplace_back(ansi_command_t{ 0, data });
 				data.clear();
 			}
 
@@ -76,8 +75,7 @@ bool CAnsiArt::Parse(const wstring& a_text)
 			}
 			else if (iswalpha(c))
 			{
-				ansi_command_t tmp = { c, data };
-				m_commands.push_back(tmp);
+				m_commands.emplace_back(ansi_command_t{ c, data });
 				data.clear();
 
 				parser_state = ANYTEXT;
@@ -109,8 +107,7 @@ bool CAnsiArt::Parse(const wstring& a_text)
 	{
 		if (!data.empty())
 		{
-			ansi_command_t tmp = { 0, data };
-			m_commands.push_back(tmp);
+			m_commands.emplace_back(ansi_command_t{ 0, data });
 		}
 	}
 	else
@@ -303,7 +300,7 @@ bool CAnsiArt::Process()
 
 				if (n >= 0 && n <= 255)
 				{
-					params.push_back(static_cast<uint8_t>(n));
+					params.emplace_back(static_cast<uint8_t>(n));
 				}
 			}
 
@@ -393,7 +390,7 @@ bool CAnsiArt::Process()
 			}
 		}
 
-		m_lines.push_back(wstring(screen[row].begin(), screen[row].begin() + line_used));
+		m_lines.emplace_back(wstring(screen[row].begin(), screen[row].begin() + line_used));
 
 		if (line_used > m_maxLineLength)
 		{
