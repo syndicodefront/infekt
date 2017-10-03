@@ -98,7 +98,7 @@ void CInfektInfoBar::OnPaint()
 	cairo_surface_t *l_surface;
 
 	l_dc = ::BeginPaint(m_hwnd, &l_ps);
-	l_surface = cairo_win32_surface_create(l_dc);
+	l_surface = cairo_win32_surface_create_with_format(l_dc, CAIRO_FORMAT_ARGB32);
 
 	//if(l_ps.fErase)
 	{

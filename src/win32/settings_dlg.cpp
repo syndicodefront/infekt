@@ -907,7 +907,7 @@ void CSettingsTabDialog::DrawColorButton(const LPDRAWITEMSTRUCT a_dis)
 		return;
 	}
 
-	cairo_surface_t* l_surface = cairo_win32_surface_create(a_dis->hDC);
+	cairo_surface_t* l_surface = cairo_win32_surface_create_with_format(a_dis->hDC, CAIRO_FORMAT_ARGB32);
 	cairo_t* cr = cairo_create(l_surface);
 
 	if (l_color->A != 255)
@@ -948,7 +948,7 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 {
 	HWND l_hCombo = GetDlgItem(IDC_FONTNAME_COMBO);
 	HDC l_hdc = ::GetDC(l_hCombo);
-	cairo_surface_t* l_surface = cairo_win32_surface_create(l_hdc);
+	cairo_surface_t* l_surface = cairo_win32_surface_create_with_format(l_hdc, CAIRO_FORMAT_ARGB32);
 	cairo_t* cr = cairo_create(l_surface);
 
 	double l_maxW = 0, l_maxH = 0;
@@ -1013,7 +1013,7 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 				l_fontSize = 14;
 			}
 
-			cairo_surface_t* l_surface = cairo_win32_surface_create(a_dis->hDC);
+			cairo_surface_t* l_surface = cairo_win32_surface_create_with_format(a_dis->hDC, CAIRO_FORMAT_ARGB32);
 			cairo_t* cr = cairo_create(l_surface);
 
 			cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);

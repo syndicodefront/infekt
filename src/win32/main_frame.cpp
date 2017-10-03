@@ -1742,7 +1742,7 @@ bool CMainFrame::LoadFolderNfoList()
 
 			if (::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, nullptr) < 1000)
 			{
-				m_nfoPathsInFolder.push_back(l_buf);
+				m_nfoPathsInFolder.emplace_back(l_buf);
 			}
 		}
 	} while (::FindNextFile(l_fh, &l_ffd));

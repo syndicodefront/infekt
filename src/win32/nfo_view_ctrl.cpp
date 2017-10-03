@@ -314,9 +314,9 @@ void CNFOViewControl::OnPaint()
 		// smart = buffer invalidated rect only
 
 		l_dc = ::BeginPaint(m_hwnd, &l_ps);
-		l_realSurface = cairo_win32_surface_create(l_dc);
+		l_realSurface = cairo_win32_surface_create_with_format(l_dc, CAIRO_FORMAT_ARGB32);
 
-		l_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24,
+		l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,
 			l_ps.rcPaint.right - l_ps.rcPaint.left,
 			l_ps.rcPaint.bottom - l_ps.rcPaint.top);
 	}
@@ -325,11 +325,11 @@ void CNFOViewControl::OnPaint()
 		// not smart = redraw (copy) entire control contents
 
 		l_dc = ::GetDC(m_hwnd);
-		l_realSurface = cairo_win32_surface_create(l_dc);
+		l_realSurface = cairo_win32_surface_create_with_format(l_dc, CAIRO_FORMAT_ARGB32);
 		memset(&l_ps, 0, sizeof(PAINTSTRUCT));
 		l_ps.fErase = 1;
 
-		l_surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, m_width, m_height);
+		l_surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, m_width, m_height);
 	}
 
 	int l_destx = 0;
