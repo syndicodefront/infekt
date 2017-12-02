@@ -45,7 +45,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 		_wmkdir(l_dataPath.c_str());
 	}
 
-	std::wstring l_portableIniPath = l_dataPath + L"\\portable.ini";
+	const std::wstring l_portableIniPath = l_dataPath + L"\\portable.ini";
 
 	if (!::PathFileExists(l_portableIniPath.c_str()) && ::PathIsDirectory(l_dataPath.c_str()))
 	{
@@ -64,6 +64,7 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	{
 		const std::wstring l_exePath = l_path + L"\\App\\iNFekt\\infekt-win32.exe";
 
-		return (INT)::ShellExecute(HWND_DESKTOP, L"open", l_exePath.c_str(), wszCommandLine, nullptr, nShowCmd);
+		return reinterpret_cast<INT>(
+			::ShellExecute(HWND_DESKTOP, L"open", l_exePath.c_str(), wszCommandLine, nullptr, nShowCmd));
 	}
 }

@@ -23,8 +23,8 @@ CNFORenderer::CNFORenderer(bool a_classicMode) :
 	m_forceGPUOff(false),
 	m_allowCPUFallback(true),
 	m_onDemandRendering(false),
-	m_preRenderThread(nullptr),
-	m_gridData(nullptr),
+	m_preRenderThread(),
+	m_gridData(),
 	m_rendered(false),
 	m_linesPerStripe(0),
 	m_stripeHeight(0),
@@ -98,8 +98,7 @@ void CNFORenderer::UnAssignNFO()
 
 	m_rendered = false;
 	m_fontSize = -1;
-	delete m_gridData;
-	m_gridData = nullptr;
+	m_gridData.reset();
 
 	ClearStripes();
 }
@@ -116,10 +115,8 @@ bool CNFORenderer::CalculateGrid()
 	l_emptyBlock.shape = RGS_NO_BLOCK;
 	l_emptyBlock.alpha = 255;
 
-	delete m_gridData;
-
-	m_gridData = new TwoDimVector<CRenderGridBlock>(m_nfo->GetGridHeight(),
-		m_nfo->GetGridWidth(), l_emptyBlock);
+	m_gridData.reset(new TwoDimVector<CRenderGridBlock>(m_nfo->GetGridHeight(),
+		m_nfo->GetGridWidth(), l_emptyBlock));
 	TwoDimVector<CRenderGridBlock>& l_grid = (*m_gridData);
 
 	bool l_hasBlocks = false;
@@ -130,27 +127,27 @@ bool CNFORenderer::CalculateGrid()
 
 		for (size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
-			CRenderGridBlock *l_block = &l_grid[row][col];
+			CRenderGridBlock& l_block = l_grid[row][col];
 
-			l_block->shape = CharCodeToGridShape(m_nfo->GetGridChar(row, col), &l_block->alpha);
+			l_block.shape = CharCodeToGridShape(m_nfo->GetGridChar(row, col), &l_block.alpha);
 
-			if (!l_hasBlocks && l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE) l_hasBlocks = true;
+			if (!l_hasBlocks && l_block.shape != RGS_NO_BLOCK && l_block.shape != RGS_WHITESPACE) l_hasBlocks = true;
 
-			if (l_block->shape == RGS_WHITESPACE && l_textStarted) l_block->shape = RGS_WHITESPACE_IN_TEXT;
-			else if (l_block->shape == RGS_NO_BLOCK) l_textStarted = true;
+			if (l_block.shape == RGS_WHITESPACE && l_textStarted) l_block.shape = RGS_WHITESPACE_IN_TEXT;
+			else if (l_block.shape == RGS_NO_BLOCK) l_textStarted = true;
 		}
 
 		if (l_textStarted)
 		{
 			for (size_t col = m_gridData->GetCols() - 1; col > 0; col--)
 			{
-				CRenderGridBlock *l_block = &l_grid[row][col];
+				CRenderGridBlock& l_block = l_grid[row][col];
 
-				if (l_block->shape == RGS_WHITESPACE_IN_TEXT)
+				if (l_block.shape == RGS_WHITESPACE_IN_TEXT)
 				{
-					l_block->shape = RGS_WHITESPACE;
+					l_block.shape = RGS_WHITESPACE;
 				}
-				else if (l_block->shape == RGS_NO_BLOCK)
+				else if (l_block.shape == RGS_NO_BLOCK)
 				{
 					break;
 				}
@@ -747,11 +744,11 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 
 		for (size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
-			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+			const CRenderGridBlock& l_block = (*m_gridData)[row][col];
 
-			if (l_block->shape == RGS_NO_BLOCK ||
-				l_block->shape == RGS_WHITESPACE ||
-				l_block->shape == RGS_WHITESPACE_IN_TEXT)
+			if (l_block.shape == RGS_NO_BLOCK ||
+				l_block.shape == RGS_WHITESPACE ||
+				l_block.shape == RGS_WHITESPACE_IN_TEXT)
 			{
 				continue;
 			}
@@ -768,23 +765,23 @@ void CNFORenderer::RenderBlocks(bool a_opaqueBg, bool a_gaussStep, cairo_t* a_co
 			}
 
 			if (l_first
-				|| (l_block->alpha != l_oldAlpha)  // R,G,B never change during the loop (unless there's a colormap)
+				|| (l_block.alpha != l_oldAlpha)  // R,G,B never change during the loop (unless there's a colormap)
 				|| (l_hasColorMap && l_drawingColor != l_oldColor)
 				) {
 				cairo_fill(cr); // complete previous drawing operation(s)
 
-				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_drawingColor), (l_block->alpha / 255.0) * (l_drawingColor.A / 255.0));
+				cairo_set_source_rgba(cr, S_COLOR_T_CAIRO(l_drawingColor), (l_block.alpha / 255.0) * (l_drawingColor.A / 255.0));
 
 				// known issue: Alpha from GetGauss/ArtColor is discarded if there's a colormap.
 
-				l_oldAlpha = l_block->alpha;
+				l_oldAlpha = l_block.alpha;
 				l_oldColor = l_drawingColor.AsWord();
 				l_first = false;
 			}
 
 			double l_pos_x = col * bwd, l_pos_y = row * bhd, l_width = bwd, l_height = bhd;
 
-			switch (l_block->shape)
+			switch (l_block.shape)
 			{
 			case RGS_BLOCK_LOWER_HALF:
 				l_pos_y += bhd05;
@@ -855,7 +852,7 @@ static inline void _SetUpDrawingTools(const CNFORenderer* r, cairo_surface_t* a_
 
 	cairo_font_options_set_antialias(cfo, (r->GetFontAntiAlias() ? CAIRO_ANTIALIAS_SUBPIXEL : CAIRO_ANTIALIAS_NONE));
 	cairo_font_options_set_hint_style(cfo, (r->IsClassicMode() ? CAIRO_HINT_STYLE_DEFAULT : CAIRO_HINT_STYLE_NONE));
-	cairo_font_options_set_hint_metrics(cfo, (r->IsClassicMode() ? CAIRO_HINT_METRICS_ON : CAIRO_HINT_METRICS_OFF));
+	cairo_font_options_set_hint_metrics(cfo, CAIRO_HINT_METRICS_ON);
 
 	const std::string l_font
 #ifdef _UNICODE
@@ -863,7 +860,7 @@ static inline void _SetUpDrawingTools(const CNFORenderer* r, cairo_surface_t* a_
 #else
 		= r->GetFontFace();
 #endif
-	cairo_select_font_face(cr, l_font.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+	cairo_select_font_face(cr, l_font.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
 	cairo_set_font_options(cr, cfo);
 
 	if (r->IsClassicMode())
@@ -912,9 +909,9 @@ void CNFORenderer::PreRenderText()
 	{
 		for (size_t col = 0; col < m_gridData->GetCols() && !l_broken; col++)
 		{
-			CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+			const CRenderGridBlock& l_block = (*m_gridData)[row][col];
 
-			if (l_block->shape == RGS_NO_BLOCK)
+			if (l_block.shape == RGS_NO_BLOCK)
 			{
 				l_checkChars.insert(m_nfo->GetGridChar(row, col));
 			}
@@ -933,7 +930,7 @@ void CNFORenderer::PreRenderText()
 		{
 			cairo_set_font_size(cr, l_fontSize + 1);
 
-			for (std::set<wchar_t>::const_iterator it = l_checkChars.begin(); it != l_checkChars.end(); it++)
+			for (wchar_t checkChar : l_checkChars)
 			{
 				cairo_text_extents_t l_extents = { 0 };
 
@@ -942,7 +939,7 @@ void CNFORenderer::PreRenderText()
 				cairo_glyph_t *l_glyphs = nullptr;
 				int l_numGlyphs = 0;
 
-				const std::string utf8 = m_nfo->GetGridCharUtf8(*it);
+				const std::string utf8 = m_nfo->GetGridCharUtf8(checkChar);
 
 				if (cairo_scaled_font_text_to_glyphs(l_csf, 0, 0, utf8.c_str(), -1,
 					&l_glyphs, &l_numGlyphs, nullptr, nullptr, nullptr) == CAIRO_STATUS_SUCCESS)
@@ -951,7 +948,7 @@ void CNFORenderer::PreRenderText()
 					cairo_glyph_free(l_glyphs);
 
 					// find char that covers the largest area...
-					if (l_extents.width > GetBlockWidth() || l_extents.height > GetBlockHeight())
+					if (l_extents.x_advance > GetBlockWidth() || l_extents.height > GetBlockHeight())
 					{
 						l_broken = true;
 					}
@@ -975,7 +972,7 @@ void CNFORenderer::PreRenderText()
 void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 	const S_COLOR_T& a_hyperLinkColor,
 	size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-	cairo_surface_t* a_surface, double a_xBase, double a_yBase) const
+	cairo_surface_t* a_surface, double a_xBase, double a_yBase) const noexcept
 {
 	double l_off_x = a_xBase + GetPadding(), l_off_y = a_yBase + GetPadding();
 
@@ -1031,9 +1028,9 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 		// collect an UTF-8 buffer of each line:
 		for (size_t col = 0; col < m_gridData->GetCols(); col++)
 		{
-			const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+			const CRenderGridBlock& l_block = (*m_gridData)[row][col];
 
-			if (l_block->shape != RGS_NO_BLOCK && l_block->shape != RGS_WHITESPACE_IN_TEXT)
+			if (l_block.shape != RGS_NO_BLOCK && l_block.shape != RGS_WHITESPACE_IN_TEXT)
 			{
 				if (l_firstCol != (size_t)-1)
 					l_utfBuf += ' '; // add whitespace between non-whitespace chars that are skipped
@@ -1317,16 +1314,16 @@ void CNFORenderer::RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* 
 
 			if (col != m_gridData->GetCols())
 			{
-				const CRenderGridBlock *l_block = &(*m_gridData)[row][col];
+				const CRenderGridBlock& l_block = (*m_gridData)[row][col];
 
-				if (l_block->shape == RGS_NO_BLOCK)
+				if (l_block.shape == RGS_NO_BLOCK)
 				{
 					if (GetHilightHyperLinks() && m_nfo->GetLink(row, col) != nullptr)
 						l_type = BT_LINK;
 					else
 						l_type = BT_TEXT;
 				}
-				else if (l_block->shape == RGS_WHITESPACE_IN_TEXT && l_curType != BT_LINK)
+				else if (l_block.shape == RGS_WHITESPACE_IN_TEXT && l_curType != BT_LINK)
 				{
 					l_type = l_curType;
 				}
@@ -1420,16 +1417,16 @@ bool CNFORenderer::IsTextChar(size_t a_row, size_t a_col, bool a_allowWhiteSpace
 
 	if (a_row < m_gridData->GetRows() && a_col < m_gridData->GetCols())
 	{
-		const CRenderGridBlock *l_block = &(*m_gridData)[a_row][a_col];
+		const CRenderGridBlock& l_block = (*m_gridData)[a_row][a_col];
 
 		if (m_classic)
 		{
-			return a_allowWhiteSpace || (l_block->shape != RGS_WHITESPACE);
+			return a_allowWhiteSpace || (l_block.shape != RGS_WHITESPACE);
 		}
 		else
 		{
-			return (l_block->shape == RGS_NO_BLOCK ||
-				(a_allowWhiteSpace && l_block->shape == RGS_WHITESPACE_IN_TEXT));
+			return (l_block.shape == RGS_NO_BLOCK ||
+				(a_allowWhiteSpace && l_block.shape == RGS_WHITESPACE_IN_TEXT));
 		}
 	}
 
@@ -1576,8 +1573,6 @@ void CNFORenderer::ClearStripes()
 CNFORenderer::~CNFORenderer()
 {
 	ClearStripes();
-
-	delete m_gridData;
 }
 
 

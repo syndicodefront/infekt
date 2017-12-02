@@ -160,7 +160,7 @@ protected:
 	int m_padding;
 
 	PNFOData m_nfo;
-	TwoDimVector<CRenderGridBlock> *m_gridData;
+	std::unique_ptr<TwoDimVector<CRenderGridBlock>> m_gridData;
 	bool m_hasBlocks;
 
 	size_t m_numStripes;
@@ -187,7 +187,7 @@ protected:
 	void RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 		const S_COLOR_T& a_hyperLinkColor,
 		size_t a_rowStart, size_t a_colStart, size_t a_rowEnd, size_t a_colEnd,
-		cairo_surface_t* a_surface, double a_xBase, double a_yBase) const;
+		cairo_surface_t* a_surface, double a_xBase, double a_yBase) const noexcept;
 
 	void RenderClassic(const S_COLOR_T& a_textColor, const S_COLOR_T* a_backColor,
 		const S_COLOR_T& a_hyperLinkColor, bool a_backBlocks,
