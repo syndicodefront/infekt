@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "iNFekt", "infekt-win32\iNFekt.vcxproj", "{1A43C657-CFFD-4BDF-A031-7F9C2449D6A0}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -16,11 +16,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-shell-dll", "i
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "infekt-win32-updater", "win32-updater\infekt-win32-updater.vcxproj", "{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-portableapps-launcher", "win32-portableapps-launcher\win32-portableapps-launcher.vcxproj", "{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-amp", "win32-amp\win32-amp.vcxproj", "{65A54016-1A50-421A-BEBC-948F1937C695}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-plugin-rescene", "win32-plugin-rescene\win32-plugin-rescene.vcxproj", "{85D43581-CF93-4C8F-88E4-32F77455F917}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32-portableapps-launcher", "win32-portableapps-launcher\win32-portableapps-launcher.vcxproj", "{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,14 +89,6 @@ Global
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release|x64.ActiveCfg = Release|Win32
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release-Static|Win32.ActiveCfg = Release-Static|Win32
 		{2CFCF01E-5875-45A0-81D4-31E7F4F7DB17}.Release-Static|x64.ActiveCfg = Release-Static|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|Win32.Build.0 = Debug|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Debug|x64.ActiveCfg = Debug|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release|Win32.ActiveCfg = Release|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release|Win32.Build.0 = Release|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release|x64.ActiveCfg = Release|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Static|Win32.ActiveCfg = Release-Static|Win32
-		{F6D6E822-ED12-4DE1-AA58-09E6A7D813EB}.Release-Static|x64.ActiveCfg = Release-Static|Win32
 		{65A54016-1A50-421A-BEBC-948F1937C695}.Debug|Win32.ActiveCfg = Debug|Win32
 		{65A54016-1A50-421A-BEBC-948F1937C695}.Debug|Win32.Build.0 = Debug|Win32
 		{65A54016-1A50-421A-BEBC-948F1937C695}.Debug|x64.ActiveCfg = Debug|x64
@@ -121,8 +113,23 @@ Global
 		{85D43581-CF93-4C8F-88E4-32F77455F917}.Release-Static|Win32.Build.0 = Release-Static|Win32
 		{85D43581-CF93-4C8F-88E4-32F77455F917}.Release-Static|x64.ActiveCfg = Release-Static|x64
 		{85D43581-CF93-4C8F-88E4-32F77455F917}.Release-Static|x64.Build.0 = Release-Static|x64
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Debug|Win32.Build.0 = Debug|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Debug|x64.ActiveCfg = Debug|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Debug|x64.Build.0 = Debug|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release|Win32.ActiveCfg = Release|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release|Win32.Build.0 = Release|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release|x64.ActiveCfg = Release|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release|x64.Build.0 = Release|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release-Static|Win32.ActiveCfg = Release|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release-Static|Win32.Build.0 = Release|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release-Static|x64.ActiveCfg = Release|Win32
+		{91FB46F4-9B55-48B5-A92C-00FCE3C0CE5C}.Release-Static|x64.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2180887B-ABFB-4CA9-AADC-5C000D2D1A84}
 	EndGlobalSection
 EndGlobal
