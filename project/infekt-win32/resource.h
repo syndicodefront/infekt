@@ -82,6 +82,7 @@
 #define IDC_COMBO_DEFAULTVIEW           1041
 #define IDC_FONT_ANTIALIAS              1042
 #define IDC_CUDA_STATUS                 1043
+#define IDC_FONT_BOLD                   1043
 #define IDC_BUTTON3                     1044
 #define IDC_THEME_IMPORT                1044
 #define IDC_PLUGIN_LIST                 1045
@@ -168,7 +169,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        134
+#define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         40119
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101

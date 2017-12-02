@@ -1794,6 +1794,7 @@ bool CMainFrame::SaveRenderSettingsToRegistry(const std::_tstring& a_key,
 
 	l_sect->WriteBool(L"HilightHyperlinks", a_settings.bHilightHyperlinks);
 	l_sect->WriteBool(L"UnderlineHyperlinks", a_settings.bUnderlineHyperlinks);
+	l_sect->WriteBool(L"FontBold", a_settings.bFontBold);
 	l_sect->WriteBool(L"FontAntiAlias", a_settings.bFontAntiAlias);
 
 	if (!a_classic)
@@ -1835,6 +1836,7 @@ bool CMainFrame::LoadRenderSettingsFromRegistry(const std::_tstring& a_key, CNFO
 
 	l_newSets.bHilightHyperlinks = l_sect->ReadBool(L"HilightHyperlinks", l_defaults.bHilightHyperlinks);
 	l_newSets.bUnderlineHyperlinks = l_sect->ReadBool(L"UnderlineHyperlinks", l_defaults.bUnderlineHyperlinks);
+	l_newSets.bFontBold = l_sect->ReadBool(L"FontBold", l_defaults.bFontBold);
 	l_newSets.bFontAntiAlias = l_sect->ReadBool(L"FontAntiAlias", l_defaults.bFontAntiAlias);
 
 	if (!a_target->IsClassicMode())

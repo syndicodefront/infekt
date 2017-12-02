@@ -76,18 +76,28 @@ class CNFORenderSettings
 /* NEVER add string or pointer members to this class without
 	precautions, it's being copied like a struct etc. */
 public:
-	CNFORenderSettings() {
-		uBlockHeight = uBlockWidth = uFontSize = 0;
-		cBackColor = cTextColor = cArtColor = cGaussColor = cHyperlinkColor = 0;
-		bGaussShadow = false; uGaussBlurRadius = 0; bGaussANSI = true;
-		bFontAntiAlias = true;
-		bHilightHyperlinks = bUnderlineHyperlinks = true;
-		memset(sFontFace, 0, LF_FACESIZE + 1);
+	CNFORenderSettings()
+		: uBlockHeight(0)
+		, uBlockWidth(0)
+		, uFontSize(0)
+		, cBackColor(0)
+		, cTextColor(0)
+		, cArtColor(0)
+		, cGaussColor(0)
+		, cHyperlinkColor(0)
+		, bGaussShadow(false)
+		, uGaussBlurRadius(0)
+		, bGaussANSI(true)
+		, bFontBold(false)
+		, bFontAntiAlias(true)
+		, bHilightHyperlinks(true)
+		, bUnderlineHyperlinks(true)
 #ifdef _WIN32
-		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("Lucida Console"));
+		, sFontFace(_T("Lucida Console"))
 #else
-		_tcscpy_s(sFontFace, LF_FACESIZE + 1, _T("monospace"));
+		, sFontFace(_T("monospace"))
 #endif
+	{
 	}
 
 	// main settings:
@@ -95,6 +105,7 @@ public:
 	size_t uFontSize;
 	S_COLOR_T cBackColor, cTextColor, cArtColor;
 	TCHAR sFontFace[LF_FACESIZE + 1];
+	bool bFontBold;
 	bool bFontAntiAlias;
 
 	// blur effect settings:
@@ -277,6 +288,9 @@ public:
 	bool GetHilightHyperLinks() const { return m_settings.bHilightHyperlinks; }
 	void SetUnderlineHyperLinks(bool nb) { m_rendered = m_rendered && (m_settings.bUnderlineHyperlinks == nb); m_settings.bUnderlineHyperlinks = nb; }
 	bool GetUnderlineHyperLinks() const { return m_settings.bUnderlineHyperlinks; }
+
+	void SetFontBold(bool nb) { m_rendered = m_rendered && (m_settings.bFontBold == nb); m_settings.bFontBold = nb; }
+	bool GetFontBold() const { return m_settings.bFontBold; }
 
 	void SetFontAntiAlias(bool nb) { m_rendered = m_rendered && (m_settings.bFontAntiAlias == nb); m_settings.bFontAntiAlias = nb; }
 	bool GetFontAntiAlias() const { return m_settings.bFontAntiAlias; }

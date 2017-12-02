@@ -1,4 +1,5 @@
 ## v1.0.0 (???)
+  * New option to allow bold fonts (issue #124)
   * Fixed scrolling with Windows OS set to scroll by page instead of by x lines (issue #127)
   * Fixed malformed files from PNG export (issue #123)
   * Compiler upgrade to fix rendering in certain situations (issue #122)

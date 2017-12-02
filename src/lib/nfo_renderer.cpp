@@ -851,8 +851,9 @@ static inline void _SetUpDrawingTools(const CNFORenderer* r, cairo_surface_t* a_
 	cairo_font_options_t *cfo = cairo_font_options_create();
 
 	cairo_font_options_set_antialias(cfo, (r->GetFontAntiAlias() ? CAIRO_ANTIALIAS_SUBPIXEL : CAIRO_ANTIALIAS_NONE));
+	// not sure anymore about the rational behind this logic:
 	cairo_font_options_set_hint_style(cfo, (r->IsClassicMode() ? CAIRO_HINT_STYLE_DEFAULT : CAIRO_HINT_STYLE_NONE));
-	cairo_font_options_set_hint_metrics(cfo, CAIRO_HINT_METRICS_ON);
+	cairo_font_options_set_hint_metrics(cfo, (r->IsClassicMode() || r->GetFontBold() ? CAIRO_HINT_METRICS_ON : CAIRO_HINT_METRICS_OFF));
 
 	const std::string l_font
 #ifdef _UNICODE
@@ -860,7 +861,8 @@ static inline void _SetUpDrawingTools(const CNFORenderer* r, cairo_surface_t* a_
 #else
 		= r->GetFontFace();
 #endif
-	cairo_select_font_face(cr, l_font.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+	cairo_select_font_face(cr, l_font.c_str(), CAIRO_FONT_SLANT_NORMAL,
+		r->GetFontBold() ? CAIRO_FONT_WEIGHT_BOLD : CAIRO_FONT_WEIGHT_NORMAL);
 	cairo_set_font_options(cr, cfo);
 
 	if (r->IsClassicMode())
@@ -1548,6 +1550,7 @@ void CNFORenderer::InjectSettings(const CNFORenderSettings& ns)
 	SetHyperLinkColor(ns.cHyperlinkColor);
 	SetUnderlineHyperLinks(ns.bUnderlineHyperlinks);
 
+	SetFontBold(ns.bFontBold);
 	SetFontAntiAlias(ns.bFontAntiAlias);
 	SetFontFace(ns.sFontFace);
 
@@ -1594,6 +1597,7 @@ std::wstring CNFORenderSettings::Serialize() const
 	l_ss << "car: " << cArtColor.AsHex(true) << ";\n\t";
 
 	l_ss << "fof: '" << sFontFace << "';\n\t";
+	l_ss << "fob: " << (bFontBold ? 1 : 0) << ";\n\t";
 	l_ss << "foa: " << (bFontAntiAlias ? 1 : 0) << ";\n\t";
 
 	l_ss << "cga: " << cGaussColor.AsHex(true) << ";\n\t";
@@ -1693,6 +1697,8 @@ bool CNFORenderSettings::UnSerialize(std::wstring a_str, bool a_classic)
 			}
 #endif
 		}
+		else if (l_key == L"fob")
+			l_tmpSets.bFontBold = (wcstol(l_val.c_str(), nullptr, 10) != 0);
 		else if (l_key == L"foa")
 			l_tmpSets.bFontAntiAlias = (wcstol(l_val.c_str(), nullptr, 10) != 0);
 		else if (l_key == L"cga")

@@ -345,6 +345,7 @@ void CSettingsTabDialog::ViewSettingsToGui()
 		SET_DLG_CHECKBOX(IDC_UNDERL_LINKS, m_viewSettings->bUnderlineHyperlinks);
 		SET_DLG_CHECKBOX(IDC_ACTIVATE_GLOW, m_viewSettings->bGaussShadow);
 		SET_DLG_CHECKBOX(IDC_GLOW_ANSI, m_viewSettings->bGaussANSI);
+		SET_DLG_CHECKBOX(IDC_FONT_BOLD, m_viewSettings->bFontBold); 
 		SET_DLG_CHECKBOX(IDC_FONT_ANTIALIAS, m_viewSettings->bFontAntiAlias);
 
 		SendDlgItemMessage(IDC_GLOW_RADIUS, TBM_SETRANGE, FALSE, MAKELONG(1, 100));
@@ -517,6 +518,9 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 			break;
 		case IDC_UNDERL_LINKS:
 			m_viewSettings->bUnderlineHyperlinks = (::IsDlgButtonChecked(m_hWnd, IDC_UNDERL_LINKS) != FALSE);
+			break;
+		case IDC_FONT_BOLD:
+			m_viewSettings->bFontBold = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_BOLD) != FALSE);
 			break;
 		case IDC_FONT_ANTIALIAS:
 			m_viewSettings->bFontAntiAlias = (::IsDlgButtonChecked(m_hWnd, IDC_FONT_ANTIALIAS) != FALSE);
