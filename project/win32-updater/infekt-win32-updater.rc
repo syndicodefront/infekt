@@ -34,7 +34,7 @@ END
 2 TEXTINCLUDE 
 BEGIN
 	"#include ""WinResrc.h""\r\n"
-	"#define IDC_STATIC -1""\r\n"
+	"#define IDC_STATIC -1\r\n"
     "\0"
 END
 
