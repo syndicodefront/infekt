@@ -1,4 +1,5 @@
 #define SourceFileDir32 "..\build-out\Release"
+#define SourceFileDir32XP "..\build-out\Release-Static"
 #define SourceFileDir64 "..\build-out\Release-x64"
 #define NfoProgId "iNFEKT.NFOFile.1"
 
@@ -7,8 +8,8 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 0.9.7
-AppVersion=0.9.7
+AppVerName=iNFekt 1.0.0
+AppVersion=1.0.0
 AppPublisher=syndicode
 AppPublisherURL=http://infekt.ws/
 DefaultDirName={pf}\iNFekt
@@ -38,19 +39,21 @@ Name: "nfoassoc"; Description: "Make iNFekt the default viewer for .nfo files"; 
 Name: "dizassoc"; Description: "Make iNFekt the default viewer for .diz files"; GroupDescription: "Shell integration"; Flags: unchecked
 Name: "ansiassoc"; Description: "Make iNFekt the default viewer for .ans and .asc files"; GroupDescription: "Shell integration"; Flags: unchecked
 Name: "shellpreview"; Description: "Install Explorer preview pane and thumbnail integration for associated files"; GroupDescription: "Shell integration"; MinVersion: 0,6.0
-Name: "cppredist2015"; Description: "Download and install Microsoft C++ runtime if necessary"; GroupDescription: "Advanced"; Flags: checkedonce
+Name: "cppredist2017"; Description: "Download and install Microsoft C++ runtime if necessary"; GroupDescription: "Advanced"; Flags: checkedonce
 
 [Files]
-Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\infekt-win64.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#SourceFileDir32}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#SourceFileDir32}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#SourceFileDir32}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
-Source: "{#SourceFileDir32}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
-Source: "{#SourceFileDir64}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir32XP}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; OnlyBelowVersion: 0,6.0
+Source: "{#SourceFileDir64}\infekt-win64.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir32}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir32XP}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; OnlyBelowVersion: 0,6.0
+Source: "{#SourceFileDir64}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir32}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir64}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir32}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir64}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir32}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir64}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
 Source: "{#SourceFileDir32}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
 Source: "{#SourceFileDir64}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
 Source: "{#SourceFileDir32}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: not Is64BitInstallMode
@@ -88,6 +91,11 @@ Type: files; Name: "{app}\vcruntime140.dll"
 Type: files; Name: "{app}\vcamp140.dll"
 Type: files; Name: "{app}\vcomp140.dll"
 ; these should not be in the target directory, clean up in case of previous portable version at the same location etc.
+
+Type: files; Name: "{app}\cairo.dll"; OnlyBelowVersion: 0,6.0
+Type: files; Name: "{app}\libpng16.dll"; OnlyBelowVersion: 0,6.0
+Type: files; Name: "{app}\zlib.dll"; OnlyBelowVersion: 0,6.0
+; starting with 1.0.0, these files are no longer used on Windows XP
 
 [UnInstallDelete]
 Type: files; Name: "{app}\infekt-nfo-shell.dll"
@@ -151,15 +159,14 @@ Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win32.exe"; Flags: don
 Root: HKCU; Subkey: "Software\Classes\Applications\infekt-win64.exe"; Flags: dontcreatekey uninsdeletekey; Check: Is64BitInstallMode
 
 [Code]
-type
- TCopyDataStruct = record
- dwData: DWORD;
- cbData: DWORD;
- lpData: AnsiString;
- end;
+type TCopyDataStruct = record
+	dwData: DWORD;
+	cbData: DWORD;
+	lpData: AnsiString;
+end;
 
 function FindWindow(lpClassName, lpWindowName: AnsiString): HWND;
-  external 'FindWindowA@User32.dll stdcall';
+	external 'FindWindowA@User32.dll stdcall';
 
 function SendMessageCopyData(a: HWND; m: Integer; x: Integer; var data: TCopyDataStruct): Integer;
 	external 'SendMessageA@User32.dll stdcall'; 
@@ -193,8 +200,8 @@ var
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = '://download.microsoft.com/download/6/A/A/6AA4EDFF-645B-48C5-81CC-ED5963AEAD48/vc_redist.x64.exe';
-	MSVC_X86_URL = '://download.microsoft.com/download/6/A/A/6AA4EDFF-645B-48C5-81CC-ED5963AEAD48/vc_redist.x86.exe';
+	MSVC_X64_URL = '://download.visualstudio.microsoft.com/download/pr/11100230/15ccb3f02745c7b206ad10373cbca89b/VC_redist.x64.exe';
+	MSVC_X86_URL = '://download.visualstudio.microsoft.com/download/pr/11100229/78c1e864d806e36f6035d80a0e80399e/VC_redist.x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
@@ -207,7 +214,7 @@ procedure InitializeWizard();
 var
 	WinVersion: TWindowsVersion;
 	DownloadProtocol: String;
-	U3Installed: Boolean;
+	RuntimeAdditionalInstalled: Boolean;
 begin
 	idpSetOption('AllowContinue', '1');
 
@@ -218,41 +225,46 @@ begin
 	else
 		DownloadProtocol := 'https';
 
+	//
 	// GUIDs from: https://svn.wsusoffline.net/svn/wsusoffline/trunk/client/cmd/DetermineSystemProperties.vbs
+	//
+	// https://svn.wsusoffline.net/svn/wsusoffline/trunk/static/StaticDownloadLinks-cpp-x64-glb.txt
+	// https://svn.wsusoffline.net/svn/wsusoffline/trunk/static/StaticDownloadLinks-cpp-x86-glb.txt
+	//
 
 	if Is64BitInstallMode() then
 	begin
 		idpAddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
 		if DownloadProtocol = 'https' then
 		begin
-			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist_x64_2015u3.exe', expandconstant('{tmp}\vcredist_x64.exe'));
+			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist2017_x64.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 		end;
 
-  // Microsoft Visual C++ 2015 x64 Additional Runtime - 14.0.24215
-		U3Installed := (MsiQueryProductState('{EF1EC6A9-17DE-3DA9-B040-686A1E8A8B04}') = INSTALLSTATE_DEFAULT)
-		// Microsoft Visual C++ 2015 x64 Minimum Runtime - 14.0.24215
-			          and (MsiQueryProductState('{50A2BC33-C9CD-3BF1-A8FF-53C10A0B183C}') = INSTALLSTATE_DEFAULT);
+		// Microsoft Visual C++ 2017 x64 Additional Runtime
+		RuntimeAdditionalInstalled := (MsiQueryProductState('{568CD07E-0824-3EEB-AEC1-8FD51F3C85CF}') = INSTALLSTATE_DEFAULT)
+				// Microsoft Visual C++ 2017 x64 Minimum Runtime
+				and (MsiQueryProductState('{029DA848-1A80-34D3-BFC1-A6447BFC8E7F}') = INSTALLSTATE_DEFAULT);
 	end
 	else
 	begin
 		idpAddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
 		if DownloadProtocol = 'https' then
 		begin
-			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist_x86_2015u3.exe', expandconstant('{tmp}\vcredist_x86.exe'));
+			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist2017_x86.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 		end;
 
-  // Microsoft Visual C++ 2015 x86 Additional Runtime - 14.0.24215
-  U3Installed := (MsiQueryProductState('{69BCE4AC-9572-3271-A2FB-9423BDA36A43}') = INSTALLSTATE_DEFAULT)
-		// Microsoft Visual C++ 2015 x86 Minimum Runtime - 14.0.24215
-			          and (MsiQueryProductState('{BBF2AC74-720C-3CB3-8291-5E34039232FA}') = INSTALLSTATE_DEFAULT);
+		// Microsoft Visual C++ 2017 x86 Additional Runtime
+		RuntimeAdditionalInstalled := (MsiQueryProductState('{B13B3E11-1555-353F-A63A-8933EE104FBD}') = INSTALLSTATE_DEFAULT)
+				// Microsoft Visual C++ 2017 x86 Minimum Runtime
+				and (MsiQueryProductState('{B0037450-526D-3448-A370-CACBD87769A0}') = INSTALLSTATE_DEFAULT);
 	end;
 
 	allowCppRuntimeInstall := true; // default
-	cppRuntimeInstalled := U3Installed;
+	cppRuntimeInstalled := RuntimeAdditionalInstalled;
 
 	if not cppRuntimeInstalled then
 	begin
-  // note: cannot consider checkbox here, it's not even been created.
+		// note: cannot consider checkbox here, it's not even been created.
 		idpDownloadAfter(wpReady);
 	end;
 end;
@@ -268,7 +280,7 @@ begin
 		Index := WizardForm.TasksList.Items.IndexOf('Download and install Microsoft C++ runtime if necessary');
 		if Index <> -1 then
 		begin
-					allowCppRuntimeInstall := WizardForm.TasksList.Checked[Index];
+			allowCppRuntimeInstall := WizardForm.TasksList.Checked[Index];
 		end;
 	end;
 end;
@@ -293,9 +305,9 @@ begin
 		if FileExists(exepath) then
 		begin
 			if Is64BitInstallMode() then
-				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2015 (x64) runtime...'
+				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2017 (x64) runtime...'
 			else
-				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2015 (x86) runtime...';
+				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2017 (x86) runtime...';
 
 			SendStatusMessageToUpdater(WizardForm.StatusLabel.Caption);
 
@@ -310,7 +322,7 @@ var
 	msg: String;
 begin
 	if (CurPageID = wpReady) and InstallCppRuntime() then
-		msg := 'Downloading Microsoft Visual C++ 2015 runtime... this may take a minute.'
+		msg := 'Downloading Microsoft Visual C++ 2017 runtime... this may take a minute.'
 	else if WizardForm.StatusLabel.Caption <> '' then
 		msg := WizardForm.StatusLabel.Caption
 	else if WizardForm.PageNameLabel.Caption <> '' then

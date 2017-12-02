@@ -1,6 +1,8 @@
 ## v1.0.0 (???)
   * Fixed scrolling with Windows OS set to scroll by page instead of by x lines (issue #127)
   * Fixed malformed files from PNG export (issue #123)
+  * Compiler upgrade to fix rendering in certain situations (issue #122)
+  * Install statically linked version on Windows XP
   * Library update to cairo 1.15.8, libpng v1.6.34 (includes important bugfixes)
 
 ## v0.9.7 (January 29th 2017)

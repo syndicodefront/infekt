@@ -1,4 +1,3 @@
-
 #pragma once
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -16,23 +15,24 @@ http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 #endif
 
 #if defined(_TARGETVER_WIN8)
-#define WINVER			0x0800
-#define _WIN32_IE		0x0A00
+#define NTDDI_VERSION   NTDDI_WIN8
+#define WINVER			_WIN32_WINNT_WIN8
+#define _WIN32_IE		_WIN32_IE_WIN8
 #elif defined(_TARGETVER_WIN7)
-// yes I know about NTDDI_VERSION
-// but I haven't figured out how to make it work without running
-// into circular dependencies yet.
-#define WINVER			0x0700
-#define _WIN32_IE		0x0800
+#define NTDDI_VERSION   NTDDI_WIN7
+#define WINVER			_WIN32_WINNT_WIN7
+#define _WIN32_IE		_WIN32_IE_IE80
 #else
 #define PSAPI_VERSION   1
 #ifdef _TARGETVER_VISTA
-#define WINVER			0x0600
-#define _WIN32_IE		0x0700
+#define NTDDI_VERSION   NTDDI_VISTASP1
+#define WINVER			_WIN32_WINNT_VISTA
+#define _WIN32_IE		_WIN32_IE_WIN6
 #else
 // Windows XP / Server 2003!
-#define WINVER			0x0502
-#define _WIN32_IE		0x0600
+#define NTDDI_VERSION   NTDDI_WS03SP4
+#define WINVER			_WIN32_WINNT_WS03
+#define _WIN32_IE		_WIN32_IE_IE70
 #endif
 #endif
 
@@ -50,3 +50,5 @@ http://msdn.microsoft.com/en-us/library/vstudio/jj851139.aspx
 #if (_WIN32_WINNT >= 0x600) && (_MSC_VER >= 1700) && !defined(COMPACT_RELEASE)
 #define HAVE_AMP
 #endif
+
+#include <sdkddkver.h>

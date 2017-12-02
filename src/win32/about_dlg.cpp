@@ -90,7 +90,7 @@ BOOL CAboutDialog::OnInitDialog()
 		::SendMessage(l_hTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
 	}
 
-	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2016", l_top, 20);
+	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2018", l_top, 20);
 	l_top += 20;
 
 	_CREATE_SYSLINK(l_hHomepage, L"Project Homepage: <A HREF=\"http://infekt.ws/\">infekt.ws</A>", l_top, 20);

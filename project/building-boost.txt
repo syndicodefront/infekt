@@ -1,4 +1,4 @@
-"VS2015 x64 x86 Cross Tools Command Prompt"
+"x64_x86 Cross Tools Command Prompt for VS 2017"
 
 bootstrap
 .\b2 --with-program_options link=static address-model=32 runtime-link=static,shared

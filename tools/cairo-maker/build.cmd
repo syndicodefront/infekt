@@ -2,7 +2,7 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2015
+REM * Visual Studio 2017
 REM * curl in PATH
 REM * http://tukaani.org/xz/
 
@@ -21,7 +21,7 @@ curl http://zlib.net/zlib-1.2.11.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng16/libpng-1.6.34.tar.gz -o libpng.tgz
+curl ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
@@ -32,18 +32,23 @@ IF EXIST cairo.tar.xz GOTO CZOK
 curl https://www.cairographics.org/snapshots/cairo-1.15.8.tar.xz -o cairo.tar.xz
 :CZOK
 
+set LOCALDIR=%cd%
 set ROOTDIR=%cd%\work
 set PATH=%PATH%;C:\msys\1.0\bin
-set VisualStudioVersion=14.0
+set VisualStudioVersion=15.0
 
 IF %X64%==y GOTO SWITCHX64
-call "%VS140COMNTOOLS%\vsvars32.bat"
+REM adjust path here if necessary:
+call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
-call "%VS140COMNTOOLS%..\..\VC\bin\amd64\vcvars64.bat"
+REM adjust path here if necessary:
+call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
 set PLATFORM=x64
 :SWITCHNOX64
+
+cd /d %LOCALDIR%
 
 IF EXIST %ROOTDIR% GOTO KILLROOTDIR
 :MAKEROOTDIR
@@ -57,7 +62,7 @@ IF EXIST %ROOTDIR% GOTO ROOTDIRDELFAIL
 goto MAKEROOTDIR
 
 :ROOTDIROK
-cd %ROOTDIR%
+cd /d %ROOTDIR%
 
 tar xzf ../zlib.tgz
 tar xzf ../libpng.tgz
@@ -96,11 +101,11 @@ move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 grep -iv "\(AFCC227E3C1D\|BBEF8099F1D8\|A3CDB672D2FF\|2B829BA36FEC\).*Build" vstudio.sln > vstudio.sln.fixed
 move /Y vstudio.sln.fixed vstudio.sln
 
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v140_xp<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v141_xp<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
 move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v140_xp<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v141_xp<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
 move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v140_xp<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v141_xp<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
 IF %X64%==n GOTO ZLIBNOX64

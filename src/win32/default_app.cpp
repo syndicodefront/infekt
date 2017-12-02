@@ -31,11 +31,14 @@ std::unique_ptr<CWinDefaultApp> CWinDefaultApp::Factory()
 	}
 	else
 #endif
+#ifdef _WIN32_WINNT_WIN8
 	if (CUtilWin32::IsAtLeastWin8())
 	{
 		l_defApp.reset(new CWin8DefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION));
 	}
-	else if (CUtilWin32::IsAtLeastWin7())
+	else
+#endif
+	if (CUtilWin32::IsAtLeastWin7())
 	{
 		l_defApp.reset(new CWin7DefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION));
 	}
