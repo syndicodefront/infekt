@@ -1,10 +1,10 @@
 The program downloads this file and uses it to check for the latest available version.
 
 {{{
-latest[stable].1 = 1.0.0
+latest[stable].1 = 1.0.1
 download_latest[stable].1 = https://infekt.ws
-autoupdate_download[stable].1/087 = https://syndicode.org/infekt/downloads/v1.0.0/iNFekt-v1.0.0-setup.exe
-autoupdate_hash[stable].1/087 = F65875AD172DBE4A4FDE184C358FA6A7641B2BE1
+autoupdate_download[stable].1/087 = https://syndicode.org/infekt/downloads/v1.0.1/iNFekt-v1.0.1-setup.exe
+autoupdate_hash[stable].1/087 = 21610CF9D5829590D322E7DBBB25526916974226
 }}}
 
 EOF
