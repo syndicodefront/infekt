@@ -3,7 +3,7 @@ rem VARS
 set MSVCRedist64=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64
 set MSVCRedist32=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x86
 
-set VERSION=1.0.0
+set VERSION=1.0.1
 set ROOTDIR=%cd%\..\build-out
 set DEPS=%cd%\..\dependencies
 

@@ -33,8 +33,8 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-	"#include ""WinResrc.h""\r\n"
-	"#define IDC_STATIC -1\r\n"
+    "#include ""WinResrc.h""\r\n"
+    "#define IDC_STATIC -1\r\n"
     "\0"
 END
 
@@ -62,16 +62,16 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_DLGMAIN DIALOGEX 0, 0, 278, 71
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+IDD_DLGMAIN DIALOGEX 0, 0, 279, 71
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW | WS_EX_APPWINDOW
 CAPTION "iNFekt Program Updater"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "Cancel",IDCANCEL,221,50,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,222,50,50,14
     LTEXT           "Status:",IDC_STATIC,7,8,24,8
-    CONTROL         "",IDC_PGB,"msctls_progress32",0x0,7,31,264,14,WS_EX_CLIENTEDGE
-    LTEXT           "Static",IDC_STATUS,34,8,237,15
+    CONTROL         "",IDC_PGB,"msctls_progress32",0x0,7,31,265,14,WS_EX_CLIENTEDGE
+    LTEXT           "Static",IDC_STATUS,35,8,237,15
 END
 
 
@@ -86,7 +86,7 @@ BEGIN
     IDD_DLGMAIN, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 271
+        RIGHTMARGIN, 272
         TOPMARGIN, 7
         BOTTOMMARGIN, 64
     END
@@ -102,6 +102,18 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDI_APPICON             ICON                    "setup.ico"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_DLGMAIN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
