@@ -26,7 +26,7 @@ public:
 		bCopyOnSelect(false),
 		bAlwaysOnTop(false),
 		bAlwaysShowMenubar(false),
-		bCheckDefaultOnStartup(true),
+		bCheckDefaultOnStartup(false),
 		bSingleInstanceMode(false),
 		bKeepOpenMRU(true),
 		bWrapLines(true),
