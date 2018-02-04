@@ -313,7 +313,7 @@ static vector<int> _ParseVersionNumber(const wstring& vs)
 
 	while (!ret.empty() && ret.back() == 0)
 	{
-		ret.resize(ret.size() - 1);
+		ret.pop_back();
 	}
 
 	return ret;
