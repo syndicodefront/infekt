@@ -69,7 +69,7 @@ CWin8DefaultApp::MakeDefaultResult CWin8DefaultApp::MakeDefault()
 
 		if (SUCCEEDED(hr))
 		{
-			hr = pAARUI->LaunchAdvancedAssociationUI(L"iNFEKT NFO Viewer");// m_appRegistryName.c_str());
+			hr = pAARUI->LaunchAdvancedAssociationUI(L"iNFEKT NFO Viewer");
 
 			if (SUCCEEDED(hr))
 			{
