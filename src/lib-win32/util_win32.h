@@ -21,16 +21,7 @@
 class CUtilWin32
 {
 public:
-	static bool IsWinXP();
-	static bool IsAtLeastWinVista();
-	static bool IsWinVista();
-	static bool IsAtLeastWin7();
-	static bool IsWin7();
-	static bool IsAtLeastWin8();
-	static bool IsWin8();
-	static bool IsWin10();
 	static bool IsWow64();
-	static bool IsWinServerOS();
 
 	static std::wstring GetExePath();
 	static std::wstring GetExeDir();
@@ -42,7 +33,6 @@ public:
 
 	static bool RemoveCwdFromDllSearchPath();
 	static bool HardenHeap();
-	static bool EnforceDEP();
 };
 
 class CBenchmarkTimer

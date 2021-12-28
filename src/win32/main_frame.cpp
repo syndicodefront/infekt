@@ -155,7 +155,7 @@ void CMainFrame::OnCreate()
 
 void CMainFrame::OnInitialUpdate()
 {
-	CNFOApp *l_app = CNFOApp::GetInstance();
+	CNFOApp* l_app = CNFOApp::GetInstance();
 	std::wstring l_path, l_viewMode;
 	bool l_wrap, l_noGpu = false;
 
@@ -1751,7 +1751,7 @@ bool CMainFrame::LoadFolderNfoList()
 
 	std::sort(m_nfoPathsInFolder.begin(), m_nfoPathsInFolder.end(), [](const std::wstring& a, const std::wstring& b) {
 		return StrCmpLogicalW(a.c_str(), b.c_str()) < 0;
-	});
+		});
 
 	if (::PathFileExists(l_nfoPathFull))
 	{
@@ -1873,19 +1873,6 @@ const std::_tstring CMainFrame::InfektVersionAsString()
 
 void CMainFrame::CheckForUpdates()
 {
-	if (!CUtilWin32::IsAtLeastWinVista())
-	{
-		const wstring l_msg = L"Your operating system doesn't support secure TLS connections.\r\n"
-			L"Do you want to visit http://infekt.ws/ now to check for updates manually?";
-
-		if (this->MessageBox(l_msg.c_str(), L"Update - Old OS", MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
-		{
-			::ShellExecute(0, L"open", L"http://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
-		}
-
-		return;
-	}
-
 	PWinHttpClient l_client(new CWinHttpClient(GetApp()->GetInstanceHandle()));
 
 	const wchar_t* urls[] = {
@@ -1893,8 +1880,10 @@ void CMainFrame::CheckForUpdates()
 		L"https://syndicode.org/infekt/prog/CurrentVersion.txt",
 	};
 
-	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(urls[::time(nullptr) % 2],
-		std::bind(&CMainFrame::CheckForUpdates_Callback, this, _1));
+	const auto url = urls[::time(nullptr) % 2];
+
+	PWinHttpRequest l_req = l_client->CreateRequestForTextFile(url,
+		[this](const auto& req) { CheckForUpdates_Callback(req); });
 
 	l_req->SetBypassCache(true);
 	l_client->StartRequest(l_req);
