@@ -19,9 +19,9 @@
 #include <omp.h>
 
 
-// the CPU fallback for non-MSVC compilers is largely based on
-// http://mxr.mozilla.org/mozilla1.9.2/source/gfx/thebes/src/gfxBlur.cpp
-// (GPL v2)
+ // the CPU fallback for non-MSVC compilers is largely based on
+ // http://mxr.mozilla.org/mozilla1.9.2/source/gfx/thebes/src/gfxBlur.cpp
+ // (GPL v2)
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643
@@ -183,7 +183,7 @@ bool CCairoBoxBlur::Paint(cairo_t* a_destination)
 #if defined(_WIN32)
 	if (!m_useFallback && cairo_image_surface_get_format(m_imgSurface) == CAIRO_FORMAT_ARGB32)
 	{
-		typedef int(__cdecl *fnc)(unsigned int *img_data, int width, int height, float sigma);
+		typedef int(__cdecl* fnc)(unsigned int* img_data, int width, int height, float sigma);
 		bool l_ok = false;
 
 		_ASSERT(m_hAmpDll != nullptr);
@@ -272,19 +272,16 @@ CCairoBoxBlur::~CCairoBoxBlur()
 /*static*/ bool CCairoBoxBlur::IsGPUUsable()
 {
 #if defined(_WIN32)
-	if (CUtilWin32::IsAtLeastWinVista())
+	if (!m_hAmpDll)
 	{
-		if (!m_hAmpDll)
-		{
-			m_hAmpDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
-		}
+		m_hAmpDll = CUtilWin32::SilentLoadLibrary(CUtilWin32::GetExeDir() + L"\\infekt-gpu.dll");
+	}
 
-		typedef int(__cdecl *fnc)();
+	typedef int(__cdecl* fnc)();
 
-		if (fnc igu = (fnc)::GetProcAddress(m_hAmpDll, "IsGpuUsable"))
-		{
-			return (igu() != 0);
-		}
+	if (fnc igu = (fnc)::GetProcAddress(m_hAmpDll, "IsGpuUsable"))
+	{
+		return (igu() != 0);
 	}
 #endif
 	return false;

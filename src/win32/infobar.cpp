@@ -40,7 +40,7 @@ bool CInfektInfoBar::CreateControl(int a_left, int a_top, int a_width, int a_hei
 		return false;
 	}
 
-	WNDCLASSEX l_class = { 0 };
+	WNDCLASSEX l_class{};
 
 	if (::GetClassInfoEx(m_instance, INFOBAR_CTRL_CLASS_NAME, &l_class) == 0)
 	{

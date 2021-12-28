@@ -30,7 +30,6 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 	g_hInstance = hInstance;
 
 	// harden this process a bit:
-	CUtilWin32::EnforceDEP();
 	CUtilWin32::HardenHeap();
 	CUtilWin32::RemoveCwdFromDllSearchPath();
 
@@ -61,7 +60,12 @@ INT WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR wszComm
 
 		// we need COM for default app stuff on Vista+,
 		// and OLE for file drag&drop.
-		OleInitialize(nullptr);
+		HRESULT oleInitResult = OleInitialize(nullptr);
+		
+		if (!SUCCEEDED(oleInitResult))
+		{
+			return HRESULT_CODE(oleInitResult);
+		}
 
 		// Run the application:
 		int l_exitCode = theApp.Run();
@@ -122,11 +126,11 @@ bool CNFOApp::ExtractConfigDirPath(std::wstring& ar_path) const
 	if (::PathFileExists(l_folderIniPath.c_str()))
 	{
 		bool l_error = false;
-		wchar_t l_buf[1000] = { 0 };
+		wchar_t l_buf[1000]{};
 
 		if (::GetPrivateProfileString(L"iNFekt", L"ConfigFolder", L"", l_buf, 999, l_folderIniPath.c_str()) < 1000)
 		{
-			wchar_t l_buf2[2000] = { 0 };
+			wchar_t l_buf2[2000]{};
 
 			l_error = true; // assume the worst ;)
 
@@ -296,7 +300,7 @@ bool CNFOApp::SwitchToPrevInstance()
 		if (l_prevMainWin)
 		{
 			// use WM_USER message to instruct previous instance to load the NFO:
-			COPYDATASTRUCT l_cpds = { 0 };
+			COPYDATASTRUCT l_cpds{};
 			l_cpds.dwData = WM_LOAD_NFO;
 			l_cpds.cbData = (DWORD)(m_startupFilePath.size() + 1) * sizeof(wchar_t);
 			l_cpds.lpData = (void*)m_startupFilePath.c_str();

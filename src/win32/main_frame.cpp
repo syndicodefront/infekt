@@ -286,7 +286,7 @@ void CMainFrame::AddToolbarButtons()
 	GetToolbar().SendMessage(TB_SETIMAGELIST, IML, (LPARAM)l_imgLst);
 	// CToolbar::OnDestroy destroys the image list...
 
-	int l_icoId[_ICOMAX] = { 0 };
+	int l_icoId[_ICOMAX]{};
 	l_icoId[ICO_FILEOPEN] = CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_FILEOPEN, 22, 22);
 	l_icoId[ICO_INFO] = CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_INFO, 22, 22);
 	l_icoId[ICO_SETTINGS] = CUtilWin32GUI::AddPngToImageList(l_imgLst, g_hInstance, IDB_PNG_SETTINGS, 22, 22);
@@ -432,7 +432,7 @@ void CMainFrame::DoFindText(bool a_up, bool a_force)
 	if (!m_hSearchEditBox)
 		return;
 
-	wchar_t l_text[100] = { 0 };
+	wchar_t l_text[100]{};
 
 	::GetWindowText(m_hSearchEditBox, l_text, 99);
 
@@ -1046,7 +1046,7 @@ void CMainFrame::UpdateStatusbar()
 			CUtilWin32GUI::FormatFileTimeSize(m_view.GetNfoData()->GetFilePath(), l_timeInfo, l_sizeInfo);
 		}
 
-		int l_sbWidths[5] = { 0 };
+		int l_sbWidths[5]{};
 		l_sbWidths[1] = CUtilWin32GUI::StatusCalcPaneWidth(l_sb.GetHwnd(), l_timeInfo.c_str());
 		l_sbWidths[2] = CUtilWin32GUI::StatusCalcPaneWidth(l_sb.GetHwnd(), l_sizeInfo.c_str());
 		l_sbWidths[STATUSBAR_PANE_CHARSET] = CUtilWin32GUI::StatusCalcPaneWidth(l_sb.GetHwnd(), l_charset.c_str());
@@ -1268,7 +1268,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 			if (pMsg->wParam == VK_F10 && (::GetAsyncKeyState(VK_LSHIFT) || ::GetAsyncKeyState(VK_RSHIFT)))
 			{
 				// OH LAWD HAVE MERCY :(
-				MSG l_msg = { 0 };
+				MSG l_msg{};
 				l_msg.message = WM_KEYDOWN;
 				l_msg.wParam = VK_APPS;
 				m_view.ForwardFocusTypeMouseKeyboardEvent(&l_msg);
@@ -1708,7 +1708,7 @@ bool CMainFrame::LoadFolderNfoList()
 	m_nfoPathsInFolder.clear();
 
 	const std::wstring l_currentNfoPath = m_view.GetNfoData()->GetFilePath();
-	wchar_t l_nfoPathFull[1000] = { 0 };
+	wchar_t l_nfoPathFull[1000]{};
 
 	const std::wstring l_folderPath = CUtilWin32::PathRemoveFileSpec(l_currentNfoPath.c_str()) + L"\\",
 		l_filePattern = l_folderPath + L"*.*";
@@ -1722,7 +1722,7 @@ bool CMainFrame::LoadFolderNfoList()
 
 	const std::wstring l_extraExtension = ::PathFindExtension(l_currentNfoPath.c_str());
 
-	WIN32_FIND_DATA l_ffd = { 0 };
+	WIN32_FIND_DATA l_ffd{};
 	HANDLE l_fh;
 
 	if ((l_fh = ::FindFirstFile(l_filePattern.c_str(), &l_ffd)) == INVALID_HANDLE_VALUE)
@@ -1738,7 +1738,7 @@ bool CMainFrame::LoadFolderNfoList()
 		if (_wcsicmp(l_extension.c_str(), L".nfo") == 0 || _wcsicmp(l_extension.c_str(), L".asc") == 0
 			|| _wcsicmp(l_extension.c_str(), L".ans") == 0 || _wcsicmp(l_extension.c_str(), l_extraExtension.c_str()) == 0)
 		{
-			wchar_t l_buf[1000] = { 0 };
+			wchar_t l_buf[1000]{};
 
 			if (::GetFullPathName(l_nfoPath.c_str(), 999, l_buf, nullptr) < 1000)
 			{

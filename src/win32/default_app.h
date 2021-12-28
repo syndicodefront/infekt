@@ -18,7 +18,7 @@
 #include <memory>
 #include <Windows.h>
 
-// abstract base class
+ // abstract base class
 
 class CWinDefaultApp
 {
@@ -32,12 +32,8 @@ public:
 	CWinDefaultApp() = delete;
 	virtual ~CWinDefaultApp() {}
 protected:
-	/**
-	* @param a_appRegistryName
-	* @param a_fileExtension e.g. ".htm"
-	**/
 	CWinDefaultApp(const std::wstring& a_appRegistryName, const std::wstring& a_fileExtension) :
-		m_appRegistryName(a_appRegistryName), m_extension(a_fileExtension)
+		m_appRegistryName(a_appRegistryName), m_extension(a_fileExtension), m_noSuchProgName(false)
 	{ }
 
 	enum class MakeDefaultResult {
@@ -57,20 +53,6 @@ protected:
 	bool m_noSuchProgName;
 };
 
-
-// class for Windows Vista and Windows 7, using COM
-
-class CWin7DefaultApp : public CWinDefaultApp
-{
-public:
-	CWin7DefaultApp(const std::wstring&, const std::wstring&);
-
-protected:
-	bool IsDefault() override;
-	MakeDefaultResult MakeDefault() override;
-};
-
-
 // class for Windows 8 and later because wtf Microsoft
 
 class CWin8DefaultApp : public CWinDefaultApp
@@ -82,27 +64,5 @@ protected:
 	bool IsDefault() override;
 	MakeDefaultResult MakeDefault() override;
 };
-
-
-#if _WIN32_WINNT < 0x600
-
-// class for Windows 2000 and XP, using direct registry writes
-
-class CWinXPDefaultApp : public CWinDefaultApp 
-{
-public:
-	CWinXPDefaultApp(const std::wstring& a_appRegistryName, const std::wstring& a_fileExtension)
-		: CWinDefaultApp(a_appRegistryName, a_fileExtension)
-	{ }
-
-protected:
-	bool IsDefault() override;
-	MakeDefaultResult MakeDefault() override;
-
-private:
-	bool RegisterProgIdData();
-};
-
-#endif /* _WIN32_WINNT */
 
 #endif /* !_DEFAULT_APP_H */

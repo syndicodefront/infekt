@@ -28,10 +28,10 @@ using std::wstring;
 struct _buf_info
 {
 	size_t len, pos;
-	void *data;
+	void* data;
 };
 
-static cairo_status_t _read_from_resource(void *a_closure, unsigned char *a_data, unsigned int a_length)
+static cairo_status_t _read_from_resource(void* a_closure, unsigned char* a_data, unsigned int a_length)
 {
 	_buf_info* l_buf = static_cast<_buf_info*>(a_closure);
 
@@ -70,7 +70,7 @@ int CUtilWin32GUI::AddPngToImageList(HIMAGELIST a_imgList,
 
 	int l_resultId = -1;
 
-	BITMAPINFO l_bi = { 0 };
+	BITMAPINFO l_bi{};
 	l_bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	l_bi.bmiHeader.biWidth = a_width;
 	l_bi.bmiHeader.biHeight = -a_height;
@@ -83,14 +83,14 @@ int CUtilWin32GUI::AddPngToImageList(HIMAGELIST a_imgList,
 
 	if (l_hBitmap)
 	{
-		BITMAP l_bitmap = { 0 };
+		BITMAP l_bitmap{};
 		::GetObject(l_hBitmap, sizeof(BITMAP), &l_bitmap);
 		cairo_surface_t* l_surfaceOut = cairo_image_surface_create_for_data(
 			l_rawData, CAIRO_FORMAT_ARGB32, a_width, a_height, l_bitmap.bmWidthBytes);
 
 		if (l_surfaceOut)
 		{
-			cairo_t *cr = cairo_create(l_surfaceOut);
+			cairo_t* cr = cairo_create(l_surfaceOut);
 
 			// copy PNG to bitmap surface:
 			cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
@@ -117,110 +117,122 @@ int CUtilWin32GUI::AddPngToImageList(HIMAGELIST a_imgList,
 /* Common Dialog Helper Functions                                       */
 /************************************************************************/
 
-// from file_dialogs_win6x.cpp:
-wstring Win6x_OpenFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec);
-wstring Win6x_SaveFileDialog(HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
-	const LPCWSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath);
-
-
-#if _WIN32_WINNT < 0x600
-typedef const std::vector<wchar_t> TLegacyFilterSpec;
-static TLegacyFilterSpec ComDlgFilterSpecToLegacy(const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
-{
-	std::vector<wchar_t> l_filter;
-
-	for (UINT i = 0; i < a_nFilterSpec; i++)
-	{
-		const COMDLG_FILTERSPEC& l_spec = a_filterSpec[i];
-
-		l_filter.insert(l_filter.end(), l_spec.pszName, l_spec.pszName + lstrlenW(l_spec.pszName) + 1);
-		l_filter.insert(l_filter.end(), l_spec.pszSpec, l_spec.pszSpec + lstrlenW(l_spec.pszSpec) + 1);
-	}
-
-	l_filter.push_back(L'\0');
-
-	return l_filter;
-}
-#endif
-
-
 wstring CUtilWin32GUI::OpenFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec)
 {
-#if _WIN32_WINNT < 0x600
-	if (!CUtilWin32::IsAtLeastWinVista())
+	HRESULT hr;
+	std::wstring l_path;
+
+	IFileOpenDialog* pfod;
+	hr = CoCreateInstance(CLSID_FileOpenDialog, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pfod));
+
+	if (SUCCEEDED(hr))
 	{
-		OPENFILENAME ofn = { 0 };
-		TCHAR szBuf[1000] = { 0 };
+		// set up some options:
+		pfod->SetFileTypes(a_nFilterSpec, a_filterSpec);
+		pfod->SetFileTypeIndex(1);
 
-		TLegacyFilterSpec l_filter = ComDlgFilterSpecToLegacy(a_filterSpec, a_nFilterSpec);
+		pfod->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_FILEMUSTEXIST | FOS_DONTADDTORECENT);
 
-		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hInstance = a_instance;
-		ofn.hwndOwner = a_parent;
-		ofn.lpstrFilter = l_filter.data();
-		ofn.nFilterIndex = 1;
-		ofn.lpstrFile = szBuf;
-		ofn.nMaxFile = 999;
-		ofn.Flags = OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT;
+		// show the dialog:
+		hr = pfod->Show(a_parent);
 
-		if (::GetOpenFileName(&ofn))
+		if (SUCCEEDED(hr))
 		{
-			return ofn.lpstrFile;
+			IShellItem* ppsi;
+
+			// this will fail if Cancel has been clicked:
+			hr = pfod->GetResult(&ppsi);
+
+			if (SUCCEEDED(hr))
+			{
+				// extract the path:
+				LPOLESTR pszPath = nullptr;
+
+				hr = ppsi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
+				if (SUCCEEDED(hr))
+				{
+					l_path = pszPath;
+					CoTaskMemFree(pszPath);
+				}
+
+				ppsi->Release();
+			}
 		}
 
-		return L"";
+		pfod->Release();
 	}
-	else
-#endif
-	{
-		return Win6x_OpenFileDialog(a_parent, a_filterSpec, a_nFilterSpec);
-	}
+
+	return l_path;
 }
 
 
 wstring CUtilWin32GUI::SaveFileDialog(HINSTANCE a_instance, HWND a_parent, const COMDLG_FILTERSPEC* a_filterSpec, UINT a_nFilterSpec,
 	const LPCTSTR a_defaultExt, const wstring& a_currentFileName, const wstring& a_initialPath)
 {
-#if _WIN32_WINNT < 0x600
-	if (!CUtilWin32::IsAtLeastWinVista())
-	{
-		OPENFILENAME ofn = { 0 };
-		TCHAR szBuf[1000] = { 0 };
+	HRESULT hr;
+	std::wstring l_path;
 
-		TLegacyFilterSpec l_filter = ComDlgFilterSpecToLegacy(a_filterSpec, a_nFilterSpec);
+	IFileSaveDialog* pfsd;
+	hr = CoCreateInstance(CLSID_FileSaveDialog, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pfsd));
+
+	if (SUCCEEDED(hr))
+	{
+		// set up some options:
+		pfsd->SetFileTypes(a_nFilterSpec, a_filterSpec);
+		pfsd->SetFileTypeIndex(1);
+		pfsd->SetDefaultExtension(a_defaultExt);
+
+		pfsd->SetOptions(FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST | FOS_OVERWRITEPROMPT | FOS_DONTADDTORECENT);
 
 		if (!a_currentFileName.empty())
 		{
-			_tcscpy_s(szBuf, 1000, a_currentFileName.c_str());
+			pfsd->SetFileName(a_currentFileName.c_str());
 		}
 
 		if (!a_initialPath.empty())
 		{
-			ofn.lpstrInitialDir = a_initialPath.c_str();
+			// force initially selected folder
+			IShellItem* ppsif = nullptr;
+
+			hr = SHCreateItemFromParsingName(a_initialPath.c_str(), nullptr, IID_PPV_ARGS(&ppsif));
+
+			if (SUCCEEDED(hr))
+			{
+				hr = pfsd->SetFolder(ppsif);
+				ppsif->Release();
+			}
 		}
 
-		ofn.lStructSize = sizeof(OPENFILENAME);
-		ofn.hInstance = a_instance;
-		ofn.hwndOwner = a_parent;
-		ofn.lpstrFilter = l_filter.data();
-		ofn.nFilterIndex = 1;
-		ofn.lpstrDefExt = a_defaultExt;
-		ofn.lpstrFile = szBuf;
-		ofn.nMaxFile = 999;
-		ofn.Flags = OFN_ENABLESIZING | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST | OFN_DONTADDTORECENT;
+		// show the dialog:
+		hr = pfsd->Show(a_parent);
 
-		if (::GetSaveFileName(&ofn))
+		if (SUCCEEDED(hr))
 		{
-			return ofn.lpstrFile;
+			IShellItem* ppsi;
+
+			// this will fail if Cancel has been clicked:
+			hr = pfsd->GetResult(&ppsi);
+
+			if (SUCCEEDED(hr))
+			{
+				// extract the path:
+				LPOLESTR pszPath = nullptr;
+
+				hr = ppsi->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
+				if (SUCCEEDED(hr))
+				{
+					l_path = pszPath;
+					CoTaskMemFree(pszPath);
+				}
+
+				ppsi->Release();
+			}
 		}
 
-		return L"";
+		pfsd->Release();
 	}
-	else
-#endif
-	{
-		return Win6x_SaveFileDialog(a_parent, a_filterSpec, a_nFilterSpec, a_defaultExt, a_currentFileName, a_initialPath);
-	}
+
+	return l_path;
 }
 
 
@@ -246,15 +258,15 @@ void CUtilWin32GUI::PopUpLastWin32Error()
 
 void CUtilWin32GUI::FormatFileTimeSize(const std::wstring& a_filePath, std::wstring& ar_timeInfo, std::wstring& ar_sizeInfo)
 {
-	WIN32_FIND_DATA l_ff = { 0 };
+	WIN32_FIND_DATA l_ff{};
 
 	if (HANDLE l_hFile = ::FindFirstFile(a_filePath.c_str(), &l_ff))
 	{
-		SYSTEMTIME l_sysTimeUTC = { 0 }, l_sysTime = { 0 };
+		SYSTEMTIME l_sysTimeUTC{}, l_sysTime{};
 		if (::FileTimeToSystemTime(&l_ff.ftLastWriteTime, &l_sysTimeUTC) &&
 			::SystemTimeToTzSpecificLocalTime(nullptr, &l_sysTimeUTC, &l_sysTime))
 		{
-			TCHAR l_date[100] = { 0 };
+			TCHAR l_date[100]{};
 
 			if (::GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, &l_sysTime,
 				nullptr, l_date, 99) != 0)
@@ -272,11 +284,11 @@ void CUtilWin32GUI::FormatFileTimeSize(const std::wstring& a_filePath, std::wstr
 			}
 		}
 
-		ULARGE_INTEGER l_tmpFileSize;
+		ULARGE_INTEGER l_tmpFileSize{};
 		l_tmpFileSize.HighPart = l_ff.nFileSizeHigh;
 		l_tmpFileSize.LowPart = l_ff.nFileSizeLow;
 
-		TCHAR l_sizeBuf[100] = { 0 };
+		TCHAR l_sizeBuf[100]{};
 
 		if (::StrFormatByteSizeW(l_tmpFileSize.QuadPart, l_sizeBuf, 99))
 		{

@@ -22,28 +22,7 @@
 
 std::unique_ptr<CWinDefaultApp> CWinDefaultApp::Factory()
 {
-	std::unique_ptr<CWinDefaultApp> l_defApp;
-
-#if _WIN32_WINNT < 0x600
-	if (CUtilWin32::IsWinXP())
-	{
-		l_defApp.reset(new CWinXPDefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION));
-	}
-	else
-#endif
-#ifdef _WIN32_WINNT_WIN8
-	if (CUtilWin32::IsAtLeastWin8())
-	{
-		l_defApp.reset(new CWin8DefaultApp(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION));
-	}
-	else
-#endif
-	if (CUtilWin32::IsAtLeastWin7())
-	{
-		l_defApp.reset(new CWin7DefaultApp(DEFAULT_APP_REG_NAME, DEFAULT_APP_EXTENSION));
-	}
-
-	return l_defApp;
+	return std::make_unique<CWin8DefaultApp>(DEFAULT_APP_PROG_ID, DEFAULT_APP_EXTENSION);
 }
 
 void CWinDefaultApp::CheckDefaultNfoViewer(HWND a_hwnd)

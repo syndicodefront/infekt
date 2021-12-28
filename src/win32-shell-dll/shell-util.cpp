@@ -20,9 +20,9 @@ bool LoadNFOFromStream(IStream* pStream, PNFOData& ar_data)
 	// read NFO data from stream:
 	std::string l_contents;
 	size_t l_contentLength = 0;
-	char l_buf[200] = { 0 };
+	char l_buf[200]{};
 
-	const LARGE_INTEGER l_nullPos = { 0 };
+	const LARGE_INTEGER l_nullPos{};
 	pStream->Seek(l_nullPos, STREAM_SEEK_SET, nullptr);
 
 	ULONG l_bytesRead;

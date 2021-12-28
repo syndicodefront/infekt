@@ -142,7 +142,7 @@ const std::vector<PFontListEntry>& CSettingsWindowDialog::GetFonts(bool a_getAll
 
 	if (l_pList->empty())
 	{
-		LOGFONT l_lf = { 0 };
+		LOGFONT l_lf{};
 		l_lf.lfCharSet = DEFAULT_CHARSET;
 
 		_temp_font_enum_data l_data;
@@ -482,9 +482,9 @@ BOOL CSettingsTabDialog::OnCommand(WPARAM wParam, LPARAM lParam)
 	{
 		if (S_COLOR_T* l_color = ColorFromControlId(LOWORD(wParam)))
 		{
-			static COLORREF l_customColors[16] = { 0 };
+			static COLORREF l_customColors[16]{};
 
-			CHOOSECOLOR l_cc = { 0 };
+			CHOOSECOLOR l_cc{};
 			l_cc.lStructSize = sizeof(CHOOSECOLOR);
 			l_cc.hwndOwner = m_dlgWin->GetHwnd();
 			l_cc.lpCustColors = l_customColors;
@@ -651,7 +651,7 @@ void CSettingsTabDialog::UpdateFontSizesCombo(size_t a_selSize)
 		for (std::set<int>::const_iterator it = m_fonts[m_selectedFontIndex]->SizesBegin();
 			it != m_fonts[m_selectedFontIndex]->SizesEnd(); it++, l_idx++)
 		{
-			TCHAR l_buf[10] = { 0 };
+			TCHAR l_buf[10]{};
 			_stprintf(l_buf, _T("%d"), *it);
 			int l_item = ComboBox_AddString(l_hFontCombo, l_buf);
 
@@ -742,7 +742,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 		}
 
 		std::wstring l_dataBuf;
-		wchar_t l_lineBuf[200] = { 0 };
+		wchar_t l_lineBuf[200]{};
 		bool l_inData = false;
 		std::wstring l_dataName;
 
@@ -812,7 +812,7 @@ void CSettingsWindowDialog::DoThemeExImport(bool a_import)
 	}
 	else
 	{
-		wchar_t l_userName[UNLEN + 1] = { 0 };
+		wchar_t l_userName[UNLEN + 1]{};
 		DWORD l_dummy = UNLEN;
 		::GetUserName(l_userName, &l_dummy);
 		::CharLower(l_userName);
@@ -967,7 +967,7 @@ void CSettingsTabDialog::MeasureFontComboItems(LPMEASUREITEMSTRUCT a_mis)
 		{
 			cairo_set_font_size(cr, l_font->GetNiceSize());
 
-			cairo_text_extents_t l_extents = { 0 };
+			cairo_text_extents_t l_extents{};
 			cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
 
 			if (l_extents.width > l_maxW)
@@ -1023,7 +1023,7 @@ void CSettingsTabDialog::DrawFontComboItem(const LPDRAWITEMSTRUCT a_dis)
 			cairo_select_font_face(cr, l_fontNameUtf.c_str(), CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
 			cairo_set_font_size(cr, l_fontSize);
 
-			cairo_text_extents_t l_extents = { 0 };
+			cairo_text_extents_t l_extents{};
 			cairo_text_extents(cr, l_fontNameUtf.c_str(), &l_extents);
 
 			cairo_set_source_rgb(cr, 0, 0, 0);
@@ -1164,7 +1164,7 @@ void CSettingsTabDialog::PopulatePluginList()
 
 	PPluginManager l_plugMgr = CPluginManager::GetInstance();
 
-	WIN32_FIND_DATA l_ffd = { 0 };
+	WIN32_FIND_DATA l_ffd{};
 	HANDLE l_fh;
 
 	if ((l_fh = ::FindFirstFile(l_pluginDirPattern.c_str(), &l_ffd)) == INVALID_HANDLE_VALUE)
@@ -1190,7 +1190,7 @@ void CSettingsTabDialog::PopulatePluginList()
 			l_pluginDescr = _T("Error: ") + CPluginManager::GetInstance()->GetLastErrorMessage();
 		}
 
-		LVITEM l_item = { 0 };
+		LVITEM l_item{};
 		l_item.iItem = m_pluginListView.GetItemCount();
 		l_item.mask = LVIF_TEXT | LVIF_PARAM;
 		l_item.lParam = (l_saveFileName.empty() ? -1 : l_item.iItem);
@@ -1241,7 +1241,7 @@ CFontListEntry::CFontListEntry(const ENUMLOGFONTEX* a_elf)
 	m_name = a_elf->elfFullName;
 
 	// enum font sizes:
-	LOGFONT l_lf = { 0 };
+	LOGFONT l_lf{};
 	l_lf.lfCharSet = DEFAULT_CHARSET;
 	_tcscpy_s(&l_lf.lfFaceName[0], LF_FACESIZE, m_logFont.lfFaceName);
 

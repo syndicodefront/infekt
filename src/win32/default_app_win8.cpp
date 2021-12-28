@@ -46,7 +46,8 @@ bool CWin8DefaultApp::IsDefault()
 
 		if (SUCCEEDED(hr))
 		{
-			isDefault = !_wcsicmp(registeredAppName, m_appRegistryName.c_str());
+			isDefault = registeredAppName != nullptr &&
+				m_appRegistryName.compare(registeredAppName) == 0;
 
 			CoTaskMemFree(registeredAppName);
 		}
@@ -59,65 +60,41 @@ bool CWin8DefaultApp::IsDefault()
 
 CWin8DefaultApp::MakeDefaultResult CWin8DefaultApp::MakeDefault()
 {
-	MakeDefaultResult result = MakeDefaultResult::FAILED;
+	MakeDefaultResult result = MakeDefaultResult::SUCCEEDED;
 
-	if (CUtilWin32::IsWin8())
+	IApplicationActivationManager* pActManager = nullptr;
+
+	HRESULT hr = CoCreateInstance(CLSID_ApplicationActivationManager, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pActManager));
+
+	if (SUCCEEDED(hr))
 	{
-		IApplicationAssociationRegistrationUI *pAARUI = nullptr;
+		DWORD pid{};
 
-		HRESULT hr = CoCreateInstance(CLSID_ApplicationAssociationRegistrationUI, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pAARUI));
+		hr = pActManager->ActivateApplication(
+			L"windows.immersivecontrolpanel_cw5n1h2txyewy"
+			L"!microsoft.windows.immersivecontrolpanel",
+			L"page=SettingsPageAppsDefaults"
+			L"&target=SettingsPageAppsDefaultsFileExtensionView", AO_NONE, &pid);
 
-		if (SUCCEEDED(hr))
+		if (!SUCCEEDED(hr))
 		{
-			hr = pAARUI->LaunchAdvancedAssociationUI(L"iNFEKT NFO Viewer");
-
-			if (SUCCEEDED(hr))
-			{
-				result = MakeDefaultResult::SUCCEEDED;
-			}
-
-			pAARUI->Release();
-		}
-	}
-	else
-	{
-#ifndef __IApplicationActivationManager_INTERFACE_DEFINED__
-		result = MakeDefaultResult::FAILED;
-#else
-		result = MakeDefaultResult::NOT_SUPPORTED;
-
-		// assume Win10+
-		IApplicationActivationManager* pActManager = nullptr;
-
-		HRESULT hr = CoCreateInstance(CLSID_ApplicationActivationManager, nullptr, CLSCTX_INPROC, IID_PPV_ARGS(&pActManager));
-
-		if (SUCCEEDED(hr))
-		{
-			DWORD pid{};
-
 			hr = pActManager->ActivateApplication(
 				L"windows.immersivecontrolpanel_cw5n1h2txyewy"
 				L"!microsoft.windows.immersivecontrolpanel",
-				L"page=SettingsPageAppsDefaults"
-				L"&target=SettingsPageAppsDefaultsFileExtensionView", AO_NONE, &pid);
+				L"page=SettingsPageAppsDefaults", AO_NONE, &pid);
 
 			if (!SUCCEEDED(hr))
 			{
-				hr = pActManager->ActivateApplication(
-					L"windows.immersivecontrolpanel_cw5n1h2txyewy"
-					L"!microsoft.windows.immersivecontrolpanel",
-					L"page=SettingsPageAppsDefaults", AO_NONE, &pid);
-
-				if (!SUCCEEDED(hr))
-				{
-					result = MakeDefaultResult::FAILED;
-				}
+				result = MakeDefaultResult::FAILED;
 			}
-
-			pActManager->Release();
 		}
-#endif
+
+		pActManager->Release();
 	}
-	
+	else
+	{
+		result = MakeDefaultResult::NOT_SUPPORTED;
+	}
+
 	return result;
 }

@@ -44,6 +44,7 @@
 #define fread_s(b, s, e, c, f) fread(b, e, c, f)
 #define memmove_s(d, e, s, c) memmove(d, s, c)
 #define strcpy_s(d, e, s) strcpy(d, s)
+#define sscanf_s sscanf
 
 #define _tcscpy_s(d, e, s) strcpy(d, s)
 #define _tcsncpy_s(d, e, s, n) strncpy(d, s, n)

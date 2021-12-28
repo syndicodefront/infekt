@@ -61,7 +61,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		return false;
 	}
 #else
-	struct stat l_fst = { 0 };
+	struct stat l_fst{};
 	if (stat(a_filePath.c_str(), &l_fst) == 0 && S_ISREG(l_fst.st_mode))
 	{
 		l_fileBytes = l_fst.st_size;
@@ -1175,7 +1175,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 		return true;
 	}
 
-	SAUCE l_record = { 0 };
+	SAUCE l_record{};
 	bool l_incompleteRecord = false;
 	size_t l_recordLength = SAUCE_RECORD_SIZE;
 

@@ -30,42 +30,42 @@
     <ProjectGuid>{CBB123C8-0763-4BFD-BF90-4DD767096287}</ProjectGuid>
     <RootNamespace>infektconsole</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Static|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141_xp</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Static|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -121,7 +121,6 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..\..\src\console;..\..\src\lib;..\..\src\lib-win32;..\..\dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;CAIRO_WIN32_STATIC_BUILD;DONT_USE_SHARED_PTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -131,6 +130,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
+      <MinimalRebuild />
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo.lib;Msimg32.lib;shlwapi.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -153,7 +153,6 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..\..\src\console;..\..\src\lib;..\..\src\lib-win32;..\..\dependencies\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;CAIRO_WIN32_STATIC_BUILD;DONT_USE_SHARED_PTR;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -163,6 +162,7 @@
       <OpenMPSupport>true</OpenMPSupport>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
+      <MinimalRebuild />
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo.lib;Msimg32.lib;shlwapi.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -194,6 +194,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <MinimalRebuild />
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo.lib;Msimg32.lib;shlwapi.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -227,6 +228,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <MinimalRebuild />
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo-static.lib;zlib.lib;Msimg32.lib;shlwapi.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -263,6 +265,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <MinimalRebuild />
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo.lib;Msimg32.lib;shlwapi.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -299,6 +302,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <SDLCheck>true</SDLCheck>
       <ControlFlowGuard>Guard</ControlFlowGuard>
+      <MinimalRebuild />
     </ClCompile>
     <Link>
       <AdditionalDependencies>cairo-static.lib;zlib.lib;Msimg32.lib;shlwapi.lib;libpng16.lib;%(AdditionalDependencies)</AdditionalDependencies>

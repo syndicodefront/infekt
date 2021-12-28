@@ -129,7 +129,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 		l_cut = true;
 	}
 
-	BITMAPINFO l_bi = { 0 };
+	BITMAPINFO l_bi{};
 	l_bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 	l_bi.bmiHeader.biWidth = l_imgWidth;
 	l_bi.bmiHeader.biHeight = -l_imgHeight;
@@ -144,7 +144,7 @@ IFACEMETHODIMP CNFOThumbProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_ALPH
 
 	if (l_hBitmap)
 	{
-		BITMAP l_bitmap = { 0 };
+		BITMAP l_bitmap{};
 		GetObject(l_hBitmap, sizeof(BITMAP), &l_bitmap);
 		cairo_surface_t* l_surfaceOut = cairo_image_surface_create_for_data(
 			l_rawData, CAIRO_FORMAT_ARGB32, l_imgWidth, l_imgHeight, l_bitmap.bmWidthBytes);

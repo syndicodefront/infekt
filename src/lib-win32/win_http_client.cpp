@@ -258,7 +258,7 @@ void CWinHttpRequest::_RunRequest()
 
 		// get file size from content-length header:
 		{
-			wchar_t szSizeBuffer[33] = { 0 };
+			wchar_t szSizeBuffer[33]{};
 			DWORD dwLengthSizeBuffer = 32;
 
 			if (::WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH, WINHTTP_HEADER_NAME_BY_INDEX,

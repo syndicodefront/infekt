@@ -23,8 +23,8 @@
 
 static std::wstring GetExeDir()
 {
-	TCHAR l_buf[1000] = { 0 };
-	TCHAR l_buf2[1000] = { 0 };
+	TCHAR l_buf[1000]{};
+	TCHAR l_buf2[1000]{};
 
 	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);

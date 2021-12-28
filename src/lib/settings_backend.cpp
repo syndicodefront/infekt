@@ -137,7 +137,7 @@ bool CRegistrySettingsSection::WriteDword(const wchar_t* a_szName, DWORD a_newVa
 
 std::wstring CRegistrySettingsSection::ReadString(const wchar_t* a_szName, std::wstring a_default)
 {
-	wchar_t l_buffer[1000] = { 0 };
+	wchar_t l_buffer[1000]{};
 	DWORD l_dwType, l_dwSize = 999 * sizeof(wchar_t);
 
 	if (RegQueryValueEx(m_hKey, a_szName, 0, &l_dwType, (LPBYTE)l_buffer,
@@ -230,7 +230,7 @@ bool CINISettingsSection::WriteDword(const wchar_t* a_szName, DWORD a_newValue)
 
 std::wstring CINISettingsSection::ReadString(const wchar_t* a_szName, std::wstring a_default)
 {
-	wchar_t l_buf[1000] = { 0 };
+	wchar_t l_buf[1000]{};
 
 	if (GetPrivateProfileString(m_name.c_str(), a_szName, a_default.c_str(), l_buf, 999, m_iniPath.c_str()) < 1000)
 	{

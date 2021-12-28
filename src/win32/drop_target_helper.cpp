@@ -119,7 +119,7 @@ HRESULT _stdcall CMainDropTargetHelper::Drop(IDataObject* pDataObject, DWORD grf
 
 			if (l_numFiles > 0)
 			{
-				wchar_t l_fileNameBuf[1000] = { 0 };
+				wchar_t l_fileNameBuf[1000]{};
 				UINT l_charsCopied = ::DragQueryFile(l_hDrop, 0, l_fileNameBuf, 999); // get the first file.
 
 				if (l_charsCopied > 0 && l_charsCopied < 1000)

@@ -35,10 +35,6 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual BOOL DialogProc(UINT, WPARAM, LPARAM);
 	virtual LRESULT OnNotify(WPARAM, LPARAM);
-
-private:
-	static std::wstring GetWindowsClientOSName();
-	static std::wstring GetWindowsServerOSName();
 };
 
 #endif  /* !_ABOUT_DLG_H */

@@ -1,4 +1,4 @@
-"x64_x86 Cross Tools Command Prompt for VS 2017"
+"Developer Command Prompt for VS 2019"
 
 bootstrap
 .\b2 --with-program_options link=static address-model=32 runtime-link=static,shared

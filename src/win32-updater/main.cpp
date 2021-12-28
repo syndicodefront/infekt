@@ -158,7 +158,7 @@ static void RunMainProgram()
 
 	if (::RegOpenKeyEx(HKEY_LOCAL_MACHINE, l_keyPath, 0, KEY_QUERY_VALUE | KEY_WOW64_64KEY, &l_hKey) == ERROR_SUCCESS)
 	{
-		wchar_t l_buffer[1000] = { 0 };
+		wchar_t l_buffer[1000]{};
 		DWORD l_dwType, l_dwSize = 999 * sizeof(wchar_t);
 
 		if (::RegQueryValueEx(l_hKey, L"InstallLocation", 0, &l_dwType, (LPBYTE)l_buffer,
@@ -292,7 +292,7 @@ static BOOL CALLBACK DialogProc(HWND hDlg, UINT uMsg, WPARAM wParam, LPARAM lPar
 
 			if (cd->dwData == 666 && cd->cbData > 0 && cd->cbData < 256)
 			{
-				char msg[256] = { 0 };
+				char msg[256]{};
 				if (strncpy_s(msg, 255, reinterpret_cast<char*>(cd->lpData), cd->cbData) == 0)
 					SetDlgItemTextA(hDlg, IDC_STATUS, msg);
 			}

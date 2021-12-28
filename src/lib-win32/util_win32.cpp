@@ -50,7 +50,7 @@ std::wstring CUtilWin32::PathRemoveExtension(const std::wstring& a_path)
 
 std::wstring CUtilWin32::GetTempDir()
 {
-	wchar_t l_tmpPathBuf[1000] = { 0 };
+	wchar_t l_tmpPathBuf[1000]{};
 
 	if (::GetTempPath(999, l_tmpPathBuf))
 	{
@@ -65,7 +65,7 @@ std::wstring CUtilWin32::GetTempDir()
 
 std::wstring CUtilWin32::GetAppDataDir(bool a_local, const std::wstring& a_appName)
 {
-	wchar_t l_tmpPathBuf[1000] = { 0 };
+	wchar_t l_tmpPathBuf[1000]{};
 
 	if (::SHGetFolderPath(0, a_local ? CSIDL_LOCAL_APPDATA : CSIDL_APPDATA, nullptr,
 		SHGFP_TYPE_CURRENT, l_tmpPathBuf) == S_OK)
@@ -98,27 +98,10 @@ HMODULE CUtilWin32::SilentLoadLibrary(const std::wstring& a_path)
 	HMODULE l_hResult = nullptr;
 	DWORD dwErrorMode = SEM_NOOPENFILEERRORBOX | SEM_FAILCRITICALERRORS;
 
-	if (CUtilWin32::IsAtLeastWin7())
-	{
-		// BOOL SetThreadErrorMode(DWORD dwNewMode, LPDWORD lpOldMode);
-		typedef BOOL(WINAPI *fstem)(DWORD, LPDWORD);
-
-		fstem fnc = (fstem)::GetProcAddress(::GetModuleHandle(L"Kernel32.dll"), "SetThreadErrorMode");
-
-		if (fnc)
-		{
-			DWORD l_oldErrorMode = 0;
-			fnc(dwErrorMode, &l_oldErrorMode);
-			l_hResult = ::LoadLibrary(a_path.c_str());
-			fnc(l_oldErrorMode, nullptr);
-		}
-	}
-	else
-	{
-		UINT l_oldErrorMode = ::SetErrorMode(dwErrorMode);
-		l_hResult = ::LoadLibrary(a_path.c_str());
-		::SetErrorMode(l_oldErrorMode);
-	}
+	DWORD l_oldErrorMode = 0;
+	::SetThreadErrorMode(dwErrorMode, &l_oldErrorMode);
+	l_hResult = ::LoadLibrary(a_path.c_str());
+	::SetThreadErrorMode(l_oldErrorMode, nullptr);
 
 	return l_hResult;
 }
@@ -132,8 +115,8 @@ bool CUtilWin32::RemoveCwdFromDllSearchPath()
 
 std::wstring CUtilWin32::GetExePath()
 {
-	TCHAR l_buf[1000] = { 0 };
-	TCHAR l_buf2[1000] = { 0 };
+	TCHAR l_buf[1000]{};
+	TCHAR l_buf2[1000]{};
 
 	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
@@ -144,8 +127,8 @@ std::wstring CUtilWin32::GetExePath()
 
 std::wstring CUtilWin32::GetExeDir()
 {
-	TCHAR l_buf[1000] = { 0 };
-	TCHAR l_buf2[1000] = { 0 };
+	TCHAR l_buf[1000]{};
+	TCHAR l_buf2[1000]{};
 
 	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
@@ -161,35 +144,9 @@ bool CUtilWin32::HardenHeap()
 #ifndef _DEBUG
 	// Activate program termination on heap corruption.
 	// http://msdn.microsoft.com/en-us/library/aa366705%28VS.85%29.aspx
-	typedef BOOL(WINAPI *fhsi)(HANDLE, HEAP_INFORMATION_CLASS, PVOID, SIZE_T);
-	fhsi l_fHSI = (fhsi)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "HeapSetInformation");
-	if (l_fHSI)
-	{
-		return (l_fHSI(GetProcessHeap(), HeapEnableTerminationOnCorruption, nullptr, 0) != FALSE);
-	}
-#endif
-	return false;
-}
-
-#ifndef PROCESS_DEP_ENABLE
-#define PROCESS_DEP_ENABLE 0x01
-#endif
-
-bool CUtilWin32::EnforceDEP()
-{
-#ifndef _WIN64
-	// Explicitly activate DEP, especially important for XP SP3.
-	// http://msdn.microsoft.com/en-us/library/bb736299%28VS.85%29.aspx
-	typedef BOOL(WINAPI *fspdp)(DWORD);
-	fspdp l_fSpDp = (fspdp)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "SetProcessDEPPolicy");
-	if (l_fSpDp)
-	{
-		return (l_fSpDp(PROCESS_DEP_ENABLE) != FALSE);
-	}
-
-	return false;
+	return (::HeapSetInformation(GetProcessHeap(), HeapEnableTerminationOnCorruption, nullptr, 0) != FALSE);
 #else
-	return true; // always enabled on x64 anyway.
+	return false;
 #endif
 }
 
@@ -283,18 +240,11 @@ bool CUtilWin32::IsWinServerOS()
 
 bool CUtilWin32::IsWow64()
 {
-	typedef BOOL(WINAPI *fiw6p)(HANDLE, PBOOL);
+	BOOL l_bIsWow64;
 
-	fiw6p l_fiw6p = (fiw6p)GetProcAddress(GetModuleHandleW(L"Kernel32.dll"), "IsWow64Process");
-
-	if (l_fiw6p)
+	if (::IsWow64Process(::GetCurrentProcess(), &l_bIsWow64))
 	{
-		BOOL l_bIsWow64;
-
-		if (l_fiw6p(GetCurrentProcess(), &l_bIsWow64))
-		{
-			return (l_bIsWow64 != FALSE);
-		}
+		return (l_bIsWow64 != FALSE);
 	}
 
 	return false;
@@ -344,7 +294,7 @@ double CBenchmarkTimer::StopTimer(void)
 double CBenchmarkTimer::StopDumpTimer(const char* a_name)
 {
 	double l_secs = StopTimer();
-	char l_buf[256] = { 0 };
+	char l_buf[256]{};
 
 	sprintf_s(l_buf, 255, "BenchmarkTimer: [%s] %.2f msec\r\n", a_name, l_secs);
 

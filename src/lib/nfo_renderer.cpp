@@ -934,7 +934,7 @@ void CNFORenderer::PreRenderText()
 
 			for (wchar_t checkChar : l_checkChars)
 			{
-				cairo_text_extents_t l_extents = { 0 };
+				cairo_text_extents_t l_extents{};
 
 				// measure the inked area of this glyph (char):
 				cairo_scaled_font_t *l_csf = cairo_get_scaled_font(cr);
@@ -1482,8 +1482,8 @@ bool CNFORenderer::ParseColor(const char* a_str, S_COLOR_T* ar)
 
 	int R = 0, G = 0, B = 0, A = 255;
 
-	if (ar && (strlen(a_str) == 8 && sscanf(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4) ||
-		(strlen(a_str) == 6 && sscanf(a_str, "%2x%2x%2x", &R, &G, &B) == 3))
+	if (ar && (strlen(a_str) == 8 && sscanf_s(a_str, "%2x%2x%2x%2x", &R, &G, &B, &A) == 4) ||
+		(strlen(a_str) == 6 && sscanf_s(a_str, "%2x%2x%2x", &R, &G, &B) == 3))
 	{
 		// it's VERY unlikely these fail with %2x, but whatever...
 		if (R >= 0 && R <= 255 &&
@@ -1774,7 +1774,7 @@ void CNFORenderer::PreRender()
 	m_stopPreRendering = false;
 
 	m_preRenderThread = std::make_shared<std::thread>(
-		std::bind(&CNFORenderer::PreRenderThreadProc, this));
+		[this] { PreRenderThreadProc(); });
 }
 
 

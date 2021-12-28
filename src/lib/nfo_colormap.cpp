@@ -138,7 +138,7 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 #if defined(_DEBUG) && defined(_WIN32)
 			else
 			{
-				wchar_t msg[60] = { 0 };
+				wchar_t msg[60]{};
 				wsprintf(msg, L"unknown SGR: %d\n", p);
 				::OutputDebugStringW(msg);
 			}

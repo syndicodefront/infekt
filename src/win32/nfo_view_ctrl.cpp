@@ -49,7 +49,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 		return false;
 	}
 
-	WNDCLASSEX l_class = { 0 };
+	WNDCLASSEX l_class{};
 
 	if (::GetClassInfoEx(m_instance, NFOVWR_CTRL_CLASS_NAME, &l_class) == 0)
 	{
@@ -93,7 +93,7 @@ bool CNFOViewControl::CreateControl(int a_left, int a_top, int a_width, int a_he
 void CNFOViewControl::UpdateScrollbars(bool a_resetPos)
 {
 	// init struct:
-	SCROLLINFO l_si = { 0 };
+	SCROLLINFO l_si{};
 	l_si.cbSize = sizeof(SCROLLINFO);
 
 	// set common flags:
@@ -733,7 +733,7 @@ bool CNFOViewControl::HandleScrollEvent(int a_dir, int a_event, int a_change)
 {
 	int l_prevPos;
 
-	SCROLLINFO l_si = { 0 };
+	SCROLLINFO l_si{};
 	l_si.cbSize = sizeof(SCROLLINFO);
 	l_si.fMask = SIF_ALL;
 

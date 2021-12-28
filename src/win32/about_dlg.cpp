@@ -28,7 +28,7 @@ CAboutDialog::CAboutDialog(HWND hWndParent) :
 
 #define _CREATE_STATIC(A_NAME, A_TEXT, A_TOP, A_HEIGHT) \
 	HWND A_NAME = ::CreateWindowEx(WS_EX_LEFT | WS_EX_NOPARENTNOTIFY, WC_STATIC, nullptr, \
-	WS_CHILDWINDOW | WS_VISIBLE | SS_LEFT, l_left, A_TOP, 270, A_HEIGHT, \
+	WS_CHILDWINDOW | WS_VISIBLE | SS_LEFT, DPIAWARE(l_left), DPIAWARE(A_TOP), DPIAWARE(270), DPIAWARE(A_HEIGHT), \
 		m_hWnd, nullptr, g_hInstance, nullptr); \
 	{ const std::wstring l_tmp(A_TEXT); \
 	::SetWindowText(A_NAME, l_tmp.c_str()); \
@@ -37,19 +37,22 @@ CAboutDialog::CAboutDialog(HWND hWndParent) :
 #define _CREATE_SYSLINK(A_NAME, A_TEXT, A_TOP, A_HEIGHT) \
 	HWND A_NAME = ::CreateWindowEx(0, L"SysLink", nullptr, \
 		WS_VISIBLE | WS_CHILD | WS_TABSTOP, \
-		l_left, A_TOP, 280, A_HEIGHT, \
+		DPIAWARE(l_left), DPIAWARE(A_TOP), DPIAWARE(280), DPIAWARE(A_HEIGHT), \
 		m_hWnd, nullptr, g_hInstance, nullptr); \
 		{ const std::_tstring l_tmp(A_TEXT); \
 		::SetWindowText(A_NAME, l_tmp.c_str()); \
 		::SendMessage(A_NAME, WM_SETFONT, (WPARAM)l_defaultFont, 1); }
 
+#define DPIAWARE(n) MulDiv(n, iDpi, 96)
 
 BOOL CAboutDialog::OnInitDialog()
 {
+	const auto iDpi = ::GetDpiForWindow(m_hWnd);
+
 	SetIconLarge(IDI_APPICON);
 	SetIconSmall(IDI_APPICON);
 
-	m_icon = (HICON)::LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 48, 48, LR_DEFAULTCOLOR);
+	m_icon = (HICON)::LoadImage(g_hInstance, MAKEINTRESOURCE(IDI_APPICON), IMAGE_ICON, 256, 256, LR_DEFAULTCOLOR);
 
 	HFONT l_defaultFont = (HFONT)SendMessage(WM_GETFONT);
 	if (!l_defaultFont) l_defaultFont = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
@@ -66,17 +69,6 @@ BOOL CAboutDialog::OnInitDialog()
 	else
 		l_verStr += L" (32 bit)";
 #endif
-	if (CUtilWin32::IsWinServerOS())
-	{
-		l_verStr += L" on Server " + GetWindowsServerOSName();
-	}
-	else
-	{
-		const std::wstring winVerName = GetWindowsClientOSName();
-
-		if (!winVerName.empty())
-			l_verStr += L" on Windows " + winVerName;
-	}
 
 	_CREATE_STATIC(l_hTitle, l_verStr, l_top, 20);
 	l_top += 20;
@@ -90,10 +82,10 @@ BOOL CAboutDialog::OnInitDialog()
 		::SendMessage(l_hTitle, WM_SETFONT, (WPARAM)m_boldFont, 1);
 	}
 
-	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2018", l_top, 20);
+	_CREATE_STATIC(l_hCopyright, L"\xA9 syndicode 2010-2021", l_top, 20);
 	l_top += 20;
 
-	_CREATE_SYSLINK(l_hHomepage, L"Project Homepage: <A HREF=\"http://infekt.ws/\">infekt.ws</A>", l_top, 20);
+	_CREATE_SYSLINK(l_hHomepage, L"Project Homepage: <A HREF=\"https://infekt.ws/\">infekt.ws</A>", l_top, 20);
 	m_linkCtrl = l_hHomepage;
 	l_top += 20;
 
@@ -123,9 +115,10 @@ BOOL CAboutDialog::DialogProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch (uMsg)
 	{
 	case WM_PAINT: {
+		const auto iDpi = ::GetDpiForWindow(m_hWnd);
 		PAINTSTRUCT ps;
 		HDC hdc = ::BeginPaint(GetHwnd(), &ps);
-		::DrawIconEx(hdc, 10, 15, m_icon, 48, 48, 0, nullptr, DI_NORMAL);
+		::DrawIconEx(hdc, DPIAWARE(10), DPIAWARE(15), m_icon, DPIAWARE(48), DPIAWARE(48), 0, nullptr, DI_NORMAL);
 		::EndPaint(GetHwnd(), &ps);
 		return TRUE; }
 	}
@@ -143,47 +136,13 @@ LRESULT CAboutDialog::OnNotify(WPARAM wParam, LPARAM lParam)
 	case NM_RETURN:
 		if (nh->hwndFrom == m_linkCtrl)
 		{
-			::ShellExecute(nullptr, L"open", L"http://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
+			::ShellExecute(nullptr, L"open", L"https://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
 			return 0;
 		}
 		break;
 	}
 
 	return CDialog::OnNotify(wParam, lParam);
-}
-
-
-/*static*/ std::wstring CAboutDialog::GetWindowsClientOSName()
-{
-	if (CUtilWin32::IsWinXP())
-		return L"XP";
-	else if (CUtilWin32::IsWinVista())
-		return L"Vista";
-	else if (CUtilWin32::IsWin7())
-		return L"7";
-	else if (CUtilWin32::IsWin8())
-		return L"8";
-	else if (CUtilWin32::IsWin10())
-		return L"10";
-	else
-		return L"";
-}
-
-
-/*static*/ std::wstring CAboutDialog::GetWindowsServerOSName()
-{
-	if (CUtilWin32::IsWinXP())
-		return L"2003";
-	else if (CUtilWin32::IsWinVista())
-		return L"2008";
-	else if (CUtilWin32::IsWin7())
-		return L"2008R2";
-	else if (CUtilWin32::IsWin8())
-		return L"2012";
-	else if (CUtilWin32::IsWin10())
-		return L"2016";
-	else
-		return L"";
 }
 
 

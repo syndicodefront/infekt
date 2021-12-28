@@ -24,7 +24,7 @@ extern "C" __declspec(dllexport) int IsGpuUsable()
 {
 	try
 	{
-		accelerator l_defaultDevice;
+		const accelerator l_defaultDevice(accelerator::default_accelerator);
 
 		// http://msdn.microsoft.com/en-us/library/hh873132.aspx
 		if (l_defaultDevice.is_emulated ||

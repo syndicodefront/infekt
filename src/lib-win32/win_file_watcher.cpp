@@ -175,7 +175,7 @@ WATCH_BREAK:
 
 uint64_t CWinFileWatcher::GetFileModificationTime()
 {
-	WIN32_FIND_DATA findData = { 0 };
+	WIN32_FIND_DATA findData{};
 	HANDLE hFind = ::FindFirstFile(m_filePath.c_str(), &findData);
 	uint64_t iResult = 0;
 

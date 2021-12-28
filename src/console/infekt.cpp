@@ -144,7 +144,6 @@ int main(int argc, char* argv[])
 		l_textOnly = false, l_wrap = false;
 
 #ifdef _WIN32
-	CUtilWin32::EnforceDEP();
 	CUtilWin32::HardenHeap();
 	CUtilWin32::RemoveCwdFromDllSearchPath();
 #endif

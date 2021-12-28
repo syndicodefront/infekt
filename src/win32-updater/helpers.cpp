@@ -22,7 +22,7 @@
 
 std::wstring GetSysDirPath()
 {
-	wchar_t l_buf[1000] = { 0 };
+	wchar_t l_buf[1000]{};
 
 	if (::GetSystemDirectory(l_buf, 999))
 	{
@@ -37,7 +37,7 @@ std::wstring GetSysDirPath()
 
 std::wstring GetTempFilePath(const std::wstring& a_suffix)
 {
-	wchar_t l_buf[1000] = { 0 };
+	wchar_t l_buf[1000]{};
 
 	if (::GetTempPath(999, l_buf))
 	{
@@ -61,8 +61,8 @@ std::wstring GetTempFilePath(const std::wstring& a_suffix)
 
 std::wstring GetExePath()
 {
-	TCHAR l_buf[1000] = { 0 };
-	TCHAR l_buf2[1000] = { 0 };
+	TCHAR l_buf[1000]{};
+	TCHAR l_buf2[1000]{};
 
 	::GetModuleFileName(nullptr, (LPTCH)l_buf, 999);
 	::GetLongPathName(l_buf, l_buf2, 999);
@@ -125,7 +125,7 @@ std::wstring SHA1_File(const std::wstring& a_filePath)
 
 			if (_wfopen_s(&fInput, a_filePath.c_str(), L"rb") == 0)
 			{
-				char pbBuf[4096] = { 0 };
+				char pbBuf[4096]{};
 
 				while (!feof(fInput))
 				{
@@ -147,7 +147,7 @@ std::wstring SHA1_File(const std::wstring& a_filePath)
 
 					if (::CryptGetHashParam(hHash, HP_HASHVAL, pbHashBuf, &dwHashLen, 0))
 					{
-						wchar_t wbHex[3] = { 0 };
+						wchar_t wbHex[3]{};
 
 						for (DWORD i = 0; i < dwHashLen; i++)
 						{
