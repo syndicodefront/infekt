@@ -945,8 +945,7 @@ void CMainFrame::WatchFileStart()
 
 	if (!m_fileChangeWatcher)
 	{
-		m_fileChangeWatcher = PWinFileWatcher(new CWinFileWatcher(
-			std::bind(&CMainFrame::OnFileChanged, this)));
+		m_fileChangeWatcher = std::make_unique<CWinFileWatcher>([this] { OnFileChanged(); });
 	}
 
 	if (PNFOData l_nfo = m_view.GetActiveCtrl()->GetNfoData())

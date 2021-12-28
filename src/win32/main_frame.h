@@ -57,7 +57,7 @@ protected:
 	size_t m_nfoInFolderIndex;
 	PNFOData m_nfoPreloadData;
 
-	PWinFileWatcher m_fileChangeWatcher;
+	std::unique_ptr<CWinFileWatcher> m_fileChangeWatcher;
 	void WatchFileStart();
 	void WatchFileStop();
 	void OnFileChanged();
