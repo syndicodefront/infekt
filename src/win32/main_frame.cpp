@@ -1092,8 +1092,8 @@ void CMainFrame::AdjustWindowToNFOWidth(bool a_preflightCheck, bool a_growOnly)
 	int l_desiredWidth = static_cast<int>(m_view.GetActiveCtrl()->GetWidth());
 
 	l_desiredWidth += ::GetSystemMetrics(SM_CXSIZEFRAME) * 2;
-	l_desiredWidth += ::GetSystemMetrics(SM_CYVSCROLL);
-	l_desiredWidth += 20; // some extra padding
+	l_desiredWidth += ::GetSystemMetrics(SM_CXVSCROLL);
+	l_desiredWidth += 16; // some extra padding
 	l_desiredWidth = std::max(l_desiredWidth, ms_minWidth);
 
 	RECT l_rc;
