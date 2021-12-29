@@ -259,8 +259,6 @@ BOOL CSettingsTabDialog::OnInitDialog()
 
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETRANGE32, 3, 200);
 			SendDlgItemMessage(IDC_FONT_SIZE_SPIN2, UDM_SETBUDDY, (WPARAM)GetDlgItem(IDC_FONT_SIZE_EDIT2), 0);
-
-			::EnableWindow(this->GetDlgItem(IDC_GLOW_ANSI), CCairoBoxBlur::IsGPUUsable());
 		}
 		else
 		{
@@ -1323,11 +1321,9 @@ BOOL CAdvancedSettingsWindowDialog::OnInitDialog()
 	SET_DLG_CHECKBOX(IDC_MONITOR_FILE_CHANGES, m_settings->bMonitorFileChanges);
 
 	SET_DLG_CHECKBOX(IDC_ONDEMAND_RENDERING, m_settings->bOnDemandRendering);
+	SET_DLG_CHECKBOX(IDC_USE_GPU, m_settings->bUseGPU);
 
-	if (CCairoBoxBlur::IsGPUUsable())
-	{
-		SET_DLG_CHECKBOX(IDC_USE_GPU, m_settings->bUseGPU);
-	}
+	::EnableWindow(this->GetDlgItem(IDC_USE_GPU), CNFORenderer::GetGlobalUseGPUFlag());
 
 	ShowWindow(SW_SHOW);
 

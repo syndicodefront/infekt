@@ -91,9 +91,13 @@ BOOL CAboutDialog::OnInitDialog()
 
 	const wchar_t* l_gpuFlag = L"no";
 
-	if (CCairoBoxBlur::IsGPUUsable())
+	if (!CNFORenderer::GetGlobalUseGPUFlag())
 	{
-		l_gpuFlag = CNFORenderer::GetGlobalUseGPUFlag() ? L"yes" : L"disabled";
+		l_gpuFlag = L"disabled";
+	}
+	else if (CCairoBoxBlur::IsGPUUsable())
+	{
+		l_gpuFlag = L"yes";
 	}
 
 	_CREATE_STATIC(l_hLibVersions, FORMAT(L"Using Cairo v%d.%d.%d, GPU: %s",
