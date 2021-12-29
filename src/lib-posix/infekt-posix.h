@@ -31,7 +31,7 @@
 #include "iconv_string.h"
 
 #define TCHAR char
-#define _tstring ::std::string
+#define _tstring string
 #define _T(STR) STR
 #define _tprintf printf
 #define _ftprintf fprintf
