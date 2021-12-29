@@ -36,9 +36,9 @@ CViewContainer::CViewContainer() :
 
 void CViewContainer::OnCreate()
 {
-	m_renderControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd()));
-	m_classicControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd(), true));
-	m_textOnlyControl = PNFOViewControl(new CNFOViewControl(g_hInstance, GetHwnd(), true));
+	m_renderControl = std::make_shared<CNFOViewControl>(g_hInstance, GetHwnd());
+	m_classicControl = std::make_shared<CNFOViewControl>(g_hInstance, GetHwnd(), true);
+	m_textOnlyControl = std::make_shared<CNFOViewControl>(g_hInstance, GetHwnd(), true);
 	m_textOnlyControl->SetCenterNfo(false);
 
 	// this context menu will be used for all three view controls.
@@ -76,7 +76,7 @@ bool CViewContainer::OpenFile(const std::wstring& a_filePath, ENfoCharset a_char
 		m_nfoData.reset();
 	}
 
-	m_nfoData = PNFOData(new CNFOData());
+	m_nfoData = std::make_shared<CNFOData>();
 	m_nfoData->SetCharsetToTry(a_charset);
 	m_nfoData->SetWrapLines(m_wrapLines);
 
@@ -330,7 +330,7 @@ bool CViewContainer::ForwardFocusTypeMouseKeyboardEvent(const MSG* pMsg)
 			::PostMessage(hScrollTarget, WM_CONTEXTMENU, 0, MAKELONG(pt.x, pt.y));
 			return false;
 		}
-					  // scrolling-related:
+					// scrolling-related:
 		case VK_UP: wScrollNotify = SB_LINEUP; break;
 		case VK_PRIOR: wScrollNotify = SB_PAGEUP; break;
 		case VK_NEXT: wScrollNotify = SB_PAGEDOWN; break;

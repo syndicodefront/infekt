@@ -33,25 +33,25 @@ bool CAnsiArt::Parse(const wstring& a_text)
 {
 	m_commands.clear();
 
-	typedef enum {
+	enum class PS {
 		PARSERERROR = -1,
 		ANYTEXT = 1,
 		ESC_CHAR,
 		ESC_BRACKET,
 		ESC_DATA,
 		ESC_COMMAND,
-	} parser_state_e;
+	};
 
-	parser_state_e parser_state = ANYTEXT;
+	PS parser_state = PS::ANYTEXT;
 	wstring data;
 
 	for (wchar_t c : a_text)
 	{
 		if (c == L'\x2190')
 		{
-			if (parser_state != ANYTEXT)
+			if (parser_state != PS::ANYTEXT)
 			{
-				parser_state = PARSERERROR;
+				parser_state = PS::PARSERERROR;
 				break;
 			}
 
@@ -61,13 +61,13 @@ bool CAnsiArt::Parse(const wstring& a_text)
 				data.clear();
 			}
 
-			parser_state = ESC_BRACKET;
+			parser_state = PS::ESC_BRACKET;
 		}
-		else if (c == L'[' && parser_state == ESC_BRACKET)
+		else if (c == L'[' && parser_state == PS::ESC_BRACKET)
 		{
-			parser_state = ESC_DATA;
+			parser_state = PS::ESC_DATA;
 		}
-		else if (parser_state == ESC_DATA)
+		else if (parser_state == PS::ESC_DATA)
 		{
 			if (iswdigit(c) || c == L';' || c == L'?')
 			{
@@ -78,32 +78,32 @@ bool CAnsiArt::Parse(const wstring& a_text)
 				m_commands.emplace_back(ansi_command_t{ c, data });
 				data.clear();
 
-				parser_state = ANYTEXT;
+				parser_state = PS::ANYTEXT;
 			}
 			else if (iswspace(c))
 			{
 				// ignore sequences terminated with space instead of alpha character.
 				data.clear();
-				parser_state = ANYTEXT;
+				parser_state = PS::ANYTEXT;
 			}
 			else
 			{
-				parser_state = PARSERERROR;
+				parser_state = PS::PARSERERROR;
 				break;
 			}
 		}
-		else if (parser_state == ANYTEXT)
+		else if (parser_state == PS::ANYTEXT)
 		{
 			data += c;
 		}
 		else
 		{
-			parser_state = PARSERERROR;
+			parser_state = PS::PARSERERROR;
 			break;
 		}
 	}
 
-	if (parser_state == ANYTEXT)
+	if (parser_state == PS::ANYTEXT)
 	{
 		if (!data.empty())
 		{
@@ -112,10 +112,10 @@ bool CAnsiArt::Parse(const wstring& a_text)
 	}
 	else
 	{
-		parser_state = PARSERERROR;
+		parser_state = PS::PARSERERROR;
 	}
 
-	return (parser_state != PARSERERROR && !m_commands.empty());
+	return (parser_state != PS::PARSERERROR && !m_commands.empty());
 }
 
 
@@ -127,15 +127,15 @@ bool CAnsiArt::Process()
 		return false;
 	}
 
-	m_colorMap = PNFOColorMap(new CNFOColorMap());
+	m_colorMap = std::make_shared<CNFOColorMap>();
 
 	TwoDimVector<wchar_t> screen(
 		(m_hintHeight ? m_hintHeight : 100),
 		m_hintWidth,
 		L' ');
 
-	std::stack<std::pair<size_t, size_t> > saved_positions;
-	size_t x = 0, y = 0;
+	std::stack<std::pair<long, long>> saved_positions;
+	long x = 0, y = 0;
 
 	for (const ansi_command_t& cmd : m_commands)
 	{
@@ -279,14 +279,13 @@ bool CAnsiArt::Process()
 			break;
 		}
 		case L's': { // save cursor pos
-			saved_positions.push(std::pair<size_t, size_t>(x, y));
+			saved_positions.emplace(x, y);
 			break;
 		}
 		case L'u': { // restore cursor pos
 			if (!saved_positions.empty()) {
-				const std::pair<size_t, size_t> pos = saved_positions.top();
-				x = pos.first;
-				y = pos.second;
+				x = saved_positions.top().first;
+				y = saved_positions.top().second;
 				saved_positions.pop();
 			}
 			break;
@@ -368,7 +367,7 @@ bool CAnsiArt::Process()
 				return false;
 			}
 
-			screen.Extend(y + 1, x + 1, L' ');
+			screen.Extend(static_cast<size_t>(y) + 1, static_cast<size_t>(x) + 1, L' ');
 		}
 	}
 

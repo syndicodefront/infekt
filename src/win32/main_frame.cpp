@@ -139,7 +139,7 @@ void CMainFrame::OnCreate()
 	// load settings:
 	LoadOpenMruList();
 
-	m_settings = PMainSettings(new CMainSettings(true));
+	m_settings = std::make_shared<CMainSettings>(true);
 
 	// tame Win32++:
 	m_bUseThemes = FALSE;
@@ -1625,7 +1625,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	}
 	else if (m_nfoPathsInFolder.size() > 0) // load from disk otherwise:
 	{
-		PNFOData l_nfo = PNFOData(new CNFOData());
+		PNFOData l_nfo = std::make_shared<CNFOData>();
 		l_nfo->SetWrapLines(m_settings->bWrapLines);
 
 		if (l_nfo->LoadFromFile(m_nfoPathsInFolder[m_nfoInFolderIndex]))
@@ -1666,7 +1666,7 @@ void CMainFrame::BrowseFolderNfoMove(int a_direction)
 	{
 		m_nfoPreloadData.reset();
 
-		m_nfoPreloadData = PNFOData(new CNFOData());
+		m_nfoPreloadData = std::make_shared<CNFOData>();
 		m_nfoPreloadData->SetWrapLines(m_settings->bWrapLines);
 
 		if (!m_nfoPreloadData->LoadFromFile(m_nfoPathsInFolder[l_preLoadIndex]))

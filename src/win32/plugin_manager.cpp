@@ -111,7 +111,7 @@ bool CPluginManager::LoadPlugin(std::wstring a_dllPath, bool a_probeInfoOnly)
 		return false;
 	}
 
-	PLoadedPlugin l_newPlugin = PLoadedPlugin(new CLoadedPlugin(a_dllPath, l_hModule, &l_info));
+	PLoadedPlugin l_newPlugin = std::make_shared<CLoadedPlugin>(a_dllPath, l_hModule, &l_info);
 
 	m_loadedPlugins[l_info.guid] = l_newPlugin;
 
@@ -326,7 +326,7 @@ PWinHttpClient CLoadedPlugin::GetHttpClient()
 {
 	if (!m_httpClient)
 	{
-		m_httpClient = PWinHttpClient(new CWinHttpClient(GetApp()->GetInstanceHandle()));
+		m_httpClient = std::make_shared<CWinHttpClient>(GetApp()->GetInstanceHandle());
 	}
 
 	return m_httpClient;

@@ -22,6 +22,7 @@
 class CNFOHyperLink
 {
 public:
+	CNFOHyperLink() = delete;
 	CNFOHyperLink(int linkID, const std::wstring& href, size_t row, size_t col, size_t len);
 
 	void SetHref(const std::wstring& a_href) { m_href = a_href; }
@@ -62,9 +63,6 @@ protected:
 
 	static std::vector<CLinkRegEx> ms_linkTriggers;
 	static void PopulateLinkTriggers();
-
-private:
-	CNFOHyperLink() {};
 };
 
 #endif /* !_NFO_HYPERLINK_H */

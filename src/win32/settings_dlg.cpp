@@ -198,7 +198,7 @@ int CALLBACK CSettingsWindowDialog::FontNamesProc(const ENUMLOGFONTEX *lpelfe, c
 
 		if (l_cff)
 		{
-			l_fonts->push_back(PFontListEntry(new CFontListEntry(lpelfe)));
+			l_fonts->emplace_back(std::make_shared<CFontListEntry>(lpelfe));
 
 			cairo_font_face_destroy(l_cff);
 		}

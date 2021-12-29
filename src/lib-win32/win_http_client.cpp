@@ -20,9 +20,9 @@
 #define WINHTTP_MESSAGE_ONLY_WINDOW_CLASSNAME L"CWinHttp_MessageOnlyWindow"
 
 
-/************************************************************************/
-/* CWinHttpClient implementation                                        */
-/************************************************************************/
+ /************************************************************************/
+ /* CWinHttpClient implementation                                        */
+ /************************************************************************/
 
 CWinHttpClient::CWinHttpClient(HINSTANCE a_hInstance)
 	: m_nextReqId(1), m_hInstance(a_hInstance)
@@ -36,14 +36,13 @@ CWinHttpClient::CWinHttpClient(HINSTANCE a_hInstance)
 	m_hwndMessageOnlyWin = ::CreateWindowEx(0, WINHTTP_MESSAGE_ONLY_WINDOW_CLASSNAME,
 		nullptr, 0, 0, 0, 0, 0, HWND_MESSAGE, nullptr, 0, nullptr);
 
-	m_userAgent = L"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2486.0 Safari/537.36 Edge/13.10586";
+	m_userAgent = L"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36 Edg/96.0.1054.62";
 }
 
 
 PWinHttpRequest CWinHttpClient::CreateRequest()
 {
-	PWinHttpRequest l_req = PWinHttpRequest(new CWinHttpRequest(m_nextReqId++, shared_from_this()));
-	return l_req;
+	return PWinHttpRequest{ new CWinHttpRequest(m_nextReqId++, shared_from_this()) };
 }
 
 
@@ -75,9 +74,9 @@ bool CWinHttpClient::StartRequest(PWinHttpRequest& a_req)
 }
 
 
-void CWinHttpClient::RequestThreadMain(void *a_userData)
+void CWinHttpClient::RequestThreadMain(void* a_userData)
 {
-	CWinHttpRequest *l_req = reinterpret_cast<CWinHttpRequest*>(a_userData);
+	CWinHttpRequest* l_req = reinterpret_cast<CWinHttpRequest*>(a_userData);
 
 	_ASSERT(l_req);
 
@@ -94,7 +93,7 @@ LRESULT CALLBACK CWinHttpClient::MessageWindowProc(HWND hWindow, UINT uMsg, WPAR
 {
 	if (uMsg == WM_WINHTTP_REQUEST_CALLBACK)
 	{
-		CWinHttpClient *l_client = reinterpret_cast<CWinHttpClient*>(lParam);
+		CWinHttpClient* l_client = reinterpret_cast<CWinHttpClient*>(lParam);
 		int l_reqId = (int)wParam;
 
 		if (l_client && (l_client->m_requests.find(l_reqId) != l_client->m_requests.end()))
@@ -309,7 +308,7 @@ RunRequest_Cleanup:
 
 void CWinHttpRequest::DownloadToFile(HINTERNET hRequest, size_t a_contentLength)
 {
-	FILE *fFile = nullptr;
+	FILE* fFile = nullptr;
 
 	if (_wfopen_s(&fFile, m_downloadFilePath.c_str(), L"wb") != 0)
 	{

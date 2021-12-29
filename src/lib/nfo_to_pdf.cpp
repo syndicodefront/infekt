@@ -92,11 +92,11 @@ bool CNFOToPDF::SavePDF(const std::_tstring& a_filePath)
 }
 
 
-bool CNFOToPDF::CalcPageDimensions(double& a_width, double& a_height)
+bool CNFOToPDF::CalcPageDimensions(double& ar_width, double& ar_height)
 {
 	if (m_dinSizes)
 	{
-		double l_mms[8][2] = {
+		constexpr double l_mms[8][2] = {
 			{ 148, 210 },
 			{ 210, 297 },
 			{ 297, 420 },
@@ -107,7 +107,7 @@ bool CNFOToPDF::CalcPageDimensions(double& a_width, double& a_height)
 			{ 1682, 2378 },
 		};
 
-		double l_pw = static_cast<double>(GetWidth()),
+		const double l_pw = static_cast<double>(GetWidth()),
 			l_ph = static_cast<double>(GetHeight());
 
 		for (int i = 0; i < 8; i++)
@@ -117,8 +117,8 @@ bool CNFOToPDF::CalcPageDimensions(double& a_width, double& a_height)
 
 			if (l_w >= l_pw && l_h >= l_ph)
 			{
-				a_width = l_w;
-				a_height = l_h;
+				ar_width = l_w;
+				ar_height = l_h;
 
 				return true;
 			}
@@ -129,8 +129,8 @@ bool CNFOToPDF::CalcPageDimensions(double& a_width, double& a_height)
 	else
 	{
 		// 50 = some extra padding
-		a_width = static_cast<double>(GetWidth() + 50);
-		a_height = static_cast<double>(GetHeight() + 50);
+		ar_width = static_cast<double>(GetWidth() + 50);
+		ar_height = static_cast<double>(GetHeight() + 50);
 
 		return true;
 	}

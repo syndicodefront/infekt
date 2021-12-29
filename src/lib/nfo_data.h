@@ -123,12 +123,12 @@ protected:
 	static const int LINES_LIMIT = 10000;
 	static const int WIDTH_LIMIT = 2000;
 
-	typedef enum _approach_t
+	enum class EApproach
 	{
 		EA_FALSE = 0,
 		EA_TRY,
 		EA_FORCE
-	} EApproach;
+	};
 
 	bool LoadFromMemoryInternal(const unsigned char* a_data, size_t a_dataLen);
 	bool ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen);

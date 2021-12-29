@@ -31,7 +31,7 @@ CNFOData::CNFOData() :
 
 bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 {
-	FILE *l_file = nullptr;
+	FILE* l_file = nullptr;
 	size_t l_fileBytes;
 
 #ifdef _WIN32
@@ -61,7 +61,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 		return false;
 	}
 #else
-	struct stat l_fst{};
+	struct stat l_fst {};
 	if (stat(a_filePath.c_str(), &l_fst) == 0 && S_ISREG(l_fst.st_mode))
 	{
 		l_fileBytes = l_fst.st_size;
@@ -86,7 +86,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 	CAutoFreeBuffer<unsigned char> l_buf(l_fileBytes + 1);
 
 	// copy file contents into memory buffer:
-	unsigned char *l_ptr = l_buf.get();
+	unsigned char* l_ptr = l_buf.get();
 	size_t l_totalBytesRead = 0;
 	bool l_error = false;
 
@@ -133,7 +133,7 @@ bool CNFOData::LoadFromFile(const _tstring& a_filePath)
 
 		m_loaded = false;
 	}
-	
+
 	fclose(l_file);
 
 	if (!m_loaded)
@@ -487,39 +487,39 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 	case NFOC_AUTO:
 		l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
-		if (!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_TRY);
+		if (!l_loaded) l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EApproach::EA_TRY);
 		if (!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
 		if (HasFileExtension(_T(".nfo")) || HasFileExtension(_T(".diz")))
 		{
 			// other files are likely ANSI art, so only try non-BOM-UTF-8 for .nfo and .diz
-			if (!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_TRY);
+			if (!l_loaded) l_loaded = TryLoad_UTF8(a_data, l_dataLen, EApproach::EA_TRY);
 		}
-		if (!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_TRY);
+		if (!l_loaded) l_loaded = TryLoad_CP437(a_data, l_dataLen, EApproach::EA_TRY);
 		break;
 	case NFOC_UTF16:
-		l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FALSE);
+		l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EApproach::EA_FALSE);
 		if (!l_loaded) l_loaded = TryLoad_UTF16BE(a_data, l_dataLen);
 		break;
 	case NFOC_UTF8_SIG:
 		l_loaded = TryLoad_UTF8Signature(a_data, l_dataLen);
 		break;
 	case NFOC_UTF8:
-		l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FALSE);
+		l_loaded = TryLoad_UTF8(a_data, l_dataLen, EApproach::EA_FALSE);
 		break;
 	case NFOC_CP437:
-		l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FALSE);
+		l_loaded = TryLoad_CP437(a_data, l_dataLen, EApproach::EA_FALSE);
 		break;
 	case NFOC_WINDOWS_1252:
 		l_loaded = TryLoad_CP252(a_data, l_dataLen);
 		break;
 	case NFOC_CP437_IN_UTF8:
-		l_loaded = TryLoad_UTF8(a_data, l_dataLen, EA_FORCE);
+		l_loaded = TryLoad_UTF8(a_data, l_dataLen, EApproach::EA_FORCE);
 		break;
 	case NFOC_CP437_IN_UTF16:
-		l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EA_FORCE);
+		l_loaded = TryLoad_UTF16LE(a_data, l_dataLen, EApproach::EA_FORCE);
 		break;
 	case NFOC_CP437_IN_CP437:
-		l_loaded = TryLoad_CP437(a_data, l_dataLen, EA_FORCE);
+		l_loaded = TryLoad_CP437(a_data, l_dataLen, EApproach::EA_FORCE);
 		break;
 	case NFOC_CP437_STRICT:
 		l_loaded = TryLoad_CP437_Strict(a_data, l_dataLen);
@@ -666,11 +666,11 @@ bool CNFOData::PostProcessLoadedContent()
 		const char* const p_start = l_utf8Line.c_str();
 		const char* p = p_start;
 		size_t char_index = 0;
-		while (*p)
+		while (p != nullptr && *p)
 		{
 			wchar_t w_at = (*m_grid)[i][char_index++];
-			const char *p_char = p;
-			const char *p_next = utf8_find_next_char(p);
+			const char* p_char = p;
+			const char* p_next = utf8_find_next_char(p);
 
 			if (m_utf8Map.find(w_at) == m_utf8Map.end())
 			{
@@ -741,7 +741,7 @@ bool CNFOData::TryLoad_UTF8Signature(const unsigned char* a_data, size_t a_dataL
 	a_data += 3;
 	a_dataLen -= 3;
 
-	if (TryLoad_UTF8(a_data, a_dataLen, EA_TRY))
+	if (TryLoad_UTF8(a_data, a_dataLen, EApproach::EA_TRY))
 	{
 		if (m_sourceCharset == NFOC_UTF8)
 		{
@@ -764,20 +764,20 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 		// the following is a typical collection of characters that indicate
 		// a CP437 representation that has been (very badly) UTF-8 encoded
 		// using an "ISO-8559-1 to UTF-8" or similar routine.
-		if (a_fix == EA_FORCE || (a_fix == EA_TRY && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
+		if (a_fix == EApproach::EA_FORCE || (a_fix == EApproach::EA_TRY && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
 			/* one "Eszett" or LATIN CAPITAL LETTER I WITH ACUTE (horizontal double line in 437) */ &&
 			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos)
 			/* two consecutive 'LATIN CAPITAL LETTER U WITH DIAERESIS' or 'LATIN CAPITAL LETTER U WITH CIRCUMFLEX' */ &&
 			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos)
 			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */)
 			/* following is more detection stuff for double-encoded CP437 NFOs that were converted to UTF-8 */
-			|| (a_fix == EA_TRY && (l_utf.find("\xC2\x9A\xC2\x9A") != std::string::npos && l_utf.find("\xC3\xA1\xC3\xA1") != std::string::npos))
+			|| (a_fix == EApproach::EA_TRY && (l_utf.find("\xC2\x9A\xC2\x9A") != std::string::npos && l_utf.find("\xC3\xA1\xC3\xA1") != std::string::npos))
 			)
 		{
 			std::vector<char> l_cp437(a_dataLen + 1);
 			size_t l_newLength = utf8_to_latin9(l_cp437.data(), (const char*)a_data, a_dataLen);
 
-			if (l_newLength > 0 && TryLoad_CP437((unsigned char*)l_cp437.data(), l_newLength, EA_TRY))
+			if (l_newLength > 0 && TryLoad_CP437((unsigned char*)l_cp437.data(), l_newLength, EApproach::EA_TRY))
 			{
 				m_sourceCharset = (m_sourceCharset == NFOC_CP437_IN_CP437 ? NFOC_CP437_IN_CP437_IN_UTF8 : NFOC_CP437_IN_UTF8);
 
@@ -828,9 +828,9 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 				l_containsCRLF = true;
 			}
 		}
-		else if (a_fix == EA_TRY && i > 0
+		else if (a_fix == EApproach::EA_TRY && i > 0
 			&& a_data[0] != 0x1B // assume that ANSI art files start with ESC and that they never are double-encoded...
-		)
+			)
 		{
 			// look for bad full blocks and shadowed full blocks or black half blocks:
 
@@ -840,11 +840,11 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 				(a_data[i] == 0xE1 && a_data[i - 1] == 0xE1)
 				)
 			{
-				a_fix = EA_FORCE;
+				a_fix = EApproach::EA_FORCE;
 			}
 		}
 
-		if (l_containsCRLF && a_fix != EA_TRY)
+		if (l_containsCRLF && a_fix != EApproach::EA_TRY)
 		{
 			break;
 		}
@@ -855,7 +855,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	while (a_dataLen > 0 && a_data[a_dataLen - 1] == 0) a_dataLen--;
 
 	// kill UTF-8 signature, if we got here, the NFO was not valid UTF-8:
-	if (a_dataLen >= 3 && a_fix == EA_TRY && a_data[0] == 0xEF && a_data[1] == 0xBB && a_data[2] == 0xBF)
+	if (a_dataLen >= 3 && a_fix == EApproach::EA_TRY && a_data[0] == 0xEF && a_data[1] == 0xBB && a_data[2] == 0xBF)
 	{
 		a_data += 3;
 		a_dataLen -= 3;
@@ -872,7 +872,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 		if (p >= CP437_MAP_LOW)
 		{
-			if (a_fix != EA_FORCE)
+			if (a_fix != EApproach::EA_FORCE)
 			{
 				m_textContent[i] = map_cp437_to_unicode_high_bit[p - CP437_MAP_LOW];
 			}
@@ -919,7 +919,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 
 			m_textContent[i] = (wchar_t)p;
 
-			if (a_fix == EA_FORCE && (p == 0x55 || p == 0x59 || p == 0x5F))
+			if (a_fix == EApproach::EA_FORCE && (p == 0x55 || p == 0x59 || p == 0x5F))
 			{
 				// untransliterated CAPITAL U WITH CIRCUMFLEX
 				// => regular U (0x55) -- was full block (0x2588)
@@ -948,7 +948,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	if (l_foundBinary && !l_ansi
 		&& std::regex_match(m_textContent, std::wregex(L"\\s+[A-Z][a-z]+\\s+"))
 		// :TODO: improve detection/discrimination of binary files (images, PDFs, PE files...) and NFO files
-	)
+		)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
@@ -956,7 +956,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	}
 	else
 	{
-		m_sourceCharset = (a_fix == EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
+		m_sourceCharset = (a_fix == EApproach::EA_FORCE ? NFOC_CP437_IN_CP437 : NFOC_CP437);
 
 		m_isAnsi = l_ansi;
 
@@ -1069,7 +1069,7 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 
 	if (m_textContent.find_first_of(L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::wstring::npos
 		&& std::string((char*)a_data, a_dataLen).find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") != std::string::npos
-	) {
+		) {
 		// probably an invalid BOM...
 		// (ex: Jimmy.Kimmel.2014.01.27.Chris.O.Donnell.720p.HDTV.x264-CROOKS)
 
@@ -1083,13 +1083,13 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	}
 
 	// see comments in TryLoad_UTF8...
-	if (a_fix == EA_FORCE || (a_fix == EA_TRY && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
+	if (a_fix == EApproach::EA_FORCE || (a_fix == EApproach::EA_TRY && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
 		(m_textContent.find(L"\u00DC\u00DC") != wstring::npos || m_textContent.find(L"\u00DB\u00DB") != wstring::npos) &&
 		(m_textContent.find(L"\u00B1") != wstring::npos || m_textContent.find(L"\u00B2") != wstring::npos)))
 	{
 		const string l_cp437 = CUtil::FromWideStr(m_textContent, CP_ACP);
 
-		if (!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EA_FALSE))
+		if (!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EApproach::EA_FALSE))
 		{
 			m_sourceCharset = NFOC_CP437_IN_UTF16;
 
@@ -1145,14 +1145,14 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 
 	if (m_textContent.find_first_of(L"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == std::wstring::npos
 		&& std::string((char*)a_data, a_dataLen).find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") != std::string::npos
-	) {
+		) {
 		// probably an invalid BOM...
 
 		return false;
 	}
 
 	m_textContent.assign(l_newBuf.get(), l_numWChars);
-	
+
 	m_sourceCharset = NFOC_UTF16;
 
 	return true;
@@ -1281,7 +1281,7 @@ const std::_tstring CNFOData::GetFileName() const
 	const wchar_t* l_name = ::PathFindFileName(m_filePath.c_str());
 	return l_name;
 #else
-	char *l_tmp = strdup(m_filePath.c_str());
+	char* l_tmp = strdup(m_filePath.c_str());
 	std::string l_result = basename(l_tmp);
 	free(l_tmp);
 	return l_result;
@@ -1289,9 +1289,9 @@ const std::_tstring CNFOData::GetFileName() const
 }
 
 
-FILE *CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath)
+FILE* CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath)
 {
-	FILE *l_file = nullptr;
+	FILE* l_file = nullptr;
 
 #ifdef _WIN32
 	if (_tfopen_s(&l_file, a_filePath.c_str(), _T("wb")) != 0 || !l_file)
@@ -1315,7 +1315,7 @@ FILE *CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePa
 
 bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, bool a_compoundWhitespace)
 {
-	FILE *l_file = OpenFileForWritingWithErrorMessage(a_filePath);
+	FILE* l_file = OpenFileForWritingWithErrorMessage(a_filePath);
 
 	if (!l_file)
 	{
@@ -1718,7 +1718,7 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 
 bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
 {
-	FILE *fp = OpenFileForWritingWithErrorMessage(a_filePath);
+	FILE* fp = OpenFileForWritingWithErrorMessage(a_filePath);
 
 	if (!fp)
 	{

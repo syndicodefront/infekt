@@ -125,9 +125,9 @@ BoxBlurVertical(unsigned char* aInput,
 	}
 }
 
-static void ComputeLobes(PRInt32 aRadius, PRInt32 aLobes[3][2])
+static void ComputeLobes(const PRInt32 aRadius, PRInt32 aLobes[3][2])
 {
-	PRInt32 major, minor, final;
+	PRInt32 major = 0, minor = 0, final = 0;
 
 	/* See http://www.w3.org/TR/SVG/filters.html#feGaussianBlur for
 	 * some notes about approximating the Gaussian blur with box-blurs.
