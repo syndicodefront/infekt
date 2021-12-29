@@ -411,86 +411,145 @@ static void _InternalLoad_FixAnsiEscapeCodes(std::wstring& a_text)
 static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
 	constexpr size_t MAX_LEN_SOFT = 100;
+	constexpr size_t MAX_LEN_HARD = 2 * 80;
+	constexpr size_t EQUAL_CONSECUTIVE_CHARACTERS_MAX = 3;
 
-	// Please note that this routine is not behaving consistently
-	// when it comes to taking into account leading whitespace or not.
-	// The results are good however.
-
-	CNFOData::TLineContainer l_newLines;
-	size_t lines_processed = 0;
-	size_t longest_line_length = 0;
-
-	for (const std::wstring& line : a_lines)
+	constexpr auto is_line_wrapping_candidate = [](const std::wstring& line)
 	{
-		if (line.size() <= MAX_LEN_SOFT
-			// don't touch lines with blockchars:
-			|| line.find_first_of(L"\x2580\x2584\x2588\x258C\x2590\x2591\x2592\x2593") != std::wstring::npos)
+		if (line.size() <= MAX_LEN_SOFT)
 		{
-			l_newLines.push_back(line);
-			continue;
+			return false;
 		}
 
-		++lines_processed;
-		longest_line_length = std::max(longest_line_length, line.size());
-
-		std::wstring::size_type l_spaces = line.find_first_not_of(L' ');
-
-		if (l_spaces == std::wstring::npos)
+		// don't touch lines with blockchars:
+		if (line.find_first_of(L"\x2580\x2584\x2588\x258C\x2590\x2591\x2592\x2593") != std::wstring::npos)
 		{
-			l_spaces = 0;
+			return false;
 		}
 
-		std::wstring l_line(line);
-		bool l_firstRun = true;
+		return true;
+	};
 
-		while (l_line.size() > 0)
+	// quick exit for nice & compliant NFOs
+	if (std::find_if(a_lines.begin(), a_lines.end(), is_line_wrapping_candidate) == a_lines.end())
+	{
+		return;
+	}
+
+	constexpr auto count_leading_spaces = [](const std::wstring& line)
+	{
+		auto leading_spaces = line.find_first_not_of(L' ');
+
+		if (leading_spaces == std::wstring::npos)
 		{
-			std::wstring::size_type l_cut = l_line.rfind(' ', MAX_LEN_SOFT);
+			leading_spaces = 0;
+		}
 
-			if (l_cut == std::wstring::npos || l_cut < l_spaces || l_cut == 0 || l_line.size() < MAX_LEN_SOFT)
+		return leading_spaces;
+	};
+
+	constexpr auto wrap_line = [](std::wstring line, size_t num_leading_spaces, auto push_backer)
+	{
+		bool first_run = true;
+
+		while (line.size() > 0)
+		{
+			std::wstring::size_type cut_position = line.rfind(' ', MAX_LEN_SOFT);
+
+			if (cut_position == std::wstring::npos
+				|| cut_position < num_leading_spaces
+				|| cut_position == 0
+				|| line.size() < MAX_LEN_SOFT)
 			{
-				l_cut = MAX_LEN_SOFT;
+				cut_position = MAX_LEN_SOFT;
 			}
 
-			std::wstring l_new = l_line.substr(0, l_cut);
+			std::wstring new_line = line.substr(0, cut_position);
 
-			if (!l_firstRun)
+			if (!first_run)
 			{
-				CUtil::StrTrimLeft(l_new);
+				CUtil::StrTrimLeft(new_line);
 
-				l_new.insert(0,
-					l_spaces // whitespace level of line being split
+				new_line.insert(0,
+					num_leading_spaces // whitespace level of line being split
 					+ 2 // some indentation to denote what happened
 					, ' ');
 			}
 
-			l_newLines.push_back(std::move(l_new));
+			push_backer(std::move(new_line));
 
-			if (l_cut != MAX_LEN_SOFT)
+			if (cut_position != MAX_LEN_SOFT)
 			{
-				l_line.erase(0, l_cut + 1);
+				// also erase space character
+				line.erase(0, cut_position + 1);
 			}
 			else
 			{
-				l_line.erase(0, l_cut);
+				// there was no space character
+				line.erase(0, cut_position);
 			}
 
-			l_firstRun = false;
+			first_run = false;
 		}
-	}
+	};
 
-	if (lines_processed == 0)
+	CNFOData::TLineContainer new_lines;
+
+	for (const std::wstring& line : a_lines)
 	{
-		return;
+		if (!is_line_wrapping_candidate(line))
+		{
+			new_lines.emplace_back(line);
+
+			continue;
+		}
+
+		const auto num_leading_spaces = count_leading_spaces(line);
+
+		if (line.size() > MAX_LEN_HARD)
+		{
+			goto force_wrap;
+		}
+
+		// If a line contains repeating characters (except for the initial spaces),
+		// it's most likely art, not text.
+		{
+			wchar_t current_char = 0;
+			size_t equal_consecutive_count = 0;
+
+			for (auto it = std::next(line.begin(), num_leading_spaces), _end = line.end(); it != _end; ++it)
+			{
+				[[unlikely]] if (*it == current_char)
+				{
+					++equal_consecutive_count;
+
+					if (equal_consecutive_count > EQUAL_CONSECUTIVE_CHARACTERS_MAX)
+					{
+						break;
+					}
+				}
+				else
+				{
+					current_char = *it;
+					equal_consecutive_count = 1;
+				}
+			}
+
+			if (equal_consecutive_count > EQUAL_CONSECUTIVE_CHARACTERS_MAX)
+			{
+				new_lines.emplace_back(line);
+
+				continue;
+			}
+		}
+
+	force_wrap:
+
+		wrap_line(line, num_leading_spaces, [&](auto&& new_line) {new_lines.emplace_back(new_line); });
 	}
 
-	if (lines_processed >= a_lines.size() * 0.5) // https://github.com/syndicodefront/infekt/issues/91 - preserve some NFOs
-	{
-		return;
-	}
-
-	a_lines = l_newLines;
-	a_newMaxLineLen = std::accumulate(l_newLines.begin(), l_newLines.end(), size_t(0),
+	a_lines = new_lines;
+	a_newMaxLineLen = std::accumulate(new_lines.begin(), new_lines.end(), size_t(0),
 		[](size_t carry, auto& line) {
 			return std::max(line.size(), carry);
 		});
