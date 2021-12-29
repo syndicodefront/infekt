@@ -334,6 +334,7 @@ void CMainFrame::CreateSearchToolbar()
 	const int IML = 0;
 	const int EDITCTRL_WIDTH = 100;
 	const int EDITCTRL_HEIGHT = 21;
+	auto LABEL_FIND = L" Find: ";
 
 	HIMAGELIST l_imgLst = ImageList_Create(16, 16, ILC_COLOR32, 1, 0);
 	// we also use this image list for the toolbar, so CToolbar::OnDestroy destroys it.
@@ -383,7 +384,7 @@ void CMainFrame::CreateSearchToolbar()
 	l_rbbi.fMask = RBBIM_ID | RBBIM_STYLE | RBBIM_TEXT | RBBIM_IMAGE | RBBIM_HEADERSIZE | RBBIM_CHILD | RBBIM_SIZE | RBBIM_CHILDSIZE;
 	l_rbbi.wID = IDW_SEARCHTOOLBAR;
 	l_rbbi.fStyle = RBBS_BREAK | RBBS_NOGRIPPER | RBBS_NOVERT;
-	l_rbbi.lpText = L" Find: ";
+	l_rbbi.lpText = const_cast<wchar_t*>(LABEL_FIND);
 	l_rbbi.iImage = 0;
 	l_rbbi.cxHeader = 55;
 	l_rbbi.hwndChild = m_searchToolbar->GetHwnd();

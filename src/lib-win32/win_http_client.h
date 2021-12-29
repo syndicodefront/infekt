@@ -69,7 +69,7 @@ public:
 
 protected:
 	// to be used from within CWinHttpClient only:
-	CWinHttpRequest(int a_reqId, std::shared_ptr<CWinHttpClient>& a_owner);
+	CWinHttpRequest(int a_reqId, std::shared_ptr<CWinHttpClient> a_owner);
 	void _RunRequest();
 
 private:

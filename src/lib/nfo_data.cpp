@@ -17,19 +17,30 @@
 #include "util.h"
 #include "sauce.h"
 #include "ansi_art.h"
+#include <numeric>
 
-using namespace std;
-
-
-CNFOData::CNFOData() :
-	m_loaded(false), m_sourceCharset(NFOC_AUTO),
-	m_lineWrap(false), m_isAnsi(false),
-	m_ansiHintWidth(0), m_ansiHintHeight(0)
+CNFOData::CNFOData()
+	: m_lastErrorCode(NDE_NO_ERROR)
+	, m_lastErrorDescr()
+	, m_textContent()
+	, m_utf8Content()
+	, m_grid()
+	, m_utf8Map()
+	, m_loaded(false)
+	, m_hyperLinks()
+	, m_filePath()
+	, m_vFileName()
+	, m_sourceCharset(NFOC_AUTO)
+	, m_lineWrap(false)
+	, m_isAnsi(false)
+	, m_ansiHintWidth(0)
+	, m_ansiHintHeight(0)
+	, m_colorMap()
 {
 }
 
 
-bool CNFOData::LoadFromFile(const _tstring& a_filePath)
+bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 {
 	FILE* l_file = nullptr;
 	size_t l_fileBytes;
@@ -183,10 +194,10 @@ void CNFOData::SetVirtualFileName(const std::_tstring& a_filePath, const std::_t
 }
 
 
-static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
+static void _InternalLoad_NormalizeWhitespace(std::wstring& a_text)
 {
-	wstring l_text;
-	wstring::size_type l_prevPos = 0, l_pos;
+	std::wstring l_text;
+	std::wstring::size_type l_prevPos = 0, l_pos;
 
 	CUtil::StrTrimRight(a_text);
 
@@ -194,7 +205,7 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 
 	l_pos = a_text.find_first_of(L"\r\t\xA0");
 
-	while (l_pos != wstring::npos)
+	while (l_pos != std::wstring::npos)
 	{
 		l_text.append(a_text, l_prevPos, l_pos - l_prevPos);
 
@@ -218,7 +229,7 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 		a_text.swap(l_text);
 	}
 
-	_ASSERT(a_text.find_first_of(L"\r\t\xA0") == wstring::npos);
+	_ASSERT(a_text.find_first_of(L"\r\t\xA0") == std::wstring::npos);
 
 	// we should only have \ns and no tabs now.
 
@@ -226,16 +237,16 @@ static void _InternalLoad_NormalizeWhitespace(wstring& a_text)
 }
 
 
-static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLineLen, CNFOData::TLineContainer& a_lines)
+static void _InternalLoad_SplitIntoLines(const std::wstring& a_text, size_t& a_maxLineLen, CNFOData::TLineContainer& a_lines)
 {
 	size_t l_prevPos = 0, l_pos = a_text.find(L'\n');
 
 	a_maxLineLen = 1;
 
 	// read lines:
-	while (l_pos != wstring::npos)
+	while (l_pos != std::wstring::npos)
 	{
-		wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
+		std::wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
 
 		// trim trailing whitespace:
 		CUtil::StrTrimRight(l_line);
@@ -253,7 +264,7 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 
 	if (l_prevPos < a_text.size() - 1)
 	{
-		wstring l_line = a_text.substr(l_prevPos);
+		std::wstring l_line = a_text.substr(l_prevPos);
 		CUtil::StrTrimRight(l_line);
 		if (l_line.size() > a_maxLineLen) a_maxLineLen = l_line.size();
 		a_lines.push_back(std::move(l_line));
@@ -261,7 +272,7 @@ static void _InternalLoad_SplitIntoLines(const wstring& a_text, size_t& a_maxLin
 }
 
 
-static void _InternalLoad_FixLfLf(wstring& a_text, CNFOData::TLineContainer& a_lines)
+static void _InternalLoad_FixLfLf(std::wstring& a_text, CNFOData::TLineContainer& a_lines)
 {
 	// fix NFOs like Crime.is.King.German.SUB5.5.DVDRiP.DivX-GWL
 	// they use \n\n instead of \r\n
@@ -289,7 +300,7 @@ static void _InternalLoad_FixLfLf(wstring& a_text, CNFOData::TLineContainer& a_l
 
 	if (l_kill >= 0)
 	{
-		wstring l_newContent; l_newContent.reserve(a_text.size());
+		std::wstring l_newContent; l_newContent.reserve(a_text.size());
 		CNFOData::TLineContainer l_newLines;
 		i = 0;
 		for (auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
@@ -307,15 +318,15 @@ static void _InternalLoad_FixLfLf(wstring& a_text, CNFOData::TLineContainer& a_l
 }
 
 
-static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
+static void _InternalLoad_FixAnsiEscapeCodes(std::wstring& a_text)
 {
 	// http://en.wikipedia.org/wiki/ANSI_escape_code
 	// ~(?:\x1B\[|\x9B)((?:\d+;)*\d+|)([\@-\~])~
 
-	wstring::size_type l_pos = a_text.find_first_of(L"\xA2\x2190"), l_prevPos = 0;
-	wstring l_newText;
+	std::wstring::size_type l_pos = a_text.find_first_of(L"\xA2\x2190"), l_prevPos = 0;
+	std::wstring l_newText;
 
-	while (l_pos != wstring::npos)
+	while (l_pos != std::wstring::npos)
 	{
 		bool l_go = false;
 
@@ -331,8 +342,8 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 
 		if (l_go)
 		{
-			wstring::size_type p = l_pos + 1;
-			wstring l_numBuf;
+			std::wstring::size_type p = l_pos + 1;
+			std::wstring l_numBuf;
 			wchar_t l_finalChar = 0;
 
 			while (p < a_text.size() && ((a_text[p] >= L'0' && a_text[p] <= L'9') || a_text[p] == L';'))
@@ -399,7 +410,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(wstring& a_text)
 
 static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
-	const int l_maxLen = 100;
+	constexpr size_t MAX_LEN_SOFT = 100;
 
 	// Please note that this routine is not behaving consistently
 	// when it comes to taking into account leading whitespace or not.
@@ -407,33 +418,42 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 
 	CNFOData::TLineContainer l_newLines;
 	size_t lines_processed = 0;
+	size_t longest_line_length = 0;
 
 	for (const std::wstring& line : a_lines)
 	{
-		if (line.size() <= l_maxLen
+		if (line.size() <= MAX_LEN_SOFT
 			// don't touch lines with blockchars:
-			|| line.find_first_of(L"\x2580\x2584\x2588\x258C\x2590\x2591\x2592\x2593") != wstring::npos)
+			|| line.find_first_of(L"\x2580\x2584\x2588\x258C\x2590\x2591\x2592\x2593") != std::wstring::npos)
 		{
 			l_newLines.push_back(line);
 			continue;
 		}
 
 		++lines_processed;
+		longest_line_length = std::max(longest_line_length, line.size());
 
-		wstring::size_type l_spaces = line.find_first_not_of(L' ');
-		if (l_spaces == wstring::npos)
+		std::wstring::size_type l_spaces = line.find_first_not_of(L' ');
+
+		if (l_spaces == std::wstring::npos)
+		{
 			l_spaces = 0;
+		}
 
-		wstring l_line(line);
+		std::wstring l_line(line);
 		bool l_firstRun = true;
 
 		while (l_line.size() > 0)
 		{
-			wstring::size_type l_cut = l_line.rfind(' ', l_maxLen);
-			if (l_cut == wstring::npos || l_cut < l_spaces || l_cut == 0 || l_line.size() < l_maxLen)
-				l_cut = l_maxLen;
+			std::wstring::size_type l_cut = l_line.rfind(' ', MAX_LEN_SOFT);
 
-			wstring l_new = l_line.substr(0, l_cut);
+			if (l_cut == std::wstring::npos || l_cut < l_spaces || l_cut == 0 || l_line.size() < MAX_LEN_SOFT)
+			{
+				l_cut = MAX_LEN_SOFT;
+			}
+
+			std::wstring l_new = l_line.substr(0, l_cut);
+
 			if (!l_firstRun)
 			{
 				CUtil::StrTrimLeft(l_new);
@@ -443,29 +463,37 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 					+ 2 // some indentation to denote what happened
 					, ' ');
 			}
-			l_newLines.push_back(l_new);
 
-			if (l_cut != l_maxLen)
+			l_newLines.push_back(std::move(l_new));
+
+			if (l_cut != MAX_LEN_SOFT)
+			{
 				l_line.erase(0, l_cut + 1);
+			}
 			else
+			{
 				l_line.erase(0, l_cut);
+			}
 
 			l_firstRun = false;
 		}
 	}
 
-	if (lines_processed > 0 &&
-		lines_processed < a_lines.size() * 0.5) // https://github.com/syndicodefront/infekt/issues/91 - preserve some NFOs
+	if (lines_processed == 0)
 	{
-		a_newMaxLineLen = 0;
-
-		for (const std::wstring& line : l_newLines)
-		{
-			a_newMaxLineLen = std::max(line.size(), a_newMaxLineLen);
-		}
-
-		a_lines = l_newLines;
+		return;
 	}
+
+	if (lines_processed >= a_lines.size() * 0.5) // https://github.com/syndicodefront/infekt/issues/91 - preserve some NFOs
+	{
+		return;
+	}
+
+	a_lines = l_newLines;
+	a_newMaxLineLen = std::accumulate(l_newLines.begin(), l_newLines.end(), size_t(0),
+		[](size_t carry, auto& line) {
+			return std::max(line.size(), carry);
+		});
 }
 
 
@@ -645,7 +673,7 @@ bool CNFOData::PostProcessLoadedContent()
 	m_grid = std::make_unique<TwoDimVector<wchar_t>>(l_lines.size(), l_maxLineLen, 0);
 
 	// vars for hyperlink detection:
-	wstring l_prevLinkUrl;
+	std::wstring l_prevLinkUrl;
 	int l_maxLinkId = 1;
 	std::multimap<size_t, CNFOHyperLink>::iterator l_prevLinkIt = m_hyperLinks.end();
 
@@ -661,7 +689,7 @@ bool CNFOData::PostProcessLoadedContent()
 			(*m_grid)[i][j] = (*it)[j];
 		}
 
-		const string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
+		const std::string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
 
 		const char* const p_start = l_utf8Line.c_str();
 		const char* p = p_start;
@@ -685,7 +713,7 @@ bool CNFOData::PostProcessLoadedContent()
 		{
 			size_t l_linkPos = (size_t)-1, l_linkLen;
 			bool l_linkContinued;
-			wstring l_url, l_prevUrlCopy = l_prevLinkUrl;
+			std::wstring l_url, l_prevUrlCopy = l_prevLinkUrl;
 			size_t l_offset = 0;
 
 			while (CNFOHyperLink::FindLink(*it, l_offset, l_linkPos, l_linkLen, l_url, l_prevUrlCopy, l_linkContinued))
@@ -759,16 +787,16 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 {
 	if (utf8_validate((const char*)a_data, a_dataLen, nullptr))
 	{
-		const string l_utf((const char*)a_data, a_dataLen);
+		const std::string l_utf((const char*)a_data, a_dataLen);
 
 		// the following is a typical collection of characters that indicate
 		// a CP437 representation that has been (very badly) UTF-8 encoded
 		// using an "ISO-8559-1 to UTF-8" or similar routine.
-		if (a_fix == EApproach::EA_FORCE || (a_fix == EApproach::EA_TRY && (l_utf.find("\xC3\x9F") != string::npos || l_utf.find("\xC3\x8D") != string::npos)
+		if (a_fix == EApproach::EA_FORCE || (a_fix == EApproach::EA_TRY && (l_utf.find("\xC3\x9F") != std::string::npos || l_utf.find("\xC3\x8D") != std::string::npos)
 			/* one "Eszett" or LATIN CAPITAL LETTER I WITH ACUTE (horizontal double line in 437) */ &&
-			(l_utf.find("\xC3\x9C\xC3\x9C") != string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != string::npos)
+			(l_utf.find("\xC3\x9C\xC3\x9C") != std::string::npos || l_utf.find("\xC3\x9B\xC3\x9B") != std::string::npos)
 			/* two consecutive 'LATIN CAPITAL LETTER U WITH DIAERESIS' or 'LATIN CAPITAL LETTER U WITH CIRCUMFLEX' */ &&
-			(l_utf.find("\xC2\xB1") != string::npos || l_utf.find("\xC2\xB2") != string::npos)
+			(l_utf.find("\xC2\xB1") != std::string::npos || l_utf.find("\xC2\xB2") != std::string::npos)
 			/* 'PLUS-MINUS SIGN' or 'SUPERSCRIPT TWO' */)
 			/* following is more detection stuff for double-encoded CP437 NFOs that were converted to UTF-8 */
 			|| (a_fix == EApproach::EA_TRY && (l_utf.find("\xC2\x9A\xC2\x9A") != std::string::npos && l_utf.find("\xC3\xA1\xC3\xA1") != std::string::npos))
@@ -1075,7 +1103,7 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 
 		return false;
 	}
-	else if (m_textContent.find(L'\0') != wstring::npos)
+	else if (m_textContent.find(L'\0') != std::wstring::npos)
 	{
 		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
 
@@ -1083,11 +1111,11 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	}
 
 	// see comments in TryLoad_UTF8...
-	if (a_fix == EApproach::EA_FORCE || (a_fix == EApproach::EA_TRY && (m_textContent.find(L'\u00DF') != wstring::npos || m_textContent.find(L'\u00CD') != wstring::npos) &&
-		(m_textContent.find(L"\u00DC\u00DC") != wstring::npos || m_textContent.find(L"\u00DB\u00DB") != wstring::npos) &&
-		(m_textContent.find(L"\u00B1") != wstring::npos || m_textContent.find(L"\u00B2") != wstring::npos)))
+	if (a_fix == EApproach::EA_FORCE || (a_fix == EApproach::EA_TRY && (m_textContent.find(L'\u00DF') != std::wstring::npos || m_textContent.find(L'\u00CD') != std::wstring::npos) &&
+		(m_textContent.find(L"\u00DC\u00DC") != std::wstring::npos || m_textContent.find(L"\u00DB\u00DB") != std::wstring::npos) &&
+		(m_textContent.find(L"\u00B1") != std::wstring::npos || m_textContent.find(L"\u00B2") != std::wstring::npos)))
 	{
-		const string l_cp437 = CUtil::FromWideStr(m_textContent, CP_ACP);
+		const std::string l_cp437 = CUtil::FromWideStr(m_textContent, CP_ACP);
 
 		if (!l_cp437.empty() && TryLoad_CP437((unsigned char*)l_cp437.c_str(), l_cp437.size(), EApproach::EA_FALSE))
 		{
@@ -1452,17 +1480,18 @@ const std::wstring CNFOData::GetCharsetName() const
 /* Compound Whitespace Code                                             */
 /************************************************************************/
 
-wstring CNFOData::GetWithBoxedWhitespace() const
+std::wstring CNFOData::GetWithBoxedWhitespace() const
 {
-	wstring l_result;
+	std::wstring l_result;
 
 	for (size_t rr = 0; rr < m_grid->GetRows(); rr++)
 	{
 		for (size_t cc = 0; cc < m_grid->GetCols(); cc++)
 		{
-			wchar_t l_tmp = (*m_grid)[rr][cc];
+			const wchar_t l_tmp = (*m_grid)[rr][cc];
 			l_result += (l_tmp != 0 ? l_tmp : L' ');
 		}
+
 		l_result += L"\n";
 	}
 
@@ -1494,8 +1523,9 @@ const CNFOHyperLink* CNFOData::GetLinkByIndex(size_t a_index) const
 {
 	if (a_index < m_hyperLinks.size())
 	{
-		multimap<size_t, CNFOHyperLink>::const_iterator it = m_hyperLinks.cbegin();
-		for (size_t i = 0; i < a_index; i++, it++);
+		/*std::multimap<size_t, CNFOHyperLink>::const_iterator it = m_hyperLinks.cbegin();
+		for (size_t i = 0; i < a_index; i++, it++);*/
+		const auto it = std::next(m_hyperLinks.cbegin(), a_index);
 		return &it->second;
 	}
 
@@ -1503,9 +1533,9 @@ const CNFOHyperLink* CNFOData::GetLinkByIndex(size_t a_index) const
 }
 
 
-const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
+const std::vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 {
-	vector<const CNFOHyperLink*> l_result;
+	std::vector<const CNFOHyperLink*> l_result;
 
 	const auto l_range = m_hyperLinks.equal_range(a_row);
 
@@ -1522,17 +1552,17 @@ const vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) const
 /* Raw Stripper Code                                                    */
 /************************************************************************/
 
-static wstring _TrimParagraph(const wstring& a_text)
+static std::wstring _TrimParagraph(const std::wstring& a_text)
 {
-	vector<wstring> l_lines;
+	std::vector<std::wstring> l_lines;
 
 	// split text into lines:
-	wstring::size_type l_pos = a_text.find(L'\n'), l_prevPos = 0;
-	wstring::size_type l_minWhite = numeric_limits<wstring::size_type>::max();
+	std::wstring::size_type l_pos = a_text.find(L'\n'), l_prevPos = 0;
+	std::wstring::size_type l_minWhite = std::numeric_limits<std::wstring::size_type>::max();
 
-	while (l_pos != wstring::npos)
+	while (l_pos != std::wstring::npos)
 	{
-		wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
+		const std::wstring l_line = a_text.substr(l_prevPos, l_pos - l_prevPos);
 
 		l_lines.push_back(std::move(l_line));
 
@@ -1549,7 +1579,7 @@ static wstring _TrimParagraph(const wstring& a_text)
 	// all other lines will be reduced to this number.
 	for (auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
 	{
-		wstring::size_type p = 0;
+		std::wstring::size_type p = 0;
 		while (p < it->size() && (*it)[p] == L' ') p++;
 
 		if (p < l_minWhite)
@@ -1559,7 +1589,7 @@ static wstring _TrimParagraph(const wstring& a_text)
 	}
 
 	// kill whitespace and put lines back together:
-	wstring l_result;
+	std::wstring l_result;
 	l_result.reserve(a_text.size());
 
 	for (auto it = l_lines.cbegin(); it != l_lines.cend(); it++)
@@ -1602,10 +1632,10 @@ static std::wstring _StripSingleLine(const std::wstring& line)
 	return work;
 }
 
-wstring CNFOData::GetStrippedText() const
+std::wstring CNFOData::GetStrippedText() const
 {
-	wstring l_text;
-	wstring l_line;
+	std::wstring l_text;
+	std::wstring l_line;
 
 	l_text.reserve(m_textContent.size() / 2);
 	l_line.reserve(200);
@@ -1645,13 +1675,13 @@ wstring CNFOData::GetStrippedText() const
 
 	// adjust indention for each paragraph:
 	{
-		wstring l_newText;
-		wstring::size_type l_pos = l_text.find(L"\n\n"), l_prevPos = 0;
+		std::wstring l_newText;
+		std::wstring::size_type l_pos = l_text.find(L"\n\n"), l_prevPos = 0;
 
-		while (l_pos != wstring::npos)
+		while (l_pos != std::wstring::npos)
 		{
-			const wstring l_paragraph = l_text.substr(l_prevPos, l_pos - l_prevPos);
-			const wstring l_newPara = _TrimParagraph(l_paragraph);
+			const std::wstring l_paragraph = l_text.substr(l_prevPos, l_pos - l_prevPos);
+			const std::wstring l_newPara = _TrimParagraph(l_paragraph);
 
 			l_newText += l_newPara + L"\n\n";
 
@@ -1661,7 +1691,7 @@ wstring CNFOData::GetStrippedText() const
 
 		if (l_prevPos < l_text.size())
 		{
-			const wstring l_paragraph = l_text.substr(l_prevPos);
+			const std::wstring l_paragraph = l_text.substr(l_prevPos);
 			l_newText += _TrimParagraph(l_paragraph);
 		}
 
@@ -1674,8 +1704,8 @@ wstring CNFOData::GetStrippedText() const
 const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace) const
 {
 	const std::wstring& l_input = (a_compoundWhitespace ? GetWithBoxedWhitespace() : m_textContent);
-	map<wchar_t, char> l_transl;
-	vector<char> l_converted;
+	std::map<wchar_t, char> l_transl;
+	std::vector<char> l_converted;
 
 	for (int j = 0; j < 32; j++)
 	{
@@ -1694,14 +1724,13 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 #pragma omp parallel for
 	for (int i = 0; i < static_cast<int>(l_input.size()); i++)
 	{
-		wchar_t wc = l_input[i];
-		map<wchar_t, char>::const_iterator it;
+		const wchar_t wc = l_input[i];
 
 		if ((wc > 0x1F && wc < CP437_MAP_LOW) || wc == L'\n' || wc == L'\r')
 		{
 			l_converted[i] = (char)wc;
 		}
-		else if ((it = l_transl.find(wc)) != l_transl.end())
+		else if (const auto it = l_transl.find(wc); it != l_transl.end())
 		{
 			l_converted[i] = it->second;
 		}
@@ -1725,7 +1754,7 @@ bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_chars
 		return false;
 	}
 
-	const vector<char> l_converted = GetTextCP437(ar_charsNotConverted, a_compoundWhitespace);
+	const std::vector<char> l_converted = GetTextCP437(ar_charsNotConverted, a_compoundWhitespace);
 
 	bool l_success = (fwrite(l_converted.data(), 1, l_converted.size(), fp) == l_converted.size());
 

@@ -41,8 +41,6 @@
 #include <io.h>
 #include <omp.h>
 
-using std::shared_ptr;
-
 #include <cairo-win32.h>
 
 #ifdef _WIN64

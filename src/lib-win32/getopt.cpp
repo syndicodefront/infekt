@@ -120,7 +120,7 @@ int getopt_missing_arg( const TCHAR *optstring )
  // fprintf( stderr, "%s: "MSG"\n", PROGNAME, ARG )
 
 static __inline__
-int getopt_argerror( int mode, TCHAR *fmt, TCHAR *prog, struct option *opt, int retval )
+int getopt_argerror( int mode, const TCHAR *fmt, const TCHAR *prog, struct option *opt, int retval )
 {
   /* Helper function, to generate more complex built-in error
    * messages, for invalid arguments to long form options ...

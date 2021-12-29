@@ -152,6 +152,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <MinimalRebuild />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -172,6 +173,7 @@
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <OpenMPSupport>false</OpenMPSupport>
       <MinimalRebuild />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -197,6 +199,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <MinimalRebuild />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -224,6 +227,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <MinimalRebuild />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -251,6 +255,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <MinimalRebuild />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -278,6 +283,7 @@
       <OpenMPSupport>false</OpenMPSupport>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <MinimalRebuild />
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
