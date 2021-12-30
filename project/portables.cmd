@@ -1,9 +1,9 @@
 rem VARS
 
-set MSVCRedist64=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x64
-set MSVCRedist32=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Redist\MSVC\14.11.25325\x86
+set MSVCRedist64=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.29.30133\x64
+set MSVCRedist32=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Redist\MSVC\14.29.30133\x86
 
-set VERSION=1.0.1
+set VERSION=1.2.0
 set ROOTDIR=%cd%\..\build-out
 set DEPS=%cd%\..\dependencies
 
@@ -29,8 +29,8 @@ xcopy /Y "%ROOTDIR%\..\release\*.url" %PP64%
 
 rem COPY RUNTIME DLLS
 
-xcopy /Y "%MSVCRedist32%\Microsoft.VC141.OpenMP\*.dll" %PP32%
-xcopy /Y "%MSVCRedist64%\Microsoft.VC141.OpenMP\*.dll" %PP64%
+xcopy /Y "%MSVCRedist32%\Microsoft.VC142.OpenMP\*.dll" %PP32%
+xcopy /Y "%MSVCRedist64%\Microsoft.VC142.OpenMP\*.dll" %PP64%
 
 rem COPY BUILT FILES
 
@@ -61,11 +61,11 @@ xcopy /Y /S /E %ROOTDIR%\..\release\PortableApps %PAP%
 
 copy /Y %ROOTDIR%\..\release\portable.ini %PAP%\App\DefaultData
 
-xcopy /Y "%MSVCRedist32%\Microsoft.VC141.CRT\msvc*.dll" %PAP%\App\iNFekt
-xcopy /Y "%MSVCRedist32%\Microsoft.VC141.CRT\concrt*.dll" %PAP%\App\iNFekt
-xcopy /Y "%MSVCRedist32%\Microsoft.VC141.CRT\vcruntime*.dll" %PAP%\App\iNFekt
-xcopy /Y "%MSVCRedist32%\Microsoft.VC141.OpenMP\*.dll" %PAP%\App\iNFekt
-xcopy /Y "%MSVCRedist32%\Microsoft.VC141.CXXAMP\*.dll" %PAP%\App\iNFekt
+xcopy /Y "%MSVCRedist32%\Microsoft.VC142.CRT\msvc*.dll" %PAP%\App\iNFekt
+xcopy /Y "%MSVCRedist32%\Microsoft.VC142.CRT\concrt*.dll" %PAP%\App\iNFekt
+xcopy /Y "%MSVCRedist32%\Microsoft.VC142.CRT\vcruntime*.dll" %PAP%\App\iNFekt
+xcopy /Y "%MSVCRedist32%\Microsoft.VC142.OpenMP\*.dll" %PAP%\App\iNFekt
+xcopy /Y "%MSVCRedist32%\Microsoft.VC142.CXXAMP\*.dll" %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-win32.exe %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\infekt-gpu.dll %PAP%\App\iNFekt
 copy /Y %ROOTDIR%\Release\iNFektPortableLauncher.exe %PAP%\iNFektPortable.exe

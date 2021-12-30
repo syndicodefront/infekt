@@ -1945,11 +1945,11 @@ void CMainFrame::CheckForUpdates_Callback(PWinHttpRequest a_req)
 	if (!l_validData)
 	{
 		const wstring l_msg = L"Failed to contact the update server to get the latest version's info. "
-			L"Please make sure you are connected to the internet and try again later.\n\nDo you want to visit http://infekt.ws/ now instead?";
+			L"Please make sure you are connected to the internet and try again later.\n\nDo you want to visit https://infekt.ws/ now instead?";
 
 		if (this->MessageBox(l_msg.c_str(), L"Connection Problem", MB_ICONEXCLAMATION | MB_YESNO) == IDYES)
 		{
-			::ShellExecute(0, L"open", L"http://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
+			::ShellExecute(0, L"open", L"https://infekt.ws/", nullptr, nullptr, SW_SHOWNORMAL);
 		}
 
 		return;

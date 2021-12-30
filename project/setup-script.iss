@@ -1,5 +1,4 @@
 #define SourceFileDir32 "..\build-out\Release"
-#define SourceFileDir32XP "..\build-out\Release-Static"
 #define SourceFileDir64 "..\build-out\Release-x64"
 #define NfoProgId "iNFEKT.NFOFile.1"
 
@@ -8,10 +7,11 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 1.0.1
-AppVersion=1.0.1
+AppVerName=iNFekt 1.2.0
+AppVersion=1.2.0
 AppPublisher=syndicode
-AppPublisherURL=http://infekt.ws/
+AppCopyright=Copyright © 2010-2022 syndicode
+AppPublisherURL=https://infekt.ws/
 DefaultDirName={pf}\iNFekt
 DefaultGroupName=iNFekt NFO Viewer
 AllowNoIcons=yes
@@ -25,7 +25,8 @@ WizardImageStretch=yes
 ChangesAssociations=yes
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64
-MinVersion=0,5.1sp1
+; Windows 10 Version 1607 (Anniversary Update) or Windows Server 2016
+MinVersion=10.0.14393
 AppMutex=iNFektNfoViewerOneInstanceMutex
 UninstallDisplayIcon={app}\infekt-win64.exe
 UninstallDisplayName=iNFekt NFO Viewer
@@ -38,24 +39,22 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "nfoassoc"; Description: "Make iNFekt the default viewer for .nfo files"; GroupDescription: "Shell integration"; Check: not WizardSilent
 Name: "dizassoc"; Description: "Make iNFekt the default viewer for .diz files"; GroupDescription: "Shell integration"; Flags: unchecked
 Name: "ansiassoc"; Description: "Make iNFekt the default viewer for .ans and .asc files"; GroupDescription: "Shell integration"; Flags: unchecked
-Name: "shellpreview"; Description: "Install Explorer preview pane and thumbnail integration for associated files"; GroupDescription: "Shell integration"; MinVersion: 0,6.0
-Name: "cppredist2017"; Description: "Download and install Microsoft C++ runtime if necessary"; GroupDescription: "Advanced"; Flags: checkedonce
+Name: "shellpreview"; Description: "Install Explorer preview pane and thumbnail integration for associated files"; GroupDescription: "Shell integration"
+Name: "cppredist2019"; Description: "Download and install Microsoft C++ runtime if necessary"; GroupDescription: "Advanced"; Flags: checkedonce
 
 [Files]
-Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir32XP}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; OnlyBelowVersion: 0,6.0
-Source: "{#SourceFileDir64}\infekt-win64.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir32}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir32XP}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; OnlyBelowVersion: 0,6.0
-Source: "{#SourceFileDir64}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir32}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir64}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir32}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir64}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir32}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir64}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir32}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode; MinVersion: 0,6.0
-Source: "{#SourceFileDir64}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode; MinVersion: 0,6.0
+Source: "{#SourceFileDir32}\infekt-win32.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\infekt-win64.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\infekt-cmd.exe"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\cairo.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\libpng16.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\zlib.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
+Source: "{#SourceFileDir32}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: not Is64BitInstallMode
+Source: "{#SourceFileDir64}\infekt-gpu.dll"; DestDir: "{app}"; Flags: ignoreversion; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: not Is64BitInstallMode
 Source: "{#SourceFileDir64}\infekt-nfo-shell.dll"; DestDir: "{app}"; Flags: ignoreversion regserver; Tasks: shellpreview; Check: Is64BitInstallMode
 Source: "{#SourceFileDir32}\infekt-win32-updater.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -90,6 +89,11 @@ Type: files; Name: "{app}\msvcp140.dll"
 Type: files; Name: "{app}\vcruntime140.dll"
 Type: files; Name: "{app}\vcamp140.dll"
 Type: files; Name: "{app}\vcomp140.dll"
+Type: files; Name: "{app}\concrt142.dll"
+Type: files; Name: "{app}\msvcp142.dll"
+Type: files; Name: "{app}\vcruntime142.dll"
+Type: files; Name: "{app}\vcamp142.dll"
+Type: files; Name: "{app}\vcomp142.dll"
 ; these should not be in the target directory, clean up in case of previous portable version at the same location etc.
 
 Type: files; Name: "{app}\cairo.dll"; OnlyBelowVersion: 0,6.0
@@ -105,7 +109,7 @@ Type: files; Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\iNFek
 [Icons]
 Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Check: not Is64BitInstallMode
 Name: "{group}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Check: Is64BitInstallMode
-Name: "{group}\{cm:ProgramOnTheWeb,iNFekt NFO Viewer}"; Filename: "http://infekt.ws/"
+Name: "{group}\{cm:ProgramOnTheWeb,iNFekt NFO Viewer}"; Filename: "https://infekt.ws/"
 Name: "{group}\{cm:UninstallProgram,iNFekt NFO Viewer}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win32.exe"; Tasks: desktopicon; Check: not Is64BitInstallMode
 Name: "{commondesktop}\iNFekt NFO Viewer"; Filename: "{app}\infekt-win64.exe"; Tasks: desktopicon; Check: Is64BitInstallMode
@@ -131,24 +135,24 @@ Root: HKLM; Subkey: "SOFTWARE\Classes\.diz"; ValueType: string; ValueName: ""; V
 Root: HKLM; Subkey: "SOFTWARE\Classes\.ans"; ValueType: string; ValueName: ""; ValueData: "{#NfoProgId}"; Flags: uninsclearvalue; Tasks: "ansiassoc"
 Root: HKLM; Subkey: "SOFTWARE\Classes\.asc"; ValueType: string; ValueName: ""; ValueData: "{#NfoProgId}"; Flags: uninsclearvalue; Tasks: "ansiassoc"
 ; Register the application with Default Programs
-Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT"; ValueType: string; ValueName: ""; ValueData: ""; Flags: uninsdeletekey; MinVersion: 0,6.0
-Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; ValueType: string; ValueName: "ApplicationName"; ValueData: "iNFekt NFO Viewer"; MinVersion: 0,6.0
-Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "iNFekt NFO Viewer is the next generation NFO Viewer Application!"; MinVersion: 0,6.0
-Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".nfo"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
-Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".diz"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
-Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".ans"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
-Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".asc"; ValueData: "{#NfoProgId}"; MinVersion: 0,6.0
-Root: HKLM; Subkey: "SOFTWARE\RegisteredApplications"; ValueType: string; ValueName: "iNFekt NFO Viewer"; ValueData: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; Flags: uninsdeletevalue; MinVersion: 0,6.0
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT"; ValueType: string; ValueName: ""; ValueData: ""; Flags: uninsdeletekey
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; ValueType: string; ValueName: "ApplicationName"; ValueData: "iNFekt NFO Viewer"
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "iNFekt NFO Viewer is the next generation NFO Viewer Application!"
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".nfo"; ValueData: "{#NfoProgId}"
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".diz"; ValueData: "{#NfoProgId}"
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".ans"; ValueData: "{#NfoProgId}"
+Root: HKLM; Subkey: "SOFTWARE\cxxjoe\iNFEKT\Capabilities\FileAssociations"; ValueType: string; ValueName: ".asc"; ValueData: "{#NfoProgId}"
+Root: HKLM; Subkey: "SOFTWARE\RegisteredApplications"; ValueType: string; ValueName: "iNFekt NFO Viewer"; ValueData: "SOFTWARE\cxxjoe\iNFEKT\Capabilities"; Flags: uninsdeletevalue
 ; Clear user-overridden stuff on 5.x:
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.nfo"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "nfoassoc"
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.diz"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "dizassoc"
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ans"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "ansiassoc"
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.asc"; ValueType: none; ValueName: "Progid"; Flags: deletevalue; Tasks: "ansiassoc"
 ; Clear user-overridden stuff on Vista/7:
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.nfo\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "nfoassoc"; MinVersion: 0,6.0
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.diz\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "dizassoc"; MinVersion: 0,6.0
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ans\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "ansiassoc"; MinVersion: 0,6.0
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.asc\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "ansiassoc"; MinVersion: 0,6.0
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.nfo\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "nfoassoc"
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.diz\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "dizassoc"
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.ans\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "ansiassoc"
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.asc\UserChoice"; ValueType: none; Flags: deletekey; Tasks: "ansiassoc"
 
 ; Uninstall-only stuff:
 
@@ -200,8 +204,8 @@ var
 const
 	INSTALLSTATE_DEFAULT = 5;
 
-	MSVC_X64_URL = '://download.visualstudio.microsoft.com/download/pr/11100230/15ccb3f02745c7b206ad10373cbca89b/VC_redist.x64.exe';
-	MSVC_X86_URL = '://download.visualstudio.microsoft.com/download/pr/11100229/78c1e864d806e36f6035d80a0e80399e/VC_redist.x86.exe';
+	MSVC_X64_URL = 'https://aka.ms/vs/17/release/vc_redist.x64.exe';
+	MSVC_X86_URL = 'https://aka.ms/vs/17/release/vc_redist.x86.exe';
 
 
 function InstallCppRuntime(): Boolean;
@@ -212,51 +216,29 @@ end;
 
 procedure InitializeWizard();
 var
-	WinVersion: TWindowsVersion;
-	DownloadProtocol: String;
 	RuntimeAdditionalInstalled: Boolean;
 begin
 	idpSetOption('AllowContinue', '1');
 
-	GetWindowsVersionEx(WinVersion);
-
-	if (WinVersion.Major = 5) then
-		DownloadProtocol := 'http'
-	else
-		DownloadProtocol := 'https';
-
-	//
-	// GUIDs from: https://svn.wsusoffline.net/svn/wsusoffline/trunk/client/cmd/DetermineSystemProperties.vbs
-	//
-	// https://svn.wsusoffline.net/svn/wsusoffline/trunk/static/StaticDownloadLinks-cpp-x64-glb.txt
-	// https://svn.wsusoffline.net/svn/wsusoffline/trunk/static/StaticDownloadLinks-cpp-x86-glb.txt
-	//
-
 	if Is64BitInstallMode() then
 	begin
-		idpAddFile(DownloadProtocol + MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
-		if DownloadProtocol = 'https' then
-		begin
-			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist2017_x64.exe', expandconstant('{tmp}\vcredist_x64.exe'));
-		end;
+		idpAddFile(MSVC_X64_URL, expandconstant('{tmp}\vcredist_x64.exe'));
+		idpAddMirror('https://syndicode.org/infekt/mirror/VC_redist.x64.exe', expandconstant('{tmp}\vcredist_x64.exe'));
 
-		// Microsoft Visual C++ 2017 x64 Additional Runtime
-		RuntimeAdditionalInstalled := (MsiQueryProductState('{568CD07E-0824-3EEB-AEC1-8FD51F3C85CF}') = INSTALLSTATE_DEFAULT)
-				// Microsoft Visual C++ 2017 x64 Minimum Runtime
-				and (MsiQueryProductState('{029DA848-1A80-34D3-BFC1-A6447BFC8E7F}') = INSTALLSTATE_DEFAULT);
+		// Microsoft Visual C++ 2019 x64 Additional Runtime
+		RuntimeAdditionalInstalled := (MsiQueryProductState('{34DB4181-0770-4B5A-B561-68758A077B0F}') = INSTALLSTATE_DEFAULT)
+				// Microsoft Visual C++ 2019 x64 Minimum Runtime
+				and (MsiQueryProductState('{40118CD9-A805-400C-864E-041A5B5C01B0}') = INSTALLSTATE_DEFAULT);
 	end
 	else
 	begin
-		idpAddFile(DownloadProtocol + MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
-		if DownloadProtocol = 'https' then
-		begin
-			idpAddMirror('https://syndicode.org/infekt/mirror/vcredist2017_x86.exe', expandconstant('{tmp}\vcredist_x86.exe'));
-		end;
+		idpAddFile(MSVC_X86_URL, expandconstant('{tmp}\vcredist_x86.exe'));
+		idpAddMirror('https://syndicode.org/infekt/mirror/VC_redist.x86.exe', expandconstant('{tmp}\vcredist_x86.exe'));
 
-		// Microsoft Visual C++ 2017 x86 Additional Runtime
-		RuntimeAdditionalInstalled := (MsiQueryProductState('{B13B3E11-1555-353F-A63A-8933EE104FBD}') = INSTALLSTATE_DEFAULT)
-				// Microsoft Visual C++ 2017 x86 Minimum Runtime
-				and (MsiQueryProductState('{B0037450-526D-3448-A370-CACBD87769A0}') = INSTALLSTATE_DEFAULT);
+		// Microsoft Visual C++ 2019 x86 Additional Runtime
+		RuntimeAdditionalInstalled := (MsiQueryProductState('{77EB1EA9-8E1B-459D-8CDC-1984D0FF15B6}') = INSTALLSTATE_DEFAULT)
+				// Microsoft Visual C++ 2019 x86 Minimum Runtime
+				and (MsiQueryProductState('{36A1E79B-581A-4FE5-843D-84C2D3C9431E}') = INSTALLSTATE_DEFAULT);
 	end;
 
 	allowCppRuntimeInstall := true; // default
@@ -305,9 +287,9 @@ begin
 		if FileExists(exepath) then
 		begin
 			if Is64BitInstallMode() then
-				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2017 (x64) runtime...'
+				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ (x64) runtime...'
 			else
-				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ 2017 (x86) runtime...';
+				WizardForm.StatusLabel.Caption := 'Installing Microsoft Visual C++ (x86) runtime...';
 
 			SendStatusMessageToUpdater(WizardForm.StatusLabel.Caption);
 
@@ -322,7 +304,7 @@ var
 	msg: String;
 begin
 	if (CurPageID = wpReady) and InstallCppRuntime() then
-		msg := 'Downloading Microsoft Visual C++ 2017 runtime... this may take a minute.'
+		msg := 'Downloading Microsoft Visual C++ runtime... this may take a minute.'
 	else if WizardForm.StatusLabel.Caption <> '' then
 		msg := WizardForm.StatusLabel.Caption
 	else if WizardForm.PageNameLabel.Caption <> '' then
