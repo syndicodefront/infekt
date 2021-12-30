@@ -1,11 +1,13 @@
 ## v1.2.0 (???)
   * Windows: only runs on Windows 10 Anniversary Update (10.0.14393) and later now.
+  * Windows: first preparations for HighDPI (4k displays) support.
   * Linux: only CLI supported (for now). Help with GTK version welcome.
   * Added a new line wrapping algorithm, should work better with more NFOs out there (issue #121)
   * Turned Default App check off by default because of Windows 10 madness (issue #128)
-  * Upgraded to Visual Studio 2019 and C++20.
-  * Library update to cairo 1.60.0, libpng v1.6.37 (includes important bugfixes)
   * Improved --nogpu flag to disable even looking for GPU capabilities
+  * Upgraded to Visual Studio 2019 and C++20.
+  * Library update to cairo 1.60.0, libpng v1.6.37, boost 1.78
+  * Internal improvements
 
 ## v1.0.1 (December 3rd 2017)
   * Fixed version information
