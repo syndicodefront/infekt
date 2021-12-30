@@ -105,10 +105,10 @@
     <ClCompile Include="..\..\src\lib\forgiving_utf8.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\win32\default_app_win8.cpp">
+    <ClCompile Include="..\..\src\win32\default_app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\win32\default_app.cpp">
+    <ClCompile Include="..\..\src\win32\default_app_win8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

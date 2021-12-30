@@ -12,11 +12,8 @@
 * GNU General Public License for more details.
 **/
 
-#define _TARGETVER_WIN8 // for targetver.h
-#include "targetver.h"
+#include "stdafx.h"
 #include "util.h"
-
-#include <string>
 #include "default_app.h"
 #include <shobjidl.h>
 

@@ -1,6 +1,6 @@
-## v1.2.0 (???)
+## v1.2.0 (December 30th 2021)
   * Windows: only runs on Windows 10 Anniversary Update (10.0.14393) and later now.
-  * Windows: first preparations for HighDPI (4k displays) support.
+  * Windows: first preparations for High DPI (4k displays) support.
   * Linux: only CLI supported (for now). Help with GTK version welcome.
   * Added a new line wrapping algorithm, should work better with more NFOs out there (issue #121)
   * Turned Default App check off by default because of Windows 10 madness (issue #128)
