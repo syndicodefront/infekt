@@ -1313,6 +1313,24 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 			m_isAnsi = true; // wild guess!
 			ar_dataLen -= l_recordLength;
 
+			if (a_data[ar_dataLen - 1] == SAUCE_EOF)
+			{
+				--ar_dataLen;
+			}
+
+			return true;
+		}
+
+		if (l_record.DataType == SAUCEDT_CHARACTER && l_record.FileType == ' ' && l_record.Comments == ' ')
+		{
+			m_isAnsi = false;
+			ar_dataLen -= l_recordLength;
+
+			if (a_data[ar_dataLen - 1] == SAUCE_EOF)
+			{
+				--ar_dataLen;
+			}
+
 			return true;
 		}
 
