@@ -38,6 +38,20 @@ public:
 	void SetTitle(const std::wstring& snt) { m_title = snt; }
 };
 
+class CNFOToHTMLCanvas : public CNFORenderer
+{
+public:
+	CNFOToHTMLCanvas();
+
+	const std::string GetSettingsJSONString() const;
+	const std::string GetRenderJSONString();
+	const std::string GetRenderCodeString() const;
+	const std::string GetFullHTML();
+
+protected:
+};
+
+
 #ifdef CAIRO_HAS_PDF_SURFACE
 
 class CNFOToPDF : public CNFORenderer

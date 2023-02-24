@@ -546,6 +546,7 @@ BOOL CMainFrame::OnCommand(WPARAM wParam, LPARAM lParam)
 	case IDM_EXPORT_UTF16:
 	case IDM_EXPORT_CP437:
 	case IDM_EXPORT_XHTML:
+	case IDM_EXPORT_XHTML_CANVAS:
 	case IDM_EXPORT_PDF:
 	case IDM_EXPORT_PDF_DIN:
 		DoNfoExport(LOWORD(wParam));
@@ -1538,7 +1539,7 @@ void CMainFrame::DoNfoExport(UINT a_id)
 			}
 		}
 	}
-	else if (a_id == IDM_EXPORT_XHTML)
+	else if (a_id == IDM_EXPORT_XHTML || a_id == IDM_EXPORT_XHTML_CANVAS)
 	{
 		COMDLG_FILTERSPEC l_filter[] = { { L"HTML File", L"*.html" } };
 
@@ -1547,13 +1548,28 @@ void CMainFrame::DoNfoExport(UINT a_id)
 
 		if (!l_filePath.empty())
 		{
-			CNFOToHTML l_exporter(m_view.GetActiveCtrl()->GetNfoData());
-			l_exporter.SetSettings(m_view.GetActiveCtrl()->GetSettings());
-			l_exporter.SetTitle(m_view.GetNfoData()->GetFileName());
+			string l_utf8;
+
+			if (a_id == IDM_EXPORT_XHTML_CANVAS)
+			{
+				CNFOToHTMLCanvas l_exporter;
+
+				l_exporter.AssignNFO(m_view.GetNfoData());
+				l_exporter.InjectSettings(m_view.GetActiveCtrl()->GetSettings());
+
+				l_utf8 = l_exporter.GetFullHTML();
+			}
+			else
+			{
+				CNFOToHTML l_exporter(m_view.GetActiveCtrl()->GetNfoData());
+
+				l_exporter.SetSettings(m_view.GetActiveCtrl()->GetSettings());
+				l_exporter.SetTitle(m_view.GetNfoData()->GetFileName());
+
+				l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
+			}
 
 			::SetCursor(::LoadCursor(nullptr, IDC_WAIT));
-
-			const string l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
 
 			FILE* l_file;
 			if (_tfopen_s(&l_file, l_filePath.c_str(), _T("wb")) == 0 && l_file)

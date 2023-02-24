@@ -242,7 +242,7 @@ public:
 
 	bool IsClassicMode() const { return m_classic; }
 
-	void SetPartialMode(ENFORenderPartial pm) { m_rendered == m_rendered && (m_partial == pm); m_partial = pm; }
+	void SetPartialMode(ENFORenderPartial pm) { m_rendered = m_rendered && (m_partial == pm); m_partial = pm; }
 
 	unsigned int GetZoom() const { return static_cast<unsigned int>(m_zoomFactor * 100); }
 	virtual void SetZoom(unsigned int a_percent);

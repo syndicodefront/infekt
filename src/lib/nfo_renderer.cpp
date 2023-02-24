@@ -1100,10 +1100,8 @@ void CNFORenderer::RenderText(const S_COLOR_T& a_textColor, const S_COLOR_T* a_b
 				cairo_save(cr);
 
 				// go through each hyperlink and hilight them as requested:
-				for (std::vector<const CNFOHyperLink*>::const_iterator it = l_links.begin(); it != l_links.end(); it++)
+				for (const auto l_link : l_links)
 				{
-					const CNFOHyperLink* l_link = *it;
-
 					cairo_set_source_rgba(cr, S_COLOR_T_CAIRO_A(a_textColor));
 
 					cairo_show_glyphs(cr, l_glyphs + l_nextCol - l_firstCol,

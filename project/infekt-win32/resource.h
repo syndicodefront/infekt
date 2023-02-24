@@ -164,13 +164,16 @@
 #define IDM_EXPORT_CP437                40114
 #define ID_SCROLL_PAGEDOWN              40116
 #define ID_SCROLL_PAGEUP                40118
+#define ID_EXPORT_ASHTML                40119
+#define ID_EXPORT_XHTML_CANVAS          40120
+#define IDM_EXPORT_XHTML_CANVAS         40121
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        135
-#define _APS_NEXT_COMMAND_VALUE         40119
+#define _APS_NEXT_COMMAND_VALUE         40122
 #define _APS_NEXT_CONTROL_VALUE         1048
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

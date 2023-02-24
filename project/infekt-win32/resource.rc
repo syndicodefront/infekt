@@ -134,6 +134,7 @@ BEGIN
             MENUITEM "As CP 437 NFO File...",       IDM_EXPORT_CP437
             MENUITEM SEPARATOR
             MENUITEM "As HTML...",                  IDM_EXPORT_XHTML
+            MENUITEM "As HTML (Canvas)...",         IDM_EXPORT_XHTML_CANVAS
             MENUITEM SEPARATOR
             MENUITEM "As PDF...",                   IDM_EXPORT_PDF
             MENUITEM "As PDF (DIN Size)...",        IDM_EXPORT_PDF_DIN
