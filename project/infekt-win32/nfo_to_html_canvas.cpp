@@ -46,7 +46,6 @@ const std::string CNFOToHTMLCanvas::GetSettingsJSONString() const
 	j["colorText"] = GetSettings().cTextColor.AsHex(false);
 	j["colorArt"] = GetSettings().cArtColor.AsHex(false);
 	j["fontBold"] = GetSettings().bFontBold;
-	j["fontAntiAlias"] = GetSettings().bFontAntiAlias;
 	j["shadowEnable"] = GetSettings().bGaussShadow;
 	j["shadowRadius"] = GetSettings().uGaussBlurRadius;
 	j["shadowColor"] = GetSettings().cGaussColor.AsHex(false);
@@ -246,6 +245,12 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
         return devicePixelRatio;
     }
 
+    #setUpFont() {
+        this.#ctx.textBaseline = 'alphabetic'; /* all others cause blurry text */
+        this.#ctx.fontKerning = 'none';
+        this.#ctx.font = (this.#renderSettings.fontBold ? 'bold ' : '') + '11pt "Consolas"';
+    }
+
     #setUpCanvas() {
         const canvas = this.#canvas;
 
@@ -272,14 +277,21 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
 
         this.#renderBackground();
 
-        if (this.#renderSettings.shadowEnable) {
-            this.#ctx.filter = 'blur(' + Math.floor(this.#renderSettings.shadowRadius / 2) + 'px)';
+        if (this.#renderSettings.shadowEnable && this.#renderSettings.shadowRadius >= 1) {
+            this.#ctx.filter = 'blur(' + Math.round(this.#renderSettings.shadowRadius * 0.5) + 'px)';
             this.#renderBlocks(this.#renderSettings.shadowColor);
             this.#ctx.filter = 'none';
         }
 
         this.#renderBlocks(this.#renderSettings.colorArt);
+        this.#setUpFont();
         this.#renderText();
+
+        if (this.#renderSettings.hyperlinksHighlight) {
+            this.#renderHyperlinks(this.#renderSettings.hyperlinksColor, this.#renderSettings.hyperlinksUnderline);
+        } else {
+            this.#renderHyperlinks(this.#renderSettings.colorText, false);
+        }
     }
 
     #renderBackground() {
@@ -357,31 +369,34 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
     }
 
     #renderText() {
-        this.#ctx.font = (this.#renderSettings.fontBold ? 'bold ' : '') + '10pt "Courier New"';
         this.#ctx.fillStyle = '#' + this.#renderSettings.colorText;
 
         for (const textSpan of this.#nfoData.text) {
             const x = this.padding + textSpan.col * this.#renderSettings.blockWidth;
-            const y = this.padding + textSpan.row * this.#renderSettings.blockHeight;
+            const y = this.padding + textSpan.row * this.#renderSettings.blockHeight + this.#renderSettings.blockHeight * 0.5;
+
             this.#ctx.fillText(textSpan.t, x, y);
         }
+    }
 
-        if (this.#renderSettings.hyperlinksHighlight) {
-            this.#ctx.fillStyle = '#' + this.#renderSettings.hyperlinksColor;
-            this.#ctx.strokeStyle = '#' + this.#renderSettings.hyperlinksColor;
-            const underlinePath = new Path2D();
+    #renderHyperlinks(color, underline) {
+        this.#ctx.fillStyle = '#' + color;
 
-            for (const linkSpan of this.#nfoData.links) {
-                const x = this.padding + linkSpan.col * this.#renderSettings.blockWidth;
-                const y = this.padding + linkSpan.row * this.#renderSettings.blockHeight;
-                this.#ctx.fillText(linkSpan.t, x, y);
-                underlinePath.moveTo(x, y + 1.5);
-                underlinePath.lineTo(x + linkSpan.t.length * this.#renderSettings.blockWidth, y + 1.5);
-            }
+        const underlinePath = new Path2D();
 
-            if (this.#renderSettings.hyperlinksUnderline) {
-                this.#ctx.stroke(underlinePath);
-            }
+        for (const linkSpan of this.#nfoData.links) {
+            const x = this.padding + linkSpan.col * this.#renderSettings.blockWidth;
+            const y = this.padding + linkSpan.row * this.#renderSettings.blockHeight + this.#renderSettings.blockHeight * 0.5;
+
+            this.#ctx.fillText(linkSpan.t, x, y);
+
+            underlinePath.moveTo(x, y + 1.5);
+            underlinePath.lineTo(x + (linkSpan.t.length - 1) * this.#renderSettings.blockWidth, y + 1.5);
+        }
+
+        if (underline) {
+            this.#ctx.strokeStyle = '#' + color;
+            this.#ctx.stroke(underlinePath);
         }
     }
 })";
