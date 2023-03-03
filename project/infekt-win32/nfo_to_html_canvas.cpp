@@ -172,6 +172,7 @@ const std::string CNFOToHTMLCanvas::GetRenderJSONString()
 						}
 
 						l_line_buf.clear();
+						l_buf_link = nullptr;
 					}
 
 					l_buf_first_col = col;
@@ -207,6 +208,7 @@ const std::string CNFOToHTMLCanvas::GetRenderJSONString()
 		}
 
 		l_line_buf.clear();
+		l_buf_link = nullptr;
 	}
 
 	return j.dump();
@@ -225,6 +227,8 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
         this.#canvas = canvas;
         this.#nfoData = nfoData;
         this.#renderSettings = renderSettings;
+        this.#setUpContainer();
+        this.#createText();
     }
 
     get padding() {
@@ -245,18 +249,40 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
         return devicePixelRatio;
     }
 
-    #setUpFont() {
-        this.#ctx.textBaseline = 'alphabetic'; /* all others cause blurry text */
-        this.#ctx.fontKerning = 'none';
-        this.#ctx.font = (this.#renderSettings.fontBold ? 'bold ' : '') + '11pt "Consolas"';
+    #setUpContainer() {
+        const containerId = 'nfo-' + Math.round(Date.now() * Math.random()).toString(36);
+        const style = document.head.appendChild(document.createElement('style'));
+
+        style.sheet.insertRule('#' + containerId + '{ position: relative; overflow: hidden; padding: 0; }');
+        style.sheet.insertRule('#' + containerId + ' > canvas { position: absolute; margin: 0; padding: 0; }');
+        style.sheet.insertRule('#' + containerId + ' > span, #' + containerId + ' > a {' +
+            'position: absolute;' +
+            'margin: 0; padding: 0;' +
+            'white-space: pre;' +
+            'font-family: "SF Mono";' +
+            'font-size: 13px;' +
+            'font-weight: ' + (this.#renderSettings.fontBold ? 'bold' : 'normal') + ';' +
+            'text-rendering: geometricPrecision;' +
+            'font-kerning: none; font-strech: normal; font-size-adjust: none; font-optical-sizing: none;' +
+            'text-size-adjust: 100%; -webkit-text-size-adjust: 100%;' +
+            'user-select: none;' +
+        '}');
+
+        const hyperlinkColor = '#' + (this.#renderSettings.hyperlinksHighlight ? this.#renderSettings.hyperlinksColor : this.#renderSettings.colorText);
+        const textDecoration = this.#renderSettings.hyperlinksHighlight && this.#renderSettings.hyperlinksUnderline ? 'underline ' + hyperlinkColor : 'none';
+
+        style.sheet.insertRule('#' + containerId + ' > a { color: ' + hyperlinkColor + '; text-decoration: ' + textDecoration + '; }');
+
+        const canvas = this.#canvas;
+        const container = canvas.parentElement;
+
+        container.id = containerId;
+        container.style.width = canvas.style.width = (nfoData.width * this.#renderSettings.blockWidth + this.padding * 2) + 'px';
+        container.style.height = canvas.style.height = (nfoData.height * this.#renderSettings.blockHeight + this.padding * 2) + 'px';
     }
 
     #setUpCanvas() {
         const canvas = this.#canvas;
-
-        canvas.style.width = (nfoData.width * this.#renderSettings.blockWidth + this.padding * 2) + 'px';
-        canvas.style.height = (nfoData.height * this.#renderSettings.blockHeight + this.padding * 2) + 'px';
-
         const devicePixelRatio = this.#getDevicePixelRatio();
         const rect = canvas.getBoundingClientRect();
 
@@ -278,20 +304,20 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
         this.#renderBackground();
 
         if (this.#renderSettings.shadowEnable && this.#renderSettings.shadowRadius >= 1) {
-            this.#ctx.filter = 'blur(' + Math.round(this.#renderSettings.shadowRadius * 0.5) + 'px)';
-            this.#renderBlocks(this.#renderSettings.shadowColor);
-            this.#ctx.filter = 'none';
+            if (this.#ctx.filter !== undefined) {
+                this.#ctx.filter = 'blur(' + Math.round(this.#renderSettings.shadowRadius * 0.5) + 'px)';
+                this.#renderBlocks(this.#renderSettings.shadowColor);
+                this.#ctx.filter = 'none';
+            } else {
+                this.#ctx.shadowColor = '#' + this.#renderSettings.shadowColor;
+                this.#ctx.shadowBlur = this.#renderSettings.shadowRadius;
+                this.#ctx.shadowOffsetX = 0;
+                this.#ctx.shadowOffsetY = 0;
+            }
         }
 
         this.#renderBlocks(this.#renderSettings.colorArt);
-        this.#setUpFont();
-        this.#renderText();
-
-        if (this.#renderSettings.hyperlinksHighlight) {
-            this.#renderHyperlinks(this.#renderSettings.hyperlinksColor, this.#renderSettings.hyperlinksUnderline);
-        } else {
-            this.#renderHyperlinks(this.#renderSettings.colorText, false);
-        }
+        this.#ctx.shadowBlur = 0;
     }
 
     #renderBackground() {
@@ -362,44 +388,55 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
             }
         }
 
-        for (let [alpha, path] of pathsByAlpha) {
+        for (const [alpha, path] of pathsByAlpha) {
             this.#ctx.fillStyle = '#' + colorHex.substring(0, 6) + alpha.toString(16);
             this.#ctx.fill(path);
         }
     }
 
-    #renderText() {
-        this.#ctx.fillStyle = '#' + this.#renderSettings.colorText;
+    #createText() {
+        for (const textLine of this.#nfoData.text) {
+            const x = this.padding + textLine.col * this.#renderSettings.blockWidth;
+            const y = this.padding + textLine.row * this.#renderSettings.blockHeight;
 
-        for (const textSpan of this.#nfoData.text) {
-            const x = this.padding + textSpan.col * this.#renderSettings.blockWidth;
-            const y = this.padding + textSpan.row * this.#renderSettings.blockHeight + this.#renderSettings.blockHeight * 0.5;
+            const span = document.createElement('span');
+            span.style.left = x + 'px';
+            span.style.top = y + 'px';
+            span.appendChild(document.createTextNode(textLine.t));
 
-            this.#ctx.fillText(textSpan.t, x, y);
+            this.#canvas.parentElement.appendChild(span);
+        }
+
+        for (const link of this.#nfoData.links) {
+            const x = this.padding + link.col * this.#renderSettings.blockWidth;
+            const y = this.padding + link.row * this.#renderSettings.blockHeight;
+
+            const a = document.createElement('a');
+            a.style.left = x + 'px';
+            a.style.top = y + 'px';
+            a.href = link.href;
+            a.target = '_blank';
+            a.appendChild(document.createTextNode(link.t));
+
+            this.#canvas.parentElement.appendChild(a);
         }
     }
+};
 
-    #renderHyperlinks(color, underline) {
-        this.#ctx.fillStyle = '#' + color;
+document.addEventListener('DOMContentLoaded', function () {
+    const renderer = new NfoRenderer(document.getElementById('nfo'), nfoData, renderSettings);
 
-        const underlinePath = new Path2D();
+    if (window.matchMedia) {
+        (function updatePixelRatio() {
+            matchMedia('(resolution: ' + window.devicePixelRatio + 'dppx)')
+                .addEventListener('change', updatePixelRatio, { once: true });
 
-        for (const linkSpan of this.#nfoData.links) {
-            const x = this.padding + linkSpan.col * this.#renderSettings.blockWidth;
-            const y = this.padding + linkSpan.row * this.#renderSettings.blockHeight + this.#renderSettings.blockHeight * 0.5;
-
-            this.#ctx.fillText(linkSpan.t, x, y);
-
-            underlinePath.moveTo(x, y + 1.5);
-            underlinePath.lineTo(x + (linkSpan.t.length - 1) * this.#renderSettings.blockWidth, y + 1.5);
-        }
-
-        if (underline) {
-            this.#ctx.strokeStyle = '#' + color;
-            this.#ctx.stroke(underlinePath);
-        }
+            renderer.render();
+        })();
+    } else {
+        renderer.render();
     }
-})";
+}))";
 }
 
 const std::string CNFOToHTMLCanvas::GetFullHTML()
@@ -410,10 +447,15 @@ const std::string CNFOToHTMLCanvas::GetFullHTML()
 <!DOCTYPE html>
 <html>
 <head>
-<title></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="https://fonts.cdnfonts.com/css/sf-mono" rel="stylesheet">
 </head>
 <body>
-<canvas id="nfo"></canvas>
+<div>
+    <canvas id="nfo"></canvas>
+</div>
 <script>
 )";
 
