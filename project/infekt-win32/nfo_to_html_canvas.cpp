@@ -188,7 +188,7 @@ const std::string CNFOToHTMLCanvas::GetRenderJSONString()
 			j_row_blocks["b"].push_back(j_block_grp);
 		}
 
-		if (!j_row_blocks.empty())
+		if (!j_row_blocks["b"].empty())
 		{
 			j["blocks"].push_back(j_row_blocks);
 		}
@@ -217,14 +217,13 @@ const std::string CNFOToHTMLCanvas::GetRenderJSONString()
 const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
 {
 	return R"(class {
-    #canvas;
+    #container;
     #nfoData;
     #renderSettings;
-    #ctx;
-    #oldDevicePixelRatio = 0;
+    #strides = [];
 
-    constructor(canvas, nfoData, renderSettings) {
-        this.#canvas = canvas;
+    constructor(container, nfoData, renderSettings) {
+        this.#container = container;
         this.#nfoData = nfoData;
         this.#renderSettings = renderSettings;
         this.#setUpContainer();
@@ -237,24 +236,13 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
         return settings.shadowEnable && settings.shadowRadius > MIN ? settings.shadowRadius : MIN;
     }
 
-    #getDevicePixelRatio() {
-        const MIN = 1;
-        const MAX = 3;
-
-        let devicePixelRatio = window.devicePixelRatio || 1;
-
-        devicePixelRatio = devicePixelRatio < MIN ? MIN : Math.round(devicePixelRatio);
-        devicePixelRatio = devicePixelRatio > MAX ? MAX : devicePixelRatio;
-
-        return devicePixelRatio;
-    }
-
     #setUpContainer() {
         const containerId = 'nfo-' + Math.round(Date.now() * Math.random()).toString(36);
         const style = document.head.appendChild(document.createElement('style'));
 
-        style.sheet.insertRule('#' + containerId + '{ position: relative; overflow: hidden; padding: 0; }');
-        style.sheet.insertRule('#' + containerId + ' > canvas { position: absolute; margin: 0; padding: 0; }');
+        style.sheet.insertRule('#' + containerId + '{ position: relative; overflow: hidden; padding: 0; ' +
+            'background-color: #' + this.#renderSettings.colorBack + '; color: #' + this.#renderSettings.colorText + '; }');
+        style.sheet.insertRule('#' + containerId + ' > canvas { position: absolute; margin: 0; padding: 0; /*outline: 1px solid green;*/ }');
         style.sheet.insertRule('#' + containerId + ' > span, #' + containerId + ' > a {' +
             'position: absolute;' +
             'margin: 0; padding: 0;' +
@@ -266,70 +254,185 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
             'font-kerning: none; font-strech: normal; font-size-adjust: none; font-optical-sizing: none;' +
             'text-size-adjust: 100%; -webkit-text-size-adjust: 100%;' +
             'user-select: none;' +
-        '}');
+            '}');
 
         const hyperlinkColor = '#' + (this.#renderSettings.hyperlinksHighlight ? this.#renderSettings.hyperlinksColor : this.#renderSettings.colorText);
         const textDecoration = this.#renderSettings.hyperlinksHighlight && this.#renderSettings.hyperlinksUnderline ? 'underline ' + hyperlinkColor : 'none';
 
         style.sheet.insertRule('#' + containerId + ' > a { color: ' + hyperlinkColor + '; text-decoration: ' + textDecoration + '; }');
 
-        const canvas = this.#canvas;
-        const container = canvas.parentElement;
+        this.#container.id = containerId;
+        this.#container.style.width = (this.#nfoData.width * this.#renderSettings.blockWidth + this.padding * 2) + 'px';
+        this.#container.style.height = (this.#nfoData.height * this.#renderSettings.blockHeight + this.padding * 2) + 'px';
 
-        container.id = containerId;
-        container.style.width = canvas.style.width = (nfoData.width * this.#renderSettings.blockWidth + this.padding * 2) + 'px';
-        container.style.height = canvas.style.height = (nfoData.height * this.#renderSettings.blockHeight + this.padding * 2) + 'px';
+        this.#setUpStrides();
     }
 
-    #setUpCanvas() {
-        const canvas = this.#canvas;
-        const devicePixelRatio = this.#getDevicePixelRatio();
-        const rect = canvas.getBoundingClientRect();
+    #setUpStrides() {
+        if (this.#nfoData.blocks.length < 1) {
+            return;
+        }
 
-        canvas.width = rect.width * devicePixelRatio;
-        canvas.height = rect.height * devicePixelRatio;
+        const MAX_PIXELS = 4096 * 4096;
+        const MAX_DIMENSION = 32767;
+        const MIN_LINES = 5;
+        const MIN_STRIDES = 5;
 
-        const ctx = canvas.getContext('2d', { alpha: false });
-        ctx.scale(devicePixelRatio, devicePixelRatio);
+        const totalHeightPixels = NfoDevicePixelRatio() * parseInt(this.#container.style.height);
+        const totalWidthPixels = NfoDevicePixelRatio() * parseInt(this.#container.style.width);
+        const strideExtraPixels = this.#renderSettings.blockHeight + this.padding;
 
-        this.#oldDevicePixelRatio = devicePixelRatio;
-        this.#ctx = ctx;
+        if (totalWidthPixels > MAX_DIMENSION) {
+            throw new Error("NFO width exceeds browser limits");
+        }
+
+        let strideCount = MIN_STRIDES;
+        let supposedStrideHeightPixels;
+
+        do {
+            ++strideCount;
+
+            supposedStrideHeightPixels = Math.ceil((this.#renderSettings.blockHeight * this.#nfoData.height) / strideCount) + strideExtraPixels;
+
+            if (strideCount > 1 && supposedStrideHeightPixels < this.#renderSettings.blockHeight * MIN_LINES) {
+                --strideCount;
+                break;
+            }
+        } while (supposedStrideHeightPixels * totalWidthPixels > MAX_PIXELS || supposedStrideHeightPixels > MAX_DIMENSION);
+
+        const strideHeightInLines = Math.ceil(this.#nfoData.height / strideCount);
+
+        for (let stride = 0; stride < strideCount; ++stride) {
+            const canvas = document.createElement('canvas');
+
+            canvas.style.left = 0;
+            canvas.style.width = this.#container.style.width;
+
+            canvas.style.top = (stride === 0 ? 0 : this.padding + stride * strideHeightInLines * this.#renderSettings.blockHeight) + 'px';
+            canvas.style.height = (strideHeightInLines * this.#renderSettings.blockHeight)
+                + (stride === 0 || stride === strideCount - 1 ? this.padding : 0) + 'px';
+
+            this.#container.appendChild(canvas);
+
+            const firstLine = stride * strideHeightInLines - 1;
+            const lastLine = (stride + 1) * strideHeightInLines + 1;
+            const strideBlocks = this.#nfoData.blocks.filter(
+                b => (b.row >= firstLine && b.row <= lastLine)
+            );
+
+            this.#strides.push(new NfoRendererStride(canvas, strideBlocks, firstLine));
+        }
     }
 
     render() {
-        if (this.#getDevicePixelRatio() !== this.#oldDevicePixelRatio) {
+        for (let i = 0; i < this.#strides.length; ++i) {
+            const paddingY = (i === 0 ? this.padding : 0);
+
+            this.#strides[i].render(
+                this.#renderSettings,
+                this.padding,
+                paddingY
+            );
+        }
+    }
+
+    #createText() {
+        const textToDom = (input, dom) => {
+            const x = this.padding + input.col * this.#renderSettings.blockWidth;
+            const y = this.padding + input.row * this.#renderSettings.blockHeight;
+
+            dom.style.left = x + 'px';
+            dom.style.top = y + 'px';
+
+            dom.appendChild(document.createTextNode(input.t));
+            this.#container.appendChild(dom);
+        }
+
+        for (const textLine of this.#nfoData.text) {
+            textToDom(textLine, document.createElement('span'));
+        }
+
+        for (const link of this.#nfoData.links) {
+            const a = document.createElement('a');
+
+            a.href = link.href;
+            a.target = '_blank';
+
+            textToDom(link, a);
+        }
+    }
+};
+
+const NfoDevicePixelRatio = function () {
+    const MIN = 1;
+    const MAX = 4;
+
+    let devicePixelRatio = window.devicePixelRatio || 1;
+
+    devicePixelRatio = devicePixelRatio < MIN ? MIN : Math.round(devicePixelRatio);
+    devicePixelRatio = devicePixelRatio > MAX ? MAX : devicePixelRatio;
+
+    return devicePixelRatio;
+};
+
+const NfoRendererStride = class {
+    #targetCanvas;
+    #virtualCanvas;
+    #blocks;
+    #offsetLines;
+    #oldDevicePixelRatio = 0;
+    #ctx = null;
+
+    constructor(targetCanvas, blocks, offsetLines) {
+        this.#targetCanvas = targetCanvas;
+        this.#virtualCanvas = null;
+        this.#blocks = blocks;
+        this.#offsetLines = offsetLines;
+    }
+
+    render(renderSettings, paddingX, paddingY) {
+        if (NfoDevicePixelRatio() !== this.#oldDevicePixelRatio) {
             this.#setUpCanvas();
         }
 
         this.#renderBackground();
 
-        if (this.#renderSettings.shadowEnable && this.#renderSettings.shadowRadius >= 1) {
+        if (renderSettings.shadowEnable && renderSettings.shadowRadius >= 1) {
+            const shadowRadius = Math.min(renderSettings.shadowRadius, renderSettings.blockHeight);
+
             if (this.#ctx.filter !== undefined) {
-                this.#ctx.filter = 'blur(' + Math.round(this.#renderSettings.shadowRadius * 0.5) + 'px)';
-                this.#renderBlocks(this.#renderSettings.shadowColor);
+                this.#ctx.filter = 'blur(' + Math.round(shadowRadius * 0.5) + 'px)';
+                this.#renderBlocks(renderSettings.shadowColor, paddingX, paddingY);
                 this.#ctx.filter = 'none';
+                this.#renderBlocks(renderSettings.colorBack, paddingX, paddingY);
             } else {
-                this.#ctx.shadowColor = '#' + this.#renderSettings.shadowColor;
-                this.#ctx.shadowBlur = this.#renderSettings.shadowRadius;
+                this.#ctx.shadowColor = '#' + renderSettings.shadowColor;
+                this.#ctx.shadowBlur = shadowRadius;
                 this.#ctx.shadowOffsetX = 0;
                 this.#ctx.shadowOffsetY = 0;
             }
         }
 
-        this.#renderBlocks(this.#renderSettings.colorArt);
+        this.#renderBlocks(renderSettings.colorArt, paddingX, paddingY);
         this.#ctx.shadowBlur = 0;
+
+        const targetCtx = this.#targetCanvas.getContext('2d', { alpha: false });
+        const clipWidth = this.#virtualCanvas.width;
+        const clipHeight = this.#virtualCanvas.height - 2 * renderSettings.blockHeight;
+
+        targetCtx.drawImage(this.#virtualCanvas, 0, renderSettings.blockHeight, clipWidth, clipHeight, 0, 0, clipWidth, clipHeight);
     }
 
     #renderBackground() {
-        this.#ctx.fillStyle = '#' + this.#renderSettings.colorBack;
-        this.#ctx.fillRect(0, 0, this.#canvas.width, this.#canvas.height);
+        this.#ctx.fillStyle = '#' + renderSettings.colorBack;
+        this.#ctx.fillRect(0, 0, this.#virtualCanvas.width, this.#virtualCanvas.height);
     }
 
-    #renderBlocks(colorHex) {
-        const BLOCK_WIDTH = this.#renderSettings.blockWidth;
-        const BLOCK_HEIGHT = this.#renderSettings.blockHeight;
-        const HALF_BLOCK_WIDTH = this.#renderSettings.blockWidth * 0.5;
-        const HALF_BLOCK_HEIGHT = this.#renderSettings.blockHeight * 0.5;
+    #renderBlocks(colorHex, paddingX, paddingY) {
+        const BLOCK_WIDTH = renderSettings.blockWidth;
+        const BLOCK_HEIGHT = renderSettings.blockHeight;
+        const HALF_BLOCK_WIDTH = renderSettings.blockWidth * 0.5;
+        const HALF_BLOCK_HEIGHT = renderSettings.blockHeight * 0.5;
 
         const BT = {
             FULL_BLOCK: 0,
@@ -346,14 +449,14 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
 
         const pathsByAlpha = new Map();
 
-        for (const rowBlocks of this.#nfoData.blocks) {
-            const rowY = this.padding + rowBlocks.row * BLOCK_HEIGHT;
+        for (const rowBlocks of this.#blocks) {
+            const rowY = paddingY + (rowBlocks.row - this.#offsetLines) * BLOCK_HEIGHT;
 
             for (const blockSpan of rowBlocks.b) {
                 const firstCol = blockSpan[0];
 
                 for (let j = 1; j < blockSpan.length; ++j) {
-                    let blockX = this.padding + (firstCol + j - 1) * BLOCK_WIDTH;
+                    let blockX = paddingX + (firstCol + j - 1) * BLOCK_WIDTH;
                     let blockY = rowY;
                     let blockWidth = BLOCK_WIDTH;
                     let blockHeight = BLOCK_HEIGHT;
@@ -394,49 +497,30 @@ const std::string CNFOToHTMLCanvas::GetRenderCodeString() const
         }
     }
 
-    #createText() {
-        for (const textLine of this.#nfoData.text) {
-            const x = this.padding + textLine.col * this.#renderSettings.blockWidth;
-            const y = this.padding + textLine.row * this.#renderSettings.blockHeight;
+    #setUpCanvas() {
+        const devicePixelRatio = NfoDevicePixelRatio();
+        const rect = this.#targetCanvas.getBoundingClientRect();
 
-            const span = document.createElement('span');
-            span.style.left = x + 'px';
-            span.style.top = y + 'px';
-            span.appendChild(document.createTextNode(textLine.t));
+        this.#targetCanvas.width = rect.width * devicePixelRatio;
+        this.#targetCanvas.height = rect.height * devicePixelRatio;
 
-            this.#canvas.parentElement.appendChild(span);
+        const virtualCanvasWidth = this.#targetCanvas.width;
+        const virtualCanvasHeight = this.#targetCanvas.height + 2 * renderSettings.blockHeight;
+        const offscreenCanvas = new OffscreenCanvas(this.#targetCanvas.width, virtualCanvasHeight, virtualCanvasWidth);
+
+        if ('filter' in offscreenCanvas.getContext('2d', { alpha: false })) {
+            this.#virtualCanvas = offscreenCanvas;
+        } else {
+            this.#virtualCanvas = document.createElement('canvas');
+            this.#virtualCanvas.width = virtualCanvasWidth;
+            this.#virtualCanvas.height = virtualCanvasHeight;
         }
 
-        for (const link of this.#nfoData.links) {
-            const x = this.padding + link.col * this.#renderSettings.blockWidth;
-            const y = this.padding + link.row * this.#renderSettings.blockHeight;
-
-            const a = document.createElement('a');
-            a.style.left = x + 'px';
-            a.style.top = y + 'px';
-            a.href = link.href;
-            a.target = '_blank';
-            a.appendChild(document.createTextNode(link.t));
-
-            this.#canvas.parentElement.appendChild(a);
-        }
+        this.#ctx = this.#virtualCanvas.getContext('2d', { alpha: false });
+        this.#ctx.scale(devicePixelRatio, devicePixelRatio);
+        this.#oldDevicePixelRatio = devicePixelRatio;
     }
-};
-
-document.addEventListener('DOMContentLoaded', function () {
-    const renderer = new NfoRenderer(document.getElementById('nfo'), nfoData, renderSettings);
-
-    if (window.matchMedia) {
-        (function updatePixelRatio() {
-            matchMedia('(resolution: ' + window.devicePixelRatio + 'dppx)')
-                .addEventListener('change', updatePixelRatio, { once: true });
-
-            renderer.render();
-        })();
-    } else {
-        renderer.render();
-    }
-}))";
+})";
 }
 
 const std::string CNFOToHTMLCanvas::GetFullHTML()
@@ -453,9 +537,7 @@ const std::string CNFOToHTMLCanvas::GetFullHTML()
     <link href="https://fonts.cdnfonts.com/css/sf-mono" rel="stylesheet">
 </head>
 <body>
-<div>
-    <canvas id="nfo"></canvas>
-</div>
+<div id="nfo"></div>
 <script>
 )";
 
