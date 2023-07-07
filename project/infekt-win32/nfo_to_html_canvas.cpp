@@ -506,7 +506,7 @@ const NfoRendererStride = class {
 
         const virtualCanvasWidth = this.#targetCanvas.width;
         const virtualCanvasHeight = this.#targetCanvas.height + 2 * renderSettings.blockHeight;
-        const offscreenCanvas = new OffscreenCanvas(this.#targetCanvas.width, virtualCanvasHeight, virtualCanvasWidth);
+        const offscreenCanvas = new OffscreenCanvas(virtualCanvasWidth, virtualCanvasHeight);
 
         if ('filter' in offscreenCanvas.getContext('2d', { alpha: false })) {
             this.#virtualCanvas = offscreenCanvas;
