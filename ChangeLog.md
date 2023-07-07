@@ -1,3 +1,14 @@
+## v1.3.0 (July 7th 2023)
+  * Слава Україні! Смерть окупантам!
+  * NEW: Export into HTML `<canvas>`.
+  * Upgraded to Visual Studio 2022.
+  * Library update to zlib 1.2.13, libpng v1.6.40, boost 1.82.
+  * Bad news, a couple of iNFekt's dependencies start being deprecated, namely
+    * Microsoft C++ AMP for GPU Acceleration
+    * Building libcairo with Makefiles
+    * Win32 in general
+    * Maybe time to migrate to the Rust ecosystem? `¯\_(ツ)_/¯`
+
 ## v1.2.0 (December 30th 2021)
   * Windows: only runs on Windows 10 Anniversary Update (10.0.14393) and later now.
   * Windows: first preparations for High DPI (4k displays) support.

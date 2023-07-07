@@ -2,7 +2,7 @@
 
 REM Requirements:
 REM * mingw's msys in C:\msys\1.0\bin
-REM * Visual Studio 2019
+REM * Visual Studio 2022
 REM * curl in PATH
 REM * http://tukaani.org/xz/
 
@@ -17,18 +17,19 @@ SETLOCAL
 PUSHD
 
 IF EXIST zlib.tgz GOTO AZOK
-curl https://zlib.net/zlib-1.2.11.tar.gz -o zlib.tgz
+curl https://zlib.net/zlib-1.2.13.tar.gz -o zlib.tgz
 :AZOK
 
 IF EXIST libpng.tgz GOTO LPZOK
-curl https://altushost-swe.dl.sourceforge.net/project/libpng/libpng16/1.6.37/libpng-1.6.37.tar.gz -o libpng.tgz
+curl https://nav.dl.sourceforge.net/project/libpng/libpng16/1.6.40/libpng-1.6.40.tar.gz -o libpng.tgz
 :LPZOK
 
 IF EXIST pixman.tgz GOTO PZOK
-curl https://www.cairographics.org/releases/pixman-0.40.0.tar.gz -o pixman.tgz
+curl https://www.cairographics.org/releases/pixman-0.42.2.tar.gz -o pixman.tgz
 :PZOK
 
 IF EXIST cairo.tar.xz GOTO CZOK
+REM Last version that appears to include Makefile.win32. Switch to meson+ninja feasible?
 curl https://www.cairographics.org/releases/cairo-1.16.0.tar.xz -o cairo.tar.xz
 :CZOK
 
@@ -38,12 +39,12 @@ set PATH=%PATH%;C:\msys\1.0\bin
 
 IF %X64%==y GOTO SWITCHX64
 REM adjust path here if necessary:
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x86
 set PLATFORM=Win32
 GOTO SWITCHNOX64
 :SWITCHX64
 REM adjust path here if necessary:
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
 set PLATFORM=x64
 :SWITCHNOX64
 
@@ -92,22 +93,21 @@ move /Y zlib.props.fixed zlib.props
 
 copy %ROOTDIR%\zlib\contrib\vstudio\vc14\zlib.rc zlib
 
-sed "s/<PropertyGroup Label=.Globals.>/<ItemGroup><ResourceCompile Include=\"zlib.rc\" \/><\/ItemGroup>\0/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
-move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
-
 IF %STATIC%==y GOTO ZLIBSTATICOK
 sed "s/StaticLibrary/DynamicLibrary/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 :ZLIBSTATICOK
 
+REM Do not build test and validation projects
 grep -iv "\(AFCC227E3C1D\|BBEF8099F1D8\|A3CDB672D2FF\|2B829BA36FEC\).*Build" vstudio.sln > vstudio.sln.fixed
 move /Y vstudio.sln.fixed vstudio.sln
 
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v142<\/PlatformToolset>/" libpng/libpng.vcxproj > libpng.vcxproj.fixed
+REM Set PlatformToolset
+sed "s/<PlatformToolset>v142</<PlatformToolset>v143</" libpng/libpng.vcxproj > libpng.vcxproj.fixed
 move /Y libpng.vcxproj.fixed libpng/libpng.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v142<\/PlatformToolset>/" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
+sed "s/<PlatformToolset>v142</<PlatformToolset>v143</" pnglibconf/pnglibconf.vcxproj > pnglibconf.vcxproj.fixed
 move /Y pnglibconf.vcxproj.fixed pnglibconf/pnglibconf.vcxproj
-sed "s/<\/ConfigurationType>/<\/ConfigurationType><PlatformToolset>v142<\/PlatformToolset>/" zlib/zlib.vcxproj > zlib.vcxproj.fixed
+sed "s/<PlatformToolset>v142</<PlatformToolset>v143</" zlib/zlib.vcxproj > zlib.vcxproj.fixed
 move /Y zlib.vcxproj.fixed zlib/zlib.vcxproj
 
 IF %X64%==n GOTO ZLIBNOX64
@@ -156,7 +156,6 @@ move "%ROOTDIR%\libpng\projects\vstudio\%CONFIG% Library\*" %ROOTDIR%\libpng\pro
 xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\libpng* %ROOTDIR%\libpng
 xcopy %ROOTDIR%\libpng\projects\vstudio\%CONFIG%\zlib* %ROOTDIR%\libpng
 
-
 cd %ROOTDIR%\pixman
 
 REM Build Pixman
@@ -164,12 +163,6 @@ IF %X64%==n GOTO PIXMANNOX64
 set MMX=off
 rem Visual C/C++ does not support MMX operations for 64-bit processors in 64-bit mode
 :PIXMANNOX64
-
-IF EXIST pixman\pixman-version.h GOTO PIXMANVERSIONHOK
-sed "s/@PIXMAN_VERSION_MAJOR@/0/" pixman\pixman-version.h.in > v1
-sed "s/@PIXMAN_VERSION_MINOR@/34/" v1 > v2
-sed "s/@PIXMAN_VERSION_MICRO@/0/" v2 > pixman\pixman-version.h
-:PIXMANVERSIONHOK
 
 IF %STATIC%==n GOTO PIXMANSKIPSTATICFIX
 sed "s/= -MD/= -MT/" Makefile.win32.common > Makefile.fixed

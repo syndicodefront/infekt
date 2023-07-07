@@ -7,8 +7,8 @@
 [Setup]
 AppId={{B1AC8E6A-6C47-4B6D-A853-B4BF5C83421C}
 AppName=iNFekt NFO Viewer
-AppVerName=iNFekt 1.2.0
-AppVersion=1.2.0
+AppVerName=iNFekt 1.3.0
+AppVersion=1.3.0
 AppPublisher=syndicode
 AppCopyright=Copyright © 2010-2022 syndicode
 AppPublisherURL=https://infekt.ws/
@@ -206,7 +206,6 @@ const
 
 	MSVC_X64_URL = 'https://aka.ms/vs/17/release/vc_redist.x64.exe';
 	MSVC_X86_URL = 'https://aka.ms/vs/17/release/vc_redist.x86.exe';
-
 
 function InstallCppRuntime(): Boolean;
 begin
