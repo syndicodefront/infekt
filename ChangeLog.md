@@ -8,6 +8,7 @@
     * Building libcairo with Makefiles
     * Win32 in general
     * Maybe time to migrate to the Rust ecosystem? `¯\_(ツ)_/¯`
+  * No longer offering PortableApps.com package for download.
 
 ## v1.2.0 (December 30th 2021)
   * Windows: only runs on Windows 10 Anniversary Update (10.0.14393) and later now.
