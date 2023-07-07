@@ -13,15 +13,16 @@ var tpl_content_end = tpl.indexOf('</section>')
 
 function write_content(filename, title, body)
 {
-	var content_begin = body.indexOf('>', body.indexOf('<article class="markdown-body')) + 1
-	var content_end = body.indexOf('</article>')
+    const start = '<script type="application/json" data-target="react-app.embeddedData">'
+    const content_script_begin = body.indexOf(start) + start.length
+    const content_script_end = body.indexOf('</script>', content_script_begin)
 
-	console.log('body length for ' + filename + ' = ' + body.length)
+    const json = JSON.parse(body.substring(content_script_begin, content_script_end))
 
 	fs.writeFileSync(filename,
 		tpl.substr(0, tpl_content_begin) +
 		'<section><h1>' + title + '</h1>' +
-		body.substring(content_begin, content_end).replace(/<svg\b[\s\S]*?<\/svg>/g, '') +
+		json.payload.blob.richText.replace(/<svg\b[\s\S]*?<\/svg>/g, '') +
 		tpl.substr(tpl_content_end)
 	)	
 }
