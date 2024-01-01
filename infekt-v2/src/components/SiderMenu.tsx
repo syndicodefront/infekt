@@ -4,6 +4,8 @@ import type { MenuProps } from 'antd';
 import { MenuInfo } from 'rc-menu/es/interface';
 import { FolderOpenOutlined, SettingOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { SIDER_WIDTH, SIDER_WIDTH_COLLAPSED, useSiderCollapsedDispatch } from '../context/SiderMenuContext';
+import { useShowDialogMaskDispatchContext } from '../context/DialogMaskContext';
+import { open as dialogFileOpen } from '@tauri-apps/plugin-dialog';
 
 const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
@@ -16,9 +18,26 @@ const SiderMenu = () => {
     { type: 'divider' },
   ];
 
-  const onMenuClick = ({ key }: MenuInfo): void => {
+  const toggleDialogMask = useShowDialogMaskDispatchContext();
+
+  const onMenuClick = async ({ key }: MenuInfo) => {
     switch (key) {
       case 'OPEN':
+        toggleDialogMask(true);
+        try {
+          const file = await dialogFileOpen({
+            multiple: false,
+            directory: false,
+            filters: [
+              { name: 'NFO Files', extensions: ['nfo', 'diz', 'asc'] },
+              { name: 'Text Files', extensions: ['txt'] },
+              { name: 'All Files', extensions: ['*'] },
+            ]
+          });
+          console.log(file);
+        } finally {
+          toggleDialogMask(false);
+        }
         break;
       case 'PREF':
         break;

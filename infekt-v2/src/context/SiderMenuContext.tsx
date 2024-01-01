@@ -8,8 +8,8 @@ interface SiderCollapsedStatus {
   currentWidth: number;
 };
 
-export const SiderCollapsedContext = createContext<SiderCollapsedStatus | undefined>(undefined);
-export const SiderCollapsedDispatchContext = createContext<React.Dispatch<boolean> | undefined>(undefined);
+const SiderCollapsedContext = createContext<SiderCollapsedStatus | undefined>(undefined);
+const SiderCollapsedDispatchContext = createContext<React.Dispatch<boolean> | undefined>(undefined);
 
 export function SiderCollapsedStatusProvider({ children }: PropsWithChildren) {
   const [collapsedStatus, dispatch] = useReducer(

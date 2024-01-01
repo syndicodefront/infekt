@@ -1,12 +1,13 @@
 import React from 'react';
+import { useShowDialogMaskContext } from '../context/DialogMaskContext';
 
-export interface DialogMaskProps {
-  masked: boolean;
-};
+const DialogMask = () => {
+  if (!useShowDialogMaskContext()) {
+    return null;
+  }
 
-const DialogMask = ({ masked }: DialogMaskProps) => {
-  return (<>
-    {masked && <div style={{
+  return (
+    <div style={{
       backgroundColor: 'rgba(100, 100, 100, 0.5)',
       WebkitBackdropFilter: 'blur(2px)',
       backdropFilter: 'blur(2px)',
@@ -17,8 +18,8 @@ const DialogMask = ({ masked }: DialogMaskProps) => {
       top: 0,
       bottom: 0,
       zIndex: 99999,
-    }}></div>}
-  </>);
+    }}></div>
+  );
 };
 
 export default DialogMask;
