@@ -1,0 +1,10 @@
+:not(:defined) {
+  visibility: hidden;
+}
+
+body {
+  user-select: none;
+  -webkit-user-select: none;
+
+  scroll-behavior: auto;
+}
