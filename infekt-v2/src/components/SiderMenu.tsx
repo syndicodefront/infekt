@@ -23,7 +23,8 @@ const SiderMenu = () => {
   const onMenuClick = async ({ key }: MenuInfo) => {
     switch (key) {
       case 'OPEN':
-        toggleDialogMask(true);
+        toggleDialogMask?.(true);
+
         try {
           const file = await dialogFileOpen({
             multiple: false,
@@ -34,9 +35,10 @@ const SiderMenu = () => {
               { name: 'All Files', extensions: ['*'] },
             ]
           });
+
           console.log(file);
         } finally {
-          toggleDialogMask(false);
+          toggleDialogMask?.(false);
         }
         break;
       case 'PREF':
