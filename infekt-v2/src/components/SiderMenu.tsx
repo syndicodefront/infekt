@@ -6,6 +6,8 @@ import { FolderOpenOutlined, SettingOutlined, InfoCircleOutlined } from '@ant-de
 import { SIDER_WIDTH, SIDER_WIDTH_COLLAPSED, useSiderCollapsedDispatch } from '../context/SiderMenuContext';
 import { useShowDialogMaskDispatchContext } from '../context/DialogMaskContext';
 import { open as dialogFileOpen } from '@tauri-apps/plugin-dialog';
+import { invoke } from '@tauri-apps/api/primitives';
+import { LoadNfoRequest, LoadNfoResponse } from '../api/types';
 
 const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
@@ -37,6 +39,19 @@ const SiderMenu = () => {
           });
 
           console.log(file);
+
+          if (file) {
+            const loadNfoRequest: LoadNfoRequest = {
+              req: {
+                filePath: file.path,
+                returnBrowseableFiles: true,
+              }
+            };
+
+            const loadNfoResponse = (await invoke('load_nfo', loadNfoRequest)) as LoadNfoResponse;
+
+            console.log(loadNfoResponse);
+          }
         } finally {
           toggleDialogMask?.(false);
         }
