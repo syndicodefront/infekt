@@ -12,8 +12,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@tauri-apps/api": "^2.0.0-alpha.12",
-    "@tauri-apps/plugin-dialog": "2.0.0-alpha.5",
-    "@tauri-apps/plugin-shell": "^2.0.0-alpha.3",
+    "@tauri-apps/plugin-dialog": "^2.0.0-alpha.5",
     "antd": "^5.12.5",
     "rc-menu": "^9.12.4",
     "react": "^18.2.0",
