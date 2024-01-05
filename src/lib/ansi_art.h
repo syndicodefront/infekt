@@ -49,11 +49,11 @@ public:
 	PNFOColorMap GetColorMap() const { return m_colorMap; }
 
 protected:
-	size_t m_hintWidth;
-	size_t m_hintHeight;
-
 	size_t m_widthLimit;
 	size_t m_heightLimit;
+
+	size_t m_hintWidth;
+	size_t m_hintHeight;
 
 	// this is filled by Parse():
 
