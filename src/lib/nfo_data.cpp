@@ -611,6 +611,8 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	case NFOC_CP437_STRICT:
 		l_loaded = TryLoad_CP437_Strict(a_data, l_dataLen);
 		break;
+	default:
+		break;
 	}
 
 	if (l_loaded)
@@ -895,7 +897,6 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
-	bool l_containsCR = false;
 	bool l_containsLF = false;
 	bool l_containsCRLF = false;
 
@@ -904,7 +905,6 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	{
 		if (a_data[i] == '\r')
 		{
-			l_containsCR = true;
 		}
 		else if (a_data[i] == '\n')
 		{
@@ -1538,6 +1538,8 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 		return L"CP 437 (strict mode)";
 	case NFOC_WINDOWS_1252:
 		return L"Windows-1252";
+	default:
+		break;
 	}
 
 	return L"(huh?)";
@@ -1852,4 +1854,9 @@ void CNFOData::ClearLastError()
 {
 	m_lastErrorCode = NDE_NO_ERROR;
 	m_lastErrorDescr = L"";
+}
+
+std::unique_ptr<CNFOData> new_nfo_data()
+{
+	return std::make_unique<CNFOData>();
 }

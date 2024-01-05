@@ -98,7 +98,7 @@ public:
 
 	bool IsInError() const { return m_lastErrorCode != NDE_NO_ERROR; }
 	const std::wstring& GetLastErrorDescription() const { return m_lastErrorDescr; }
-	const EErrorCode GetLastErrorCode() const { return m_lastErrorCode; }
+	EErrorCode GetLastErrorCode() const { return m_lastErrorCode; }
 
 private:
 	EErrorCode m_lastErrorCode;
@@ -155,5 +155,8 @@ protected:
 };
 
 typedef std::shared_ptr<CNFOData> PNFOData;
+
+// for rust interaction
+std::unique_ptr<CNFOData> new_nfo_data();
 
 #endif /* !_NFO_DATA_H */

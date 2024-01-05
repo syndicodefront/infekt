@@ -26,12 +26,12 @@ public:
 	CNFOHyperLink(int linkID, const std::wstring& href, size_t row, size_t col, size_t len);
 
 	void SetHref(const std::wstring& a_href) { m_href = a_href; }
-	const int GetLinkID() const { return m_linkID; }
+	int GetLinkID() const { return m_linkID; }
 	const std::wstring& GetHref() const { return m_href; }
-	const size_t GetRow() const { return m_row; }
-	const size_t GetColStart() const { return m_colStart; }
-	const size_t GetColEnd() const { return m_colEnd; }
-	const size_t GetLength() const { return m_colEnd - m_colStart + 1; }
+	size_t GetRow() const { return m_row; }
+	size_t GetColStart() const { return m_colStart; }
+	size_t GetColEnd() const { return m_colEnd; }
+	size_t GetLength() const { return m_colEnd - m_colStart + 1; }
 
 	static bool FindLink(const std::wstring& sLine, size_t& uirOffset, size_t& urLinkPos, size_t& urLinkLen,
 		std::wstring& srUrl, const std::wstring& sPrevLineLink, bool& brLinkContinued);

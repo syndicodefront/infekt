@@ -577,7 +577,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Static|x64'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="nfo_to_html_canvas.cpp">
+    <ClCompile Include="..\..\src\lib\nfo_to_html_canvas.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Static|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>

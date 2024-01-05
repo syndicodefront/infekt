@@ -96,8 +96,8 @@ public:
 	}
 
 private:
-	std::vector<std::vector<T> > m_data;
 	size_t m_rows, m_cols;
+	std::vector<std::vector<T> > m_data;
 
 	TwoDimVector() {}
 };

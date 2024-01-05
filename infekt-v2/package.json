@@ -11,18 +11,18 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
-    "@tauri-apps/api": "^2.0.0-alpha.12",
-    "@tauri-apps/plugin-dialog": "^2.0.0-alpha.5",
-    "antd": "^5.12.5",
+    "@tauri-apps/api": "2.0.0-alpha.13",
+    "@tauri-apps/plugin-dialog": "2.0.0-alpha.5",
+    "antd": "^5.12.8",
     "rc-menu": "^9.12.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.0.0-alpha.18",
-    "@types/react": "^18.2.45",
+    "@tauri-apps/cli": "2.0.0-alpha.20",
+    "@types/react": "^18.2.46",
     "@types/react-dom": "^18.2.18",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.4"
+    "typescript": "^5.3.3",
+    "vite": "^4.5.1"
   }
 }

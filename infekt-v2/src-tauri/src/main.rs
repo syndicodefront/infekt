@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod commands;
+mod infekt_core;
 
 fn main() {
     tauri::Builder::default()
