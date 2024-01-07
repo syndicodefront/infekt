@@ -52,6 +52,8 @@
 #include <boost/format.hpp>
 #endif
 
+#define INFEKT_2_CXXRUST
+
 /* local headers */
 #include "infekt.h"
 

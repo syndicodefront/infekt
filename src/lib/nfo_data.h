@@ -19,7 +19,7 @@
 #include "nfo_hyperlink.h"
 #include "nfo_colormap.h"
 
-typedef enum
+typedef enum: uint8_t
 {
 	NFOC_AUTO = 1,
 	NFOC_UTF16,
@@ -79,8 +79,6 @@ public:
 	bool HasColorMap() const { return m_isAnsi && m_colorMap && m_colorMap->HasColors(); }
 	const PNFOColorMap GetColorMap() const { return m_colorMap; }
 
-	typedef std::list<std::wstring> TLineContainer;
-
 	typedef enum {
 		NDE_NO_ERROR = 0,
 		NDE_UNRECOGNIZED_FILE_FORMAT = -9999,
@@ -104,7 +102,6 @@ private:
 	EErrorCode m_lastErrorCode;
 	std::wstring m_lastErrorDescr;
 
-protected:
 	std::wstring m_textContent;
 	std::string m_utf8Content;
 	std::unique_ptr<TwoDimVector<wchar_t>> m_grid;
@@ -156,7 +153,9 @@ protected:
 
 typedef std::shared_ptr<CNFOData> PNFOData;
 
+#ifdef INFEKT_2_CXXRUST
 // for rust interaction
 std::unique_ptr<CNFOData> new_nfo_data();
+#endif
 
 #endif /* !_NFO_DATA_H */

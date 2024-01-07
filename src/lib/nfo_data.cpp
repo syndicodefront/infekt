@@ -19,6 +19,8 @@
 #include "ansi_art.h"
 #include <numeric>
 
+typedef std::list<std::wstring> TLineContainer;
+
 CNFOData::CNFOData()
 	: m_lastErrorCode(NDE_NO_ERROR)
 	, m_lastErrorDescr()
@@ -237,7 +239,7 @@ static void _InternalLoad_NormalizeWhitespace(std::wstring& a_text)
 }
 
 
-static void _InternalLoad_SplitIntoLines(const std::wstring& a_text, size_t& a_maxLineLen, CNFOData::TLineContainer& a_lines)
+static void _InternalLoad_SplitIntoLines(const std::wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
 {
 	size_t l_prevPos = 0, l_pos = a_text.find(L'\n');
 
@@ -272,7 +274,7 @@ static void _InternalLoad_SplitIntoLines(const std::wstring& a_text, size_t& a_m
 }
 
 
-static void _InternalLoad_FixLfLf(std::wstring& a_text, CNFOData::TLineContainer& a_lines)
+static void _InternalLoad_FixLfLf(std::wstring& a_text, TLineContainer& a_lines)
 {
 	// fix NFOs like Crime.is.King.German.SUB5.5.DVDRiP.DivX-GWL
 	// they use \n\n instead of \r\n
@@ -301,7 +303,7 @@ static void _InternalLoad_FixLfLf(std::wstring& a_text, CNFOData::TLineContainer
 	if (l_kill >= 0)
 	{
 		std::wstring l_newContent; l_newContent.reserve(a_text.size());
-		CNFOData::TLineContainer l_newLines;
+		TLineContainer l_newLines;
 		i = 0;
 		for (auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
 		{
@@ -408,7 +410,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(std::wstring& a_text)
 }
 
 
-static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_t& a_newMaxLineLen)
+static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
 	constexpr size_t MAX_LEN_SOFT = 100;
 	constexpr size_t MAX_LEN_HARD = 2 * 80;
@@ -493,7 +495,7 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 		}
 	};
 
-	CNFOData::TLineContainer new_lines;
+	TLineContainer new_lines;
 
 	for (const std::wstring& line : a_lines)
 	{
@@ -1856,7 +1858,10 @@ void CNFOData::ClearLastError()
 	m_lastErrorDescr = L"";
 }
 
+
+#ifdef INFEKT_2_CXXRUST
 std::unique_ptr<CNFOData> new_nfo_data()
 {
 	return std::make_unique<CNFOData>();
 }
+#endif
