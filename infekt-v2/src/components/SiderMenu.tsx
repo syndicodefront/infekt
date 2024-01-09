@@ -44,7 +44,6 @@ const SiderMenu = () => {
             const loadNfoRequest: LoadNfoRequest = {
               req: {
                 filePath: file.path,
-                returnBrowseableFiles: true,
               }
             };
 

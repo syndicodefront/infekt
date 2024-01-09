@@ -48,10 +48,6 @@
 #include <regex>
 #include <functional>
 
-#ifdef HAVE_BOOST
-#include <boost/format.hpp>
-#endif
-
 #define INFEKT_2_CXXRUST
 
 /* local headers */

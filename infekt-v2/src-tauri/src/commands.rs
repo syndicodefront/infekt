@@ -1,12 +1,12 @@
-use cxx::let_cxx_string;
-use crate::infekt_core;
+use std::path::Path;
+
+use crate::nfo_data::NfoData;
 
 #[derive(serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 #[serde(rename_all = "camelCase")]
 pub struct LoadNfoRequest {
     file_path: String,
-    return_browseable_files: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -14,23 +14,24 @@ pub struct LoadNfoRequest {
 pub struct LoadNfoResponse {
     success: bool,
     message: Option<String>,
-    browseable_file_paths: Option<Vec<String>>,
 }
 
 #[tauri::command]
 pub fn load_nfo(req: LoadNfoRequest) -> LoadNfoResponse {
-    println!("I have no idea what I'm doing! Path =  {}", req.file_path);
+    let mut nfo_data = NfoData::new();
+    let load_result = nfo_data.load_from_file(Path::new(&req.file_path));
 
-    let mut nfo_data = infekt_core::ffi::new_nfo_data();
-    let_cxx_string!(path=req.file_path);
+    /*
+    if load_result.is_ok() {
+        println!("Charset name = {}", nfo_data.get_charset_name())
+    }
+    */
 
     LoadNfoResponse {
-        success: nfo_data.pin_mut().LoadFromFile(&path),
-        message: None,
-        browseable_file_paths: if req.return_browseable_files {
-            Some(Vec::new())
-        } else {
-            None
+        success: load_result.is_ok(),
+        message: match load_result {
+            Ok(()) => None,
+            Err(msg) => Some(msg),
         },
     }
 }

@@ -95,12 +95,12 @@ public:
 	} EErrorCode;
 
 	bool IsInError() const { return m_lastErrorCode != NDE_NO_ERROR; }
-	const std::wstring& GetLastErrorDescription() const { return m_lastErrorDescr; }
+	const std::string& GetLastErrorDescription() const { return m_lastErrorDescr; }
 	EErrorCode GetLastErrorCode() const { return m_lastErrorCode; }
 
 private:
 	EErrorCode m_lastErrorCode;
-	std::wstring m_lastErrorDescr;
+	std::string m_lastErrorDescr;
 
 	std::wstring m_textContent;
 	std::string m_utf8Content;
@@ -147,7 +147,8 @@ private:
 
 	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
 
-	void SetLastError(EErrorCode a_code, const std::wstring& a_descr);
+	void SetLastError(EErrorCode, const std::wstring&);
+	void SetLastError(EErrorCode, const std::string&);
 	void ClearLastError();
 };
 

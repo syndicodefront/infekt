@@ -50,10 +50,6 @@
 #include <functional>
 #include <omp.h>
 
-#ifdef HAVE_BOOST
-#include <boost/format.hpp>
-#endif
-
 /* cairo and other lib headers */
 #ifdef _WIN32
 #include <cairo-win32.h>

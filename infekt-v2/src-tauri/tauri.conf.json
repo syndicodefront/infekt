@@ -16,10 +16,10 @@
       "targets": "all",
       "identifier": "org.syndicode.infekt-v2",
       "icon": [
-        "icons/iNFekt_9_16x16x32.png",
-        "icons/iNFekt_8_32x32x32.png",
+        "icons/iNFekt.ico",
         "icons/iNFekt_6_256x256x32.png",
-        "icons/iNFekt.ico"
+        "icons/iNFekt_8_32x32x32.png",
+        "icons/iNFekt_9_16x16x32.png"
       ]
     },
     "security": {

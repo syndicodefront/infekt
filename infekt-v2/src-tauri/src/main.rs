@@ -3,6 +3,19 @@
 
 mod commands;
 mod infekt_core;
+mod nfo_data;
+
+
+pub struct InnerGameState {
+    pub foo: String,
+}
+
+impl InnerGameState {
+    pub fn reset(&mut self) {
+        // do stuff
+    }
+}
+
 
 fn main() {
     tauri::Builder::default()

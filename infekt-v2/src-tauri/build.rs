@@ -16,7 +16,11 @@ fn main() {
         .file("../../src/lib/nfo_data.cpp")
         .file("../../src/lib/nfo_hyperlink.cpp")
         .file("../../src/lib/util.cpp")
+        .flag_if_supported("-Wno-type-limits")
+        .flag_if_supported("-fopenmp")
         .compile("infekt-core-cpp");
+
+    println!("cargo:rustc-link-arg=-fopenmp");
 
     cc::Build::new()
         .cpp(false)
