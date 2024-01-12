@@ -21,11 +21,9 @@ pub fn load_nfo(req: LoadNfoRequest) -> LoadNfoResponse {
     let mut nfo_data = NfoData::new();
     let load_result = nfo_data.load_from_file(Path::new(&req.file_path));
 
-    /*
     if load_result.is_ok() {
         println!("Charset name = {}", nfo_data.get_charset_name())
     }
-    */
 
     LoadNfoResponse {
         success: load_result.is_ok(),
