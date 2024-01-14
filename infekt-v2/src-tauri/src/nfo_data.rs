@@ -3,6 +3,7 @@
 
 use crate::infekt_core;
 use cxx::{let_cxx_string, UniquePtr};
+use infekt_core::ffi::ENfoCharset;
 use std::path::Path;
 
 pub struct NfoData {
@@ -35,18 +36,16 @@ impl NfoData {
         }
 
         match self.nfo.GetCharset() {
-            infekt_core::ffi::ENfoCharset::NFOC_UTF16 => "UTF-16",
-            infekt_core::ffi::ENfoCharset::NFOC_UTF8_SIG => "UTF-8 (Signature)",
-            infekt_core::ffi::ENfoCharset::NFOC_UTF8 => "UTF-8",
-            infekt_core::ffi::ENfoCharset::NFOC_CP437 => "CP 437",
-            infekt_core::ffi::ENfoCharset::NFOC_CP437_IN_UTF8 => "CP 437 (in UTF-8)",
-            infekt_core::ffi::ENfoCharset::NFOC_CP437_IN_UTF16 => "CP 437 (in UTF-16)",
-            infekt_core::ffi::ENfoCharset::NFOC_CP437_STRICT => "CP 437 (strict mode)",
-            infekt_core::ffi::ENfoCharset::NFOC_WINDOWS_1252 => "Windows-1252",
-            infekt_core::ffi::ENfoCharset::NFOC_CP437_IN_CP437 => "CP 437 (double encoded)",
-            infekt_core::ffi::ENfoCharset::NFOC_CP437_IN_CP437_IN_UTF8 => {
-                "CP 437 (double encoded + UTF-8)"
-            }
+            ENfoCharset::NFOC_UTF16 => "UTF-16",
+            ENfoCharset::NFOC_UTF8_SIG => "UTF-8 (Signature)",
+            ENfoCharset::NFOC_UTF8 => "UTF-8",
+            ENfoCharset::NFOC_CP437 => "CP 437",
+            ENfoCharset::NFOC_CP437_IN_UTF8 => "CP 437 (in UTF-8)",
+            ENfoCharset::NFOC_CP437_IN_UTF16 => "CP 437 (in UTF-16)",
+            ENfoCharset::NFOC_CP437_STRICT => "CP 437 (strict mode)",
+            ENfoCharset::NFOC_WINDOWS_1252 => "Windows-1252",
+            ENfoCharset::NFOC_CP437_IN_CP437 => "CP 437 (double encoded)",
+            ENfoCharset::NFOC_CP437_IN_CP437_IN_UTF8 => "CP 437 (double encoded + UTF-8)",
             _ => "(unknown)",
         }
     }

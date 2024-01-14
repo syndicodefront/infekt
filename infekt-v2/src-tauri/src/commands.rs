@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::nfo_data::NfoData;
+use crate::{nfo_data::NfoData, LoadedNfoState};
 
 #[derive(serde::Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -17,12 +17,18 @@ pub struct LoadNfoResponse {
 }
 
 #[tauri::command]
-pub fn load_nfo(req: LoadNfoRequest) -> LoadNfoResponse {
+pub fn load_nfo(
+    req: LoadNfoRequest,
+    loaded_nfo_state: tauri::State<LoadedNfoState>,
+) -> LoadNfoResponse {
+    let mut loaded_nfo_state_guarded = loaded_nfo_state.0.lock().unwrap();
+
     let mut nfo_data = NfoData::new();
     let load_result = nfo_data.load_from_file(Path::new(&req.file_path));
 
     if load_result.is_ok() {
-        println!("Charset name = {}", nfo_data.get_charset_name())
+        println!("Charset name = {}", nfo_data.get_charset_name());
+        *loaded_nfo_state_guarded = nfo_data;
     }
 
     LoadNfoResponse {

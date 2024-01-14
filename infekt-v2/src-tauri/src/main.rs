@@ -5,21 +5,19 @@ mod commands;
 mod infekt_core;
 mod nfo_data;
 
+use crate::nfo_data::NfoData;
+use std::sync::Mutex;
 
-pub struct InnerGameState {
-    pub foo: String,
-}
+pub struct LoadedNfoState(pub Mutex<NfoData>);
 
-impl InnerGameState {
-    pub fn reset(&mut self) {
-        // do stuff
-    }
-}
-
+// we only ever access NfoData through the locked Mutex, so...:
+unsafe impl Send for LoadedNfoState {}
+unsafe impl Sync for LoadedNfoState {}
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .manage(LoadedNfoState(Mutex::new(NfoData::new())))
         .invoke_handler(tauri::generate_handler![
             commands::load_nfo,
         ])
