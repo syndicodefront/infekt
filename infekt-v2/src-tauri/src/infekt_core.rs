@@ -27,5 +27,11 @@ pub mod ffi {
         pub fn LoadFromFile(self: Pin<&mut CNFOData>, path: &CxxString) -> bool;
         pub fn GetLastErrorDescription(self: &CNFOData) -> &CxxString;
         pub fn GetCharset(self: &CNFOData) -> ENfoCharset;
+
+        pub fn GetGridHeight(self: &CNFOData) -> usize;
+        pub fn GetGridWidth(self: &CNFOData) -> usize;
+
+        pub fn GetGridCharUtf32(self: &CNFOData, row: usize, col: usize) -> u32;
+        pub fn GetGridCharUtf8(self: &CNFOData, row: usize, col: usize) -> &CxxString;
     }
 }

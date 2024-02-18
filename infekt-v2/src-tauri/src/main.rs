@@ -4,6 +4,7 @@
 mod commands;
 mod infekt_core;
 mod nfo_data;
+mod nfo_renderer_grid;
 
 use crate::nfo_data::NfoData;
 use std::sync::Mutex;
