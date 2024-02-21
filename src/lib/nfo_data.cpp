@@ -1501,20 +1501,21 @@ wchar_t CNFOData::GetGridChar(size_t a_row, size_t a_col) const
 		: 0);
 }
 
+static std::string emptyUtf8String;
 
-const std::string CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col) const
+const std::string& CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col) const
 {
-	wchar_t grid_char = GetGridChar(a_row, a_col);
+	const wchar_t grid_char = GetGridChar(a_row, a_col);
 
-	return (grid_char > 0 ? GetGridCharUtf8(grid_char) : "");
+	return (grid_char > 0 ? GetGridCharUtf8(grid_char) : emptyUtf8String);
 }
 
 
-const std::string CNFOData::GetGridCharUtf8(wchar_t a_wideChar) const
+const std::string& CNFOData::GetGridCharUtf8(wchar_t a_wideChar) const
 {
-	auto it = m_utf8Map.find(a_wideChar);
+	const auto it = m_utf8Map.find(a_wideChar);
 
-	return (it != m_utf8Map.end() ? it->second : "");
+	return (it != std::end(m_utf8Map) ? it->second : emptyUtf8String);
 }
 
 

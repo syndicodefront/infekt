@@ -1,17 +1,15 @@
 use std::u32;
 
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NfoRendererGrid {
     pub width: usize,
     pub height: usize,
     pub lines: Vec<NfoRendererLine>,
-    // list of blocks by line, similar to
-    // [ { "row": 123, "block_groups": [ { "col": 7, "blocks": [ 0, 1, 5 ] }, ... ] } ]
-    // list of links, similar to
-    // [ { "row": 123, "col": 20, "text": "x.y", "href": "https://..." } ]
-    // list of text flights, similar to
-    // [ { "row": 123, "col": 20, "text": "x.y" } ]
 }
 
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NfoRendererLine {
     pub row: usize,
     pub block_groups: Vec<NfoRendererBlockGroup>,
@@ -19,12 +17,15 @@ pub struct NfoRendererLine {
     pub links: Vec<NfoRendererLink>,
 }
 
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NfoRendererBlockGroup {
     pub col: usize,
     pub blocks: Vec<NfoRendererBlockShape>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, serde_repr::Serialize_repr)]
+#[repr(i32)]
 pub enum NfoRendererBlockShape {
     NoBlock = 0,
     Whitespace,
@@ -41,11 +42,15 @@ pub enum NfoRendererBlockShape {
     BlackSquareSmall,
 }
 
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NfoRendererTextFlight {
     pub col: usize,
     pub text: String,
 }
 
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NfoRendererLink {
     pub col: usize,
     pub text: String,

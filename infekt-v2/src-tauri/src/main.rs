@@ -21,6 +21,7 @@ fn main() {
         .manage(LoadedNfoState(Mutex::new(NfoData::new())))
         .invoke_handler(tauri::generate_handler![
             commands::load_nfo,
+            commands::get_nfo_renderer_grid,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -20,6 +20,10 @@ impl NfoData {
         }
     }
 
+    pub fn is_loaded(&self) -> bool {
+        !self.nfo.is_null()
+    }
+
     pub fn load_from_file(&mut self, path: &Path) -> Result<(), String> {
         let mut load_nfo = infekt_core::ffi::new_nfo_data();
         let_cxx_string!(path_cxx = String::from(path.to_string_lossy()));
@@ -70,7 +74,7 @@ impl NfoData {
         let mut renderer_grid = NfoRendererGrid {
             width,
             height,
-            lines: Vec::new(),
+            lines: Vec::with_capacity(height),
         };
 
         for row in 0..height {
