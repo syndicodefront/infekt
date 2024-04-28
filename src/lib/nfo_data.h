@@ -74,6 +74,7 @@ public:
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
 	const std::vector<const CNFOHyperLink*> GetLinksForLine(size_t a_row) const;
+	const std::string& GetLinkUrlUtf8(size_t a_row, size_t a_col) const;
 
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
 	ENfoCharset GetCharset() const { return m_sourceCharset; }

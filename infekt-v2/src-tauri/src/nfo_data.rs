@@ -90,6 +90,9 @@ impl NfoData {
             let mut text_buf = String::with_capacity(128);
             let mut link_url: Option<String> = None;
 
+            let mut block_group_first_col = usize::MAX;
+            let mut block_group_buf: Vec<NfoRendererBlockShape> = Vec::new();
+
             for col in 0..width {
                 let block_shape =
                     get_block_shape(self.nfo.GetGridCharUtf32(row, col), text_started);
@@ -104,14 +107,14 @@ impl NfoData {
                         text_buf_first_col = col;
                     }
 
-                    // let link = self.nfo.Get // TODO: implement link extraction
-                    let now_in_link = false;
+                    let link = self.nfo.GetLinkUrlUtf8(row, col);
+                    let now_in_link = !link.is_empty();
                     let buffer_is_link = link_url != None;
 
                     if now_in_link != buffer_is_link {
-                        if !text_buf.is_empty() {
-                            text_buf.truncate(text_buf.trim_end_matches(' ').len());
+                        text_buf.truncate(text_buf.trim_end_matches(' ').len());
 
+                        if !text_buf.is_empty() {
                             if buffer_is_link {
                                 line.links.push(NfoRendererLink {
                                     col: text_buf_first_col,
@@ -128,7 +131,7 @@ impl NfoData {
 
                         text_buf = String::with_capacity(128);
                         text_buf_first_col = col;
-                        link_url = now_in_link.then(|| String::new()); // TODO: take real link URL
+                        link_url = now_in_link.then(|| link.to_string());
                     }
 
                     text_buf.push_str(unsafe {
@@ -136,15 +139,45 @@ impl NfoData {
                     });
                 } else if block_shape != NfoRendererBlockShape::Whitespace {
                     // It's a block!
+
+                    if !block_group_buf.is_empty()
+                        && col != block_group_first_col + block_group_buf.len()
+                    {
+                        // End of block group.
+                        line.block_groups.push(NfoRendererBlockGroup {
+                            col: block_group_first_col,
+                            blocks: block_group_buf,
+                        });
+
+                        block_group_buf = Vec::new();
+                    }
+
+                    if block_group_buf.is_empty() {
+                        block_group_first_col = col;
+                    }
+
+                    block_group_buf.push(block_shape);
+
+                    if text_started {
+                        // Preserve whitespace between non-whitespace chars.
+                        text_buf.push(' ');
+                    }
                 } else if text_started {
                     // Preserve whitespace between non-whitespace chars.
                     text_buf.push(' ');
                 }
             }
 
-            if !text_buf.is_empty() {
-                text_buf.truncate(text_buf.trim_end_matches(' ').len());
+            if !block_group_buf.is_empty() {
+                line.block_groups.push(NfoRendererBlockGroup {
+                    col: block_group_first_col,
+                    blocks: block_group_buf,
+                });
+            }
 
+            text_buf.truncate(text_buf.trim_end_matches(' ').len());
+
+            if !text_buf.is_empty() {
                 if link_url != None {
                     line.links.push(NfoRendererLink {
                         col: text_buf_first_col,

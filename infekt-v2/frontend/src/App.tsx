@@ -8,7 +8,7 @@ import { DialogMaskProvider } from './context/DialogMaskContext';
 
 const App = () => {
   const {
-    token: { colorBgContainer },
+    token: { colorBgContainer }, // XXX: this will go away with NFO themes support
   } = theme.useToken();
 
   return (

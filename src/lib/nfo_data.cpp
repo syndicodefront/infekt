@@ -1633,6 +1633,15 @@ const std::vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) 
 	return l_result;
 }
 
+const std::string& CNFOData::GetLinkUrlUtf8(size_t a_row, size_t a_col) const
+{
+	static const std::string noLink;
+
+	const CNFOHyperLink* l_link = GetLink(a_row, a_col);
+
+	return (l_link ? l_link->GetHrefUtf8() : noLink);
+}
+
 
 /************************************************************************/
 /* Raw Stripper Code                                                    */
