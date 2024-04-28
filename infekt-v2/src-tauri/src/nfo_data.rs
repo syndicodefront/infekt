@@ -142,6 +142,23 @@ impl NfoData {
                 }
             }
 
+            if !text_buf.is_empty() {
+                text_buf.truncate(text_buf.trim_end_matches(' ').len());
+
+                if link_url != None {
+                    line.links.push(NfoRendererLink {
+                        col: text_buf_first_col,
+                        text: text_buf,
+                        url: link_url.unwrap(),
+                    });
+                } else {
+                    line.text_flights.push(NfoRendererTextFlight {
+                        col: text_buf_first_col,
+                        text: text_buf,
+                    });
+                }
+            }
+
             renderer_grid.lines.push(line);
         }
 

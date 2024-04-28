@@ -38,8 +38,6 @@ const SiderMenu = () => {
             ]
           });
 
-          console.log(file);
-
           if (file) {
             const loadNfoRequest: LoadNfoRequest = {
               req: {
@@ -49,7 +47,10 @@ const SiderMenu = () => {
 
             const loadNfoResponse = (await invoke('load_nfo', loadNfoRequest)) as LoadNfoResponse;
 
-            console.log(loadNfoResponse);
+            if (loadNfoResponse.success) {
+              const rendererGrid = await invoke('get_nfo_renderer_grid');
+              console.log(rendererGrid);
+            }
           }
         } finally {
           toggleDialogMask?.(false);
