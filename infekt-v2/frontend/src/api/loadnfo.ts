@@ -5,7 +5,7 @@ export type LoadNfoRequest = {
   }
 }
 
-export type LoadNfoResponse = {
+export interface LoadNfoResponse {
   success: boolean;
   message: string | null;
 }

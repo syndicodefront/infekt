@@ -6,22 +6,32 @@
   "scripts": {
     "dev": "vite serve ./frontend",
     "build": "cd ./frontend && tsc && vite build",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "lint": "eslint --no-cache frontend/src"
   },
   "dependencies": {
     "@ant-design/icons": "^5.3.6",
     "@tauri-apps/api": "2.0.0-beta.9",
     "@tauri-apps/plugin-dialog": "2.0.0-beta.2",
-    "antd": "^5.16.4",
+    "antd": "^5.16.5",
     "rc-menu": "^9.13.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.1.1",
     "@tauri-apps/cli": "2.0.0-beta.13",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "globals": "^15.1.0",
     "typescript": "^5.4.5",
+    "typescript-eslint": "^7.8.0",
     "vite": "^4.5.3"
-  }
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "engineStrict": true
 }

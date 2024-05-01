@@ -7,13 +7,14 @@ import { SIDER_WIDTH, SIDER_WIDTH_COLLAPSED, useSiderCollapsedDispatch } from '.
 import { useShowDialogMaskDispatchContext } from '../context/DialogMaskContext';
 import { open as dialogFileOpen } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
-import { LoadNfoRequest, LoadNfoResponse } from '../api/types';
+import { LoadNfoRequest, LoadNfoResponse } from '../api/loadnfo';
+import { NfoRendererGrid } from '../api/rendergrid';
 
 const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
 const SiderMenu = () => {
-  const menuItems: Array<MenuItem> = [
+  const menuItems: MenuItem[] = [
     { label: 'Open File...', key: 'OPEN', icon: <FolderOpenOutlined /> },
     { label: 'Preferences', key: 'PREF', icon: <SettingOutlined /> },
     { label: 'About', key: 'ABOUT', icon: <InfoCircleOutlined /> },
@@ -45,10 +46,10 @@ const SiderMenu = () => {
               }
             };
 
-            const loadNfoResponse = (await invoke('load_nfo', loadNfoRequest)) as LoadNfoResponse;
+            const loadNfoResponse: LoadNfoResponse = await invoke('load_nfo', loadNfoRequest);
 
             if (loadNfoResponse.success) {
-              const rendererGrid = await invoke('get_nfo_renderer_grid');
+              const rendererGrid: NfoRendererGrid = await invoke('get_nfo_renderer_grid');
               console.log(rendererGrid);
             }
           }
