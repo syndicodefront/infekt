@@ -1,9 +1,10 @@
-import React, { PropsWithChildren, createContext, useContext, useReducer } from 'react';
+import React, { PropsWithChildren, createContext, useReducer } from 'react';
+import { wrapUseContextGuaranteed } from '../util/useContextGuaranteed';
 
 export const SIDER_WIDTH = 200;
 export const SIDER_WIDTH_COLLAPSED = 80;
 
-interface SiderCollapsedStatus {
+export interface SiderCollapsedStatus {
   isCollapsed: boolean;
   currentWidth: number;
 };
@@ -11,11 +12,12 @@ interface SiderCollapsedStatus {
 const SiderCollapsedContext = createContext<SiderCollapsedStatus | undefined>(undefined);
 const SiderCollapsedDispatchContext = createContext<React.Dispatch<boolean> | undefined>(undefined);
 
+function createInitialState(): SiderCollapsedStatus {
+  return { isCollapsed: false, currentWidth: SIDER_WIDTH }
+}
+
 export const SiderCollapsedStatusProvider = ({ children }: PropsWithChildren) => {
-  const [collapsedStatus, dispatch] = useReducer(
-    isCollapsedReducer,
-    { isCollapsed: false, currentWidth: SIDER_WIDTH }
-  );
+  const [collapsedStatus, dispatch] = useReducer(isCollapsedReducer, null, createInitialState);
 
   return (
     <SiderCollapsedContext.Provider value={collapsedStatus}>
@@ -26,13 +28,8 @@ export const SiderCollapsedStatusProvider = ({ children }: PropsWithChildren) =>
   );
 }
 
-export const useSiderCollapsed = () => {
-  return useContext(SiderCollapsedContext);
-}
-
-export const useSiderCollapsedDispatch = () => {
-  return useContext(SiderCollapsedDispatchContext);
-}
+export const useSiderCollapsed = wrapUseContextGuaranteed(SiderCollapsedContext);
+export const useSiderCollapsedDispatch = wrapUseContextGuaranteed(SiderCollapsedDispatchContext);
 
 function isCollapsedReducer(_: SiderCollapsedStatus, action: boolean) {
   return {

@@ -51,7 +51,7 @@ export default tseslint.config(
       'react/jsx-sort-props': ['warn', { 'noSortAlphabetically': true }],
       'react/forbid-component-props': 'off',
       'react/jsx-max-props-per-line': ['warn', { 'maximum': 1, 'when': 'multiline' }],
-      'react/jsx-max-depth': ['warn', { 'max': 4 }],
+      'react/jsx-max-depth': 'off',
       'react/jsx-one-expression-per-line': ['warn', { 'allow': 'single-child' }],
       'react/jsx-no-literals': 'off',
       'react/jsx-newline': 'off',

@@ -2,6 +2,7 @@ export interface NfoRendererGrid {
   width: number;
   height: number;
   lines: NfoRendererLine[];
+  hasBlocks: boolean;
 }
 
 export interface NfoRendererLine {

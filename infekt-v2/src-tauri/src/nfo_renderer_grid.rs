@@ -6,6 +6,7 @@ pub struct NfoRendererGrid {
     pub width: usize,
     pub height: usize,
     pub lines: Vec<NfoRendererLine>,
+    pub has_blocks: bool,
 }
 
 #[derive(Clone, serde::Serialize)]

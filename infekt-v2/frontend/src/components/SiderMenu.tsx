@@ -8,7 +8,7 @@ import { useShowDialogMaskDispatchContext } from '../context/DialogMaskContext';
 import { open as dialogFileOpen } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { LoadNfoRequest, LoadNfoResponse } from '../api/loadnfo';
-import { NfoRendererGrid } from '../api/rendergrid';
+import { useCurrentNfoDispatch } from '../context/CurrentNfoContext';
 
 const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
@@ -22,11 +22,12 @@ const menuItems: MenuItem[] = [
 
 const SiderMenu = () => {
   const toggleDialogMask = useShowDialogMaskDispatchContext();
+  const updateCurrentNfo = useCurrentNfoDispatch();
 
   const onMenuClick = useCallback(async ({ key }: MenuInfo) => {
     switch (key) {
       case 'OPEN':
-        toggleDialogMask?.(true);
+        toggleDialogMask(true);
 
         try {
           const file = await dialogFileOpen({
@@ -49,12 +50,11 @@ const SiderMenu = () => {
             const loadNfoResponse: LoadNfoResponse = await invoke('load_nfo', loadNfoRequest);
 
             if (loadNfoResponse.success) {
-              const rendererGrid: NfoRendererGrid = await invoke('get_nfo_renderer_grid');
-              console.log(rendererGrid);
+              updateCurrentNfo({ type: 'loaded', filePath: file.path });
             }
           }
         } finally {
-          toggleDialogMask?.(false);
+          toggleDialogMask(false);
         }
         break;
       case 'PREF':
@@ -62,7 +62,7 @@ const SiderMenu = () => {
       case 'ABOUT':
         break;
     }
-  }, [toggleDialogMask]);
+  }, [toggleDialogMask, updateCurrentNfo]);
 
   return (
     <Sider

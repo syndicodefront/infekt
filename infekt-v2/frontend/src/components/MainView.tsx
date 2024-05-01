@@ -1,40 +1,43 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout, Segmented, theme } from 'antd';
 import { AppstoreOutlined, BlockOutlined, AlignCenterOutlined } from '@ant-design/icons';
 import { useSiderCollapsed } from '../context/SiderMenuContext';
+import NfoViewRendered from './NfoViewRendered';
+import NfoViewTextOnly from './NfoViewTextOnly';
+import NfoViewClassic from './NfoViewClassic';
 
 const { Content } = Layout;
+
+enum ViewMode {
+  Rendered = 1,
+  Classic = 2,
+  TextOnly = 3,
+}
+
+const DefaultViewMode = ViewMode.Rendered;
+
+const viewModeOptions = [
+  { label: 'Rendered', value: ViewMode.Rendered, icon: <BlockOutlined /> },
+  { label: 'Classic', value: ViewMode.Classic, icon: <AppstoreOutlined /> },
+  { label: 'Text-only', value: ViewMode.TextOnly, icon: <AlignCenterOutlined /> }
+];
 
 const MainView = () => {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const viewModeOptions = [
-    { label: 'Rendered', value: 'rendered', icon: <BlockOutlined /> },
-    { label: 'Classic', value: 'classic', icon: <AppstoreOutlined /> },
-    { label: 'Text-only', value: 'text', icon: <AlignCenterOutlined /> }
-  ];
-
   const siderCollapsedStatus = useSiderCollapsed();
+  const [viewMode, setViewMode] = useState<ViewMode>(DefaultViewMode);
 
   return (
     <Layout style={{ marginLeft: siderCollapsedStatus?.currentWidth, backgroundColor: colorBgContainer }}>
-      <Segmented style={{ margin: '0 auto' }} options={viewModeOptions} />
+      <Segmented<ViewMode> style={{ margin: '0 auto' }} defaultValue={DefaultViewMode} options={viewModeOptions} onChange={setViewMode} />
 
       <Content style={{ margin: 0, overflowX: 'auto', overflowY: 'scroll' }}>
-        <div>
-          <p>long content</p>
-          {
-            // indicates very long content
-            Array.from({ length: 100 }, (_, index) => (
-              <React.Fragment key={index}>
-                {index % 20 === 0 && index ? 'more' : '...'}
-                <br />
-              </React.Fragment>
-            ))
-          }
-        </div>
+        {viewMode === ViewMode.Rendered && <NfoViewRendered />}
+        {viewMode === ViewMode.Classic && <NfoViewClassic />}
+        {viewMode === ViewMode.TextOnly && <NfoViewTextOnly />}
       </Content>
     </Layout>
   );

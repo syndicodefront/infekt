@@ -1,13 +1,11 @@
-import React, { PropsWithChildren, createContext, useContext, useReducer } from 'react';
+import React, { PropsWithChildren, createContext, useReducer } from 'react';
+import { wrapUseContextGuaranteed } from '../util/useContextGuaranteed';
 
 const ShowDialogMaskContext = createContext<boolean>(false);
 const ShowDialogMaskDispatchContext = createContext<React.Dispatch<boolean> | undefined>(undefined);
 
 export const DialogMaskProvider = ({ children }: PropsWithChildren) => {
-  const [isMasked, dispatch] = useReducer(
-    showDialogMaskReducer,
-    false
-  );
+  const [isMasked, dispatch] = useReducer(showDialogMaskReducer, false);
 
   return (
     <ShowDialogMaskContext.Provider value={isMasked}>
@@ -18,13 +16,8 @@ export const DialogMaskProvider = ({ children }: PropsWithChildren) => {
   );
 }
 
-export const useShowDialogMaskContext = () => {
-  return useContext(ShowDialogMaskContext);
-}
-
-export const useShowDialogMaskDispatchContext = () => {
-  return useContext(ShowDialogMaskDispatchContext);
-}
+export const useShowDialogMaskContext = wrapUseContextGuaranteed(ShowDialogMaskContext);
+export const useShowDialogMaskDispatchContext = wrapUseContextGuaranteed(ShowDialogMaskDispatchContext);
 
 function showDialogMaskReducer(_: boolean, action: boolean) {
   return action

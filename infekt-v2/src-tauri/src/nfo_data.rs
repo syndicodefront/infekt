@@ -69,12 +69,12 @@ impl NfoData {
 
         let width = self.nfo.GetGridWidth();
         let height = self.nfo.GetGridHeight();
-        // let mut has_blocks = false;
 
         let mut renderer_grid = NfoRendererGrid {
             width,
             height,
             lines: Vec::with_capacity(height),
+            has_blocks: false,
         };
 
         for row in 0..height {
@@ -162,6 +162,8 @@ impl NfoData {
                         // Preserve whitespace between non-whitespace chars.
                         text_buf.push(' ');
                     }
+
+                    renderer_grid.has_blocks = true;
                 } else if text_started {
                     // Preserve whitespace between non-whitespace chars.
                     text_buf.push(' ');

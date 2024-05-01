@@ -1,4 +1,4 @@
-const NfoDevicePixelRatio = function () {
+const NfoDevicePixelRatio = () => {
   const MIN = 1;
   const MAX = 4;
 
