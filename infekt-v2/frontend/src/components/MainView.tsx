@@ -20,7 +20,7 @@ const MainView = () => {
 
   return (
     <Layout style={{ marginLeft: siderCollapsedStatus?.currentWidth, backgroundColor: colorBgContainer }}>
-      <Segmented style={{ margin: '0 auto' }} options={viewModeOptions}></Segmented>
+      <Segmented style={{ margin: '0 auto' }} options={viewModeOptions} />
 
       <Content style={{ margin: 0, overflowX: 'auto', overflowY: 'scroll' }}>
         <div>

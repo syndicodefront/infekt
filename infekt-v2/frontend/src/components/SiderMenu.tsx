@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { MenuInfo } from 'rc-menu/es/interface';
@@ -13,17 +13,17 @@ import { NfoRendererGrid } from '../api/rendergrid';
 const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
-const SiderMenu = () => {
-  const menuItems: MenuItem[] = [
-    { label: 'Open File...', key: 'OPEN', icon: <FolderOpenOutlined /> },
-    { label: 'Preferences', key: 'PREF', icon: <SettingOutlined /> },
-    { label: 'About', key: 'ABOUT', icon: <InfoCircleOutlined /> },
-    { type: 'divider' },
-  ];
+const menuItems: MenuItem[] = [
+  { label: 'Open File...', key: 'OPEN', icon: <FolderOpenOutlined /> },
+  { label: 'Preferences', key: 'PREF', icon: <SettingOutlined /> },
+  { label: 'About', key: 'ABOUT', icon: <InfoCircleOutlined /> },
+  { type: 'divider' },
+];
 
+const SiderMenu = () => {
   const toggleDialogMask = useShowDialogMaskDispatchContext();
 
-  const onMenuClick = async ({ key }: MenuInfo) => {
+  const onMenuClick = useCallback(async ({ key }: MenuInfo) => {
     switch (key) {
       case 'OPEN':
         toggleDialogMask?.(true);
@@ -62,7 +62,7 @@ const SiderMenu = () => {
       case 'ABOUT':
         break;
     }
-  };
+  }, [toggleDialogMask]);
 
   return (
     <Sider
@@ -86,8 +86,7 @@ const SiderMenu = () => {
         mode='vertical'
         theme='dark'
         onClick={onMenuClick}
-      >
-      </Menu>
+      />
     </Sider>
   );
 

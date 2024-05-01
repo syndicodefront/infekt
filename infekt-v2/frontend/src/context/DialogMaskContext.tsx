@@ -3,7 +3,7 @@ import React, { PropsWithChildren, createContext, useContext, useReducer } from 
 const ShowDialogMaskContext = createContext<boolean>(false);
 const ShowDialogMaskDispatchContext = createContext<React.Dispatch<boolean> | undefined>(undefined);
 
-export function DialogMaskProvider({ children }: PropsWithChildren) {
+export const DialogMaskProvider = ({ children }: PropsWithChildren) => {
   const [isMasked, dispatch] = useReducer(
     showDialogMaskReducer,
     false
@@ -18,11 +18,11 @@ export function DialogMaskProvider({ children }: PropsWithChildren) {
   );
 }
 
-export function useShowDialogMaskContext() {
+export const useShowDialogMaskContext = () => {
   return useContext(ShowDialogMaskContext);
 }
 
-export function useShowDialogMaskDispatchContext() {
+export const useShowDialogMaskDispatchContext = () => {
   return useContext(ShowDialogMaskDispatchContext);
 }
 

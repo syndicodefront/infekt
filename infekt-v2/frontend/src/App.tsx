@@ -16,8 +16,8 @@ const App = () => {
       <DialogMaskProvider>
         <Layout hasSider style={{ backgroundColor: colorBgContainer }}>
           <SiderCollapsedStatusProvider>
-            <SiderMenu></SiderMenu>
-            <MainView></MainView>
+            <SiderMenu />
+            <MainView />
           </SiderCollapsedStatusProvider>
         </Layout>
         <DialogMask />
