@@ -2,12 +2,10 @@
 export type LoadNfoRequest = {
   req: {
     filePath: string;
-    returnBrowseableFiles: boolean;
   }
 }
 
-export type LoadNfoResponse = {
+export interface LoadNfoResponse {
   success: boolean;
   message: string | null;
-  browseableFilePaths: Array<string>|null;
 }

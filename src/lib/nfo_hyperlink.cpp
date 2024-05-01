@@ -17,7 +17,12 @@
 #include "util.h"
 
 CNFOHyperLink::CNFOHyperLink(int linkID, const std::wstring& href, size_t row, size_t col, size_t len)
-	: m_linkID(linkID), m_href(href), m_row(row), m_colStart(col), m_colEnd(col + len - 1)
+	: m_linkID(linkID)
+	, m_href(href)
+	, m_hrefUtf8()
+	, m_row(row)
+	, m_colStart(col)
+	, m_colEnd(col + len - 1)
 {
 }
 
@@ -249,4 +254,14 @@ CNFOHyperLink::CLinkRegEx::CLinkRegEx(const std::wstring& regexStr, bool isConti
 	}
 
 	m_regex = std::move(std::wregex(regexStr, flags));
+}
+
+const std::string& CNFOHyperLink::GetHrefUtf8() const
+{
+	if (m_hrefUtf8.empty())
+	{
+		m_hrefUtf8 = CUtil::FromWideStr(m_href, CP_UTF8);
+	}
+
+	return m_hrefUtf8;
 }

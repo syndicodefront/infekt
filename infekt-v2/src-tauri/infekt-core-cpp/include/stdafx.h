@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2010 syndicode
+ * Copyright (C) 2024 syndicode
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -12,8 +12,7 @@
  * GNU General Public License for more details.
  **/
 
-#ifndef _STDAFX_H
-#define _STDAFX_H
+#pragma once
 
 #ifdef _WIN32
 #include "targetver.h"
@@ -48,14 +47,8 @@
 #include <mutex>
 #include <regex>
 #include <functional>
-#include <omp.h>
 
-/* cairo and other lib headers */
-#ifdef _WIN32
-#include <cairo-win32.h>
-#else
-#include <cairo.h>
-#endif
+#define INFEKT_2_CXXRUST
 
 /* local headers */
 #include "infekt.h"
@@ -63,5 +56,3 @@
 #ifndef _WIN32
 #include "infekt-posix.h"
 #endif
-
-#endif /* !_STDAFX_H */

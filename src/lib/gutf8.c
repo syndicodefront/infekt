@@ -29,7 +29,7 @@
 #define G_UNLIKELY(expr) expr
 #define G_STMT_START do
 #define G_STMT_END while(0)
-#define gssize size_t
+#define gssize long long
 #define gboolean int
 #define glong long
 #define TRUE 1

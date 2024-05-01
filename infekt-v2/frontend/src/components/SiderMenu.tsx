@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Layout, Menu } from 'antd';
 import type { MenuProps } from 'antd';
 import { MenuInfo } from 'rc-menu/es/interface';
@@ -6,26 +6,28 @@ import { FolderOpenOutlined, SettingOutlined, InfoCircleOutlined } from '@ant-de
 import { SIDER_WIDTH, SIDER_WIDTH_COLLAPSED, useSiderCollapsedDispatch } from '../context/SiderMenuContext';
 import { useShowDialogMaskDispatchContext } from '../context/DialogMaskContext';
 import { open as dialogFileOpen } from '@tauri-apps/plugin-dialog';
-import { invoke } from '@tauri-apps/api/primitives';
-import { LoadNfoRequest, LoadNfoResponse } from '../api/types';
+import { invoke } from '@tauri-apps/api/core';
+import { LoadNfoRequest, LoadNfoResponse } from '../api/loadnfo';
+import { useCurrentNfoDispatch } from '../context/CurrentNfoContext';
 
 const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
+const menuItems: MenuItem[] = [
+  { label: 'Open File...', key: 'OPEN', icon: <FolderOpenOutlined /> },
+  { label: 'Preferences', key: 'PREF', icon: <SettingOutlined /> },
+  { label: 'About', key: 'ABOUT', icon: <InfoCircleOutlined /> },
+  { type: 'divider' },
+];
+
 const SiderMenu = () => {
-  const menuItems: Array<MenuItem> = [
-    { label: 'Open File...', key: 'OPEN', icon: <FolderOpenOutlined /> },
-    { label: 'Preferences', key: 'PREF', icon: <SettingOutlined /> },
-    { label: 'About', key: 'ABOUT', icon: <InfoCircleOutlined /> },
-    { type: 'divider' },
-  ];
-
   const toggleDialogMask = useShowDialogMaskDispatchContext();
+  const updateCurrentNfo = useCurrentNfoDispatch();
 
-  const onMenuClick = async ({ key }: MenuInfo) => {
+  const onMenuClick = useCallback(async ({ key }: MenuInfo) => {
     switch (key) {
       case 'OPEN':
-        toggleDialogMask?.(true);
+        toggleDialogMask(true);
 
         try {
           const file = await dialogFileOpen({
@@ -38,22 +40,21 @@ const SiderMenu = () => {
             ]
           });
 
-          console.log(file);
-
           if (file) {
             const loadNfoRequest: LoadNfoRequest = {
               req: {
                 filePath: file.path,
-                returnBrowseableFiles: true,
               }
             };
 
-            const loadNfoResponse = (await invoke('load_nfo', loadNfoRequest)) as LoadNfoResponse;
+            const loadNfoResponse: LoadNfoResponse = await invoke('load_nfo', loadNfoRequest);
 
-            console.log(loadNfoResponse);
+            if (loadNfoResponse.success) {
+              updateCurrentNfo({ type: 'loaded', filePath: file.path });
+            }
           }
         } finally {
-          toggleDialogMask?.(false);
+          toggleDialogMask(false);
         }
         break;
       case 'PREF':
@@ -61,7 +62,7 @@ const SiderMenu = () => {
       case 'ABOUT':
         break;
     }
-  };
+  }, [toggleDialogMask, updateCurrentNfo]);
 
   return (
     <Sider
@@ -85,8 +86,7 @@ const SiderMenu = () => {
         mode='vertical'
         theme='dark'
         onClick={onMenuClick}
-      >
-      </Menu>
+      />
     </Sider>
   );
 

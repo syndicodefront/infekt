@@ -1,9 +1,12 @@
+use std::path::Path;
+
+use crate::{nfo_data::NfoData, LoadedNfoState};
+
 #[derive(serde::Deserialize)]
 #[serde(deny_unknown_fields)]
 #[serde(rename_all = "camelCase")]
 pub struct LoadNfoRequest {
     file_path: String,
-    return_browseable_files: bool,
 }
 
 #[derive(serde::Serialize)]
@@ -11,20 +14,49 @@ pub struct LoadNfoRequest {
 pub struct LoadNfoResponse {
     success: bool,
     message: Option<String>,
-    browseable_file_paths: Option<Vec<String>>,
+}
+
+#[derive(Debug, serde::Serialize)]
+pub enum CommandError {
+  NfoNotLoadedError,
 }
 
 #[tauri::command]
-pub fn load_nfo(req: LoadNfoRequest) -> LoadNfoResponse {
-    println!("I have no idea what I'm doing! Path =  {}", req.file_path);
+pub fn load_nfo(
+    req: LoadNfoRequest,
+    loaded_nfo_state: tauri::State<LoadedNfoState>,
+) -> LoadNfoResponse {
+    let mut loaded_nfo_state_guarded = loaded_nfo_state.0.lock().unwrap();
+
+    let mut nfo_data = NfoData::new();
+    let load_result = nfo_data.load_from_file(Path::new(&req.file_path));
+
+    if load_result.is_ok() {
+        println!("Charset name = {}", nfo_data.get_charset_name());
+        *loaded_nfo_state_guarded = nfo_data;
+    }
 
     LoadNfoResponse {
-        success: false,
-        message: None,
-        browseable_file_paths: if req.return_browseable_files {
-            Some(Vec::new())
-        } else {
-            None
+        success: load_result.is_ok(),
+        message: match load_result {
+            Ok(()) => None,
+            Err(msg) => Some(msg),
         },
     }
+}
+
+#[tauri::command]
+pub fn get_nfo_renderer_grid(
+    loaded_nfo_state: tauri::State<LoadedNfoState>,
+) -> Result<crate::nfo_renderer_grid::NfoRendererGrid, CommandError> {
+    let mut loaded_nfo_state_guarded = loaded_nfo_state.0.lock().unwrap();
+    
+    let nfo_data = &mut *loaded_nfo_state_guarded;
+    let grid = nfo_data.get_renderer_grid();
+
+    if grid.is_none() {
+        return Err(CommandError::NfoNotLoadedError);
+    }
+
+    Ok(grid.unwrap().clone())
 }

@@ -18,7 +18,8 @@ const DialogMask = () => {
       top: 0,
       bottom: 0,
       zIndex: 99999,
-    }}></div>
+    }}
+    />
   );
 };
 

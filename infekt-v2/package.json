@@ -4,25 +4,36 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "tauri": "tauri"
+    "dev": "vite serve ./frontend",
+    "build": "cd ./frontend && tsc && vite build",
+    "tauri": "tauri",
+    "lint": "eslint --no-cache frontend/src"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.2.6",
-    "@tauri-apps/api": "^2.0.0-alpha.12",
-    "@tauri-apps/plugin-dialog": "^2.0.0-alpha.5",
-    "antd": "^5.12.5",
-    "rc-menu": "^9.12.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@ant-design/icons": "^5.3.6",
+    "@tauri-apps/api": "2.0.0-beta.9",
+    "@tauri-apps/plugin-dialog": "2.0.0-beta.2",
+    "antd": "^5.16.5",
+    "rc-menu": "^9.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2.0.0-alpha.18",
-    "@types/react": "^18.2.45",
-    "@types/react-dom": "^18.2.18",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.4"
-  }
+    "@eslint/js": "^9.1.1",
+    "@tauri-apps/cli": "2.0.0-beta.13",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "globals": "^15.1.0",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.8.0",
+    "vite": "^4.5.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "engineStrict": true
 }
