@@ -5,6 +5,7 @@ mod commands;
 mod infekt_core;
 mod nfo_data;
 mod nfo_renderer_grid;
+mod nfo_to_html;
 
 use crate::nfo_data::NfoData;
 use std::sync::Mutex;
@@ -22,6 +23,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             commands::load_nfo,
             commands::get_nfo_renderer_grid,
+            commands::get_nfo_html_classic,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

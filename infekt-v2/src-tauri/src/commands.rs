@@ -18,7 +18,7 @@ pub struct LoadNfoResponse {
 
 #[derive(Debug, serde::Serialize)]
 pub enum CommandError {
-  NfoNotLoadedError,
+    NfoNotLoadedError,
 }
 
 #[tauri::command]
@@ -50,7 +50,7 @@ pub fn get_nfo_renderer_grid(
     loaded_nfo_state: tauri::State<LoadedNfoState>,
 ) -> Result<crate::nfo_renderer_grid::NfoRendererGrid, CommandError> {
     let mut loaded_nfo_state_guarded = loaded_nfo_state.0.lock().unwrap();
-    
+
     let nfo_data = &mut *loaded_nfo_state_guarded;
     let grid = nfo_data.get_renderer_grid();
 
@@ -59,4 +59,18 @@ pub fn get_nfo_renderer_grid(
     }
 
     Ok(grid.unwrap().clone())
+}
+
+#[tauri::command]
+pub fn get_nfo_html_classic(
+    loaded_nfo_state: tauri::State<LoadedNfoState>,
+) -> Result<String, CommandError> {
+    let loaded_nfo_state_guarded = loaded_nfo_state.0.lock().unwrap();
+    let nfo_data = &*loaded_nfo_state_guarded;
+
+    if !nfo_data.is_loaded() {
+        return Err(CommandError::NfoNotLoadedError);
+    }
+
+    Ok(nfo_data.get_classic_html())
 }
