@@ -74,3 +74,17 @@ pub fn get_nfo_html_classic(
 
     Ok(nfo_data.get_classic_html())
 }
+
+#[tauri::command]
+pub fn get_nfo_html_stripped(
+    loaded_nfo_state: tauri::State<LoadedNfoState>,
+) -> Result<String, CommandError> {
+    let loaded_nfo_state_guarded = loaded_nfo_state.0.lock().unwrap();
+    let nfo_data = &*loaded_nfo_state_guarded;
+
+    if !nfo_data.is_loaded() {
+        return Err(CommandError::NfoNotLoadedError);
+    }
+
+    Ok(nfo_data.get_stripped_html())
+}

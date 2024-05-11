@@ -4,7 +4,7 @@ use cxx::UniquePtr;
 use htmlentity::entity::*;
 
 #[derive(PartialEq, Clone, Copy)]
-enum CharColorType {
+enum CharFlightType {
     Unknown,
     Block,
     Text,
@@ -18,8 +18,7 @@ pub fn nfo_to_html_classic(nfo: &UniquePtr<infekt_core::ffi::CNFOData>) -> Strin
     let height = nfo.GetGridHeight();
 
     for row in 0..height {
-        let mut previous_type = CharColorType::Unknown;
-        //let mut link_url: Option<String> = None;
+        let mut previous_type = CharFlightType::Unknown;
 
         for col in 0..width {
             let grid_char = nfo.GetGridCharUtf32(row, col);
@@ -29,44 +28,64 @@ pub fn nfo_to_html_classic(nfo: &UniquePtr<infekt_core::ffi::CNFOData>) -> Strin
                 break;
             }
 
-            let mut new_type = CharColorType::Unknown;
-            let block_shape = get_block_shape(grid_char, false);
             let mut link_url = String::new();
+            let block_shape = get_block_shape(grid_char, false);
+            let mut new_type = CharFlightType::Unknown;
+            let mut could_be_text = false;
 
             if block_shape == NfoRendererBlockShape::Whitespace {
-                new_type = previous_type;
-                // TODO: deal with links
-            } else if block_shape != NfoRendererBlockShape::NoBlock {
-                new_type = CharColorType::Block;
+                if previous_type == CharFlightType::Link {
+                    could_be_text = true;
+                } else {
+                    // whitespace between blocks and within text doesn't change the type
+                    new_type = previous_type;
+                }
+            } else if block_shape == NfoRendererBlockShape::NoBlock {
+                could_be_text = true;
             } else {
+                new_type = CharFlightType::Block;
+            }
+
+            if could_be_text {
                 let raw_link_url = nfo.GetLinkUrlUtf8(row, col);
 
                 if !raw_link_url.is_empty() {
                     link_url = raw_link_url.to_string();
+                    new_type = CharFlightType::Link;
+                } else {
+                    new_type = CharFlightType::Text;
                 }
             }
 
-            if new_type != previous_type && new_type != CharColorType::Unknown {
+            if new_type != CharFlightType::Unknown && new_type != previous_type {
+                if previous_type == CharFlightType::Link {
+                    html.push_str("</a>");
+                } else if previous_type != CharFlightType::Unknown {
+                    html.push_str("</span>");
+                }
+
                 match new_type {
-                    CharColorType::Block => {
-                        html.push_str("<span class=\"nfo-block\">");
+                    CharFlightType::Block => {
+                        html.push_str("<span class=\"nfo-block\" style=\"color: crimson\">");
                     }
-                    CharColorType::Text => {
+                    CharFlightType::Text => {
                         html.push_str("<span class=\"nfo-text\">");
                     }
-                    CharColorType::Link => {
-                        let _ = encode(
+                    CharFlightType::Link => {
+                        let encoded_link_url = encode(
                             link_url.as_bytes(),
                             &EncodeType::Named,
                             &CharacterSet::SpecialChars,
                         )
-                        .to_string()
-                        .and_then(|encoded_link_url| {
-                            html.push_str("<a href=\"#");
-                            html.push_str(&encoded_link_url);
+                        .to_string();
+
+                        if encoded_link_url.is_ok() {
+                            html.push_str("<a href=\"");
+                            html.push_str(&encoded_link_url.unwrap());
                             html.push_str("\">");
-                            Ok({})
-                        });
+                        } else {
+                            html.push_str("<a href=\"#\">");
+                        }
                     }
                     _ => {}
                 }
@@ -75,30 +94,16 @@ pub fn nfo_to_html_classic(nfo: &UniquePtr<infekt_core::ffi::CNFOData>) -> Strin
             }
 
             char::from_u32(grid_char).and_then(|real_char| {
-                match real_char {
-                    '<' => html.push_str("&lt;"),
-                    '>' => html.push_str("&gt;"),
-                    '"' => html.push_str("&quot;"),
-                    '&' => html.push_str("&amp;"),
-                    '\x20'..='\x7f' => {
-                        html.push(real_char);
-                    }
-                    _ => {
-                        encode_char(&real_char, &EncodeType::Decimal).and_then(|char_entity| {
-                            html.push_str(&char_entity.to_string());
-
-                            Some(())
-                        });
-                    }
-                }
-
-                Some(())
+                encode_char(&real_char, &EncodeType::NamedOrDecimal).and_then(|unwrapped| {
+                    html.push_str(&unwrapped.to_string());
+                    None::<()>
+                })
             });
         }
 
-        if previous_type == CharColorType::Link {
+        if previous_type == CharFlightType::Link {
             html.push_str("</a>");
-        } else if previous_type != CharColorType::Unknown {
+        } else if previous_type != CharFlightType::Unknown {
             html.push_str("</span>");
         }
 

@@ -35,9 +35,9 @@ const MainView = () => {
       <Segmented<ViewMode> style={{ margin: '0 auto' }} defaultValue={DefaultViewMode} options={viewModeOptions} onChange={setViewMode} />
 
       <Content style={{ margin: 0, overflowX: 'auto', overflowY: 'scroll' }}>
-        {viewMode === ViewMode.Rendered && <NfoViewRendered />}
-        {viewMode === ViewMode.Classic && <NfoViewClassic />}
-        {viewMode === ViewMode.TextOnly && <NfoViewTextOnly />}
+        <NfoViewRendered viewIsActive={viewMode === ViewMode.Rendered} />
+        <NfoViewClassic viewIsActive={viewMode === ViewMode.Classic} />
+        <NfoViewTextOnly viewIsActive={viewMode === ViewMode.TextOnly} />
       </Content>
     </Layout>
   );

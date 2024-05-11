@@ -1,21 +1,33 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useCurrentNfo } from '../context/CurrentNfoContext';
+import { invoke } from '@tauri-apps/api/core';
 
-const NfoViewTextOnly = () => {
+const NfoViewTextOnly = ({ viewIsActive }: { viewIsActive: boolean }) => {
   const currentNfo = useCurrentNfo();
+  const myRef = useRef<HTMLPreElement>(null);
+
+  useEffect(() => {
+    let isSubscribed = true;
+
+    const fetchData = async () => {
+      const html: string = await invoke('get_nfo_html_stripped');
+
+      if (isSubscribed && myRef.current) {
+        myRef.current.innerHTML = html;
+      }
+    }
+
+    fetchData()
+      .catch(console.error);
+
+    return function () { isSubscribed = false; }
+  }, [myRef, currentNfo])
+
+  // TODO: replace style/display with some logic that only calls get_nfo_html_stripped
+  // on the first render, and after NFO has changed.
 
   return (
-    <>
-      <p>content TEXT ONLY [ {currentNfo.filePath} ]</p>
-      {
-        Array.from({ length: 50 }, (_, index) => (
-          <React.Fragment key={index}>
-            {index % 5 === 0 && index ? 'TEXT ONLY' : '...'}
-            <br />
-          </React.Fragment>
-        ))
-      }
-    </>
+    <pre ref={myRef} style={{ display: viewIsActive ? 'block' : 'none' }}></pre>
   );
 };
 

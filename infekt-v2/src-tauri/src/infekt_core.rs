@@ -25,6 +25,7 @@ pub mod ffi {
 
         pub fn new_nfo_data() -> UniquePtr<CNFOData>;
         pub fn LoadFromFile(self: Pin<&mut CNFOData>, path: &CxxString) -> bool;
+        pub fn LoadStripped(self: Pin<&mut CNFOData>, source: &CNFOData) -> bool;
         pub fn GetLastErrorDescription(self: &CNFOData) -> &CxxString;
         pub fn GetCharset(self: &CNFOData) -> ENfoCharset;
 

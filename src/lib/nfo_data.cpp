@@ -1736,12 +1736,12 @@ std::wstring CNFOData::GetStrippedText() const
 	l_line.reserve(200);
 
 	// remove "special" characters and process by line:
-	for (const wchar_t& c : m_textContent)
+	for (const wchar_t c : m_textContent)
 	{
 #if defined(_WIN32) || defined(MACOSX)
 		if (iswascii(c) || iswalnum(c) || iswspace(c))
 #else
-		if (iswalnum(c) || iswspace(c))
+		if ((c < 0x80) || iswalnum(c) || iswspace(c))
 #endif
 		{
 			if (c == L'\n')
