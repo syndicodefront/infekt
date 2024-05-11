@@ -1,19 +1,26 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCurrentNfo } from '../context/CurrentNfoContext';
 import { invoke } from '@tauri-apps/api/core';
 
-const NfoViewClassic = ({ viewIsActive }: { viewIsActive: boolean }) => {
+const NfoViewClassic = ({ viewIsActive }: { readonly viewIsActive: boolean }) => {
   const currentNfo = useCurrentNfo();
-  const myRef = useRef<HTMLPreElement>(null);
+  const [nfoHtml, setNfoHtml] = useState<string>('');
+
+  // TODO: delay calling get_nfo_html_classic until
+  // the view becomes active for the first time...
 
   useEffect(() => {
+    if (!currentNfo.isLoaded) {
+      return;
+    }
+
     let isSubscribed = true;
 
     const fetchData = async () => {
       const html: string = await invoke('get_nfo_html_classic');
 
-      if (isSubscribed && myRef.current) {
-        myRef.current.innerHTML = html;
+      if (isSubscribed) {
+        setNfoHtml(html);
       }
     }
 
@@ -21,13 +28,14 @@ const NfoViewClassic = ({ viewIsActive }: { viewIsActive: boolean }) => {
       .catch(console.error);
 
     return function () { isSubscribed = false; }
-  }, [myRef, currentNfo])
-
-  // TODO: replace style/display with some logic that only calls get_nfo_html_classic
-  // on the first render, and after NFO has changed.
+  }, [currentNfo, setNfoHtml])
 
   return (
-    <pre ref={myRef} style={{ display: viewIsActive ? 'block' : 'none' }}></pre>
+    <pre
+      style={{ display: viewIsActive ? 'block' : 'none' }}
+      // eslint-disable-next-line react/no-danger
+      dangerouslySetInnerHTML={{ __html: nfoHtml }}
+    />
   );
 };
 
