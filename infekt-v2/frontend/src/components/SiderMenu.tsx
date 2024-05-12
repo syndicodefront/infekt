@@ -5,10 +5,11 @@ import { MenuInfo } from 'rc-menu/es/interface';
 import { FolderOpenOutlined, SettingOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { SIDER_WIDTH, SIDER_WIDTH_COLLAPSED, useSiderCollapsedDispatch } from '../context/SiderMenuContext';
 import { useShowDialogMaskDispatchContext } from '../context/DialogMaskContext';
-import { open as dialogFileOpen } from '@tauri-apps/plugin-dialog';
+import { open as showDialogFileOpen, message as showDialogMessage } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { LoadNfoRequest, LoadNfoResponse } from '../api/loadnfo';
 import { useCurrentNfoDispatch } from '../context/CurrentNfoContext';
+import { getVersion } from '@tauri-apps/api/app';
 
 const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
@@ -30,7 +31,7 @@ const SiderMenu = () => {
         toggleDialogMask(true);
 
         try {
-          const file = await dialogFileOpen({
+          const file = await showDialogFileOpen({
             multiple: false,
             directory: false,
             filters: [
@@ -60,6 +61,15 @@ const SiderMenu = () => {
       case 'PREF':
         break;
       case 'ABOUT':
+        toggleDialogMask(true);
+
+        try {
+          const infektVersion = await getVersion();
+
+          await showDialogMessage(`iNFekt v${infektVersion}\n\n\xA9 syndicode 2010-2024`);
+        } finally {
+          toggleDialogMask(false);
+        }
         break;
     }
   }, [toggleDialogMask, updateCurrentNfo]);

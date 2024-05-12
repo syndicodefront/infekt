@@ -1,6 +1,6 @@
 {
   "productName": "iNFekt",
-  "version": "2.0.0",
+  "version": "../package.json",
   "identifier": "org.syndicode.infekt-v2",
   "build": {
     "beforeDevCommand": "pnpm dev",

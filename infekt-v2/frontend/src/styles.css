@@ -7,4 +7,11 @@ body {
   -webkit-user-select: none;
 
   scroll-behavior: auto;
+
+  text-rendering: optimizeLegibility;
+}
+
+pre,
+pre > * {
+  text-rendering: geometricPrecision;
 }

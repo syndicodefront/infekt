@@ -335,7 +335,7 @@ bool CAnsiArt::Process()
 			_ASSERT(false);
 		}
 
-		if (y_delta < 0 && static_cast<size_t>(std::abs(y_delta)) <= y)
+		if (y_delta < 0 && std::abs(y_delta) <= y)
 		{
 			y += y_delta;
 		}
@@ -349,7 +349,7 @@ bool CAnsiArt::Process()
 			y = 0;
 		}
 
-		if (x_delta < 0 && static_cast<size_t>(std::abs(x_delta)) <= x)
+		if (x_delta < 0 && std::abs(x_delta) <= x)
 		{
 			x += x_delta;
 		}

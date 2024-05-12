@@ -1,7 +1,7 @@
 {
   "name": "infekt",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.0.0-dev",
   "type": "module",
   "scripts": {
     "dev": "vite serve ./frontend",
@@ -17,7 +17,8 @@
     "antd": "^5.17.0",
     "rc-menu": "^9.13.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "use-device-pixel-ratio": "^1.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",

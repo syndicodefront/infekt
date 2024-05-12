@@ -79,13 +79,9 @@ pub fn nfo_to_html_classic(nfo: &UniquePtr<infekt_core::ffi::CNFOData>) -> Strin
                         )
                         .to_string();
 
-                        if encoded_link_url.is_ok() {
-                            html.push_str("<a href=\"");
-                            html.push_str(&encoded_link_url.unwrap());
-                            html.push_str("\">");
-                        } else {
-                            html.push_str("<a href=\"#\">");
-                        }
+                        html.push_str("<a href=\"");
+                        html.push_str(&encoded_link_url.unwrap_or_else(|_| String::from("#")));
+                        html.push_str("\" target=\"_blank\">");
                     }
                     _ => {}
                 }

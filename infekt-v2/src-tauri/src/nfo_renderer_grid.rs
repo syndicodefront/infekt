@@ -113,7 +113,8 @@ pub fn make_renderer_grid(nfo: &UniquePtr<infekt_core::ffi::CNFOData>) -> NfoRen
         for col in 0..width {
             let grid_char = nfo.GetGridCharUtf32(row, col);
 
-            if grid_char == 0 { // EOL
+            if grid_char == 0 {
+                // EOL
                 break;
             }
 
@@ -216,7 +217,10 @@ pub fn make_renderer_grid(nfo: &UniquePtr<infekt_core::ffi::CNFOData>) -> NfoRen
             }
         }
 
-        renderer_grid.lines.push(line);
+        if !line.block_groups.is_empty() || !line.text_flights.is_empty() || !line.links.is_empty()
+        {
+            renderer_grid.lines.push(line);
+        }
     }
 
     renderer_grid
