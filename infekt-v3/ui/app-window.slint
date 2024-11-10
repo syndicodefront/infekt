@@ -1,0 +1,41 @@
+import { SideBar } from "side-bar.slint";
+import { AboutPage } from "about-page/about-page.slint";
+import { MainView } from "main-view/main-view.slint";
+import { PreferencesPage } from "preferences/preferences-page.slint";
+
+//export { TableViewPageAdapter }
+
+export component AppWindow inherits Window {
+    width: 850px;
+    height: 700px;
+    title: "iNFekt NFO Viewer";
+    //icon: @image-url("../../logo/slint-logo-small-light.png");
+
+    HorizontalLayout {
+        side-bar := SideBar {
+            title: "iNFekt v3";
+            model: [
+                {
+                    label-text: @tr("Open File..."),
+                    icon: @image-url("../assets/tabler-icons/outline/folder-open.svg")
+                },
+                {
+                    label-text: @tr("Preferences"),
+                    icon: @image-url("../assets/tabler-icons/outline/settings.svg")
+                },
+                {
+                    label-text: @tr("About"),
+                    icon: @image-url("../assets/tabler-icons/outline/info-hexagon.svg")
+                },
+            ];
+
+            changed current-item => {
+                debug("Current item changed to", side-bar.current-item);
+            }
+        }
+
+        if(side-bar.current-item == 0): MainView { }
+        if(side-bar.current-item == 1): PreferencesPage { }
+        if(side-bar.current-item == 2): AboutPage { }
+    }
+}

@@ -1,0 +1,15 @@
+import { VerticalBox, HorizontalBox } from "std-widgets.slint";
+
+export component PreferencesPage inherits VerticalBox {
+    HorizontalBox {
+        Text {
+            font-size: 20px;
+            text: @tr("Preferences");
+        }
+
+        // Spacer
+        Rectangle { }
+    }
+
+    @children
+}

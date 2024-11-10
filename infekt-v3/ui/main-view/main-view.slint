@@ -1,0 +1,34 @@
+import { VerticalBox, HorizontalBox, TabWidget, Button } from "std-widgets.slint";
+
+export component MainView inherits VerticalBox {
+    padding: 0;
+/*
+    Button {
+        text: @tr("Open File...");
+        icon: @image-url("../../assets/tabler-icons/outline/folder-open.svg");
+        clicked => {
+            
+        }
+    }
+*/
+    TabWidget {
+        Tab {
+            title: @tr("Rendered");
+            Rectangle { background: darkorange; }
+        }
+        Tab {
+            title: @tr("Classic");
+            Rectangle { background: lightblue; }
+        }
+        Tab {
+            title: @tr("Text-Only");
+            Rectangle { background: yellow; }
+        }
+        Tab {
+            title: @tr("File Info");
+            Rectangle { background: lightgreen; }
+        }
+    }
+
+    @children
+}
