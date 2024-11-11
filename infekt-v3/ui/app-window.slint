@@ -9,11 +9,10 @@ export component AppWindow inherits Window {
     width: 850px;
     height: 700px;
     title: "iNFekt NFO Viewer";
-    //icon: @image-url("../../logo/slint-logo-small-light.png");
+    icon: @image-url("../assets/infekt-icons/iNFekt_6_256x256x32.png");
 
     HorizontalLayout {
         side-bar := SideBar {
-            title: "iNFekt v3";
             model: [
                 {
                     label-text: @tr("Open File..."),
