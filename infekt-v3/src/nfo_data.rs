@@ -79,6 +79,14 @@ impl NfoData {
         nfo_to_html_classic(&self.nfo)
     }
 
+    pub fn get_classic_text(&self) -> String {
+        if self.nfo.is_null() {
+            return String::new();
+        }
+
+        self.nfo.GetTextUtf8().to_string()
+    }
+
     pub fn get_stripped_html(&self) -> String {
         if self.nfo.is_null() {
             return String::new();
@@ -88,6 +96,20 @@ impl NfoData {
 
         if load_stripped_nfo.pin_mut().LoadStripped(&self.nfo) {
             return nfo_to_html_classic(&load_stripped_nfo);
+        }
+
+        String::new()
+    }
+
+    pub fn get_stripped_text(&self) -> String {
+        if self.nfo.is_null() {
+            return String::new();
+        }
+
+        let mut load_stripped_nfo = infekt_core::ffi::new_nfo_data();
+
+        if load_stripped_nfo.pin_mut().LoadStripped(&self.nfo) {
+            return load_stripped_nfo.GetTextUtf8().to_string();
         }
 
         String::new()

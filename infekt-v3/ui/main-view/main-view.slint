@@ -1,7 +1,11 @@
-import { VerticalBox, HorizontalBox, TabWidget, Button } from "std-widgets.slint";
+import { VerticalBox, HorizontalBox, TabWidget, Button, ScrollView } from "std-widgets.slint";
 
 export component MainView inherits VerticalBox {
     padding: 0;
+
+    in-out property <string> loaded-nfo-classic;
+    in-out property <string> loaded-nfo-text-only;
+
 /*
     Button {
         text: @tr("Open File...");
@@ -14,19 +18,38 @@ export component MainView inherits VerticalBox {
     TabWidget {
         Tab {
             title: @tr("Rendered");
-            Rectangle { background: darkorange; }
+            Rectangle {
+                background: darkorange;
+            }
         }
+
         Tab {
             title: @tr("Classic");
-            Rectangle { background: lightblue; }
+
+            ScrollView {
+                Text {
+                    font-family: "monospace";
+                    text: loaded-nfo-classic;
+                }
+            }
         }
+
         Tab {
             title: @tr("Text-Only");
-            Rectangle { background: yellow; }
+
+            ScrollView {
+                Text {
+                    font-family: "monospace";
+                    text: loaded-nfo-text-only;
+                }
+            }
         }
+
         Tab {
             title: @tr("File Info");
-            Rectangle { background: lightgreen; }
+            Rectangle {
+                background: lightgreen;
+            }
         }
     }
 

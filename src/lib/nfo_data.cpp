@@ -1469,7 +1469,7 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 }
 
 
-const std::string& CNFOData::GetTextUtf8()
+const std::string& CNFOData::GetTextUtf8() const
 {
 	if (m_utf8Content.empty())
 	{

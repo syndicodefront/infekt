@@ -11,6 +11,11 @@ export component AppWindow inherits Window {
     title: "iNFekt NFO Viewer";
     icon: @image-url("../assets/infekt-icons/iNFekt_6_256x256x32.png");
 
+    callback sidebar-clicked-open-file();
+
+    in-out property <string> loaded-nfo-classic;
+    in-out property <string> loaded-nfo-text-only;
+
     HorizontalLayout {
         side-bar := SideBar {
             model: [
@@ -29,11 +34,17 @@ export component AppWindow inherits Window {
             ];
 
             changed current-item => {
-                debug("Current item changed to", side-bar.current-item);
+                if (side-bar.current-item == 0) {
+                    // TODO: actually do this on click, not only on change.
+                    root.sidebar-clicked-open-file();
+                }
             }
         }
 
-        if(side-bar.current-item == 0): MainView { }
+        if(side-bar.current-item == 0): MainView {
+            loaded-nfo-classic: loaded-nfo-classic;
+            loaded-nfo-text-only: loaded-nfo-text-only;
+        }
         if(side-bar.current-item == 1): PreferencesPage { }
         if(side-bar.current-item == 2): AboutPage { }
     }

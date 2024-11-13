@@ -64,7 +64,7 @@ public:
 	const std::string& GetGridCharUtf8(size_t a_row, size_t a_col) const;
 	const std::string& GetGridCharUtf8(wchar_t a_wideChar) const;
 
-	const std::string& GetTextUtf8();
+	const std::string& GetTextUtf8() const;
 	const std::wstring& GetTextWide() const { return m_textContent; }
 	const std::vector<char> GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace = false) const;
 
@@ -110,7 +110,7 @@ private:
 	std::string m_lastErrorDescr;
 
 	std::wstring m_textContent;
-	std::string m_utf8Content;
+	mutable std::string m_utf8Content;
 	std::unique_ptr<TwoDimVector<wchar_t>> m_grid;
 	std::map<wchar_t, std::string> m_utf8Map;
 	bool m_loaded;

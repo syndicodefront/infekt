@@ -36,5 +36,7 @@ pub mod ffi {
         pub fn GetGridCharUtf8(self: &CNFOData, row: usize, col: usize) -> &CxxString;
 
         pub fn GetLinkUrlUtf8(self: &CNFOData, row: usize, col: usize) -> &CxxString;
+
+        pub fn GetTextUtf8(self: &CNFOData) -> &CxxString;
     }
 }

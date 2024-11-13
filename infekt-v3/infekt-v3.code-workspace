@@ -1,0 +1,15 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "settings": {
+        "search.exclude": {
+            "**/target": true,
+        },
+        "files.exclude": {
+            "**/target": true
+        }
+    }
+}
