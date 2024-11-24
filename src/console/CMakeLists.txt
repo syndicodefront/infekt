@@ -2,6 +2,7 @@
 include_directories (${INFEKT_SOURCE_DIR}/src/lib)
 include_directories (${INFEKT_SOURCE_DIR}/src/lib-posix)
 include_directories (${INFEKT_SOURCE_DIR}/src/console)
+include_directories (${INFEKT_SOURCE_DIR}/dependencies/include)
 
 add_executable (infekt-cli
 	infekt.cpp
@@ -13,6 +14,7 @@ add_executable (infekt-cli
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_colormap.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_renderer.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_to_html.cpp
+	${INFEKT_SOURCE_DIR}/src/lib/nfo_to_html_canvas.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_to_pdf.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/nfo_to_png.cpp
 	${INFEKT_SOURCE_DIR}/src/lib/util.cpp
