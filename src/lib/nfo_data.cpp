@@ -754,6 +754,7 @@ bool CNFOData::PostProcessLoadedContent()
 			(*m_grid)[i][j] = (*it)[j];
 		}
 
+#ifndef INFEKT_2_CXXRUST
 		const std::string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
 
 		const char* const p_start = l_utf8Line.c_str();
@@ -772,6 +773,7 @@ bool CNFOData::PostProcessLoadedContent()
 
 			p = p_next;
 		}
+#endif
 
 		// find hyperlinks:
 		if (/* m_bFindHyperlinks == */true)
@@ -1501,6 +1503,7 @@ wchar_t CNFOData::GetGridChar(size_t a_row, size_t a_col) const
 		: 0);
 }
 
+#ifndef INFEKT_2_CXXRUST
 static std::string emptyUtf8String;
 
 const std::string& CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col) const
@@ -1510,14 +1513,13 @@ const std::string& CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col) const
 	return (grid_char > 0 ? GetGridCharUtf8(grid_char) : emptyUtf8String);
 }
 
-
 const std::string& CNFOData::GetGridCharUtf8(wchar_t a_wideChar) const
 {
 	const auto it = m_utf8Map.find(a_wideChar);
 
 	return (it != std::end(m_utf8Map) ? it->second : emptyUtf8String);
 }
-
+#endif
 
 const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 {

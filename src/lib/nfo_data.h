@@ -57,12 +57,13 @@ public:
 	wchar_t GetGridChar(size_t a_row, size_t a_col) const;
 #ifdef INFEKT_2_CXXRUST
 	// Best effort to return a UTF-32 char, but it might be part of a UTF-16 surrogate pair on Windows:
-	uint32_t GetGridCharUtf32(size_t a_row, size_t a_col) const { 
+	uint32_t GetGridCharUtf32(size_t a_row, size_t a_col) const {
 		return static_cast<uint32_t>(GetGridChar(a_row, a_col));
 	}
-#endif
+#else
 	const std::string& GetGridCharUtf8(size_t a_row, size_t a_col) const;
 	const std::string& GetGridCharUtf8(wchar_t a_wideChar) const;
+#endif
 
 	const std::string& GetTextUtf8() const;
 	const std::wstring& GetTextWide() const { return m_textContent; }

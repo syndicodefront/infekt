@@ -6,6 +6,7 @@ mod nfo_data;
 mod nfo_renderer_grid;
 mod nfo_renderer_modern;
 mod nfo_to_html;
+mod font;
 
 use crate::nfo_data::NfoData;
 use native_dialog::FileDialog;
@@ -41,6 +42,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             current_nfo_file
                 .load_from_file(file_path.unwrap().as_path())
                 .unwrap();
+
+            if !current_nfo_file.is_loaded() {
+                println!("something is fishy.");
+                return;
+            }
 
             let renderer_grid = current_nfo_file.get_renderer_grid();
 

@@ -157,9 +157,11 @@ pub fn make_renderer_grid(nfo: &UniquePtr<infekt_core::ffi::CNFOData>) -> NfoRen
                     link_url = now_in_link.then(|| link.to_string());
                 }
 
-                text_buf.push_str(unsafe {
-                    std::str::from_utf8_unchecked(nfo.GetGridCharUtf8(row, col).as_bytes())
-                });
+                if let Some(actual_char) = char::from_u32(grid_char) {
+                    text_buf.push(actual_char);
+                } else {
+                    text_buf.push(char::REPLACEMENT_CHARACTER);
+                }
             } else if block_shape != NfoRendererBlockShape::Whitespace {
                 // It's a block!
 
