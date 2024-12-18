@@ -36,6 +36,8 @@ static const struct ::option g_longOpts[] = {
 #endif
 	{ _T("cp-437"),			no_argument,		0,	'e' },
 	{ _T("html"),			no_argument,		0,	'm' },
+	{ _T("html-canvas"),	no_argument,		0,	'M' },
+	{ _T("json"),			no_argument,		0,	'J' },
 #ifdef CAIRO_HAS_PDF_SURFACE
 	{ _T("pdf"),			no_argument,		0,	'd' },
 	{ _T("pdf-din"),		no_argument,		0,	'D' },
@@ -83,6 +85,8 @@ static void _OutputHelp(const char* a_exeNameA, const wchar_t* a_exeNameW)
 #endif
 	printf("  -e, --cp-437                Save the NFO file as CP 437.\n");
 	printf("  -m, --html                  Makes a nice HTML document.\n");
+	printf("  -M, --html-canvas           Makes a HTML document where the NFO is rendered into a <canvas>.\n");
+	printf("  -J, --json                  Exports the Render Grid for HTML <canvas> as JSON.\n");
 #ifdef CAIRO_HAS_PDF_SURFACE
 	printf("  -d, --pdf                   Makes a PDF document.\n");
 	printf("  -D, --pdf-din               Makes a PDF document (DIN size).\n");
@@ -140,6 +144,7 @@ int main(int argc, char* argv[])
 	std::_tstring l_outFileName;
 	bool l_classic = false, l_makePng = true, l_textUtf8 = true,
 		l_htmlOut = false, l_makePdf = false, l_pdfDin = false,
+		l_htmlCanvas = false, l_jsonRenderGrid = false,
 		l_textCp437 = false, l_compoundWhitespace = false,
 		l_textOnly = false, l_wrap = false;
 
@@ -168,7 +173,7 @@ int main(int argc, char* argv[])
 	// Parse/process command line options:
 	int l_arg, l_optIdx = -1;
 
-	while ((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDceSw"), g_longOpts, &l_optIdx)) != -1)
+	while ((l_arg = getopt_long(argc, argv, _T("hvT:B:A:gG:W:H:R:LuU:O:pPftmdDceSwMJ"), g_longOpts, &l_optIdx)) != -1)
 	{
 		S_COLOR_T l_color;
 		int l_int;
@@ -249,6 +254,12 @@ int main(int argc, char* argv[])
 		case 'm':
 			l_makePng = false; l_htmlOut = true;
 			break;
+		case 'M':
+			l_makePng = false; l_htmlOut = false; l_htmlCanvas = true;
+			break;
+		case 'J':
+			l_makePng = false; l_htmlOut = false; l_htmlCanvas = false; l_jsonRenderGrid = true;
+			break;
 		case 'd':
 			l_makePng = false; l_makePdf = true;
 			break;
@@ -293,7 +304,7 @@ int main(int argc, char* argv[])
 	}
 
 	// open+load the NFO file:
-	PNFOData l_nfoData = std::make_shared<CNFOData>();
+	auto l_nfoData = std::make_shared<CNFOData>();
 	l_nfoData->SetWrapLines(l_wrap && !l_textOnly);
 
 	if (!l_nfoData->LoadFromFile(l_nfoFileName))
@@ -304,7 +315,7 @@ int main(int argc, char* argv[])
 
 	if (l_textOnly)
 	{
-		PNFOData l_stripped = std::make_shared<CNFOData>();
+		auto l_stripped = std::make_shared<CNFOData>();
 		l_stripped->SetWrapLines(l_wrap);
 
 		if (!l_stripped->LoadStripped(*l_nfoData))
@@ -331,9 +342,13 @@ int main(int argc, char* argv[])
 		{
 			l_outFileName += _T(".png");
 		}
-		else if (l_htmlOut)
+		else if (l_htmlOut || l_htmlCanvas)
 		{
 			l_outFileName += _T(".html");
+		}
+		else if (l_jsonRenderGrid)
+		{
+			l_outFileName += _T(".json");
 		}
 		else if (l_makePdf)
 		{
@@ -390,14 +405,33 @@ int main(int argc, char* argv[])
 		l_exportSuccess = l_exporter.SavePDF(l_outFileName);
 #endif
 	}
-	else if (l_htmlOut)
+	else if (l_htmlOut || l_htmlCanvas || l_jsonRenderGrid)
 	{
-		// html export
+		std::string l_utf8;
 
-		CNFOToHTML l_exporter(l_nfoData);
-		l_exporter.SetSettings(l_pngSettings);
+		if (l_htmlOut)
+		{
+			CNFOToHTML l_exporter(l_nfoData);
+			l_exporter.SetSettings(l_pngSettings);
 
-		const std::string l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
+			l_utf8 = CUtil::FromWideStr(l_exporter.GetHTML(), CP_UTF8);
+		}
+		else
+		{
+			CNFOToHTMLCanvas l_exporter;
+
+			l_exporter.AssignNFO(l_nfoData);
+			l_exporter.InjectSettings(l_pngSettings);
+
+			if (l_htmlCanvas)
+			{
+				l_utf8 = l_exporter.GetFullHTML();
+			}
+			else if (l_jsonRenderGrid)
+			{
+				l_utf8 = l_exporter.GetRenderJSONString();
+			}
+		}
 
 		FILE* l_file;
 #ifdef _WIN32
