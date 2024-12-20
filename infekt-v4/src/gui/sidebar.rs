@@ -1,6 +1,6 @@
-use iced::widget::{button, column, container, image, text, Space};
+use iced::widget::{button, column, container, image, svg, text, Space};
 use iced::Length::{self, Fill};
-use iced::{Alignment, Element, Theme};
+use iced::{Element, Theme};
 
 use crate::InfektUserAction;
 
@@ -19,6 +19,11 @@ pub enum InfektSidebarMessage {
 const EXPANDED_WIDTH: Length = Length::Fixed(200.0);
 const COLLAPSED_WIDTH: Length = Length::Fixed(50.0);
 
+const EXPAND_ICON: &[u8] =
+    include_bytes!("../../assets/tabler-icons/outline/layout-sidebar-left-expand.svg");
+const COLLAPSE_ICON: &[u8] =
+    include_bytes!("../../assets/tabler-icons/outline/layout-sidebar-left-collapse.svg");
+
 impl InfektSidebar {
     pub fn update(&mut self, message: InfektSidebarMessage) -> InfektUserAction {
         match message {
@@ -33,11 +38,11 @@ impl InfektSidebar {
 
     pub fn view(&self) -> Element<InfektSidebarMessage> {
         let column = column![
-            container(logo(self.expanded)).center_x(Fill).center_y(36.0),
+            container(self.logo()).center_x(Fill).center_y(36.0),
             button("Increment").on_press(InfektSidebarMessage::Increment),
             button("Decrement").on_press(InfektSidebarMessage::Decrement),
             Space::with_height(Fill),
-            button(if self.expanded { "<<" } else { ">>" })
+            button(svg(self.toggle_icon()))
                 .width(Fill)
                 .on_press(InfektSidebarMessage::ToggleSidebar),
         ]
@@ -61,16 +66,22 @@ impl InfektSidebar {
             COLLAPSED_WIDTH
         }
     }
-}
 
-fn logo(expanded: bool) -> Element<'static, InfektSidebarMessage> {
-    if expanded {
-        text("iNFekt")
-        .size(24)
-        .into()
-    } else {
-        image("assets/infekt-icons/iNFekt_6_256x256x32.png")
-        .height(24.0)
-        .into()
+    fn toggle_icon(&self) -> svg::Handle {
+        svg::Handle::from_memory(if self.expanded {
+            EXPAND_ICON
+        } else {
+            COLLAPSE_ICON
+        })
+    }
+
+    fn logo(&self) -> Element<'static, InfektSidebarMessage> {
+        if self.expanded {
+            text("iNFekt").size(26).into()
+        } else {
+            image("assets/infekt-icons/iNFekt_6_256x256x32.png")
+                .height(24.0)
+                .into()
+        }
     }
 }
