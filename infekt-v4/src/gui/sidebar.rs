@@ -2,23 +2,25 @@ use iced::widget::{button, column, container, image, svg, text, Space};
 use iced::Length::{self, Fill};
 use iced::{Element, Theme};
 
-use crate::InfektUserAction;
+use crate::{InfektActiveScreen, InfektUserAction};
 
 #[derive(Default)]
 pub struct InfektSidebar {
     expanded: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub enum InfektSidebarMessage {
     ToggleSidebar,
-    Increment,
-    Decrement,
+    ShowMainView,
+    ShowPreferences,
+    ShowAboutScreen,
 }
 
 const EXPANDED_WIDTH: Length = Length::Fixed(200.0);
 const COLLAPSED_WIDTH: Length = Length::Fixed(50.0);
 
+const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x256x32.png");
 const EXPAND_ICON: &[u8] =
     include_bytes!("../../assets/tabler-icons/outline/layout-sidebar-left-expand.svg");
 const COLLAPSE_ICON: &[u8] =
@@ -31,16 +33,24 @@ impl InfektSidebar {
                 self.expanded = !self.expanded;
                 InfektUserAction::None
             }
-            InfektSidebarMessage::Increment => InfektUserAction::Increment,
-            InfektSidebarMessage::Decrement => InfektUserAction::Decrement,
+            InfektSidebarMessage::ShowMainView => {
+                InfektUserAction::ShowScreen(InfektActiveScreen::MainView)
+            }
+            InfektSidebarMessage::ShowPreferences => {
+                InfektUserAction::ShowScreen(InfektActiveScreen::Preferences)
+            }
+            InfektSidebarMessage::ShowAboutScreen => {
+                InfektUserAction::ShowScreen(InfektActiveScreen::About)
+            }
         }
     }
 
     pub fn view(&self) -> Element<InfektSidebarMessage> {
         let column = column![
             container(self.logo()).center_x(Fill).center_y(36.0),
-            button("Increment").on_press(InfektSidebarMessage::Increment),
-            button("Decrement").on_press(InfektSidebarMessage::Decrement),
+            button("Home").on_press(InfektSidebarMessage::ShowMainView),
+            button("Preferences").on_press(InfektSidebarMessage::ShowPreferences),
+            button("About").on_press(InfektSidebarMessage::ShowAboutScreen),
             Space::with_height(Fill),
             button(svg(self.toggle_icon()))
                 .width(Fill)
@@ -69,9 +79,9 @@ impl InfektSidebar {
 
     fn toggle_icon(&self) -> svg::Handle {
         svg::Handle::from_memory(if self.expanded {
-            EXPAND_ICON
-        } else {
             COLLAPSE_ICON
+        } else {
+            EXPAND_ICON
         })
     }
 
@@ -79,7 +89,7 @@ impl InfektSidebar {
         if self.expanded {
             text("iNFekt").size(26).into()
         } else {
-            image("assets/infekt-icons/iNFekt_6_256x256x32.png")
+            image(image::Handle::from_bytes(LOGO_256))
                 .height(24.0)
                 .into()
         }
