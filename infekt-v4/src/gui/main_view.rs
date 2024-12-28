@@ -1,11 +1,14 @@
-use iced::widget::{column, scrollable, text};
+use iced::widget::{column, scrollable, text, canvas};
 use iced::Element;
 use iced::Length::Fill;
 use iced_aw::{TabLabel, Tabs};
 
 use crate::InfektUserAction;
 
-use super::nfo_view_rendered::nfo_view_rendered;
+use super::nfo_view_rendered::NfoViewRendered;
+
+use iced::mouse;
+use iced::{Color, Rectangle, Renderer, Theme};
 
 #[derive(Default)]
 pub struct InfektMainView {
@@ -43,7 +46,8 @@ impl InfektMainView {
             .push(
                 TabId::Rendered,
                 TabLabel::Text("Rendered".to_owned()),
-                scrollable(nfo_view_rendered(100.0))
+                scrollable(NfoViewRendered::new(7, 12))
+                //scrollable(canvas(FooBar {}).width(Fill).height(10000.0))
                     .width(Fill)
                     .height(Fill),
             )
@@ -67,3 +71,33 @@ impl InfektMainView {
             .into()
     }
 }
+
+/*
+struct FooBar {}
+
+impl<Message> canvas::Program<Message> for FooBar {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        renderer: &Renderer,
+        _theme: &Theme,
+        bounds: Rectangle,
+        _cursor: mouse::Cursor,
+    ) -> Vec<canvas::Geometry> {
+        println!("FooBar::draw() - bounds: {:?}", bounds);
+
+        let mut frame = canvas::Frame::new(renderer, bounds.size());
+
+        // We create a `Path` representing a simple circle
+        let circle = canvas::Path::circle(frame.center(), 100.0);
+
+        // And fill it with some color
+        frame.fill(&circle, Color::BLACK);
+
+        // Then, we produce the geometry
+        vec![frame.into_geometry()]
+    }
+}
+*/

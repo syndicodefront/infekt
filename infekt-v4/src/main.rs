@@ -3,7 +3,9 @@ use std::path::{Path, PathBuf};
 use iced::widget::{column, row, text};
 use iced::Length::Fill;
 use iced::{Alignment, Element, Size, Task};
+use rfd::AsyncFileDialog;
 
+mod core;
 mod gui;
 
 use crate::gui::sidebar::InfektSidebar;
@@ -13,7 +15,7 @@ use crate::gui::main_view::InfektMainView;
 use gui::main_view::InfektMainViewMessage;
 
 use crate::gui::about_screen::InfektAboutScreen;
-use gui::about_screen::{InfektAboutScreenAction, InfektAboutScreenMessage};
+use gui::about_screen::InfektAboutScreenMessage;
 
 pub fn main() -> iced::Result {
     iced::application("iNFekt NFO Viewer", InfektApp::update, InfektApp::view)
@@ -37,13 +39,14 @@ enum Message {
     SidebarMessage(InfektSidebarMessage),
     MainViewMessage(InfektMainViewMessage),
     AboutScreenMessage(InfektAboutScreenMessage),
+    OpenFile(Option<PathBuf>),
 }
 
 #[derive(Debug, Clone)]
 enum InfektUserAction {
     None,
     ShowScreen(InfektActiveScreen),
-    OpenFile(PathBuf),
+    PromptOpenFile,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -60,6 +63,13 @@ impl InfektApp {
             Message::SidebarMessage(message) => self.sidebar.update(message),
             Message::MainViewMessage(message) => self.main_view.update(message),
             Message::AboutScreenMessage(message) => self.about_screen.update(message),
+            Message::OpenFile(file) => {
+                if let Some(file) = file {
+                    println!("Opening file: {:?}", file);
+                }
+
+                InfektUserAction::None
+            }
         };
 
         let mut task = Task::none();
@@ -81,8 +91,22 @@ impl InfektApp {
                     }
                 }
             }
-            InfektUserAction::OpenFile(path) => {
-                // TODO:
+            InfektUserAction::PromptOpenFile => {
+                task = Task::perform(
+                    async {
+                        let file = AsyncFileDialog::new()
+                            .add_filter("Block Art Files", &["nfo", "diz", "asc", "txt"])
+                            .pick_file()
+                            .await;
+
+                        if let Some(file) = file {
+                            Some(file.path().to_path_buf())
+                        } else {
+                            None
+                        }
+                    },
+                    |f| Message::OpenFile(f),
+                )
             }
         }
 

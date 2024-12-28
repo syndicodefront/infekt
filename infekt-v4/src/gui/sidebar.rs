@@ -15,6 +15,7 @@ pub enum InfektSidebarMessage {
     ShowMainView,
     ShowPreferences,
     ShowAboutScreen,
+    OpenFileDialog,
 }
 
 const EXPANDED_WIDTH: Length = Length::Fixed(200.0);
@@ -42,6 +43,7 @@ impl InfektSidebar {
             InfektSidebarMessage::ShowAboutScreen => {
                 InfektUserAction::ShowScreen(InfektActiveScreen::About)
             }
+            InfektSidebarMessage::OpenFileDialog => InfektUserAction::PromptOpenFile,
         }
     }
 
@@ -49,6 +51,7 @@ impl InfektSidebar {
         let column = column![
             container(self.logo()).center_x(Fill).center_y(36.0),
             button("Home").on_press(InfektSidebarMessage::ShowMainView),
+            button("Open...").on_press(InfektSidebarMessage::OpenFileDialog),
             button("Preferences").on_press(InfektSidebarMessage::ShowPreferences),
             button("About").on_press(InfektSidebarMessage::ShowAboutScreen),
             Space::with_height(Fill),
