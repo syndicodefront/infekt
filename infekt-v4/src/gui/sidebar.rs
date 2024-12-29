@@ -2,7 +2,7 @@ use iced::widget::{button, column, container, image, svg, text, Space};
 use iced::Length::{self, Fill};
 use iced::{Element, Theme};
 
-use crate::{InfektActiveScreen, InfektUserAction};
+use crate::app::{InfektActiveScreen, InfektUserAction};
 
 #[derive(Default)]
 pub struct InfektSidebar {
@@ -43,7 +43,7 @@ impl InfektSidebar {
             InfektSidebarMessage::ShowAboutScreen => {
                 InfektUserAction::ShowScreen(InfektActiveScreen::About)
             }
-            InfektSidebarMessage::OpenFileDialog => InfektUserAction::PromptOpenFile,
+            InfektSidebarMessage::OpenFileDialog => InfektUserAction::SelectFileForOpening,
         }
     }
 

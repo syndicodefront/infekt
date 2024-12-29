@@ -1,14 +1,11 @@
-use iced::widget::{column, scrollable, text, canvas};
+use iced::widget::{column, scrollable, text};
 use iced::Element;
 use iced::Length::Fill;
 use iced_aw::{TabLabel, Tabs};
 
-use crate::InfektUserAction;
+use crate::app::InfektUserAction;
 
 use super::nfo_view_rendered::NfoViewRendered;
-
-use iced::mouse;
-use iced::{Color, Rectangle, Renderer, Theme};
 
 #[derive(Default)]
 pub struct InfektMainView {

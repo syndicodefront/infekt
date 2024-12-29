@@ -4,7 +4,7 @@ use iced::widget::{
 use iced::Length::Fill;
 use iced::{system, Element, Task};
 
-use crate::InfektUserAction;
+use crate::app::InfektUserAction;
 
 #[derive(Default)]
 pub struct InfektAboutScreen {

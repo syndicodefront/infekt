@@ -115,3 +115,9 @@ impl NfoData {
         String::new()
     }
 }
+
+impl Default for NfoData {
+    fn default() -> Self {
+        Self::new()
+    }
+}
