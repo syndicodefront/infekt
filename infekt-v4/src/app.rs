@@ -2,10 +2,8 @@ mod file_operations;
 mod utils;
 mod view;
 
-use std::path::PathBuf;
-
 use iced::Task;
-use rfd;
+use std::path::PathBuf;
 
 use crate::core::nfo_data::NfoData;
 use crate::gui::about_screen::{InfektAboutScreen, InfektAboutScreenMessage};
@@ -15,6 +13,7 @@ use crate::gui::sidebar::{InfektSidebar, InfektSidebarMessage};
 #[derive(Debug, Clone)]
 pub(crate) enum Message {
     NoOp,
+    FontLoaded(Result<(), iced::font::Error>),
     SidebarMessage(InfektSidebarMessage),
     MainViewMessage(InfektMainViewMessage),
     AboutScreenMessage(InfektAboutScreenMessage),
@@ -43,12 +42,34 @@ pub(crate) struct InfektApp {
     sidebar: InfektSidebar,
     main_view: InfektMainView,
     about_screen: InfektAboutScreen,
-    current_nfo: NfoData,
+    current_nfo_data: NfoData,
+    current_nfo_path: Option<PathBuf>,
 }
 
 impl InfektApp {
+    pub fn new() -> (Self, Task<Message>) {
+        let app = Self::default();
+        let load_font = |data: &'static [u8]| iced::font::load(data).map(Message::FontLoaded);
+
+        let task = Task::batch(vec![
+            load_font(include_bytes!("../assets/fonts/ServerMono-Regular.otf")),
+            load_font(include_bytes!(
+                "../assets/fonts/Menlo-Regular-NormalMono.ttf"
+            )),
+        ]);
+
+        (app, task)
+    }
+
     pub fn title(&self) -> String {
-        "iNFekt NFO Viewer".to_string()
+        if let Some(file) = &self.current_nfo_path {
+            format!(
+                "iNFekt NFO Viewer - {}",
+                file.file_name().unwrap_or_default().to_string_lossy()
+            )
+        } else {
+            "iNFekt NFO Viewer".to_string()
+        }
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -56,6 +77,7 @@ impl InfektApp {
 
         let action = match message {
             Message::NoOp => InfektUserAction::None,
+            Message::FontLoaded(_) => InfektUserAction::None,
 
             Message::SidebarMessage(message) => self.sidebar.update(message),
             Message::MainViewMessage(message) => self.main_view.update(message),

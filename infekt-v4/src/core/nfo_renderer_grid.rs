@@ -61,7 +61,7 @@ pub struct NfoRendererLink {
     pub url: String,
 }
 
-pub fn get_block_shape(char: u32, in_text: bool) -> NfoRendererBlockShape {
+pub(super) fn get_block_shape(char: u32, in_text: bool) -> NfoRendererBlockShape {
     match char {
         0x0000 | 0x0009 | 0x0020 => {
             if in_text {
@@ -84,7 +84,7 @@ pub fn get_block_shape(char: u32, in_text: bool) -> NfoRendererBlockShape {
     }
 }
 
-pub fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRendererGrid {
+pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRendererGrid {
     let width = nfo.GetGridWidth();
     let height = nfo.GetGridHeight();
 

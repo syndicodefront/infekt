@@ -12,7 +12,7 @@ enum CharFlightType {
     Link,
 }
 
-pub fn nfo_to_html_classic(nfo: &UniquePtr<ffi::CNFOData>) -> String {
+pub(super) fn nfo_to_html_classic(nfo: &UniquePtr<ffi::CNFOData>) -> String {
     let mut html = String::with_capacity(nfo.GetGridHeight() * 80);
 
     let width = nfo.GetGridWidth();

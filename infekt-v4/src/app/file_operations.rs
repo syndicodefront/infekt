@@ -27,7 +27,7 @@ impl InfektApp {
             return InfektUserAction::None;
         };
 
-        let status = self.current_nfo.load_from_file(&file);
+        let status = self.current_nfo_data.load_from_file(&file);
 
         if !status.is_ok() {
             return InfektUserAction::ShowErrorMessage(format!(
@@ -36,7 +36,9 @@ impl InfektApp {
             ));
         }
 
-        let _renderer_grid = self.current_nfo.get_renderer_grid();
+        self.current_nfo_path = Some(file);
+
+        let _renderer_grid = self.current_nfo_data.get_renderer_grid();
 
         InfektUserAction::None
     }

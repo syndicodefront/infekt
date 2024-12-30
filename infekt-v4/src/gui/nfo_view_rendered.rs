@@ -117,7 +117,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered {
                 horizontal_alignment: alignment::Horizontal::Left,
                 vertical_alignment: alignment::Vertical::Top,
                 line_height: advanced::text::LineHeight::Absolute(iced::Pixels(self.block_height as f32)),
-                font: iced::Font::MONOSPACE,
+                font: iced::Font::with_name("Server Mono"),
                 shaping: advanced::text::Shaping::Basic,
             });
 

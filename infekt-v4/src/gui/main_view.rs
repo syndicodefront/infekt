@@ -44,7 +44,6 @@ impl InfektMainView {
                 TabId::Rendered,
                 TabLabel::Text("Rendered".to_owned()),
                 scrollable(NfoViewRendered::new(7, 12))
-                //scrollable(canvas(FooBar {}).width(Fill).height(10000.0))
                     .width(Fill)
                     .height(Fill),
             )
@@ -60,7 +59,7 @@ impl InfektMainView {
             )
             .push(
                 TabId::FileInfo,
-                TabLabel::Text("File Information".to_owned()),
+                TabLabel::Text("Properties".to_owned()),
                 column![text("File Information")],
             )
             .set_active_tab(&self.active_tab)
@@ -68,33 +67,3 @@ impl InfektMainView {
             .into()
     }
 }
-
-/*
-struct FooBar {}
-
-impl<Message> canvas::Program<Message> for FooBar {
-    type State = ();
-
-    fn draw(
-        &self,
-        _state: &Self::State,
-        renderer: &Renderer,
-        _theme: &Theme,
-        bounds: Rectangle,
-        _cursor: mouse::Cursor,
-    ) -> Vec<canvas::Geometry> {
-        println!("FooBar::draw() - bounds: {:?}", bounds);
-
-        let mut frame = canvas::Frame::new(renderer, bounds.size());
-
-        // We create a `Path` representing a simple circle
-        let circle = canvas::Path::circle(frame.center(), 100.0);
-
-        // And fill it with some color
-        frame.fill(&circle, Color::BLACK);
-
-        // Then, we produce the geometry
-        vec![frame.into_geometry()]
-    }
-}
-*/
