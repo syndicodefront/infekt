@@ -3,7 +3,8 @@ use iced::Element;
 use iced::Length::Fill;
 use iced_aw::{TabLabel, Tabs};
 
-use crate::app::InfektUserAction;
+use crate::app::InfektAppAction;
+use crate::core::nfo_data::NfoData;
 
 use super::nfo_view_rendered::NfoViewRendered;
 
@@ -27,15 +28,15 @@ pub enum InfektMainViewMessage {
 }
 
 impl InfektMainView {
-    pub fn update(&mut self, message: InfektMainViewMessage) -> InfektUserAction {
+    pub fn update(&mut self, message: InfektMainViewMessage) -> InfektAppAction {
         match message {
             InfektMainViewMessage::TabSelected(selected) => self.active_tab = selected,
         }
 
-        InfektUserAction::None
+        InfektAppAction::None
     }
 
-    pub fn view(&self) -> Element<InfektMainViewMessage> {
+    pub fn view<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
         // XXX: why do we have to push the contents of all tabs,
         // when the active tab is the only one that will be displayed?
 
@@ -43,7 +44,7 @@ impl InfektMainView {
             .push(
                 TabId::Rendered,
                 TabLabel::Text("Rendered".to_owned()),
-                scrollable(NfoViewRendered::new(7, 12))
+                scrollable(NfoViewRendered::new(7, 12, current_nfo))
                     .width(Fill)
                     .height(Fill),
             )

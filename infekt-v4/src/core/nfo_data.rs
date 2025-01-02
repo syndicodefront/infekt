@@ -2,7 +2,7 @@
 // Later, this can become a rust-native implementation :-)
 
 use cxx::{let_cxx_string, UniquePtr};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use super::cpp::{ffi, ffi::ENfoCharset};
 use super::nfo_renderer_grid::{make_renderer_grid, NfoRendererGrid};
@@ -11,6 +11,7 @@ use super::nfo_to_html::nfo_to_html_classic;
 pub struct NfoData {
     nfo: UniquePtr<ffi::CNFOData>,
     renderer_grid: Option<NfoRendererGrid>,
+    file_path: Option<PathBuf>,
 }
 
 impl NfoData {
@@ -18,11 +19,25 @@ impl NfoData {
         NfoData {
             nfo: (UniquePtr::null()),
             renderer_grid: None,
+            file_path: None,
         }
     }
 
     pub fn is_loaded(&self) -> bool {
         !self.nfo.is_null()
+    }
+
+    pub fn get_file_path(&self) -> Option<&Path> {
+        self.file_path.as_deref()
+    }
+
+    pub fn get_file_name(&self) -> Option<String> {
+        self.file_path.as_ref().map(|p| {
+            p.file_name()
+                .unwrap_or_default()
+                .to_string_lossy()
+                .to_string()
+        })
     }
 
     pub fn load_from_file(&mut self, path: &Path) -> Result<(), String> {
@@ -31,7 +46,8 @@ impl NfoData {
 
         if load_nfo.pin_mut().LoadFromFile(&path_cxx) {
             self.nfo = load_nfo;
-            self.renderer_grid = None;
+            self.file_path = Some(path.to_path_buf());
+            self.renderer_grid = Some(make_renderer_grid(&self.nfo));
 
             return Ok(());
         }
@@ -59,13 +75,9 @@ impl NfoData {
         }
     }
 
-    pub fn get_renderer_grid(&mut self) -> Option<&NfoRendererGrid> {
+    pub fn get_renderer_grid(&self) -> Option<&NfoRendererGrid> {
         if self.nfo.is_null() {
             return None;
-        }
-
-        if self.renderer_grid.is_none() {
-            self.renderer_grid = Some(make_renderer_grid(&self.nfo));
         }
 
         self.renderer_grid.as_ref()

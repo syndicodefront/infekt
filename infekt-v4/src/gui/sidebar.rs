@@ -2,7 +2,7 @@ use iced::widget::{button, column, container, image, svg, text, Space};
 use iced::Length::{self, Fill};
 use iced::{Element, Theme};
 
-use crate::app::{InfektActiveScreen, InfektUserAction};
+use crate::app::{InfektActiveScreen, InfektAppAction};
 
 #[derive(Default)]
 pub struct InfektSidebar {
@@ -28,22 +28,22 @@ const COLLAPSE_ICON: &[u8] =
     include_bytes!("../../assets/tabler-icons/outline/layout-sidebar-left-collapse.svg");
 
 impl InfektSidebar {
-    pub fn update(&mut self, message: InfektSidebarMessage) -> InfektUserAction {
+    pub fn update(&mut self, message: InfektSidebarMessage) -> InfektAppAction {
         match message {
             InfektSidebarMessage::ToggleSidebar => {
                 self.expanded = !self.expanded;
-                InfektUserAction::None
+                InfektAppAction::None
             }
             InfektSidebarMessage::ShowMainView => {
-                InfektUserAction::ShowScreen(InfektActiveScreen::MainView)
+                InfektAppAction::ShowScreen(InfektActiveScreen::MainView)
             }
             InfektSidebarMessage::ShowPreferences => {
-                InfektUserAction::ShowScreen(InfektActiveScreen::Preferences)
+                InfektAppAction::ShowScreen(InfektActiveScreen::Preferences)
             }
             InfektSidebarMessage::ShowAboutScreen => {
-                InfektUserAction::ShowScreen(InfektActiveScreen::About)
+                InfektAppAction::ShowScreen(InfektActiveScreen::About)
             }
-            InfektSidebarMessage::OpenFileDialog => InfektUserAction::SelectFileForOpening,
+            InfektSidebarMessage::OpenFileDialog => InfektAppAction::SelectFileForOpening,
         }
     }
 

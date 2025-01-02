@@ -9,7 +9,7 @@ impl InfektApp {
         let sidebar = self.sidebar.view().map(Message::SidebarMessage);
         let content = column![]
             .push(match self.active_screen {
-                InfektActiveScreen::MainView => self.main_view.view().map(Message::MainViewMessage),
+                InfektActiveScreen::MainView => self.main_view.view(&self.current_nfo).map(Message::MainViewMessage),
                 InfektActiveScreen::Preferences => text("Preferences").into(),
                 InfektActiveScreen::About => {
                     self.about_screen.view().map(Message::AboutScreenMessage)

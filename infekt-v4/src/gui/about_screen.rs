@@ -4,7 +4,7 @@ use iced::widget::{
 use iced::Length::Fill;
 use iced::{system, Element, Task};
 
-use crate::app::InfektUserAction;
+use crate::app::InfektAppAction;
 
 #[derive(Default)]
 pub struct InfektAboutScreen {
@@ -21,12 +21,12 @@ const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x2
 // const LOGO_SVG: &[u8] = include_bytes!("../../assets/infekt-icons/logo_v2.svg");
 
 impl InfektAboutScreen {
-    pub fn update(&mut self, message: InfektAboutScreenMessage) -> InfektUserAction {
+    pub fn update(&mut self, message: InfektAboutScreenMessage) -> InfektAppAction {
         if let InfektAboutScreenMessage::FetchInformation(sysinfo) = message {
             self.sysinfo = Some(sysinfo);
         }
 
-        InfektUserAction::None
+        InfektAppAction::None
     }
 
     pub fn on_before_shown(&mut self) -> Option<Task<InfektAboutScreenMessage>> {

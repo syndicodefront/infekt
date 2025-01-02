@@ -3,23 +3,28 @@ use iced::advanced::renderer::{Quad, Style};
 use iced::advanced::widget::tree::{self, Tree};
 use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::alignment;
-use iced::{border, Point};
 use iced::event;
 use iced::mouse;
 use iced::widget::canvas::{self, Text};
 use iced::window::{self, RedrawRequest};
+use iced::{border, Point};
 use iced::{Background, Color, Element, Event, Length, Radians, Rectangle, Renderer, Size, Vector};
 
-pub struct NfoViewRendered {
+use crate::core::nfo_data::NfoData;
+use crate::core::nfo_renderer_grid::NfoRendererGrid;
+
+pub struct NfoViewRendered<'a> {
     block_width: u32,
     block_height: u32,
+    renderer_grid: Option<&'a NfoRendererGrid>,
 }
 
-impl NfoViewRendered {
-    pub fn new(block_width: u32, block_height: u32) -> Self {
+impl<'a> NfoViewRendered<'a> {
+    pub fn new(block_width: u32, block_height: u32, current_nfo: &'a NfoData) -> Self {
         Self {
             block_width,
             block_height,
+            renderer_grid: current_nfo.get_renderer_grid(),
         }
     }
 }
@@ -29,7 +34,7 @@ struct State {
     cache: canvas::Cache,
 }
 
-impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered {
+impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
     }
@@ -39,9 +44,12 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered {
     }
 
     fn size(&self) -> Size<Length> {
+        let columns = self.renderer_grid.and_then(|g| Some(g.width)).unwrap_or(0);
+        let rows = self.renderer_grid.and_then(|g| Some(g.height)).unwrap_or(0);
+
         Size {
-            width: Length::Fixed(80.0 * self.block_width as f32),
-            height: Length::Fixed(10000.0 * self.block_height as f32),
+            width: Length::Fixed(columns as f32 * self.block_width as f32),
+            height: Length::Fixed(rows as f32 * self.block_height as f32),
         }
     }
 
@@ -51,10 +59,13 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered {
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
+        let columns = self.renderer_grid.and_then(|g| Some(g.width)).unwrap_or(0);
+        let rows = self.renderer_grid.and_then(|g| Some(g.height)).unwrap_or(0);
+
         layout::atomic(
             limits,
-            80.0 * self.block_width as f32,
-            10000.0 * self.block_height as f32,
+            columns as f32 * self.block_width as f32,
+            rows as f32 * self.block_height as f32,
         )
     }
 
@@ -116,7 +127,9 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered {
                 color: Color::WHITE,
                 horizontal_alignment: alignment::Horizontal::Left,
                 vertical_alignment: alignment::Vertical::Top,
-                line_height: advanced::text::LineHeight::Absolute(iced::Pixels(self.block_height as f32)),
+                line_height: advanced::text::LineHeight::Absolute(iced::Pixels(
+                    self.block_height as f32,
+                )),
                 font: iced::Font::with_name("Server Mono"),
                 shaping: advanced::text::Shaping::Basic,
             });
@@ -149,8 +162,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered {
     }
 }
 
-impl<Message, Theme> From<NfoViewRendered> for Element<'_, Message, Theme, Renderer> {
-    fn from(circle: NfoViewRendered) -> Self {
-        Self::new(circle)
+impl<'a, Message, Theme> From<NfoViewRendered<'a>> for Element<'a, Message, Theme, Renderer> {
+    fn from(w: NfoViewRendered<'a>) -> Self {
+        Self::new(w)
     }
 }

@@ -21,7 +21,7 @@ pub(crate) enum Message {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum InfektUserAction {
+pub(crate) enum InfektAppAction {
     None,
     ShowScreen(InfektActiveScreen),
     SelectFileForOpening,
@@ -42,8 +42,7 @@ pub(crate) struct InfektApp {
     sidebar: InfektSidebar,
     main_view: InfektMainView,
     about_screen: InfektAboutScreen,
-    current_nfo_data: NfoData,
-    current_nfo_path: Option<PathBuf>,
+    current_nfo: NfoData,
 }
 
 impl InfektApp {
@@ -62,10 +61,10 @@ impl InfektApp {
     }
 
     pub fn title(&self) -> String {
-        if let Some(file) = &self.current_nfo_path {
+        if self.current_nfo.is_loaded() {
             format!(
                 "iNFekt NFO Viewer - {}",
-                file.file_name().unwrap_or_default().to_string_lossy()
+                self.current_nfo.get_file_name().unwrap_or_default()
             )
         } else {
             "iNFekt NFO Viewer".to_string()
@@ -76,8 +75,8 @@ impl InfektApp {
         let mut task = Task::none();
 
         let action = match message {
-            Message::NoOp => InfektUserAction::None,
-            Message::FontLoaded(_) => InfektUserAction::None,
+            Message::NoOp => InfektAppAction::None,
+            Message::FontLoaded(_) => InfektAppAction::None,
 
             Message::SidebarMessage(message) => self.sidebar.update(message),
             Message::MainViewMessage(message) => self.main_view.update(message),
@@ -87,8 +86,8 @@ impl InfektApp {
         };
 
         match action {
-            InfektUserAction::None => {}
-            InfektUserAction::ShowScreen(screen) => {
+            InfektAppAction::None => {}
+            InfektAppAction::ShowScreen(screen) => {
                 self.active_screen = screen;
 
                 match self.active_screen {
@@ -103,10 +102,10 @@ impl InfektApp {
                     }
                 }
             }
-            InfektUserAction::SelectFileForOpening => {
+            InfektAppAction::SelectFileForOpening => {
                 task = self.task_open_nfo_file_dialog();
             }
-            InfektUserAction::ShowErrorMessage(message) => {
+            InfektAppAction::ShowErrorMessage(message) => {
                 task = self.task_show_error_message(message);
             }
         }

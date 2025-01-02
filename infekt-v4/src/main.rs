@@ -9,8 +9,9 @@ pub fn main() -> iced::Result {
     iced::application(InfektApp::title, InfektApp::update, InfektApp::view)
         .window(initial_window_settings())
         .antialiasing(true)
-        .centered()
+        .scale_factor(|_| 1.0) // https://github.com/iced-rs/iced/issues/2657#issuecomment-2566536858
         .window_size(iced::Size::new(850.0, 700.0))
+        .centered()
         .theme(|_state| iced::Theme::Dark) // somewhat tolearable, will be replaced with theme that matches the NFO
         .run_with(InfektApp::new)
 }
