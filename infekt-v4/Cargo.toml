@@ -21,3 +21,4 @@ iced = { version = "0.13.1", features = ["image", "svg", "system", "advanced", "
 iced_aw = { version = "0.11", features = ["tabs", "tab_bar"] }
 rfd = "0.15.1"
 ico = "0.3.0"
+rustc-hash = "2.1.0"

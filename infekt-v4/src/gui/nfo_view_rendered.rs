@@ -31,6 +31,7 @@ impl<'a> NfoViewRendered<'a> {
 
 #[derive(Default)]
 struct State {
+    nfo_id: u64,
     cache: canvas::Cache,
 }
 
@@ -80,11 +81,21 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) -> event::Status {
-        let _state = tree.state.downcast_mut::<State>();
+        let state = tree.state.downcast_mut::<State>();
 
         if let Event::Window(window::Event::RedrawRequested(_now)) = event {
             //state.cache.clear();
             //shell.request_redraw(RedrawRequest::NextFrame);
+        }
+
+        if self
+            .renderer_grid
+            .is_some_and(|grid| grid.id != state.nfo_id)
+        {
+            state.cache.clear();
+            state.nfo_id = self.renderer_grid.unwrap().id;
+
+            println!("NfoViewRendered::on_event() - cache cleared");
         }
 
         event::Status::Ignored

@@ -1,8 +1,10 @@
+use std::hash::Hasher;
+
 use cxx::UniquePtr;
-use std::u32;
 
 use super::cpp;
 
+// XXX: these members are all public for now, but they should be private.
 #[derive(Clone, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NfoRendererGrid {
@@ -10,6 +12,7 @@ pub struct NfoRendererGrid {
     pub height: usize,
     pub lines: Vec<NfoRendererLine>,
     pub has_blocks: bool,
+    pub id: u64,
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -93,7 +96,10 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
         height,
         lines: Vec::with_capacity(height),
         has_blocks: false,
+        id: 0,
     };
+
+    let mut hasher = rustc_hash::FxHasher::default();
 
     for row in 0..height {
         let mut line = NfoRendererLine {
@@ -118,6 +124,8 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
                 // EOL
                 break;
             }
+
+            hasher.write_u32(grid_char);
 
             let block_shape = get_block_shape(grid_char, text_started);
 
@@ -225,6 +233,8 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
             renderer_grid.lines.push(line);
         }
     }
+
+    renderer_grid.id = hasher.finish();
 
     renderer_grid
 }
