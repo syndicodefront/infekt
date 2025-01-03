@@ -6,7 +6,7 @@ use iced_aw::{TabLabel, Tabs};
 use crate::app::InfektAppAction;
 use crate::core::nfo_data::NfoData;
 
-use super::nfo_view_rendered::NfoViewRendered;
+use super::widget::nfo_view_rendered::NfoViewRendered;
 
 #[derive(Default)]
 pub struct InfektMainView {
