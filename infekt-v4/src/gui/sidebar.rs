@@ -1,6 +1,6 @@
-use iced::widget::{button, column, container, image, svg, text, Space};
+use iced::widget::{button, column, container, image, row, svg, text, Space};
 use iced::Length::{self, Fill};
-use iced::{Element, Theme};
+use iced::{Alignment, Element, Theme};
 
 use crate::app::{InfektActiveScreen, InfektAppAction};
 
@@ -49,17 +49,33 @@ impl InfektSidebar {
 
     pub fn view(&self) -> Element<InfektSidebarMessage> {
         let column = column![
-            container(self.logo()).center_x(Fill).center_y(36.0),
-            button("Home").on_press(InfektSidebarMessage::ShowMainView),
-            button("Open...").on_press(InfektSidebarMessage::OpenFileDialog),
-            button("Preferences").on_press(InfektSidebarMessage::ShowPreferences),
-            button("About").on_press(InfektSidebarMessage::ShowAboutScreen),
+            container(self.logo()).center_x(Fill).center_y(48.0),
+            self.top_level_button(
+                "Home",
+                include_bytes!("../../assets/tabler-icons/outline/home.svg"),
+                InfektSidebarMessage::ShowMainView
+            ),
+            self.top_level_button(
+                "Open...",
+                include_bytes!("../../assets/tabler-icons/outline/folder-open.svg"),
+                InfektSidebarMessage::OpenFileDialog
+            ),
+            self.top_level_button(
+                "Preferences",
+                include_bytes!("../../assets/tabler-icons/outline/settings.svg"),
+                InfektSidebarMessage::ShowPreferences
+            ),
+            self.top_level_button(
+                "About",
+                include_bytes!("../../assets/tabler-icons/outline/info-hexagon.svg"),
+                InfektSidebarMessage::ShowAboutScreen
+            ),
             Space::with_height(Fill),
             button(svg(self.toggle_icon()))
                 .width(Fill)
                 .on_press(InfektSidebarMessage::ToggleSidebar),
         ]
-        .spacing(20);
+        .spacing(1);
 
         container(column)
             .style(|theme: &Theme| {
@@ -96,5 +112,29 @@ impl InfektSidebar {
                 .height(24.0)
                 .into()
         }
+    }
+
+    fn top_level_button(
+        &self,
+        label: &'static str,
+        icon_bytes: &'static [u8],
+        message: InfektSidebarMessage,
+    ) -> Element<'static, InfektSidebarMessage> {
+        let icon_handle = svg::Handle::from_memory(icon_bytes);
+        let icon_widget = svg(icon_handle).height(24.0).width(24.0);
+
+        let btn = if self.expanded {
+            let text_widget = text(label);
+
+            button(
+                row![icon_widget, text_widget]
+                    .spacing(8)
+                    .align_y(Alignment::Center),
+            )
+        } else {
+            button(container(icon_widget).center_x(Fill))
+        };
+
+        btn.width(Fill).on_press(message).into()
     }
 }
