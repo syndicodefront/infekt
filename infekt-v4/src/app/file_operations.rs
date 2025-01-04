@@ -5,21 +5,13 @@ use super::{InfektApp, InfektAppAction, Message};
 
 impl InfektApp {
     pub(super) fn task_open_nfo_file_dialog(&mut self) -> Task<Message> {
-        Task::perform(
-            async {
-                let file = rfd::AsyncFileDialog::new()
-                    .add_filter("Block Art Files", &["nfo", "diz", "asc", "txt"])
-                    .pick_file()
-                    .await;
+        let msg = Message::OpenFile(
+            rfd::FileDialog::new()
+                .add_filter("Block Art Files", &["nfo", "diz", "asc", "txt"])
+                .pick_file()
+        );
 
-                if let Some(file) = file {
-                    Some(file.path().to_path_buf())
-                } else {
-                    None
-                }
-            },
-            |f| Message::OpenFile(f),
-        )
+        Task::done(msg)
     }
 
     pub(super) fn action_load_new_nfo(&mut self, file_path: Option<PathBuf>) -> InfektAppAction {
