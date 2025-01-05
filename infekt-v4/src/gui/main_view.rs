@@ -1,7 +1,8 @@
-use iced::widget::scrollable::{Direction, Scrollbar};
-use iced::widget::{column, scrollable, text};
+use iced::alignment::Horizontal;
+use iced::widget::scrollable::{Direction, Id, Scrollbar};
+use iced::widget::{column, row, scrollable, text};
 use iced::Element;
-use iced::Length::Fill;
+use iced::Length::{Fill, FillPortion};
 use iced_aw::{TabLabel, Tabs};
 
 use crate::app::Action;
@@ -38,38 +39,131 @@ impl InfektMainView {
     }
 
     pub fn view<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
-        // XXX: why do we have to push the contents of all tabs,
-        // when the active tab is the only one that will be displayed?
+        // XXX: could use some optimization, keep in mind that ideally we preserve
+        // scroll positions etc. when switching tabs.
 
         Tabs::new(InfektMainViewMessage::TabSelected)
             .push(
                 TabId::Rendered,
                 TabLabel::Text("Rendered".to_owned()),
-                scrollable(NfoViewRendered::new(7, 12, current_nfo))
-                    .direction(Direction::Both {
-                        vertical: Scrollbar::default(),
-                        horizontal: Scrollbar::default(),
-                    })
-                    .width(Fill)
-                    .height(Fill),
+                self.rendered_tab(current_nfo),
             )
             .push(
                 TabId::Classic,
                 TabLabel::Text("Classic".to_owned()),
-                column![text("Classic")],
+                self.classic_tab(current_nfo),
             )
             .push(
                 TabId::TextOnly,
                 TabLabel::Text("Text-Only".to_owned()),
-                column![text("Text-Only")],
+                self.text_only_tab(current_nfo),
             )
             .push(
                 TabId::FileInfo,
                 TabLabel::Text("Properties".to_owned()),
-                column![text("File Information")],
+                self.file_info_tab(current_nfo),
             )
             .set_active_tab(&self.active_tab)
             .tab_bar_position(iced_aw::TabBarPosition::Top)
             .into()
+    }
+
+    fn rendered_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
+        scrollable(NfoViewRendered::new(7, 12, current_nfo))
+            .id(Id::new("main view rendered"))
+            .direction(Direction::Both {
+                vertical: Scrollbar::default(),
+                horizontal: Scrollbar::default(),
+            })
+            .width(Fill)
+            .height(Fill)
+            .into()
+    }
+
+    // XXX: combine class and text_only view implementations
+    fn classic_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
+        scrollable(
+            text(current_nfo.get_classic_text())
+                .font(iced::Font::with_name("Server Mono"))
+                .shaping(text::Shaping::Advanced)
+                .wrapping(text::Wrapping::None),
+        )
+        .id(Id::new("main view classic"))
+        .direction(Direction::Both {
+            vertical: Scrollbar::default(),
+            horizontal: Scrollbar::default(),
+        })
+        .width(Fill)
+        .height(Fill)
+        .into()
+    }
+
+    fn text_only_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
+        scrollable(
+            text(current_nfo.get_stripped_text())
+                .font(iced::Font::with_name("Server Mono"))
+                .wrapping(text::Wrapping::None),
+        )
+        .id(Id::new("main view text only"))
+        .direction(Direction::Both {
+            vertical: Scrollbar::default(),
+            horizontal: Scrollbar::default(),
+        })
+        .width(Fill)
+        .height(Fill)
+        .into()
+    }
+
+    fn file_info_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
+        if !current_nfo.is_loaded() {
+            return column![].into();
+        }
+
+        fn label<'a, T>(s: T) -> Element<'a, InfektMainViewMessage>
+        where
+            T: text::IntoFragment<'a>,
+        {
+            text(s)
+                .width(FillPortion(1))
+                .align_x(Horizontal::Right)
+                .into()
+        }
+
+        fn value<'a, T>(s: T) -> Element<'a, InfektMainViewMessage>
+        where
+            T: text::IntoFragment<'a>,
+        {
+            text(s).width(FillPortion(4)).into()
+        }
+
+        const ROW_SPACING: u16 = 10;
+
+        column![
+            row![
+                label("File path:"),
+                value(
+                    current_nfo
+                        .get_file_path()
+                        .map(|p| p.to_string_lossy())
+                        .unwrap_or_default()
+                )
+            ]
+            .spacing(ROW_SPACING),
+            row![label("Charset:"), value(current_nfo.get_charset_name())].spacing(ROW_SPACING),
+            row![
+                label("Dimensions:"),
+                value(format!(
+                    "{} columns x {} lines",
+                    current_nfo.get_renderer_grid().unwrap().width,
+                    current_nfo.get_renderer_grid().unwrap().height
+                ))
+            ]
+            .spacing(ROW_SPACING),
+        ]
+        .spacing(2)
+        .padding(10)
+        .width(Fill)
+        .height(Fill)
+        .into()
     }
 }

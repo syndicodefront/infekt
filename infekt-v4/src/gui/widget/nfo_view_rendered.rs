@@ -124,11 +124,11 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
             return;
         }
 
-        println!(
+        /*println!(
             "NfoViewRendered::draw() - viewport: {:?} - bounds: {:?}",
             viewport,
             layout.bounds()
-        );
+        );*/
 
         // XXX: heavily WIP !!!
 
