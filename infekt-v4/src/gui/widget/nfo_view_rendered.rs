@@ -15,7 +15,9 @@ use crate::core::nfo_renderer_grid::{NfoRendererBlockShape, NfoRendererGrid, Nfo
 
 pub struct NfoViewRendered<'a> {
     block_width: u32,
+    block_width_float: f32,
     block_height: u32,
+    block_height_float: f32,
     renderer_grid: Option<&'a NfoRendererGrid>,
 }
 
@@ -23,7 +25,9 @@ impl<'a> NfoViewRendered<'a> {
     pub fn new(block_width: u32, block_height: u32, current_nfo: &'a NfoData) -> Self {
         Self {
             block_width,
+            block_width_float: block_width as f32,
             block_height,
+            block_height_float: block_height as f32,
             renderer_grid: current_nfo.get_renderer_grid(),
         }
     }
@@ -48,11 +52,12 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
     }
 
     fn size(&self) -> Size<Length> {
-        let rows = self.renderer_grid.map(|g| g.height).unwrap_or(0);
+        let rows = self.renderer_grid.map(|g| g.height as f32).unwrap_or(0.0);
+        let columns = self.renderer_grid.map(|g| g.width as f32).unwrap_or(0.0);
 
         Size {
-            width: Length::Fill,
-            height: Length::Fixed(rows as f32 * self.block_height as f32),
+            width: Length::Fixed(columns * self.block_width_float),
+            height: Length::Fixed(rows * self.block_height_float),
         }
     }
 
@@ -62,13 +67,13 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let columns = self.renderer_grid.map(|g| g.width).unwrap_or(0);
-        let rows = self.renderer_grid.map(|g| g.height).unwrap_or(0);
+        let rows = self.renderer_grid.map(|g| g.height as f32).unwrap_or(0.0);
+        let columns = self.renderer_grid.map(|g| g.width as f32).unwrap_or(0.0);
 
         layout::atomic(
             limits,
-            columns as f32 * self.block_width as f32,
-            rows as f32 * self.block_height as f32,
+            Length::Fixed(columns * self.block_width_float),
+            rows * self.block_height_float,
         )
     }
 
@@ -137,23 +142,23 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         }
 
         let first_visible_line =
-            ((viewport.y - bounds.y) / self.block_height as f32).floor() as usize;
+            ((viewport.y - bounds.y) / self.block_height_float).floor() as usize;
         let last_visible_line =
-            first_visible_line + (viewport.height / self.block_height as f32).ceil() as usize;
+            first_visible_line + (viewport.height / self.block_height_float).ceil() as usize;
 
         let first_cache_index = first_visible_line / CACHE_STRIDE_LINES;
         let last_cache_index = last_visible_line / CACHE_STRIDE_LINES;
 
         let cache_bounds = Size {
-            width: self.block_width as f32 * self.renderer_grid.unwrap().width as f32,
-            height: CACHE_STRIDE_LINES as f32 * self.block_height as f32,
+            width: self.block_width_float * self.renderer_grid.unwrap().width as f32,
+            height: CACHE_STRIDE_LINES as f32 * self.block_height_float,
         };
 
         (first_cache_index..=last_cache_index).for_each(|cache_index| {
             let first_line = cache_index * CACHE_STRIDE_LINES;
             let last_line = (cache_index + 1) * CACHE_STRIDE_LINES - 1;
 
-            let y_offset = first_line as f32 * self.block_height as f32;
+            let y_offset = first_line as f32 * self.block_height_float;
 
             let geometry =
                 state
@@ -169,19 +174,19 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                             }
 
                             line.text_flights.iter().for_each(|flight| {
-                                let x = flight.col as f32 * self.block_width as f32;
-                                let y = line.row as f32 * self.block_height as f32 - y_offset;
+                                let x = flight.col as f32 * self.block_width_float;
+                                let y = line.row as f32 * self.block_height_float - y_offset;
 
                                 // XXX: this is bullshit
                                 frame.fill_text(Text {
                                     content: flight.text.clone(),
                                     position: Point { x, y },
-                                    size: iced::Pixels(self.block_height as f32),
+                                    size: iced::Pixels(self.block_height_float),
                                     color: Color::BLACK,
                                     horizontal_alignment: alignment::Horizontal::Left,
                                     vertical_alignment: alignment::Vertical::Top,
                                     line_height: advanced::text::LineHeight::Absolute(
-                                        iced::Pixels(self.block_height as f32),
+                                        iced::Pixels(self.block_height_float),
                                     ),
                                     font: iced::Font::with_name("Server Mono"),
                                     shaping: advanced::text::Shaping::Basic,
@@ -218,8 +223,10 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                 Color::WHITE,
             );
 
+            let nfo_width_float = self.block_width_float * self.renderer_grid.unwrap().width as f32;
+
             let bounds_translation = Vector::new(
-                (bounds.x + (viewport.width - bounds.width) * 0.5).max(bounds.x), // center horizontally
+                (bounds.x + (viewport.width - nfo_width_float) * 0.5).max(bounds.x), // center horizontally
                 bounds.y + y_offset,
             );
 

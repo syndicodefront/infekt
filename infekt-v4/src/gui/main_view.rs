@@ -1,3 +1,4 @@
+use iced::widget::scrollable::{Direction, Scrollbar};
 use iced::widget::{column, scrollable, text};
 use iced::Element;
 use iced::Length::Fill;
@@ -45,6 +46,10 @@ impl InfektMainView {
                 TabId::Rendered,
                 TabLabel::Text("Rendered".to_owned()),
                 scrollable(NfoViewRendered::new(7, 12, current_nfo))
+                    .direction(Direction::Both {
+                        vertical: Scrollbar::default(),
+                        horizontal: Scrollbar::default(),
+                    })
                     .width(Fill)
                     .height(Fill),
             )
