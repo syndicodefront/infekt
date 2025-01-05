@@ -48,11 +48,10 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
     }
 
     fn size(&self) -> Size<Length> {
-        let columns = self.renderer_grid.map(|g| g.width).unwrap_or(0);
         let rows = self.renderer_grid.map(|g| g.height).unwrap_or(0);
 
         Size {
-            width: Length::Fixed(columns as f32 * self.block_width as f32),
+            width: Length::Fill,
             height: Length::Fixed(rows as f32 * self.block_height as f32),
         }
     }
@@ -91,21 +90,14 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
             //shell.request_redraw(RedrawRequest::NextFrame);
         }
 
-        if self
-            .renderer_grid
-            .is_some_and(|grid| grid.id != state.nfo_id)
-        {
-            state.nfo_id = self.renderer_grid.unwrap().id;
-            state.cache.clear();
-            state.cache.resize_with(
-                self.renderer_grid.unwrap().height / CACHE_STRIDE_LINES + 1,
-                Default::default,
-            );
-
-            println!(
-                "NfoViewRendered::on_event() - cache cleared - cache size: {}",
-                state.cache.len()
-            );
+        if let Some(grid) = self.renderer_grid {
+            if grid.id != state.nfo_id {
+                state.nfo_id = grid.id;
+                state.cache.clear();
+                state
+                    .cache
+                    .resize_with(grid.height / CACHE_STRIDE_LINES + 1, Default::default);
+            }
         }
 
         event::Status::Ignored
@@ -127,11 +119,11 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
             return;
         }
 
-        /*println!(
+        println!(
             "NfoViewRendered::draw() - viewport: {:?} - bounds: {:?}",
             viewport,
             layout.bounds()
-        );*/
+        );
 
         // XXX: heavily WIP !!!
 
@@ -152,19 +144,16 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         let first_cache_index = first_visible_line / CACHE_STRIDE_LINES;
         let last_cache_index = last_visible_line / CACHE_STRIDE_LINES;
 
-        (first_cache_index..=last_cache_index).for_each(|cache_index| {
-            // XXX: do these matter at all?
-            let cache_bounds = Size {
-                width: self.block_width as f32 * self.renderer_grid.unwrap().width as f32,
-                height: CACHE_STRIDE_LINES as f32 * self.block_height as f32,
-            };
+        let cache_bounds = Size {
+            width: self.block_width as f32 * self.renderer_grid.unwrap().width as f32,
+            height: CACHE_STRIDE_LINES as f32 * self.block_height as f32,
+        };
 
-            let first_line: usize = cache_index * CACHE_STRIDE_LINES + 1;
+        (first_cache_index..=last_cache_index).for_each(|cache_index| {
+            let first_line = cache_index * CACHE_STRIDE_LINES;
             let last_line = (cache_index + 1) * CACHE_STRIDE_LINES - 1;
-            let bounds_translation = Vector::new(
-                bounds.x,
-                bounds.y + first_line as f32 * self.block_height as f32,
-            );
+
+            let y_offset = first_line as f32 * self.block_height as f32;
 
             let geometry =
                 state
@@ -181,7 +170,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
 
                             line.text_flights.iter().for_each(|flight| {
                                 let x = flight.col as f32 * self.block_width as f32;
-                                let y = (line.row - first_line) as f32 * self.block_height as f32;
+                                let y = line.row as f32 * self.block_height as f32 - y_offset;
 
                                 // XXX: this is bullshit
                                 frame.fill_text(Text {
@@ -208,10 +197,10 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                                 .lines
                                 .iter()
                                 .filter(|l| l.row >= first_line && l.row <= last_line),
-                            -(first_line as f32 * self.block_height as f32),
+                            y_offset,
                             self.block_width,
                             self.block_height,
-                            Color::from_rgb8(200, 50, 50),
+                            Color::from_rgb8(50, 50, 200),
                             frame,
                         );
                     });
@@ -229,7 +218,11 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                 Color::WHITE,
             );
 
-            // XXX: this is not correct yet, breaks when the first cache stride is only visible partially
+            let bounds_translation = Vector::new(
+                (bounds.x + (viewport.width - bounds.width) * 0.5).max(bounds.x), // center horizontally
+                bounds.y + y_offset,
+            );
+
             renderer.with_translation(bounds_translation, |renderer| {
                 use iced::advanced::graphics::geometry::Renderer as _;
 
@@ -251,7 +244,7 @@ fn render_blocks(
 
     for line in lines {
         let row = line.row;
-        let y = row as f32 * block_size.height + y_offset;
+        let y = row as f32 * block_size.height - y_offset;
 
         for block_group in &line.block_groups {
             let mut block_index = 0;
