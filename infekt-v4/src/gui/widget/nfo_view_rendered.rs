@@ -1,17 +1,17 @@
 use iced::advanced::layout;
-use iced::advanced::renderer::Style;
+use iced::advanced::renderer::{Quad, Style};
 use iced::advanced::widget::tree::{self, Tree};
 use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::alignment;
 use iced::event;
 use iced::mouse;
-use iced::widget::canvas::{self, Text};
-use iced::window::{self};
+use iced::widget::canvas::{self, Frame, Text};
+use iced::window;
 use iced::Point;
 use iced::{Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
 
 use crate::core::nfo_data::NfoData;
-use crate::core::nfo_renderer_grid::NfoRendererGrid;
+use crate::core::nfo_renderer_grid::{NfoRendererBlockShape, NfoRendererGrid, NfoRendererLine};
 
 pub struct NfoViewRendered<'a> {
     block_width: u32,
@@ -32,8 +32,11 @@ impl<'a> NfoViewRendered<'a> {
 #[derive(Default)]
 struct State {
     nfo_id: u64,
-    cache: canvas::Cache,
+    cache: Vec<canvas::Cache>,
 }
+
+// Number of lines in one geometry cache entry:
+const CACHE_STRIDE_LINES: usize = 100;
 
 impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
     fn tag(&self) -> tree::Tag {
@@ -92,10 +95,17 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
             .renderer_grid
             .is_some_and(|grid| grid.id != state.nfo_id)
         {
-            state.cache.clear();
             state.nfo_id = self.renderer_grid.unwrap().id;
+            state.cache.clear();
+            state.cache.resize_with(
+                self.renderer_grid.unwrap().height / CACHE_STRIDE_LINES + 1,
+                Default::default,
+            );
 
-            println!("NfoViewRendered::on_event() - cache cleared");
+            println!(
+                "NfoViewRendered::on_event() - cache cleared - cache size: {}",
+                state.cache.len()
+            );
         }
 
         event::Status::Ignored
@@ -113,63 +123,224 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
     ) {
         use iced::advanced::Renderer as _;
 
-        println!(
+        if self.renderer_grid.is_none() {
+            return;
+        }
+
+        /*println!(
             "NfoViewRendered::draw() - viewport: {:?} - bounds: {:?}",
             viewport,
             layout.bounds()
-        );
+        );*/
+
+        // XXX: heavily WIP !!!
 
         let state = tree.state.downcast_ref::<State>();
         let bounds = layout.bounds();
 
-        let geometry = state.cache.draw(renderer, bounds.size(), |frame| {
-            // We create a `Path` representing a simple circle
-            let circle = canvas::Path::circle(frame.center(), 100.0);
+        if state.cache.is_empty() {
+            eprintln!("NfoViewRendered::draw() - cache is uninitialized");
 
-            println!("re-rendered");
+            return;
+        }
 
-            frame.fill_text(Text {
-                content: "Hello, world!".to_owned(),
-                position: Point {
-                    x: 100.0,
-                    y: 1000.0,
+        let first_visible_line =
+            ((viewport.y - bounds.y) / self.block_height as f32).floor() as usize;
+        let last_visible_line =
+            first_visible_line + (viewport.height / self.block_height as f32).ceil() as usize;
+
+        let first_cache_index = first_visible_line / CACHE_STRIDE_LINES;
+        let last_cache_index = last_visible_line / CACHE_STRIDE_LINES;
+
+        (first_cache_index..=last_cache_index).for_each(|cache_index| {
+            // XXX: do these matter at all?
+            let cache_bounds = Size {
+                width: self.block_width as f32 * self.renderer_grid.unwrap().width as f32,
+                height: CACHE_STRIDE_LINES as f32 * self.block_height as f32,
+            };
+
+            let first_line: usize = cache_index * CACHE_STRIDE_LINES + 1;
+            let last_line = (cache_index + 1) * CACHE_STRIDE_LINES - 1;
+            let bounds_translation = Vector::new(
+                bounds.x,
+                bounds.y + first_line as f32 * self.block_height as f32,
+            );
+
+            let geometry =
+                state
+                    .cache
+                    .get(cache_index)
+                    .unwrap()
+                    .draw(renderer, cache_bounds, |frame| {
+                        let grid = self.renderer_grid.unwrap();
+
+                        for line in grid.lines.iter() {
+                            if line.row < first_line || line.row > last_line {
+                                continue;
+                            }
+
+                            line.text_flights.iter().for_each(|flight| {
+                                let x = flight.col as f32 * self.block_width as f32;
+                                let y = (line.row - first_line) as f32 * self.block_height as f32;
+
+                                // XXX: this is bullshit
+                                frame.fill_text(Text {
+                                    content: flight.text.clone(),
+                                    position: Point { x, y },
+                                    size: iced::Pixels(self.block_height as f32),
+                                    color: Color::BLACK,
+                                    horizontal_alignment: alignment::Horizontal::Left,
+                                    vertical_alignment: alignment::Vertical::Top,
+                                    line_height: advanced::text::LineHeight::Absolute(
+                                        iced::Pixels(self.block_height as f32),
+                                    ),
+                                    font: iced::Font::with_name("Server Mono"),
+                                    shaping: advanced::text::Shaping::Basic,
+                                });
+                            });
+                        }
+
+                        // XXX: pass for blur
+                        // XXX: layers?
+
+                        render_blocks(
+                            &mut grid
+                                .lines
+                                .iter()
+                                .filter(|l| l.row >= first_line && l.row <= last_line),
+                            -(first_line as f32 * self.block_height as f32),
+                            self.block_width,
+                            self.block_height,
+                            Color::from_rgb8(200, 50, 50),
+                            frame,
+                        );
+                    });
+
+            renderer.fill_quad(
+                Quad {
+                    bounds: Rectangle {
+                        x: viewport.x,
+                        y: viewport.y,
+                        width: viewport.width,
+                        height: viewport.height,
+                    },
+                    ..Quad::default()
                 },
-                size: iced::Pixels(20.0),
-                color: Color::WHITE,
-                horizontal_alignment: alignment::Horizontal::Left,
-                vertical_alignment: alignment::Vertical::Top,
-                line_height: advanced::text::LineHeight::Absolute(iced::Pixels(
-                    self.block_height as f32,
-                )),
-                font: iced::Font::with_name("Server Mono"),
-                shaping: advanced::text::Shaping::Basic,
+                Color::WHITE,
+            );
+
+            // XXX: this is not correct yet, breaks when the first cache stride is only visible partially
+            renderer.with_translation(bounds_translation, |renderer| {
+                use iced::advanced::graphics::geometry::Renderer as _;
+
+                renderer.draw_geometry(geometry);
             });
-
-            // And fill it with some color
-            frame.fill(&circle, Color::from_rgba8(200, 0, 0, 1.0));
         });
+    }
+}
 
-        renderer.with_translation(Vector::new(bounds.x, bounds.y), |renderer| {
-            use iced::advanced::graphics::geometry::Renderer as _;
+fn render_blocks(
+    lines: &mut dyn Iterator<Item = &NfoRendererLine>,
+    y_offset: f32,
+    block_width: u32,
+    block_height: u32,
+    block_color: Color,
+    frame: &mut Frame,
+) {
+    let block_size = Size::new(block_width as f32, block_height as f32);
 
-            renderer.draw_geometry(geometry);
-        });
+    for line in lines {
+        let row = line.row;
+        let y = row as f32 * block_size.height + y_offset;
 
-        /*
-        renderer.fill_quad(
-            Quad {
-                bounds: Rectangle {
-                    x: layout.bounds().x,
-                    y: layout.bounds().y,
-                    width: 200.0,
-                    height: 200.0,
-                },
-                border: border::rounded(200.0),
-                ..Quad::default()
-            },
-            Color::WHITE,
-        );
-        */
+        for block_group in &line.block_groups {
+            let mut block_index = 0;
+
+            for block_shape in &block_group.blocks {
+                let x = (block_group.col + block_index) as f32 * block_size.width;
+
+                let opacity: f32 = match block_shape {
+                    NfoRendererBlockShape::FullBlockLightShade => 90.0 / 255.0,
+                    NfoRendererBlockShape::FullBlockMediumShade => 140.0 / 255.0,
+                    NfoRendererBlockShape::FullBlockDarkShade => 190.0 / 255.0,
+                    _ => 1.0,
+                };
+
+                draw_block(
+                    Point::new(x, y),
+                    block_size,
+                    block_shape,
+                    block_color.scale_alpha(opacity),
+                    frame,
+                );
+
+                block_index += 1;
+            }
+        }
+    }
+}
+
+#[inline]
+fn draw_block(
+    top_left: Point,
+    block_size: Size,
+    block_shape: &NfoRendererBlockShape,
+    color: Color,
+    frame: &mut Frame,
+) {
+    let half_block_size = Size::new(block_size.width * 0.5, block_size.height * 0.5);
+    let half_vertical_block_size = Size::new(half_block_size.width, block_size.height);
+    let half_horizontal_block_size = Size::new(block_size.width, half_block_size.height);
+    let three_quarters_block_size = Size::new(block_size.width * 0.75, block_size.height * 0.75);
+
+    match block_shape {
+        NfoRendererBlockShape::FullBlock
+        | NfoRendererBlockShape::FullBlockLightShade
+        | NfoRendererBlockShape::FullBlockMediumShade
+        | NfoRendererBlockShape::FullBlockDarkShade => {
+            frame.fill_rectangle(top_left, block_size, color);
+        }
+        NfoRendererBlockShape::LowerHalf => {
+            frame.fill_rectangle(
+                Point::new(top_left.x, top_left.y + half_horizontal_block_size.height),
+                half_horizontal_block_size,
+                color,
+            );
+        }
+        NfoRendererBlockShape::UpperHalf => {
+            frame.fill_rectangle(top_left, half_horizontal_block_size, color);
+        }
+        NfoRendererBlockShape::RightHalf => {
+            frame.fill_rectangle(
+                Point::new(top_left.x + half_vertical_block_size.width, top_left.y),
+                half_vertical_block_size,
+                color,
+            );
+        }
+        NfoRendererBlockShape::LeftHalf => {
+            frame.fill_rectangle(top_left, half_vertical_block_size, color);
+        }
+        NfoRendererBlockShape::BlackSquare => {
+            frame.fill_rectangle(
+                Point::new(
+                    top_left.x + (block_size.width - three_quarters_block_size.width) * 0.5,
+                    top_left.y + (block_size.height - three_quarters_block_size.height) * 0.5,
+                ),
+                three_quarters_block_size,
+                color,
+            );
+        }
+        NfoRendererBlockShape::BlackSquareSmall => {
+            frame.fill_rectangle(
+                Point::new(
+                    top_left.x + block_size.width * 0.25,
+                    top_left.y + block_size.height * 0.25,
+                ),
+                half_block_size,
+                color,
+            );
+        }
+        _ => {}
     }
 }
 

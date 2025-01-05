@@ -101,6 +101,9 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
 
     let mut hasher = rustc_hash::FxHasher::default();
 
+    hasher.write_usize(width);
+    hasher.write_usize(height);
+
     for row in 0..height {
         let mut line = NfoRendererLine {
             row,
