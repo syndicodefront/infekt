@@ -1,14 +1,14 @@
 use iced::advanced::layout;
-use iced::advanced::renderer::{Quad, Style};
+use iced::advanced::renderer::Style;
 use iced::advanced::widget::tree::{self, Tree};
 use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::alignment;
 use iced::event;
 use iced::mouse;
 use iced::widget::canvas::{self, Text};
-use iced::window::{self, RedrawRequest};
-use iced::{border, Point};
-use iced::{Background, Color, Element, Event, Length, Radians, Rectangle, Renderer, Size, Vector};
+use iced::window::{self};
+use iced::Point;
+use iced::{Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
 
 use crate::core::nfo_data::NfoData;
 use crate::core::nfo_renderer_grid::NfoRendererGrid;
@@ -45,8 +45,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
     }
 
     fn size(&self) -> Size<Length> {
-        let columns = self.renderer_grid.and_then(|g| Some(g.width)).unwrap_or(0);
-        let rows = self.renderer_grid.and_then(|g| Some(g.height)).unwrap_or(0);
+        let columns = self.renderer_grid.map(|g| g.width).unwrap_or(0);
+        let rows = self.renderer_grid.map(|g| g.height).unwrap_or(0);
 
         Size {
             width: Length::Fixed(columns as f32 * self.block_width as f32),
@@ -60,8 +60,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let columns = self.renderer_grid.and_then(|g| Some(g.width)).unwrap_or(0);
-        let rows = self.renderer_grid.and_then(|g| Some(g.height)).unwrap_or(0);
+        let columns = self.renderer_grid.map(|g| g.width).unwrap_or(0);
+        let rows = self.renderer_grid.map(|g| g.height).unwrap_or(0);
 
         layout::atomic(
             limits,
@@ -78,7 +78,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         _cursor: mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        shell: &mut Shell<'_, Message>,
+        _shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) -> event::Status {
         let state = tree.state.downcast_mut::<State>();

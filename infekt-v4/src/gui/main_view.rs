@@ -3,7 +3,7 @@ use iced::Element;
 use iced::Length::Fill;
 use iced_aw::{TabLabel, Tabs};
 
-use crate::app::InfektAppAction;
+use crate::app::Action;
 use crate::core::nfo_data::NfoData;
 
 use super::widget::nfo_view_rendered::NfoViewRendered;
@@ -28,12 +28,12 @@ pub enum InfektMainViewMessage {
 }
 
 impl InfektMainView {
-    pub fn update(&mut self, message: InfektMainViewMessage) -> InfektAppAction {
+    pub fn update(&mut self, message: InfektMainViewMessage) -> Action {
         match message {
             InfektMainViewMessage::TabSelected(selected) => self.active_tab = selected,
         }
 
-        InfektAppAction::None
+        Action::None
     }
 
     pub fn view<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {

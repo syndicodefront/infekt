@@ -4,7 +4,7 @@ use iced::widget::{
 use iced::Length::Fill;
 use iced::{system, Element, Task};
 
-use crate::app::InfektAppAction;
+use crate::app::Action;
 
 #[derive(Default)]
 pub struct InfektAboutScreen {
@@ -14,24 +14,27 @@ pub struct InfektAboutScreen {
 #[derive(Debug, Clone)]
 pub enum InfektAboutScreenMessage {
     _Dummy,
-    FetchInformation(system::Information),
+    FetchInformation(Box<system::Information>),
 }
 
 const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x256x32.png");
 // const LOGO_SVG: &[u8] = include_bytes!("../../assets/infekt-icons/logo_v2.svg");
 
 impl InfektAboutScreen {
-    pub fn update(&mut self, message: InfektAboutScreenMessage) -> InfektAppAction {
+    pub fn update(&mut self, message: InfektAboutScreenMessage) -> Action {
         if let InfektAboutScreenMessage::FetchInformation(sysinfo) = message {
-            self.sysinfo = Some(sysinfo);
+            self.sysinfo = Some(*sysinfo);
         }
 
-        InfektAppAction::None
+        Action::None
     }
 
     pub fn on_before_shown(&mut self) -> Option<Task<InfektAboutScreenMessage>> {
         if self.sysinfo.is_none() {
-            Some(system::fetch_information().map(InfektAboutScreenMessage::FetchInformation))
+            Some(
+                system::fetch_information()
+                    .map(|info| InfektAboutScreenMessage::FetchInformation(Box::new(info))),
+            )
         } else {
             None
         }

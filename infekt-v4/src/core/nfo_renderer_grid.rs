@@ -141,7 +141,7 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
 
                 let link = nfo.GetLinkUrlUtf8(row, col);
                 let now_in_link = !link.is_empty();
-                let buffer_is_link = link_url != None;
+                let buffer_is_link = link_url.is_some();
 
                 if now_in_link != buffer_is_link {
                     text_buf.truncate(text_buf.trim_end_matches(' ').len());
@@ -214,11 +214,11 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
         text_buf.truncate(text_buf.trim_end_matches(' ').len());
 
         if !text_buf.is_empty() {
-            if link_url != None {
+            if let Some(link_url) = link_url {
                 line.links.push(NfoRendererLink {
                     col: text_buf_first_col,
                     text: text_buf,
-                    url: link_url.unwrap(),
+                    url: link_url,
                 });
             } else {
                 line.text_flights.push(NfoRendererTextFlight {

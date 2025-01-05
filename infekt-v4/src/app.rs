@@ -11,8 +11,8 @@ use crate::gui::main_view::{InfektMainView, InfektMainViewMessage};
 use crate::gui::sidebar::{InfektSidebar, InfektSidebarMessage};
 
 #[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
 pub(crate) enum Message {
-    NoOp,
     FontLoaded(Result<(), iced::font::Error>),
     SidebarMessage(InfektSidebarMessage),
     MainViewMessage(InfektMainViewMessage),
@@ -21,15 +21,15 @@ pub(crate) enum Message {
 }
 
 #[derive(Debug, Clone)]
-pub(crate) enum InfektAppAction {
+pub(crate) enum Action {
     None,
-    ShowScreen(InfektActiveScreen),
+    ShowScreen(ActiveScreen),
     SelectFileForOpening,
     ShowErrorMessage(String),
 }
 
 #[derive(Debug, Clone, Default)]
-pub(crate) enum InfektActiveScreen {
+pub(crate) enum ActiveScreen {
     #[default]
     MainView,
     Preferences,
@@ -38,7 +38,7 @@ pub(crate) enum InfektActiveScreen {
 
 #[derive(Default)]
 pub(crate) struct InfektApp {
-    active_screen: InfektActiveScreen,
+    active_screen: ActiveScreen,
     sidebar: InfektSidebar,
     main_view: InfektMainView,
     about_screen: InfektAboutScreen,
@@ -75,8 +75,8 @@ impl InfektApp {
         let mut task = Task::none();
 
         let action = match message {
-            Message::NoOp => InfektAppAction::None,
-            Message::FontLoaded(_) => InfektAppAction::None,
+            // Message::NoOp => Action::None,
+            Message::FontLoaded(_) => Action::None,
 
             Message::SidebarMessage(message) => self.sidebar.update(message),
             Message::MainViewMessage(message) => self.main_view.update(message),
@@ -86,14 +86,14 @@ impl InfektApp {
         };
 
         match action {
-            InfektAppAction::None => {}
-            InfektAppAction::ShowScreen(screen) => {
+            Action::None => {}
+            Action::ShowScreen(screen) => {
                 self.active_screen = screen;
 
                 match self.active_screen {
-                    InfektActiveScreen::MainView => {}
-                    InfektActiveScreen::Preferences => {}
-                    InfektActiveScreen::About => {
+                    ActiveScreen::MainView => {}
+                    ActiveScreen::Preferences => {}
+                    ActiveScreen::About => {
                         let result = self.about_screen.on_before_shown();
 
                         if let Some(new_task) = result {
@@ -102,11 +102,11 @@ impl InfektApp {
                     }
                 }
             }
-            InfektAppAction::SelectFileForOpening => {
+            Action::SelectFileForOpening => {
                 task = self.task_open_nfo_file_dialog();
             }
-            InfektAppAction::ShowErrorMessage(message) => {
-                task = self.task_show_error_message(message);
+            Action::ShowErrorMessage(message) => {
+                self.show_error_message_popup(message);
             }
         }
 

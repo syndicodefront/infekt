@@ -1,7 +1,7 @@
 use iced::Task;
 use std::path::PathBuf;
 
-use super::{InfektApp, InfektAppAction, Message};
+use super::{InfektApp, Action, Message};
 
 impl InfektApp {
     pub(super) fn task_open_nfo_file_dialog(&mut self) -> Task<Message> {
@@ -14,20 +14,20 @@ impl InfektApp {
         Task::done(msg)
     }
 
-    pub(super) fn action_load_new_nfo(&mut self, file_path: Option<PathBuf>) -> InfektAppAction {
+    pub(super) fn action_load_new_nfo(&mut self, file_path: Option<PathBuf>) -> Action {
         let Some(file_path) = file_path else {
-            return InfektAppAction::None;
+            return Action::None;
         };
 
         let status = self.current_nfo.load_from_file(&file_path);
 
-        if !status.is_ok() {
-            return InfektAppAction::ShowErrorMessage(format!(
+        if status.is_err() {
+            return Action::ShowErrorMessage(format!(
                 "Failed to load file: {}",
                 status.err().unwrap()
             ));
         }
 
-        InfektAppAction::None
+        Action::None
     }
 }
