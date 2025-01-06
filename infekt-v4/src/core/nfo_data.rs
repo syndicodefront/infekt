@@ -96,7 +96,7 @@ impl NfoData {
             return String::new();
         }
 
-        self.nfo.GetTextUtf8().to_string()
+        cpp_char_vector_to_utf8_string(self.nfo.GetContentsUint32())
     }
 
     pub fn get_stripped_html(&self) -> String {
@@ -121,7 +121,7 @@ impl NfoData {
         let mut load_stripped_nfo = ffi::new_nfo_data();
 
         if load_stripped_nfo.pin_mut().LoadStripped(&self.nfo) {
-            return load_stripped_nfo.GetTextUtf8().to_string();
+            return cpp_char_vector_to_utf8_string(load_stripped_nfo.GetContentsUint32());
         }
 
         String::new()
@@ -132,4 +132,11 @@ impl Default for NfoData {
     fn default() -> Self {
         Self::new()
     }
+}
+
+fn cpp_char_vector_to_utf8_string(vector: Vec<u32>) -> String {
+    vector
+        .iter()
+        .map(|&c| char::from_u32(c).unwrap_or(char::REPLACEMENT_CHARACTER))
+        .collect()
 }

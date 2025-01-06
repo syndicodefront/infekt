@@ -22,7 +22,7 @@ pub(super) fn nfo_to_html_classic(nfo: &UniquePtr<ffi::CNFOData>) -> String {
         let mut previous_type = CharFlightType::Unknown;
 
         for col in 0..width {
-            let grid_char = nfo.GetGridCharUtf32(row, col);
+            let grid_char = nfo.GetGridCharUint32(row, col);
 
             if grid_char == 0 {
                 // EOL

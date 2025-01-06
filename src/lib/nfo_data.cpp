@@ -1426,6 +1426,7 @@ FILE* CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePa
 }
 
 
+#ifndef INFEKT_2_CXXRUST
 bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, bool a_compoundWhitespace)
 {
 	FILE* l_file = OpenFileForWritingWithErrorMessage(a_filePath);
@@ -1471,6 +1472,25 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 }
 
 
+bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
+{
+	FILE* fp = OpenFileForWritingWithErrorMessage(a_filePath);
+
+	if (!fp)
+	{
+		return false;
+	}
+
+	const std::vector<char> l_converted = GetTextCP437(ar_charsNotConverted, a_compoundWhitespace);
+
+	bool l_success = (fwrite(l_converted.data(), 1, l_converted.size(), fp) == l_converted.size());
+
+	fclose(fp);
+
+	return l_success;
+}
+
+
 const std::string& CNFOData::GetTextUtf8() const
 {
 	if (m_utf8Content.empty())
@@ -1480,7 +1500,18 @@ const std::string& CNFOData::GetTextUtf8() const
 
 	return m_utf8Content;
 }
+#else
+rust::Vec<uint32_t> CNFOData::GetContentsUint32() const
+{
+	rust::Vec<uint32_t> result;
 
+	result.reserve(m_textContent.size());
+
+	std::copy(m_textContent.begin(), m_textContent.end(), std::back_inserter(result));
+
+	return result;
+}
+#endif
 
 size_t CNFOData::GetGridWidth() const
 {
@@ -1839,25 +1870,6 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 	}
 
 	return l_converted;
-}
-
-
-bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
-{
-	FILE* fp = OpenFileForWritingWithErrorMessage(a_filePath);
-
-	if (!fp)
-	{
-		return false;
-	}
-
-	const std::vector<char> l_converted = GetTextCP437(ar_charsNotConverted, a_compoundWhitespace);
-
-	bool l_success = (fwrite(l_converted.data(), 1, l_converted.size(), fp) == l_converted.size());
-
-	fclose(fp);
-
-	return l_success;
 }
 
 

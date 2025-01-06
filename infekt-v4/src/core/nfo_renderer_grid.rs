@@ -121,7 +121,7 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
         let mut block_group_buf: Vec<NfoRendererBlockShape> = Vec::new();
 
         for col in 0..width {
-            let grid_char = nfo.GetGridCharUtf32(row, col);
+            let grid_char = nfo.GetGridCharUint32(row, col);
 
             if grid_char == 0 {
                 // EOL
@@ -169,11 +169,8 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
                     link_url = now_in_link.then(|| link.to_string());
                 }
 
-                if let Some(actual_char) = char::from_u32(grid_char) {
-                    text_buf.push(actual_char);
-                } else {
-                    text_buf.push(char::REPLACEMENT_CHARACTER);
-                }
+                text_buf
+                    .push(char::from_u32(grid_char).unwrap_or(char::REPLACEMENT_CHARACTER));
             } else if block_shape != NfoRendererBlockShape::Whitespace {
                 // It's a block!
 

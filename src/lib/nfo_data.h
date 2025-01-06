@@ -56,21 +56,23 @@ public:
 	size_t GetGridHeight() const;
 	wchar_t GetGridChar(size_t a_row, size_t a_col) const;
 #ifdef INFEKT_2_CXXRUST
-	// Best effort to return a UTF-32 char, but it might be part of a UTF-16 surrogate pair on Windows:
-	uint32_t GetGridCharUtf32(size_t a_row, size_t a_col) const {
+	// Best effort to return a UTF-32 char, but it might be part of a UTF-16 surrogate pair or some other Unicode stuff:
+	uint32_t GetGridCharUint32(size_t a_row, size_t a_col) const {
 		return static_cast<uint32_t>(GetGridChar(a_row, a_col));
 	}
+	rust::Vec<uint32_t> GetContentsUint32() const;
 #else
 	const std::string& GetGridCharUtf8(size_t a_row, size_t a_col) const;
 	const std::string& GetGridCharUtf8(wchar_t a_wideChar) const;
-#endif
 
 	const std::string& GetTextUtf8() const;
 	const std::wstring& GetTextWide() const { return m_textContent; }
-	const std::vector<char> GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace = false) const;
 
 	bool SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8 = true, bool a_compoundWhitespace = false);
 	bool SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace = false);
+#endif
+
+	const std::vector<char> GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace = false) const;
 
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;

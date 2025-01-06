@@ -50,6 +50,8 @@
 
 #define INFEKT_2_CXXRUST
 
+#include "rust/cxx.h"
+
 /* local headers */
 #include "infekt.h"
 
