@@ -12,6 +12,8 @@ pub struct NfoData {
     nfo: UniquePtr<ffi::CNFOData>,
     renderer_grid: Option<NfoRendererGrid>,
     file_path: Option<PathBuf>,
+    cached_classic_text: Option<String>,
+    cached_stripped_text: Option<String>,
 }
 
 impl NfoData {
@@ -20,6 +22,8 @@ impl NfoData {
             nfo: (UniquePtr::null()),
             renderer_grid: None,
             file_path: None,
+            cached_classic_text: None,
+            cached_stripped_text: None,
         }
     }
 
@@ -48,6 +52,10 @@ impl NfoData {
             self.nfo = load_nfo;
             self.file_path = Some(path.to_path_buf());
             self.renderer_grid = Some(make_renderer_grid(&self.nfo));
+
+            self.cached_classic_text =
+                Some(cpp_char_vector_to_utf8_string(self.nfo.GetContentsUint32()));
+            self.cached_stripped_text = self.make_stripped_text();
 
             return Ok(());
         }
@@ -96,21 +104,7 @@ impl NfoData {
             return String::new();
         }
 
-        cpp_char_vector_to_utf8_string(self.nfo.GetContentsUint32())
-    }
-
-    pub fn get_stripped_html(&self) -> String {
-        if self.nfo.is_null() {
-            return String::new();
-        }
-
-        let mut load_stripped_nfo = ffi::new_nfo_data();
-
-        if load_stripped_nfo.pin_mut().LoadStripped(&self.nfo) {
-            return nfo_to_html_classic(&load_stripped_nfo);
-        }
-
-        String::new()
+        self.cached_classic_text.clone().unwrap_or_default()
     }
 
     pub fn get_stripped_text(&self) -> String {
@@ -118,13 +112,21 @@ impl NfoData {
             return String::new();
         }
 
-        let mut load_stripped_nfo = ffi::new_nfo_data();
+        self.cached_stripped_text.clone().unwrap_or_default()
+    }
 
-        if load_stripped_nfo.pin_mut().LoadStripped(&self.nfo) {
-            return cpp_char_vector_to_utf8_string(load_stripped_nfo.GetContentsUint32());
+    fn make_stripped_text(&mut self) -> Option<String> {
+        if !self.nfo.is_null() {
+            let mut load_stripped_nfo = ffi::new_nfo_data();
+
+            if load_stripped_nfo.pin_mut().LoadStripped(&self.nfo) {
+                return Some(cpp_char_vector_to_utf8_string(
+                    load_stripped_nfo.GetContentsUint32(),
+                ));
+            }
         }
 
-        String::new()
+        None
     }
 }
 

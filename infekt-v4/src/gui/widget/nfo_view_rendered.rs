@@ -254,9 +254,7 @@ fn render_blocks(
         let y = row as f32 * block_size.height - y_offset;
 
         for block_group in &line.block_groups {
-            let mut block_index = 0;
-
-            for block_shape in &block_group.blocks {
+            for (block_index, block_shape) in block_group.blocks.iter().enumerate() {
                 let x = (block_group.col + block_index) as f32 * block_size.width;
 
                 let opacity: f32 = match block_shape {
@@ -273,8 +271,6 @@ fn render_blocks(
                     block_color.scale_alpha(opacity),
                     frame,
                 );
-
-                block_index += 1;
             }
         }
     }

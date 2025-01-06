@@ -85,7 +85,9 @@ impl InfektMainView {
         scrollable(
             text(current_nfo.get_classic_text())
                 .font(iced::Font::with_name("Cascadia Mono"))
-                .shaping(text::Shaping::Advanced)
+                .size(14.0)
+                .line_height(text::LineHeight::Relative(1.0))
+                .shaping(text::Shaping::Basic)
                 .wrapping(text::Wrapping::None),
         )
         .id(Id::new("main view classic"))
