@@ -51,9 +51,10 @@ impl InfektApp {
         let load_font = |data: &'static [u8]| iced::font::load(data).map(Message::FontLoaded);
 
         let task = Task::batch(vec![
-            load_font(include_bytes!("../assets/fonts/ServerMono-Regular.otf")),
+            load_font(include_bytes!("../assets/fonts/CascadiaMono.ttf")), // font name: Cascadia Mono
+            load_font(include_bytes!("../assets/fonts/Andale Mono.ttf")), // font name: Andale Mono
             load_font(include_bytes!(
-                "../assets/fonts/Menlo-Regular-NormalMono.ttf"
+                "../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
             )),
         ]);
 

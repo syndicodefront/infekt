@@ -188,7 +188,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                                     line_height: advanced::text::LineHeight::Absolute(
                                         iced::Pixels(self.block_height_float),
                                     ),
-                                    font: iced::Font::with_name("Server Mono"),
+                                    font: iced::Font::with_name("Cascadia Mono"),
                                     shaping: advanced::text::Shaping::Basic,
                                 });
                             });

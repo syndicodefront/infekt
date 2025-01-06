@@ -80,11 +80,11 @@ impl InfektMainView {
             .into()
     }
 
-    // XXX: combine class and text_only view implementations
+    // XXX: combine classic and text-only view implementations
     fn classic_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
         scrollable(
             text(current_nfo.get_classic_text())
-                .font(iced::Font::with_name("Server Mono"))
+                .font(iced::Font::with_name("Cascadia Mono"))
                 .shaping(text::Shaping::Advanced)
                 .wrapping(text::Wrapping::None),
         )
@@ -101,7 +101,7 @@ impl InfektMainView {
     fn text_only_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
         scrollable(
             text(current_nfo.get_stripped_text())
-                .font(iced::Font::with_name("Server Mono"))
+                .font(iced::Font::with_name("Cascadia Mono"))
                 .wrapping(text::Wrapping::None),
         )
         .id(Id::new("main view text only"))
