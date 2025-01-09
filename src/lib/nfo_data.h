@@ -43,6 +43,7 @@ public:
 	CNFOData();
 
 	bool LoadFromFile(const std::_tstring& a_filePath);
+	bool LoadFromFileUtf8(const std::string& a_filePath);
 	bool LoadFromMemory(const unsigned char* a_data, size_t a_dataLen);
 	bool LoadStripped(const CNFOData& a_source);
 

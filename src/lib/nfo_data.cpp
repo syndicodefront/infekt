@@ -160,6 +160,16 @@ bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 }
 
 
+bool CNFOData::LoadFromFileUtf8(const std::string& a_filePath)
+{
+#ifdef _WIN32
+	return LoadFromFile(CUtil::ToWideStr(a_filePath, CP_UTF8));
+#else
+	return LoadFromFile(a_filePath);
+#endif
+}
+
+
 bool CNFOData::LoadFromMemory(const unsigned char* a_data, size_t a_dataLen)
 {
 	m_filePath = _T("");

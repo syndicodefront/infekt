@@ -48,7 +48,7 @@ impl NfoData {
         let mut load_nfo = ffi::new_nfo_data();
         let_cxx_string!(path_cxx = String::from(path.to_string_lossy()));
 
-        if load_nfo.pin_mut().LoadFromFile(&path_cxx) {
+        if load_nfo.pin_mut().LoadFromFileUtf8(&path_cxx) {
             self.nfo = load_nfo;
             self.file_path = Some(path.to_path_buf());
             self.renderer_grid = Some(make_renderer_grid(&self.nfo));

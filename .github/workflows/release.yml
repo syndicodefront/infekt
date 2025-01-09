@@ -48,12 +48,16 @@ jobs:
         with:
           target: ${{ matrix.target }}
 
+      - name: Check/Install C++ Toolchain
+        if: startsWith(matrix.os, 'ubuntu-')
+        run: apt install build-essential g++ pkg-config
+
       - name: Build and Package
-        run: cd infekt-v4 && cargo xtask bundle --release --target ${{ matrix.target }}
+        run: cargo xtask bundle --release --target ${{ matrix.target }}
 
       - name: Move Artifacts
         run: |
-          cd infekt-v4/target/${{ matrix.target }}/release/bundle
+          cd target/${{ matrix.target }}/release/bundle
 
           mkdir -p dist
           if [ "${{ matrix.os }}" == "macos-latest" ]; then
@@ -69,11 +73,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
-          path: infekt-v4/target/${{ matrix.target }}/release/bundle/dist
+          path: target/${{ matrix.target }}/release/bundle/dist
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: infekt-v4/target/${{ matrix.target }}/release/bundle/dist/*
+          files: target/${{ matrix.target }}/release/bundle/dist/*
