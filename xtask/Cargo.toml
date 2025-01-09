@@ -1,0 +1,12 @@
+[package]
+name = "xtask"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+anyhow = { workspace = true }
+cargo_toml = "0.21"
+log = { workspace = true }
+pico-args = "0.5"
+serde = { version = "1.0", features = ["derive"] }
+tauri-bundler = "2.2"

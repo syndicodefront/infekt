@@ -35,5 +35,7 @@ fn compile_infekt_cpp() {
 }
 
 fn main() {
+    println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.12");
+
     compile_infekt_cpp();
 }

@@ -1,0 +1,79 @@
+name: Release
+
+# Based on https://github.com/sonodima/blurthing
+# THANK YOU!
+
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - main-v4.0
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  publish:
+    name: Release - ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Build and Package
+        run: cd infekt-v4 && cargo xtask bundle --release --target ${{ matrix.target }}
+
+      - name: Move Artifacts
+        run: |
+          cd infekt-v4/target/${{ matrix.target }}/release/bundle
+
+          mkdir -p dist
+          if [ "${{ matrix.os }}" == "macos-latest" ]; then
+            mv dmg/*.dmg dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.dmg
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            mv msi/*.msi dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.msi
+          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            mv deb/*.deb dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.deb
+            mv rpm/*.rpm dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.rpm
+          fi
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: infekt-v4/target/${{ matrix.target }}/release/bundle/dist
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: infekt-v4/target/${{ matrix.target }}/release/bundle/dist/*

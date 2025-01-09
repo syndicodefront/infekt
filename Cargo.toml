@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+members = ["xtask", "infekt-v4"]
+
+[workspace.dependencies]
+anyhow = "1.0"
+log = "0.4"
+
+[profile.release]
+strip = true
+lto = "fat"
