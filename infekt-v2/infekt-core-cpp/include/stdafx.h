@@ -15,6 +15,8 @@
 #pragma once
 
 #ifdef _WIN32
+#define UNICODE
+#define _UNICODE
 #include "targetver.h"
 #include <windows.h>
 #include <shlwapi.h>

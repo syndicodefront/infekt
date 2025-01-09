@@ -90,7 +90,7 @@ fn package_settings(manifest: &Package) -> Result<PackageSettings> {
 
 fn bundle_settings(workspace_dir: &Path) -> BundleSettings {
     let icon = workspace_dir
-        .join("infekt-v4")
+        .join("infekt-v2")
         .join("assets")
         .join("infekt-icons")
         .join("*")
