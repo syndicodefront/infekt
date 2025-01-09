@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["xtask", "infekt-v4"]
+members = ["xtask", "infekt-v2"]
 
 [workspace.dependencies]
 anyhow = "1.0"
