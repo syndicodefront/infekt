@@ -40,17 +40,16 @@ jobs:
             target: x86_64-unknown-linux-gnu
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Rust Toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: ${{ matrix.target }}
 
-      - name: Check/Install C++ Toolchain
+      - name: Check/Install C++ Toolchain (Linux Only)
         if: startsWith(matrix.os, 'ubuntu-')
-        run: apt install build-essential g++ pkg-config
+        run: sudo apt update -qq && sudo apt install -yy build-essential g++ pkg-config
 
       - name: Build and Package
         run: cargo xtask bundle --release --target ${{ matrix.target }}
@@ -75,7 +74,7 @@ jobs:
           name: ${{ matrix.target }}
           path: target/${{ matrix.target }}/release/bundle/dist
 
-      - name: Upload Release
+      - name: Update GitHub Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

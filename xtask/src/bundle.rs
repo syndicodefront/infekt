@@ -1,6 +1,9 @@
 use std::path::Path;
 use std::vec;
 
+// Based on https://github.com/sonodima/blurthing
+// THANK YOU!
+
 use anyhow::{Context, Result};
 use cargo_toml::Package;
 use tauri_bundler::{
@@ -11,7 +14,7 @@ use tauri_bundler::{
 use crate::args::BundleArgs;
 use crate::utils;
 
-const TARGET_PACKAGE: &str = "infekt-v4";
+const TARGET_PACKAGE: &str = "infekt-v2";
 
 const PRODUCT_NAME: &str = "iNFekt";
 const BUNDLE_IDENTIFIER: &str = "org.syndicode.infekt2";
