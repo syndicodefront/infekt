@@ -22,16 +22,22 @@ fn compile_infekt_cpp() {
 
     println!("cargo:rustc-link-arg=-fopenmp");
 
-    cc::Build::new()
+    let mut binding = cc::Build::new();
+    let c_build = binding
         .cpp(false)
         .std("c11")
         .include(crate_path.join(Path::new("../src/lib")))
         .include(crate_path.join(Path::new("../src/lib-posix")))
         .include(crate_path.join(Path::new("../src/lib-win32")))
         .file("../src/lib/forgiving_utf8.c")
-        .file("../src/lib/gutf8.c")
-        .file("../src/lib-posix/iconv_string.c")
-        .compile("infekt-core-c");
+        .file("../src/lib/gutf8.c");
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        c_build.file("../src/lib-posix/iconv_string.c");
+    }
+
+    c_build.compile("infekt-core-c");
 }
 
 fn main() {
