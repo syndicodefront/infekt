@@ -17,7 +17,12 @@
 #include "util.h"
 
 CNFOHyperLink::CNFOHyperLink(int linkID, const std::wstring& href, size_t row, size_t col, size_t len)
-	: m_linkID(linkID), m_href(href), m_row(row), m_colStart(col), m_colEnd(col + len - 1)
+	: m_linkID(linkID)
+	, m_href(href)
+	, m_hrefUtf8()
+	, m_row(row)
+	, m_colStart(col)
+	, m_colEnd(col + len - 1)
 {
 }
 
@@ -25,17 +30,13 @@ bool CNFOHyperLink::FindLink(const std::wstring& sLine, size_t& uirOffset, size_
 {
 	srUrl.clear();
 
-	if (sLine.find_first_of(L"./&?") == std::wstring::npos)
+	if (sLine.find_first_of(L"./&?%") == std::wstring::npos)
 	{
 		// no need to run any regex if the line does not contain any URL-worthy characters
 		return false;
 	}
 
-	if (ms_linkTriggers.empty())
-	{
-		// init static stuff
-		PopulateLinkTriggers();
-	}
+	PopulateLinkTriggers();
 
 	//
 	// Phase 1: find earliest link starting point:
@@ -204,6 +205,11 @@ bool CNFOHyperLink::FindLink(const std::wstring& sLine, size_t& uirOffset, size_
 
 void CNFOHyperLink::PopulateLinkTriggers()
 {
+	if (!ms_linkTriggers.empty())
+	{
+		return;
+	}
+
 	// keep compiled trigger regexes because all those execute on
 	// every single line, so this is an easy performance gain.
 
@@ -231,6 +237,8 @@ void CNFOHyperLink::PopulateLinkTriggers()
 
 	ms_linkTriggers.emplace_back(L"(\\S{4,}/\\S*)", true);
 	// use at least 4 chars so "4.4/10" in a line following an imdb link does not trigger.
+
+	ms_linkTriggers.emplace_back(L"(\\S+%28\\S+%29\\S*)", true); // for wikipedia
 }
 
 std::vector<CNFOHyperLink::CLinkRegEx> CNFOHyperLink::ms_linkTriggers;
@@ -248,5 +256,15 @@ CNFOHyperLink::CLinkRegEx::CLinkRegEx(const std::wstring& regexStr, bool isConti
 		flags = flags | std::regex::icase;
 	}
 
-	m_regex = std::move(std::wregex(regexStr, flags));
+	m_regex = std::wregex(regexStr, flags);
+}
+
+const std::string& CNFOHyperLink::GetHrefUtf8() const
+{
+	if (m_hrefUtf8.empty())
+	{
+		m_hrefUtf8 = CUtil::FromWideStr(m_href, CP_UTF8);
+	}
+
+	return m_hrefUtf8;
 }

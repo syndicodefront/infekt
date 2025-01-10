@@ -107,7 +107,7 @@ int iconv_string (const char* tocode, const char* fromcode,
     iconv_close(cd);
     return 0;
   }
-  result = (*resultp == NULL ? malloc(length) : realloc(*resultp,length));
+  result = (char*)(*resultp == NULL ? malloc(length) : realloc(*resultp,length));
   *resultp = result;
   if (length == 0) {
     iconv_close(cd);

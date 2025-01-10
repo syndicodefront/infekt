@@ -17,9 +17,8 @@
 
 #define NFORGB(R, G, B) (255 | ((B) << 8) | ((G) << 16) | ((R) << 24))
 
-
 CNFOColorMap::CNFOColorMap()
-	: m_previousBack(), m_previousFore()
+		: m_rgbMapping(), m_stopsFore(), m_stopsBack(), m_previousFore(), m_previousBack(), m_usedSections()
 {
 	// default mapping = xterm colors
 	m_rgbMapping[NFOCOLOR_BLACK] = NFORGB(0, 0, 0);
@@ -58,7 +57,6 @@ CNFOColorMap::CNFOColorMap()
 	m_rgbMapping[NFOCOLOR_WHITE] = NFORGB(255, 255, 255);*/
 }
 
-
 void CNFOColorMap::Clear()
 {
 	m_stopsFore.clear();
@@ -70,8 +68,7 @@ void CNFOColorMap::Clear()
 	m_usedSections.clear();
 }
 
-
-void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::vector<uint8_t>& a_params)
+void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::vector<uint8_t> &a_params)
 {
 	ENFOColor fore_color = _NFOCOLOR_MAX;
 	ENFOColor back_color = _NFOCOLOR_MAX;
@@ -144,14 +141,13 @@ void CNFOColorMap::PushGraphicRendition(size_t a_row, size_t a_col, const std::v
 			}
 #endif
 		} // end of switch
-	} // end of for loop
+	}		// end of for loop
 
 	CreateColorStop(m_stopsFore, a_row, a_col, intensity_fore, fore_color, fore_color_rgba, m_previousFore);
 	CreateColorStop(m_stopsBack, a_row, a_col, intensity_back, back_color, back_color_rgba, m_previousBack);
 }
 
-
-void CNFOColorMap::CreateColorStop(TColorStopMap& target_map, size_t a_row, size_t a_col, int intensity, ENFOColor color, uint32_t color_rgba, SNFOColorStop& previous) const
+void CNFOColorMap::CreateColorStop(TColorStopMap &target_map, size_t a_row, size_t a_col, int intensity, ENFOColor color, uint32_t color_rgba, SNFOColorStop &previous) const
 {
 	if (intensity == -1)
 	{
@@ -186,8 +182,7 @@ void CNFOColorMap::CreateColorStop(TColorStopMap& target_map, size_t a_row, size
 	}
 }
 
-
-bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t>& a_params, ENFOColor& ar_color, uint32_t& ar_rgba) const
+bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t> &a_params, ENFOColor &ar_color, uint32_t &ar_rgba) const
 {
 	ar_color = NFOCOLOR_RGB; // default
 
@@ -212,8 +207,8 @@ bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t>& a_params, 
 			p -= 0x10;
 
 			uint8_t r = p / 36,
-				g = (p - r * 36) / 6,
-				b = (p - r * 36 - g * 6);
+							g = (p - r * 36) / 6,
+							b = (p - r * 36 - g * 6);
 
 			ar_rgba = NFORGB((255 / 5) * r, (255 / 5) * g, (255 / 5) * b);
 		}
@@ -232,12 +227,11 @@ bool CNFOColorMap::InterpretAdvancedColor(const std::vector<uint8_t>& a_params, 
 	return true;
 }
 
-
 // unfortunately it was only later noticed that backgrounds for unused areas
 // (i.e. where the cursor has never been) shall remain default-colored...
 void CNFOColorMap::PushUsedSection(size_t a_row, size_t a_col_from, size_t a_length)
 {
-	auto& row = m_usedSections[a_row];
+	auto &row = m_usedSections[a_row];
 
 	// try to join adjacent sections:
 	if (!row.empty() && a_col_from == row.rbegin()->first + row.rbegin()->second)
@@ -254,8 +248,7 @@ void CNFOColorMap::PushUsedSection(size_t a_row, size_t a_col_from, size_t a_len
 	m_stopsBack[a_row][a_col_from] = m_previousBack;
 }
 
-
-bool CNFOColorMap::FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& ar_row) const
+bool CNFOColorMap::FindRow(const TColorStopMap &a_stops, size_t a_row, size_t &ar_row) const
 {
 	for (size_t row = a_row; !a_stops.empty(); --row)
 	{
@@ -265,8 +258,8 @@ bool CNFOColorMap::FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& a
 			return true;
 		}
 
-		if (row == 0  // make sure the size_t never wraps around
-			|| row == a_stops.begin()->first)
+		if (row == 0 // make sure the size_t never wraps around
+				|| row == a_stops.begin()->first)
 		{
 			break;
 		}
@@ -275,8 +268,7 @@ bool CNFOColorMap::FindRow(const TColorStopMap& a_stops, size_t a_row, size_t& a
 	return false;
 }
 
-
-bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_defaultColor, uint32_t& ar_color) const
+bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_defaultColor, uint32_t &ar_color) const
 {
 	size_t row;
 
@@ -289,7 +281,7 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 
 	if (row == a_row)
 	{
-		const auto& row_data = m_stopsFore.find(row)->second;
+		const auto &row_data = m_stopsFore.find(row)->second;
 		auto walk_it = row_data.begin(), it = walk_it;
 
 		// check if first entry in this row is beyond the request col.
@@ -328,7 +320,7 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 	else
 	{
 	take_previous_row:
-		const SNFOColorStop& last_stop = m_stopsFore.find(row)->second.rbegin()->second;
+		const SNFOColorStop &last_stop = m_stopsFore.find(row)->second.rbegin()->second;
 
 		if (last_stop.color == NFOCOLOR_DEFAULT)
 		{
@@ -341,9 +333,8 @@ bool CNFOColorMap::GetForegroundColor(size_t a_row, size_t a_col, uint32_t a_def
 	return true;
 }
 
-
 bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, size_t a_width,
-	std::vector<size_t>& ar_sections, std::vector<uint32_t>& ar_colors) const
+																			std::vector<size_t> &ar_sections, std::vector<uint32_t> &ar_colors) const
 {
 	size_t row;
 	auto it_row_sections = m_usedSections.find(a_row);
@@ -361,7 +352,7 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 	std::vector<size_t> l_sections;
 	std::vector<uint32_t> l_colors;
 
-	const auto& row_data = m_stopsBack.find(row)->second;
+	const auto &row_data = m_stopsBack.find(row)->second;
 
 	if (row == a_row)
 	{
@@ -378,7 +369,7 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 			}
 			else
 			{
-				const SNFOColorStop& last_stop = m_stopsBack.find(previous_row)->second.rbegin()->second;
+				const SNFOColorStop &last_stop = m_stopsBack.find(previous_row)->second.rbegin()->second;
 
 				l_colors.push_back(last_stop.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(last_stop));
 			}
@@ -389,7 +380,7 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 		size_t prev_end_col = 0;
 		size_t index = 0;
 
-		for (const auto& sub : row_data)
+		for (const auto &sub : row_data)
 		{
 			l_colors.push_back(sub.second.color == NFOCOLOR_DEFAULT ? a_defaultColor : GetRGB(sub.second));
 
@@ -410,7 +401,7 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 	{
 		// paint entire row using the color from the previous line.
 
-		const SNFOColorStop& last_stop = row_data.rbegin()->second;
+		const SNFOColorStop &last_stop = row_data.rbegin()->second;
 
 		if (last_stop.color == NFOCOLOR_DEFAULT)
 		{
@@ -434,7 +425,7 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 		size_t used_width = 0;
 		uint32_t new_color;
 
-		for (const auto& used_section : it_row_sections->second)
+		for (const auto &used_section : it_row_sections->second)
 		{
 			if (used_section.first <= col && col < used_section.first + used_section.second)
 			{
@@ -508,8 +499,7 @@ bool CNFOColorMap::GetLineBackgrounds(size_t a_row, uint32_t a_defaultColor, siz
 	return true;
 }
 
-
-uint32_t CNFOColorMap::GetRGB(const SNFOColorStop& a_stop) const
+uint32_t CNFOColorMap::GetRGB(const SNFOColorStop &a_stop) const
 {
 	if (a_stop.color == NFOCOLOR_RGB)
 	{
@@ -517,7 +507,7 @@ uint32_t CNFOColorMap::GetRGB(const SNFOColorStop& a_stop) const
 	}
 	else
 	{
-		const auto& it = m_rgbMapping.find(a_stop.color);
+		const auto &it = m_rgbMapping.find(a_stop.color);
 
 		if (it != m_rgbMapping.end())
 		{
@@ -530,9 +520,7 @@ uint32_t CNFOColorMap::GetRGB(const SNFOColorStop& a_stop) const
 	}
 }
 
-
-bool CNFOColorMap::_nfo_color_stop::operator==(const _nfo_color_stop& other) const {
-	return
-		color == other.color && bold == other.bold
-		&& (color != NFOCOLOR_RGB || color_rgba == other.color_rgba);
+bool CNFOColorMap::_nfo_color_stop::operator==(const _nfo_color_stop &other) const
+{
+	return color == other.color && bold == other.bold && (color != NFOCOLOR_RGB || color_rgba == other.color_rgba);
 }

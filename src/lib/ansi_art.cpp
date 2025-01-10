@@ -24,7 +24,10 @@ CAnsiArt::CAnsiArt(size_t a_widthLimit, size_t a_heightLimit, size_t a_hintWidth
 	m_heightLimit(a_heightLimit),
 	m_hintWidth(a_hintWidth),
 	m_hintHeight(a_hintHeight),
-	m_maxLineLength(0)
+	m_commands(),
+	m_lines(),
+	m_maxLineLength(),
+	m_colorMap()
 {
 }
 
@@ -332,7 +335,7 @@ bool CAnsiArt::Process()
 			_ASSERT(false);
 		}
 
-		if (y_delta < 0 && static_cast<size_t>(std::abs(y_delta)) <= y)
+		if (y_delta < 0 && std::abs(y_delta) <= y)
 		{
 			y += y_delta;
 		}
@@ -346,7 +349,7 @@ bool CAnsiArt::Process()
 			y = 0;
 		}
 
-		if (x_delta < 0 && static_cast<size_t>(std::abs(x_delta)) <= x)
+		if (x_delta < 0 && std::abs(x_delta) <= x)
 		{
 			x += x_delta;
 		}

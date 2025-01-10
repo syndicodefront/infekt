@@ -21,7 +21,9 @@
 #include <time.h>
 #include <wctype.h>
 #include <limits.h>
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include <libgen.h>
 #include <inttypes.h>
 #include <sys/stat.h>

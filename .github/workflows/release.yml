@@ -1,0 +1,87 @@
+name: Release
+
+# Based on https://github.com/sonodima/blurthing
+# THANK YOU!
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  publish:
+    name: Release - ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: aarch64-apple-darwin
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: ubuntu-24.04
+            target: aarch64-unknown-linux-gnu
+          - os: ubuntu-24.04
+            target: x86_64-unknown-linux-gnu
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust Toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Check/Install C++ Toolchain (ARM Linux Only)
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: sudo apt update -qq && sudo apt install -yy build-essential pkg-config gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+      - name: Build and Package
+        run: cargo xtask bundle --release --target ${{ matrix.target }}
+
+      - name: Move Artifacts (MacOS)
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          mkdir -p dist
+          mv target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.dmg
+
+      - name: Move Artifacts (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          mkdir -p dist
+          mv target/${{ matrix.target }}/release/bundle/msi/*.msi dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.msi
+
+      - name: Move Artifacts (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          mkdir -p dist
+          mv target/${{ matrix.target }}/release/bundle/deb/*.deb dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.deb
+          mv target/${{ matrix.target }}/release/bundle/rpm/*.rpm dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.rpm
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist
+          if-no-files-found: error
+          overwrite: true
+
+      - name: Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: dist/*
+          fail_on_unmatched_files: true

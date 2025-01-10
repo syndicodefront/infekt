@@ -19,7 +19,7 @@
 #include "nfo_hyperlink.h"
 #include "nfo_colormap.h"
 
-typedef enum
+typedef enum: uint8_t
 {
 	NFOC_AUTO = 1,
 	NFOC_UTF16,
@@ -43,6 +43,7 @@ public:
 	CNFOData();
 
 	bool LoadFromFile(const std::_tstring& a_filePath);
+	bool LoadFromFileUtf8(const std::string& a_filePath);
 	bool LoadFromMemory(const unsigned char* a_data, size_t a_dataLen);
 	bool LoadStripped(const CNFOData& a_source);
 
@@ -55,19 +56,29 @@ public:
 	size_t GetGridWidth() const;
 	size_t GetGridHeight() const;
 	wchar_t GetGridChar(size_t a_row, size_t a_col) const;
-	const std::string GetGridCharUtf8(size_t a_row, size_t a_col) const;
-	const std::string GetGridCharUtf8(wchar_t a_wideChar) const;
+#ifdef INFEKT_2_CXXRUST
+	// Best effort to return a UTF-32 char, but it might be part of a UTF-16 surrogate pair or some other Unicode stuff:
+	uint32_t GetGridCharUint32(size_t a_row, size_t a_col) const {
+		return static_cast<uint32_t>(GetGridChar(a_row, a_col));
+	}
+	rust::Vec<uint32_t> GetContentsUint32() const;
+#else
+	const std::string& GetGridCharUtf8(size_t a_row, size_t a_col) const;
+	const std::string& GetGridCharUtf8(wchar_t a_wideChar) const;
 
-	const std::string& GetTextUtf8();
+	const std::string& GetTextUtf8() const;
 	const std::wstring& GetTextWide() const { return m_textContent; }
-	const std::vector<char> GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace = false) const;
 
 	bool SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8 = true, bool a_compoundWhitespace = false);
 	bool SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace = false);
+#endif
+
+	const std::vector<char> GetTextCP437(size_t& ar_charsNotConverted, bool a_compoundWhitespace = false) const;
 
 	const CNFOHyperLink* GetLink(size_t a_row, size_t a_col) const;
 	const CNFOHyperLink* GetLinkByIndex(size_t a_index) const;
 	const std::vector<const CNFOHyperLink*> GetLinksForLine(size_t a_row) const;
+	const std::string& GetLinkUrlUtf8(size_t a_row, size_t a_col) const;
 
 	void SetCharsetToTry(ENfoCharset a_charset) { m_sourceCharset = a_charset; }
 	ENfoCharset GetCharset() const { return m_sourceCharset; }
@@ -78,8 +89,6 @@ public:
 
 	bool HasColorMap() const { return m_isAnsi && m_colorMap && m_colorMap->HasColors(); }
 	const PNFOColorMap GetColorMap() const { return m_colorMap; }
-
-	typedef std::list<std::wstring> TLineContainer;
 
 	typedef enum {
 		NDE_NO_ERROR = 0,
@@ -97,16 +106,15 @@ public:
 	} EErrorCode;
 
 	bool IsInError() const { return m_lastErrorCode != NDE_NO_ERROR; }
-	const std::wstring& GetLastErrorDescription() const { return m_lastErrorDescr; }
-	const EErrorCode GetLastErrorCode() const { return m_lastErrorCode; }
+	const std::string& GetLastErrorDescription() const { return m_lastErrorDescr; }
+	EErrorCode GetLastErrorCode() const { return m_lastErrorCode; }
 
 private:
 	EErrorCode m_lastErrorCode;
-	std::wstring m_lastErrorDescr;
+	std::string m_lastErrorDescr;
 
-protected:
 	std::wstring m_textContent;
-	std::string m_utf8Content;
+	mutable std::string m_utf8Content;
 	std::unique_ptr<TwoDimVector<wchar_t>> m_grid;
 	std::map<wchar_t, std::string> m_utf8Map;
 	bool m_loaded;
@@ -150,10 +158,16 @@ protected:
 
 	FILE *OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePath);
 
-	void SetLastError(EErrorCode a_code, const std::wstring& a_descr);
+	void SetLastError(EErrorCode, const std::wstring&);
+	void SetLastError(EErrorCode, const std::string&);
 	void ClearLastError();
 };
 
 typedef std::shared_ptr<CNFOData> PNFOData;
+
+#ifdef INFEKT_2_CXXRUST
+// for rust interaction
+std::unique_ptr<CNFOData> new_nfo_data();
+#endif
 
 #endif /* !_NFO_DATA_H */

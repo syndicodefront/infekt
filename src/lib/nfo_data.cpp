@@ -19,6 +19,8 @@
 #include "ansi_art.h"
 #include <numeric>
 
+typedef std::list<std::wstring> TLineContainer;
+
 CNFOData::CNFOData()
 	: m_lastErrorCode(NDE_NO_ERROR)
 	, m_lastErrorDescr()
@@ -51,12 +53,14 @@ bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 	if (!(l_file = fopen(a_filePath.c_str(), "rb")))
 #endif
 	{
-		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL,
-#ifdef HAVE_BOOST
-			FORMAT(L"Unable to open NFO file '%s' (error %d)", a_filePath % errno));
+#ifdef _WIN32
+		std::wstringstream l_errmsg;
+		l_errmsg << L"Unable to open NFO file '" << a_filePath << L"' (error " << errno << L")";
 #else
-			L"Unable to open NFO file. Please check the file name.");
+		std::stringstream l_errmsg;
+		l_errmsg << "Unable to open NFO file '" << a_filePath << "' (error " << errno << ")";
 #endif
+		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL, l_errmsg.str());
 
 		return false;
 	}
@@ -66,7 +70,7 @@ bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 
 	if (l_fileBytes < 0)
 	{
-		SetLastError(NDE_FAILED_TO_DETERMINE_SIZE, L"Unable to get NFO file size.");
+		SetLastError(NDE_FAILED_TO_DETERMINE_SIZE, "Unable to get NFO file size.");
 
 		fclose(l_file);
 		return false;
@@ -79,7 +83,7 @@ bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 	}
 	else
 	{
-		SetLastError(NDE_FAILED_TO_DETERMINE_SIZE, L"stat() on NFO file failed.");
+		SetLastError(NDE_FAILED_TO_DETERMINE_SIZE, "stat() on NFO file failed.");
 
 		fclose(l_file);
 		return false;
@@ -88,7 +92,7 @@ bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 
 	if (l_fileBytes > 1024 * 1024 * 3)
 	{
-		SetLastError(NDE_SIZE_EXCEEDS_LIMIT, L"NFO file is too large (> 3 MB)");
+		SetLastError(NDE_SIZE_EXCEEDS_LIMIT, "NFO file is too large (> 3 MB)");
 
 		fclose(l_file);
 		return false;
@@ -140,7 +144,7 @@ bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 	}
 	else
 	{
-		SetLastError(NDE_FERROR, L"An error occured while reading from the NFO file.");
+		SetLastError(NDE_FERROR, "An error occured while reading from the NFO file.");
 
 		m_loaded = false;
 	}
@@ -153,6 +157,16 @@ bool CNFOData::LoadFromFile(const std::_tstring& a_filePath)
 	}
 
 	return m_loaded;
+}
+
+
+bool CNFOData::LoadFromFileUtf8(const std::string& a_filePath)
+{
+#ifdef _WIN32
+	return LoadFromFile(CUtil::ToWideStr(a_filePath, CP_UTF8));
+#else
+	return LoadFromFile(a_filePath);
+#endif
 }
 
 
@@ -237,7 +251,7 @@ static void _InternalLoad_NormalizeWhitespace(std::wstring& a_text)
 }
 
 
-static void _InternalLoad_SplitIntoLines(const std::wstring& a_text, size_t& a_maxLineLen, CNFOData::TLineContainer& a_lines)
+static void _InternalLoad_SplitIntoLines(const std::wstring& a_text, size_t& a_maxLineLen, TLineContainer& a_lines)
 {
 	size_t l_prevPos = 0, l_pos = a_text.find(L'\n');
 
@@ -272,14 +286,14 @@ static void _InternalLoad_SplitIntoLines(const std::wstring& a_text, size_t& a_m
 }
 
 
-static void _InternalLoad_FixLfLf(std::wstring& a_text, CNFOData::TLineContainer& a_lines)
+static void _InternalLoad_FixLfLf(std::wstring& a_text, TLineContainer& a_lines)
 {
 	// fix NFOs like Crime.is.King.German.SUB5.5.DVDRiP.DivX-GWL
 	// they use \n\n instead of \r\n
 
 	int l_evenEmpty = 0, l_oddEmpty = 0;
 
-	size_t i = 0;
+	int i = 0;
 	for (auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
 	{
 		if (it->empty())
@@ -301,7 +315,7 @@ static void _InternalLoad_FixLfLf(std::wstring& a_text, CNFOData::TLineContainer
 	if (l_kill >= 0)
 	{
 		std::wstring l_newContent; l_newContent.reserve(a_text.size());
-		CNFOData::TLineContainer l_newLines;
+		TLineContainer l_newLines;
 		i = 0;
 		for (auto it = a_lines.cbegin(); it != a_lines.cend(); it++, i++)
 		{
@@ -408,7 +422,7 @@ static void _InternalLoad_FixAnsiEscapeCodes(std::wstring& a_text)
 }
 
 
-static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_t& a_newMaxLineLen)
+static void _InternalLoad_WrapLongLines(TLineContainer& a_lines, size_t& a_newMaxLineLen)
 {
 	constexpr size_t MAX_LEN_SOFT = 100;
 	constexpr size_t MAX_LEN_HARD = 2 * 80;
@@ -493,7 +507,7 @@ static void _InternalLoad_WrapLongLines(CNFOData::TLineContainer& a_lines, size_
 		}
 	};
 
-	CNFOData::TLineContainer new_lines;
+	TLineContainer new_lines;
 
 	for (const std::wstring& line : a_lines)
 	{
@@ -611,6 +625,8 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	case NFOC_CP437_STRICT:
 		l_loaded = TryLoad_CP437_Strict(a_data, l_dataLen);
 		break;
+	default:
+		break;
 	}
 
 	if (l_loaded)
@@ -621,7 +637,7 @@ bool CNFOData::LoadFromMemoryInternal(const unsigned char* a_data, size_t a_data
 	{
 		if (!IsInError())
 		{
-			SetLastError(NDE_ENCODING_PROBLEM, L"There appears to be a charset/encoding problem.");
+			SetLastError(NDE_ENCODING_PROBLEM, "There appears to be a charset/encoding problem.");
 		}
 
 		m_textContent.clear();
@@ -696,35 +712,35 @@ bool CNFOData::PostProcessLoadedContent()
 	if (l_ansiError)
 	{
 		SetLastError(NDE_ANSI_INTERNAL,
-			L"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.");
+			"Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.");
+
 		return false;
 	}
 
 	if (l_lines.size() == 0 || l_maxLineLen == 0)
 	{
-		SetLastError(NDE_EMPTY_FILE, L"Unable to find any lines in this file.");
+		SetLastError(NDE_EMPTY_FILE, "Unable to find any lines in this file.");
+
 		return false;
 	}
 
 	if (l_maxLineLen > WIDTH_LIMIT)
 	{
-		SetLastError(NDE_MAXIMUM_LINE_LENGTH_EXCEEDED,
-#ifdef HAVE_BOOST
-			FORMAT(L"This file contains a line longer than %d chars. To prevent damage and lock-ups, we do not load it.", WIDTH_LIMIT));
-#else
-			L"This file contains a line that exceeds the internal maximum length limit.");
-#endif
+		std::stringstream l_errmsg;
+		l_errmsg << "This file contains a line longer than " << WIDTH_LIMIT << " chars. To prevent damage and lock-ups, we do not load it.";
+
+		SetLastError(NDE_MAXIMUM_LINE_LENGTH_EXCEEDED, l_errmsg.str());
+
 		return false;
 	}
 
 	if (l_lines.size() > LINES_LIMIT)
 	{
-		SetLastError(NDE_MAXIMUM_NUMBER_OF_LINES_EXCEEDED,
-#ifdef HAVE_BOOST
-			FORMAT(L"This file contains more than %d lines. To prevent damage and lock-ups, we do not load it.", LINES_LIMIT));
-#else
-			L"This file contains more lines than the internal limit.");
-#endif
+		std::stringstream l_errmsg;
+		l_errmsg << "This file contains more than " << LINES_LIMIT << " lines. To prevent damage and lock-ups, we do not load it.";
+
+		SetLastError(NDE_MAXIMUM_NUMBER_OF_LINES_EXCEEDED, l_errmsg.str());
+
 		return false;
 	}
 
@@ -748,6 +764,7 @@ bool CNFOData::PostProcessLoadedContent()
 			(*m_grid)[i][j] = (*it)[j];
 		}
 
+#ifndef INFEKT_2_CXXRUST
 		const std::string l_utf8Line = CUtil::FromWideStr(*it, CP_UTF8);
 
 		const char* const p_start = l_utf8Line.c_str();
@@ -766,6 +783,7 @@ bool CNFOData::PostProcessLoadedContent()
 
 			p = p_next;
 		}
+#endif
 
 		// find hyperlinks:
 		if (/* m_bFindHyperlinks == */true)
@@ -895,7 +913,6 @@ bool CNFOData::TryLoad_UTF8(const unsigned char* a_data, size_t a_dataLen, EAppr
 
 bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApproach a_fix)
 {
-	bool l_containsCR = false;
 	bool l_containsLF = false;
 	bool l_containsCRLF = false;
 
@@ -904,7 +921,6 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 	{
 		if (a_data[i] == '\r')
 		{
-			l_containsCR = true;
 		}
 		else if (a_data[i] == '\n')
 		{
@@ -1037,7 +1053,7 @@ bool CNFOData::TryLoad_CP437(const unsigned char* a_data, size_t a_dataLen, EApp
 		// :TODO: improve detection/discrimination of binary files (images, PDFs, PE files...) and NFO files
 		)
 	{
-		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, "Unrecognized file format or broken file.");
 
 		return false;
 	}
@@ -1099,7 +1115,7 @@ bool CNFOData::TryLoad_CP437_Strict(const unsigned char* a_data, size_t a_dataLe
 
 	if (l_error)
 	{
-		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, "Unrecognized file format or broken file.");
 
 		return false;
 	}
@@ -1164,7 +1180,7 @@ bool CNFOData::TryLoad_UTF16LE(const unsigned char* a_data, size_t a_dataLen, EA
 	}
 	else if (m_textContent.find(L'\0') != std::wstring::npos)
 	{
-		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
+		SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, "Unrecognized file format or broken file.");
 
 		return false;
 	}
@@ -1224,7 +1240,7 @@ bool CNFOData::TryLoad_UTF16BE(const unsigned char* a_data, size_t a_dataLen)
 
 		if (l_newBuf[p] == 0)
 		{
-			SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, L"Unrecognized file format or broken file.");
+			SetLastError(NDE_UNRECOGNIZED_FILE_FORMAT, "Unrecognized file format or broken file.");
 
 			return false;
 		}
@@ -1301,7 +1317,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	if (memcmp(l_record.Version, "00", 2) != 0)
 	{
-		SetLastError(NDE_SAUCE_INTERNAL, L"SAUCE: Unsupported file version.");
+		SetLastError(NDE_SAUCE_INTERNAL, "SAUCE: Unsupported file version.");
 
 		return false;
 	}
@@ -1334,7 +1350,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 			return true;
 		}
 
-		m_lastErrorDescr = L"SAUCE: Unsupported file format type.";
+		m_lastErrorDescr = "SAUCE: Unsupported file format type.";
 
 		return false;
 	}
@@ -1346,7 +1362,7 @@ bool CNFOData::ReadSAUCE(const unsigned char* a_data, size_t& ar_dataLen)
 
 	if (l_record.Comments > SAUCE_MAX_COMMENTS || ar_dataLen < l_bytesToTrim)
 	{
-		SetLastError(NDE_SAUCE_INTERNAL, L"SAUCE: Bad comments definition.");
+		SetLastError(NDE_SAUCE_INTERNAL, "SAUCE: Bad comments definition.");
 
 		return false;
 	}
@@ -1404,12 +1420,14 @@ FILE* CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePa
 	if (!(l_file = fopen(a_filePath.c_str(), "wb")))
 #endif
 	{
-		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL,
-#ifdef HAVE_BOOST
-			FORMAT(L"Unable to open file '%s' for writing (error %d)", a_filePath % errno));
+#ifdef _WIN32
+		std::wstringstream l_errmsg;
+		l_errmsg << L"Unable to NFO file '" << a_filePath << L"' for writing (error " << errno << L")";
 #else
-			L"Unable to open file for writing. Please check the file name.");
+		std::stringstream l_errmsg;
+		l_errmsg << "Unable to NFO file '" << a_filePath << "' for writing (error " << errno << ")";
 #endif
+		SetLastError(NDE_UNABLE_TO_OPEN_PHYSICAL, l_errmsg.str());
 
 		return nullptr;
 	}
@@ -1418,6 +1436,7 @@ FILE* CNFOData::OpenFileForWritingWithErrorMessage(const std::_tstring& a_filePa
 }
 
 
+#ifndef INFEKT_2_CXXRUST
 bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, bool a_compoundWhitespace)
 {
 	FILE* l_file = OpenFileForWritingWithErrorMessage(a_filePath);
@@ -1463,7 +1482,26 @@ bool CNFOData::SaveToUnicodeFile(const std::_tstring& a_filePath, bool a_utf8, b
 }
 
 
-const std::string& CNFOData::GetTextUtf8()
+bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
+{
+	FILE* fp = OpenFileForWritingWithErrorMessage(a_filePath);
+
+	if (!fp)
+	{
+		return false;
+	}
+
+	const std::vector<char> l_converted = GetTextCP437(ar_charsNotConverted, a_compoundWhitespace);
+
+	bool l_success = (fwrite(l_converted.data(), 1, l_converted.size(), fp) == l_converted.size());
+
+	fclose(fp);
+
+	return l_success;
+}
+
+
+const std::string& CNFOData::GetTextUtf8() const
 {
 	if (m_utf8Content.empty())
 	{
@@ -1472,7 +1510,18 @@ const std::string& CNFOData::GetTextUtf8()
 
 	return m_utf8Content;
 }
+#else
+rust::Vec<uint32_t> CNFOData::GetContentsUint32() const
+{
+	rust::Vec<uint32_t> result;
 
+	result.reserve(m_textContent.size());
+
+	std::copy(m_textContent.begin(), m_textContent.end(), std::back_inserter(result));
+
+	return result;
+}
+#endif
 
 size_t CNFOData::GetGridWidth() const
 {
@@ -1495,22 +1544,23 @@ wchar_t CNFOData::GetGridChar(size_t a_row, size_t a_col) const
 		: 0);
 }
 
+#ifndef INFEKT_2_CXXRUST
+static std::string emptyUtf8String;
 
-const std::string CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col) const
+const std::string& CNFOData::GetGridCharUtf8(size_t a_row, size_t a_col) const
 {
-	wchar_t grid_char = GetGridChar(a_row, a_col);
+	const wchar_t grid_char = GetGridChar(a_row, a_col);
 
-	return (grid_char > 0 ? GetGridCharUtf8(grid_char) : "");
+	return (grid_char > 0 ? GetGridCharUtf8(grid_char) : emptyUtf8String);
 }
 
-
-const std::string CNFOData::GetGridCharUtf8(wchar_t a_wideChar) const
+const std::string& CNFOData::GetGridCharUtf8(wchar_t a_wideChar) const
 {
-	auto it = m_utf8Map.find(a_wideChar);
+	const auto it = m_utf8Map.find(a_wideChar);
 
-	return (it != m_utf8Map.end() ? it->second : "");
+	return (it != std::end(m_utf8Map) ? it->second : emptyUtf8String);
 }
-
+#endif
 
 const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 {
@@ -1538,6 +1588,8 @@ const std::wstring CNFOData::GetCharsetName(ENfoCharset a_charset)
 		return L"CP 437 (strict mode)";
 	case NFOC_WINDOWS_1252:
 		return L"Windows-1252";
+	default:
+		break;
 	}
 
 	return L"(huh?)";
@@ -1622,6 +1674,15 @@ const std::vector<const CNFOHyperLink*> CNFOData::GetLinksForLine(size_t a_row) 
 	}
 
 	return l_result;
+}
+
+const std::string& CNFOData::GetLinkUrlUtf8(size_t a_row, size_t a_col) const
+{
+	static const std::string noLink;
+
+	const CNFOHyperLink* l_link = GetLink(a_row, a_col);
+
+	return (l_link ? l_link->GetHrefUtf8() : noLink);
 }
 
 
@@ -1718,12 +1779,12 @@ std::wstring CNFOData::GetStrippedText() const
 	l_line.reserve(200);
 
 	// remove "special" characters and process by line:
-	for (const wchar_t& c : m_textContent)
+	for (const wchar_t c : m_textContent)
 	{
 #if defined(_WIN32) || defined(MACOSX)
 		if (iswascii(c) || iswalnum(c) || iswspace(c))
 #else
-		if (iswalnum(c) || iswspace(c))
+		if ((c < 0x80) || iswalnum(c) || iswspace(c))
 #endif
 		{
 			if (c == L'\n')
@@ -1822,34 +1883,30 @@ const std::vector<char> CNFOData::GetTextCP437(size_t& ar_charsNotConverted, boo
 }
 
 
-bool CNFOData::SaveToCP437File(const std::_tstring& a_filePath, size_t& ar_charsNotConverted, bool a_compoundWhitespace)
-{
-	FILE* fp = OpenFileForWritingWithErrorMessage(a_filePath);
-
-	if (!fp)
-	{
-		return false;
-	}
-
-	const std::vector<char> l_converted = GetTextCP437(ar_charsNotConverted, a_compoundWhitespace);
-
-	bool l_success = (fwrite(l_converted.data(), 1, l_converted.size(), fp) == l_converted.size());
-
-	fclose(fp);
-
-	return l_success;
-}
-
-
-void CNFOData::SetLastError(EErrorCode a_code, const std::wstring& a_descr)
+void CNFOData::SetLastError(EErrorCode a_code, const std::string& a_descr)
 {
 	m_lastErrorCode = a_code;
 	m_lastErrorDescr = a_descr;
 }
 
 
+void CNFOData::SetLastError(EErrorCode a_code, const std::wstring& a_descr)
+{
+	m_lastErrorCode = a_code;
+	m_lastErrorDescr = CUtil::FromWideStr(a_descr, CP_UTF8);
+}
+
+
 void CNFOData::ClearLastError()
 {
 	m_lastErrorCode = NDE_NO_ERROR;
-	m_lastErrorDescr = L"";
+	m_lastErrorDescr.clear();
 }
+
+
+#ifdef INFEKT_2_CXXRUST
+std::unique_ptr<CNFOData> new_nfo_data()
+{
+	return std::make_unique<CNFOData>();
+}
+#endif
