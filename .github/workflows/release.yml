@@ -51,29 +51,37 @@ jobs:
       - name: Build and Package
         run: cargo xtask bundle --release --target ${{ matrix.target }}
 
-      - name: Move Artifacts
+      - name: Move Artifacts (MacOS)
+        if: startsWith(matrix.os, 'macos')
         run: |
-          cd target/${{ matrix.target }}/release/bundle
-
           mkdir -p dist
-          if [ "${{ matrix.os }}" == "macos-latest" ]; then
-            mv dmg/*.dmg dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.dmg
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            mv msi/*.msi dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.msi
-          elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-            mv deb/*.deb dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.deb
-            mv rpm/*.rpm dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.rpm
-          fi
+          mv target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.dmg
 
-      - name: Upload Artifact
+      - name: Move Artifacts (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          mkdir -p dist
+          mv target/${{ matrix.target }}/release/bundle/msi/*.msi dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.msi
+
+      - name: Move Artifacts (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          mkdir -p dist
+          mv target/${{ matrix.target }}/release/bundle/deb/*.deb dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.deb
+          mv target/${{ matrix.target }}/release/bundle/rpm/*.rpm dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.rpm
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
-          path: target/${{ matrix.target }}/release/bundle/dist
+          path: dist
+          if-no-files-found: error
+          overwrite: true
 
       - name: Update GitHub Release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: target/${{ matrix.target }}/release/bundle/dist/*
+          files: dist/*
+          fail_on_unmatched_files: true
