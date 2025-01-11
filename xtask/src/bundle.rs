@@ -106,7 +106,7 @@ fn bundle_settings(workspace_dir: &Path, manifest: &Package) -> BundleSettings {
         category: Some(CATEGORY),
         macos: macos_settings(),
         dmg: dmg_settings(),
-        windows: windows_settings(manifest),
+        windows: windows_settings(workspace_dir, manifest),
         ..Default::default()
     }
 }
@@ -131,16 +131,21 @@ fn dmg_settings() -> DmgSettings {
     }
 }
 
-fn windows_settings(manifest: &Package) -> WindowsSettings {
+fn windows_settings(workspace_dir: &Path, manifest: &Package) -> WindowsSettings {
+    let ico_path = workspace_dir
+        .join("infekt-v2")
+        .join("assets")
+        .join("infekt-icons")
+        .join("iNFekt.ico");
+
     WindowsSettings {
         wix: Some(wix_settings(manifest)),
+        icon_path: ico_path, // deprecated, but fails to build without it
         ..Default::default()
     }
 }
 
 fn wix_settings(manifest: &Package) -> WixSettings {
-    // let license_path = workspace_dir.join("assets").join(LICENSE_FILE);
-
     WixSettings {
         version: manifest
             .version()

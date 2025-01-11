@@ -25,16 +25,23 @@ jobs:
         include:
           - os: macos-latest
             target: aarch64-apple-darwin
+            outputname: macos-aarch64
           - os: macos-latest
             target: x86_64-apple-darwin
-          - os: windows-latest
-            target: aarch64-pc-windows-msvc
+            outputname: macos-intel
+          # Absolutely nobody uses Windows on ARM, right?
+          # - os: windows-latest
+          #  target: aarch64-pc-windows-msvc
+          #  outputname: windows-arm
           - os: windows-latest
             target: x86_64-pc-windows-msvc
+            outputname: windows-x64
           - os: ubuntu-24.04
             target: aarch64-unknown-linux-gnu
+            outputname: linux-aarch64
           - os: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
+            outputname: linux-x86_64
 
     steps:
       - uses: actions/checkout@v4
@@ -55,20 +62,20 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           mkdir -p dist
-          mv target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.dmg
+          mv target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/iNFekt-${{ github.ref_name }}-${{ matrix.outputname }}.dmg
 
       - name: Move Artifacts (Windows)
         if: startsWith(matrix.os, 'windows')
         run: |
           mkdir -p dist
-          mv target/${{ matrix.target }}/release/bundle/msi/*.msi dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.msi
+          mv target/${{ matrix.target }}/release/bundle/msi/*.msi dist/iNFekt-${{ github.ref_name }}-${{ matrix.outputname }}.msi
 
       - name: Move Artifacts (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           mkdir -p dist
-          mv target/${{ matrix.target }}/release/bundle/deb/*.deb dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.deb
-          mv target/${{ matrix.target }}/release/bundle/rpm/*.rpm dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.rpm
+          mv target/${{ matrix.target }}/release/bundle/deb/*.deb dist/iNFekt-${{ github.ref_name }}-${{ matrix.outputname }}.deb
+          mv target/${{ matrix.target }}/release/bundle/rpm/*.rpm dist/iNFekt-${{ github.ref_name }}-${{ matrix.outputname }}.rpm
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
