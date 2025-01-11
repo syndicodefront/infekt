@@ -4,8 +4,11 @@ name: Release
 # THANK YOU!
 
 on:
-  release:
-    types: [created]
+  push:
+    tags:
+      - v2.*
+      - v3.*
+      - v4.*
 
 permissions:
   contents: write
