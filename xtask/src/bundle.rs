@@ -131,6 +131,7 @@ fn dmg_settings() -> DmgSettings {
     }
 }
 
+#[allow(deprecated)]
 fn windows_settings(workspace_dir: &Path, manifest: &Package) -> WindowsSettings {
     let ico_path = workspace_dir
         .join("infekt-v2")
@@ -140,7 +141,6 @@ fn windows_settings(workspace_dir: &Path, manifest: &Package) -> WindowsSettings
 
     WindowsSettings {
         wix: Some(wix_settings(manifest)),
-        #[allow(deprecated)]
         icon_path: ico_path, // deprecated, but fails to build without it
         ..Default::default()
     }
