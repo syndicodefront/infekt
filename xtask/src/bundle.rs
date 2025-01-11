@@ -10,6 +10,7 @@ use tauri_bundler::{
     AppCategory, BundleBinary, BundleSettings, DmgSettings, MacOsSettings, PackageSettings,
     PackageType, Position, SettingsBuilder, Size, WindowsSettings, WixSettings,
 };
+use uuid::Uuid;
 
 use crate::args::BundleArgs;
 use crate::utils;
@@ -20,6 +21,7 @@ const PRODUCT_NAME: &str = "iNFekt";
 const BUNDLE_IDENTIFIER: &str = "org.syndicode.infekt2";
 const COPYRIGHT: &str = "Copyright © 2010-2022 syndicode";
 const CATEGORY: AppCategory = AppCategory::Utility;
+const PRODUCT_UUID: &str = "cb7688d1-2b89-4636-b32c-a43932b43139";
 
 // const LICENSE_FILE: &str = "LICENSE";
 // const DMG_BACKGROUND: &str = "dmg-background.jpg";
@@ -38,7 +40,7 @@ pub fn cmd_bundle(args: BundleArgs) -> Result<()> {
     let target_dir = utils::get_target_dir(&workspace_dir, &args.target, args.release);
     let mut settings_builder = SettingsBuilder::new()
         .package_settings(package_settings(&manifest)?)
-        .bundle_settings(bundle_settings(&workspace_dir))
+        .bundle_settings(bundle_settings(&workspace_dir, &manifest))
         .package_types(package_types(&args.target))
         .binaries(vec![main_binary])
         .project_out_directory(target_dir);
@@ -88,7 +90,7 @@ fn package_settings(manifest: &Package) -> Result<PackageSettings> {
     })
 }
 
-fn bundle_settings(workspace_dir: &Path) -> BundleSettings {
+fn bundle_settings(workspace_dir: &Path, manifest: &Package) -> BundleSettings {
     let icon = workspace_dir
         .join("infekt-v2")
         .join("assets")
@@ -102,28 +104,23 @@ fn bundle_settings(workspace_dir: &Path) -> BundleSettings {
         icon: Some(vec![icon]),
         copyright: Some(COPYRIGHT.to_string()),
         category: Some(CATEGORY),
-        macos: macos_settings(workspace_dir),
-        dmg: dmg_settings(workspace_dir),
-        windows: windows_settings(workspace_dir),
+        macos: macos_settings(),
+        dmg: dmg_settings(),
+        windows: windows_settings(manifest),
         ..Default::default()
     }
 }
 
-fn macos_settings(_workspace_dir: &Path) -> MacOsSettings {
-    // let license_path = workspace_dir.join("assets").join(LICENSE_FILE);
-
+fn macos_settings() -> MacOsSettings {
     MacOsSettings {
-        minimum_system_version: Some("10.12".into()), // MACOSX_DEPLOYMENT_TARGET - blurthing/build.rs
-        signing_identity: Some("-".into()), // ad-hoc signing
+        minimum_system_version: Some("10.12".into()), // MACOSX_DEPLOYMENT_TARGET - sync with infekt-v2/build.rs
+        signing_identity: Some("-".into()),           // ad-hoc signing
         ..Default::default()
     }
 }
 
-fn dmg_settings(_workspace_dir: &Path) -> DmgSettings {
-    // let background = workspace_dir.join("assets").join(DMG_BACKGROUND);
-
+fn dmg_settings() -> DmgSettings {
     DmgSettings {
-        // background: Some(background),
         window_size: Size {
             width: 700,
             height: 500,
@@ -134,17 +131,23 @@ fn dmg_settings(_workspace_dir: &Path) -> DmgSettings {
     }
 }
 
-fn windows_settings(workspace_dir: &Path) -> WindowsSettings {
+fn windows_settings(manifest: &Package) -> WindowsSettings {
     WindowsSettings {
-        wix: Some(wix_settings(workspace_dir)),
+        wix: Some(wix_settings(manifest)),
         ..Default::default()
     }
 }
 
-fn wix_settings(_workspace_dir: &Path) -> WixSettings {
+fn wix_settings(manifest: &Package) -> WixSettings {
     // let license_path = workspace_dir.join("assets").join(LICENSE_FILE);
 
     WixSettings {
+        version: manifest
+            .version()
+            .split('-')
+            .next()
+            .map_or_else(|| None, |v| Some(v.to_string())),
+        upgrade_code: Uuid::parse_str(PRODUCT_UUID).ok(),
         ..Default::default()
     }
 }

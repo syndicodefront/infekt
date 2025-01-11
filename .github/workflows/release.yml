@@ -55,20 +55,20 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         run: |
           mkdir -p dist
-          mv target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.dmg
+          mv target/${{ matrix.target }}/release/bundle/dmg/*.dmg dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.dmg
 
       - name: Move Artifacts (Windows)
         if: startsWith(matrix.os, 'windows')
         run: |
           mkdir -p dist
-          mv target/${{ matrix.target }}/release/bundle/msi/*.msi dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.msi
+          mv target/${{ matrix.target }}/release/bundle/msi/*.msi dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.msi
 
       - name: Move Artifacts (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           mkdir -p dist
-          mv target/${{ matrix.target }}/release/bundle/deb/*.deb dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.deb
-          mv target/${{ matrix.target }}/release/bundle/rpm/*.rpm dist/iNFekt-${{ matrix.target }}-${{ github.ref_name }}.rpm
+          mv target/${{ matrix.target }}/release/bundle/deb/*.deb dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.deb
+          mv target/${{ matrix.target }}/release/bundle/rpm/*.rpm dist/iNFekt-${{ github.ref_name }}-${{ matrix.target }}.rpm
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

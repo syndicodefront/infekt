@@ -22,8 +22,8 @@ fn compile_infekt_cpp() {
 
     println!("cargo:rustc-link-arg=-fopenmp");
 
-    let mut binding = cc::Build::new();
-    let c_build = binding
+    let mut c_build = cc::Build::new();
+    let c_build = c_build
         .cpp(false)
         .std("c11")
         .include(crate_path.join(Path::new("../src/lib")))
