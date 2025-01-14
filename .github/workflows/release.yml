@@ -26,10 +26,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: macos-latest
+          - os: macos-14
             target: aarch64-apple-darwin
             outputname: macos-aarch64
-          - os: macos-latest
+          - os: macos-14
             target: x86_64-apple-darwin
             outputname: macos-intel
           # Absolutely nobody uses Windows on ARM, right?
@@ -39,10 +39,10 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             outputname: windows-x64
-          - os: ubuntu-24.04
+          - os: ubuntu-20.04
             target: aarch64-unknown-linux-gnu
             outputname: linux-aarch64
-          - os: ubuntu-24.04
+          - os: ubuntu-20.04
             target: x86_64-unknown-linux-gnu
             outputname: linux-x86_64
 
@@ -56,7 +56,9 @@ jobs:
 
       - name: Check/Install C++ Toolchain (ARM Linux Only)
         if: matrix.target == 'aarch64-unknown-linux-gnu'
-        run: sudo apt update -qq && sudo apt install -yy build-essential pkg-config gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+        run: |
+          sudo apt update -qq
+          sudo apt install -yy build-essential pkg-config gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
       - name: Build and Package
         run: cargo xtask bundle --release --target ${{ matrix.target }}
