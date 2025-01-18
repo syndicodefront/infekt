@@ -82,7 +82,7 @@ impl InfektMainView {
         current_nfo: &'a NfoData,
         stripped: bool,
     ) -> Element<'a, InfektMainViewMessage> {
-        let has_blocks = !stripped && current_nfo.has_blocks();
+        let _has_blocks = !stripped && current_nfo.has_blocks();
 
         scrollable(
             container(
@@ -91,7 +91,7 @@ impl InfektMainView {
                 } else {
                     current_nfo.get_classic_text()
                 })
-                .font(iced::Font::with_name("Monaco"))
+                .font(iced::Font::with_name("Cascadia Mono"))
                 .size(14.0)
                 .line_height(text::LineHeight::Relative(1.0))
                 .shaping(text::Shaping::Advanced)

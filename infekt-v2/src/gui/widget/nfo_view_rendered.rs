@@ -5,7 +5,6 @@ use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::alignment;
 use iced::mouse;
 use iced::widget::canvas::{self, Frame, Text};
-use iced::window;
 use iced::Point;
 use iced::{Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
 
@@ -79,20 +78,15 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
     fn update(
         &mut self,
         tree: &mut Tree,
-        event: Event,
+        _event: Event,
         _layout: Layout<'_>,
         _cursor: mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        _shell: &mut Shell<'_, Message>,
+        shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_mut::<State>();
-
-        if let Event::Window(window::Event::RedrawRequested(_now)) = event {
-            //state.cache.clear();
-            //shell.request_redraw(RedrawRequest::NextFrame);
-        }
 
         if let Some(grid) = self.renderer_grid {
             if grid.id != state.nfo_id {
@@ -101,6 +95,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                 state
                     .cache
                     .resize_with(grid.height / CACHE_STRIDE_LINES + 1, Default::default);
+                shell.request_redraw();
             }
         }
     }
