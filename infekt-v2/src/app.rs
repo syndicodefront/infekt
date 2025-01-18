@@ -13,6 +13,8 @@ use crate::gui::sidebar::{InfektSidebar, InfektSidebarMessage};
 #[derive(Debug, Clone)]
 #[allow(clippy::enum_variant_names)]
 pub(crate) enum Message {
+    NoOp,
+    MainWindowCreated(Option<iced::window::Id>),
     FontLoaded(Result<(), iced::font::Error>),
     SidebarMessage(InfektSidebarMessage),
     MainViewMessage(InfektMainViewMessage),
@@ -38,6 +40,7 @@ pub(crate) enum ActiveScreen {
 
 #[derive(Default)]
 pub(crate) struct InfektApp {
+    main_window_id: Option<iced::window::Id>,
     active_screen: ActiveScreen,
     sidebar: InfektSidebar,
     main_view: InfektMainView,
@@ -52,10 +55,11 @@ impl InfektApp {
 
         let task = Task::batch(vec![
             load_font(include_bytes!("../assets/fonts/CascadiaMono.ttf")), // font name: Cascadia Mono
-            load_font(include_bytes!("../assets/fonts/Andale Mono.ttf")), // font name: Andale Mono
+            load_font(include_bytes!("../assets/fonts/Andale Mono.ttf")),  // font name: Andale Mono
             load_font(include_bytes!(
                 "../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
             )),
+            iced::window::get_oldest().map(Message::MainWindowCreated),
         ]);
 
         (app, task)
@@ -76,7 +80,12 @@ impl InfektApp {
         let mut task = Task::none();
 
         let action = match message {
-            // Message::NoOp => Action::None,
+            Message::NoOp => Action::None,
+
+            Message::MainWindowCreated(window_id) => {
+                self.main_window_id = window_id;
+                Action::None
+            }
             Message::FontLoaded(_) => Action::None,
 
             Message::SidebarMessage(message) => self.sidebar.update(message),
@@ -107,7 +116,7 @@ impl InfektApp {
                 task = self.task_open_nfo_file_dialog();
             }
             Action::ShowErrorMessage(message) => {
-                self.show_error_message_popup(message);
+                task = self.show_error_message_popup(message);
             }
         }
 

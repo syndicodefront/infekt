@@ -3,7 +3,6 @@ use iced::advanced::renderer::{Quad, Style};
 use iced::advanced::widget::tree::{self, Tree};
 use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::alignment;
-use iced::event;
 use iced::mouse;
 use iced::widget::canvas::{self, Frame, Text};
 use iced::window;
@@ -77,7 +76,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         )
     }
 
-    fn on_event(
+    fn update(
         &mut self,
         tree: &mut Tree,
         event: Event,
@@ -87,7 +86,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         _clipboard: &mut dyn Clipboard,
         _shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
-    ) -> event::Status {
+    ) {
         let state = tree.state.downcast_mut::<State>();
 
         if let Event::Window(window::Event::RedrawRequested(_now)) = event {
@@ -104,8 +103,6 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                     .resize_with(grid.height / CACHE_STRIDE_LINES + 1, Default::default);
             }
         }
-
-        event::Status::Ignored
     }
 
     fn draw(

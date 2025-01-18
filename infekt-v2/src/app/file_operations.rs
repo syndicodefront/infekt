@@ -1,17 +1,18 @@
 use iced::Task;
 use std::path::PathBuf;
 
-use super::{InfektApp, Action, Message};
+use super::{Action, InfektApp, Message};
 
 impl InfektApp {
     pub(super) fn task_open_nfo_file_dialog(&mut self) -> Task<Message> {
-        let msg = Message::OpenFile(
-            rfd::FileDialog::new()
+        iced::window::run_with_window_handles(self.main_window_id.unwrap(), move |w| {
+            let path = rfd::FileDialog::new()
+                .set_parent(&w)
                 .add_filter("Block Art Files", &["nfo", "diz", "asc", "txt"])
-                .pick_file()
-        );
+                .pick_file();
 
-        Task::done(msg)
+            Message::OpenFile(path)
+        })
     }
 
     pub(super) fn action_load_new_nfo(&mut self, file_path: Option<PathBuf>) -> Action {

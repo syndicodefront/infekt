@@ -1,9 +1,8 @@
 use iced::alignment::Horizontal;
 use iced::widget::scrollable::{Direction, Id, Scrollbar};
-use iced::widget::{column, row, scrollable, text};
+use iced::widget::{button, column, container, row, scrollable, text};
 use iced::Element;
-use iced::Length::{Fill, FillPortion};
-use iced_aw::{TabLabel, Tabs};
+use iced::Length::{Fill, FillPortion, Shrink};
 
 use crate::app::Action;
 use crate::core::nfo_data::NfoData;
@@ -39,33 +38,31 @@ impl InfektMainView {
     }
 
     pub fn view<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
-        // XXX: could use some optimization, keep in mind that ideally we preserve
-        // scroll positions etc. when switching tabs.
+        fn tab_button<'a, T>(label: T, tab_id: TabId) -> Element<'a, InfektMainViewMessage>
+        where
+            T: text::IntoFragment<'a>,
+        {
+            button(container(text(label)).center_x(Fill))
+                .width(Fill)
+                .on_press(InfektMainViewMessage::TabSelected(tab_id))
+                .into()
+        }
 
-        Tabs::new(InfektMainViewMessage::TabSelected)
-            .push(
-                TabId::Rendered,
-                TabLabel::Text("Rendered".to_owned()),
-                self.rendered_tab(current_nfo),
-            )
-            .push(
-                TabId::Classic,
-                TabLabel::Text("Classic".to_owned()),
-                self.classic_tab(current_nfo),
-            )
-            .push(
-                TabId::TextOnly,
-                TabLabel::Text("Text-Only".to_owned()),
-                self.text_only_tab(current_nfo),
-            )
-            .push(
-                TabId::FileInfo,
-                TabLabel::Text("Properties".to_owned()),
-                self.file_info_tab(current_nfo),
-            )
-            .set_active_tab(&self.active_tab)
-            .tab_bar_position(iced_aw::TabBarPosition::Top)
-            .into()
+        column![
+            row![
+                tab_button("Rendered", TabId::Rendered),
+                tab_button("Classic", TabId::Classic),
+                tab_button("Text-Only", TabId::TextOnly),
+                tab_button("Properties", TabId::FileInfo),
+            ],
+            match self.active_tab {
+                TabId::Rendered => self.rendered_tab(current_nfo),
+                TabId::Classic => self.classic_tab(current_nfo, false),
+                TabId::TextOnly => self.classic_tab(current_nfo, true),
+                TabId::FileInfo => self.file_info_tab(current_nfo),
+            }
+        ]
+        .into()
     }
 
     fn rendered_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
@@ -80,33 +77,30 @@ impl InfektMainView {
             .into()
     }
 
-    // XXX: combine classic and text-only view implementations
-    fn classic_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
+    fn classic_tab<'a>(
+        &self,
+        current_nfo: &'a NfoData,
+        stripped: bool,
+    ) -> Element<'a, InfektMainViewMessage> {
+        let has_blocks = !stripped && current_nfo.has_blocks();
+
         scrollable(
-            text(current_nfo.get_classic_text())
-                .font(iced::Font::with_name("Cascadia Mono"))
+            container(
+                text(if stripped {
+                    current_nfo.get_stripped_text()
+                } else {
+                    current_nfo.get_classic_text()
+                })
+                .font(iced::Font::with_name("Monaco"))
                 .size(14.0)
                 .line_height(text::LineHeight::Relative(1.0))
-                .shaping(text::Shaping::Basic)
+                .shaping(text::Shaping::Advanced)
                 .wrapping(text::Wrapping::None),
+            )
+            .center_x(Shrink)
+            .padding(25),
         )
-        .id(Id::new("main view classic"))
-        .direction(Direction::Both {
-            vertical: Scrollbar::default(),
-            horizontal: Scrollbar::default(),
-        })
-        .width(Fill)
-        .height(Fill)
-        .into()
-    }
-
-    fn text_only_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
-        scrollable(
-            text(current_nfo.get_stripped_text())
-                .font(iced::Font::with_name("Cascadia Mono"))
-                .wrapping(text::Wrapping::None),
-        )
-        .id(Id::new("main view text only"))
+        //.id(Id::new("main view classic"))
         .direction(Direction::Both {
             vertical: Scrollbar::default(),
             horizontal: Scrollbar::default(),

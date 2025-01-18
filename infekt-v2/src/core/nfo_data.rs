@@ -31,6 +31,12 @@ impl NfoData {
         !self.nfo.is_null()
     }
 
+    pub fn has_blocks(&self) -> bool {
+        self.renderer_grid
+            .as_ref()
+            .map_or(false, |grid| grid.has_blocks)
+    }
+
     pub fn get_file_path(&self) -> Option<&Path> {
         self.file_path.as_deref()
     }
