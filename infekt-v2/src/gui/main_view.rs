@@ -24,29 +24,29 @@ pub enum TabId {
 }
 
 #[derive(Debug, Clone)]
-pub enum InfektMainViewMessage {
+pub enum Message {
     TabSelected(TabId),
 }
 
 impl InfektMainView {
-    pub fn update(&mut self, message: InfektMainViewMessage) -> Action {
+    pub fn update(&mut self, message: Message) -> Action {
         match message {
-            InfektMainViewMessage::TabSelected(selected) => self.active_tab = selected,
+            Message::TabSelected(selected) => self.active_tab = selected,
         }
 
         Action::None
     }
 
-    pub fn view<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
-        fn tab_button<'a, T>(label: T, tab_id: TabId) -> Element<'a, InfektMainViewMessage>
-        where
-            T: text::IntoFragment<'a>,
-        {
-            button(container(text(label)).center_x(Fill))
-                .width(Fill)
-                .on_press(InfektMainViewMessage::TabSelected(tab_id))
-                .into()
-        }
+    pub fn view<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, Message> {
+        let tab_button = |label: &'a str, tab_id: TabId| -> Element<'a, Message> {
+            let mut button = button(text(label).center()).width(Fill);
+
+            if current_nfo.is_loaded() {
+                button = button.on_press(Message::TabSelected(tab_id));
+            }
+
+            button.into()
+        };
 
         column![
             row![
@@ -54,7 +54,8 @@ impl InfektMainView {
                 tab_button("Classic", TabId::Classic),
                 tab_button("Text-Only", TabId::TextOnly),
                 tab_button("Properties", TabId::FileInfo),
-            ],
+            ]
+            .spacing(1),
             match self.active_tab {
                 TabId::Rendered => self.rendered_tab(current_nfo),
                 TabId::Classic => self.classic_tab(current_nfo, false),
@@ -65,7 +66,7 @@ impl InfektMainView {
         .into()
     }
 
-    fn rendered_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
+    fn rendered_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, Message> {
         scrollable(NfoViewRendered::new(7, 12, current_nfo))
             .id(Id::new("main view rendered"))
             .direction(Direction::Both {
@@ -81,7 +82,7 @@ impl InfektMainView {
         &self,
         current_nfo: &'a NfoData,
         stripped: bool,
-    ) -> Element<'a, InfektMainViewMessage> {
+    ) -> Element<'a, Message> {
         let _has_blocks = !stripped && current_nfo.has_blocks();
 
         scrollable(
@@ -110,12 +111,12 @@ impl InfektMainView {
         .into()
     }
 
-    fn file_info_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, InfektMainViewMessage> {
+    fn file_info_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, Message> {
         if !current_nfo.is_loaded() {
             return column![].into();
         }
 
-        fn label<'a, T>(s: T) -> Element<'a, InfektMainViewMessage>
+        fn label<'a, T>(s: T) -> Element<'a, Message>
         where
             T: text::IntoFragment<'a>,
         {
@@ -125,7 +126,7 @@ impl InfektMainView {
                 .into()
         }
 
-        fn value<'a, T>(s: T) -> Element<'a, InfektMainViewMessage>
+        fn value<'a, T>(s: T) -> Element<'a, Message>
         where
             T: text::IntoFragment<'a>,
         {

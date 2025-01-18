@@ -12,7 +12,7 @@ pub struct InfektAboutScreen {
 }
 
 #[derive(Debug, Clone)]
-pub enum InfektAboutScreenMessage {
+pub enum Message {
     _Dummy,
     FetchInformation(Box<system::Information>),
 }
@@ -21,26 +21,26 @@ const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x2
 // const LOGO_SVG: &[u8] = include_bytes!("../../assets/infekt-icons/logo_v2.svg");
 
 impl InfektAboutScreen {
-    pub fn update(&mut self, message: InfektAboutScreenMessage) -> Action {
-        if let InfektAboutScreenMessage::FetchInformation(sysinfo) = message {
+    pub fn update(&mut self, message: Message) -> Action {
+        if let Message::FetchInformation(sysinfo) = message {
             self.sysinfo = Some(*sysinfo);
         }
 
         Action::None
     }
 
-    pub fn on_before_shown(&mut self) -> Option<Task<InfektAboutScreenMessage>> {
+    pub fn on_before_shown(&mut self) -> Option<Task<Message>> {
         if self.sysinfo.is_none() {
             Some(
                 system::fetch_information()
-                    .map(|info| InfektAboutScreenMessage::FetchInformation(Box::new(info))),
+                    .map(|info| Message::FetchInformation(Box::new(info))),
             )
         } else {
             None
         }
     }
 
-    pub fn view(&self) -> Element<InfektAboutScreenMessage> {
+    pub fn view(&self) -> Element<Message> {
         let padding = 15;
         let left = column![container(self.logo()),].padding(padding);
 
@@ -75,7 +75,7 @@ impl InfektAboutScreen {
         row![left, right].padding(padding).into()
     }
 
-    fn logo(&self) -> Element<'static, InfektAboutScreenMessage> {
+    fn logo(&self) -> Element<'static, Message> {
         image(image::Handle::from_bytes(LOGO_256))
             .height(64.0)
             .into()

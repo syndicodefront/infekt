@@ -10,7 +10,7 @@ pub struct InfektSidebar {
 }
 
 #[derive(Debug, Clone)]
-pub enum InfektSidebarMessage {
+pub enum Message {
     ToggleSidebar,
     ShowMainView,
     ShowPreferences,
@@ -28,52 +28,52 @@ const COLLAPSE_ICON: &[u8] =
     include_bytes!("../../assets/tabler-icons/outline/layout-sidebar-left-collapse.svg");
 
 impl InfektSidebar {
-    pub fn update(&mut self, message: InfektSidebarMessage) -> Action {
+    pub fn update(&mut self, message: Message) -> Action {
         match message {
-            InfektSidebarMessage::ToggleSidebar => {
+            Message::ToggleSidebar => {
                 self.expanded = !self.expanded;
                 Action::None
             }
-            InfektSidebarMessage::ShowMainView => {
+            Message::ShowMainView => {
                 Action::ShowScreen(ActiveScreen::MainView)
             }
-            InfektSidebarMessage::ShowPreferences => {
+            Message::ShowPreferences => {
                 Action::ShowScreen(ActiveScreen::Preferences)
             }
-            InfektSidebarMessage::ShowAboutScreen => {
+            Message::ShowAboutScreen => {
                 Action::ShowScreen(ActiveScreen::About)
             }
-            InfektSidebarMessage::OpenFileDialog => Action::SelectFileForOpening,
+            Message::OpenFileDialog => Action::SelectFileForOpening,
         }
     }
 
-    pub fn view(&self) -> Element<InfektSidebarMessage> {
+    pub fn view(&self) -> Element<Message> {
         let column = column![
             container(self.logo()).center_x(Fill).center_y(48.0),
             self.top_level_button(
                 "Home",
                 include_bytes!("../../assets/tabler-icons/outline/home.svg"),
-                InfektSidebarMessage::ShowMainView
+                Message::ShowMainView
             ),
             self.top_level_button(
                 "Open...",
                 include_bytes!("../../assets/tabler-icons/outline/folder-open.svg"),
-                InfektSidebarMessage::OpenFileDialog
+                Message::OpenFileDialog
             ),
             self.top_level_button(
                 "Preferences",
                 include_bytes!("../../assets/tabler-icons/outline/settings.svg"),
-                InfektSidebarMessage::ShowPreferences
+                Message::ShowPreferences
             ),
             self.top_level_button(
                 "About",
                 include_bytes!("../../assets/tabler-icons/outline/info-hexagon.svg"),
-                InfektSidebarMessage::ShowAboutScreen
+                Message::ShowAboutScreen
             ),
             Space::with_height(Fill),
             button(svg(self.toggle_icon()))
                 .width(Fill)
-                .on_press(InfektSidebarMessage::ToggleSidebar),
+                .on_press(Message::ToggleSidebar),
         ]
         .spacing(1);
 
@@ -104,7 +104,7 @@ impl InfektSidebar {
         })
     }
 
-    fn logo(&self) -> Element<'static, InfektSidebarMessage> {
+    fn logo(&self) -> Element<'static, Message> {
         if self.expanded {
             text("iNFekt").size(26).into()
         } else {
@@ -118,8 +118,8 @@ impl InfektSidebar {
         &self,
         label: &'static str,
         icon_bytes: &'static [u8],
-        message: InfektSidebarMessage,
-    ) -> Element<'static, InfektSidebarMessage> {
+        message: Message,
+    ) -> Element<'static, Message> {
         let icon_handle = svg::Handle::from_memory(icon_bytes);
         let icon_widget = svg(icon_handle).height(24.0).width(24.0);
 

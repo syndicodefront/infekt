@@ -6,9 +6,9 @@ use iced::Task;
 use std::path::PathBuf;
 
 use crate::core::nfo_data::NfoData;
-use crate::gui::about_screen::{InfektAboutScreen, InfektAboutScreenMessage};
-use crate::gui::main_view::{InfektMainView, InfektMainViewMessage};
-use crate::gui::sidebar::{InfektSidebar, InfektSidebarMessage};
+use crate::gui::about_screen::{InfektAboutScreen, Message as AboutScreenMessage};
+use crate::gui::main_view::{InfektMainView, Message as MainViewMessage};
+use crate::gui::sidebar::{InfektSidebar, Message as SidebarMessage};
 
 #[derive(Debug, Clone)]
 #[allow(clippy::enum_variant_names)]
@@ -16,9 +16,9 @@ pub(crate) enum Message {
     NoOp,
     MainWindowCreated(Option<iced::window::Id>),
     FontLoaded(Result<(), iced::font::Error>),
-    SidebarMessage(InfektSidebarMessage),
-    MainViewMessage(InfektMainViewMessage),
-    AboutScreenMessage(InfektAboutScreenMessage),
+    SidebarMessage(SidebarMessage),
+    MainViewMessage(MainViewMessage),
+    AboutScreenMessage(AboutScreenMessage),
     OpenFile(Option<PathBuf>),
 }
 
