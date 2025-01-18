@@ -1,8 +1,10 @@
-use iced::alignment::Horizontal;
-use iced::widget::scrollable::{Direction, Id, Scrollbar};
-use iced::widget::{button, column, container, row, scrollable, text};
+mod classic_view;
+mod file_info;
+
+use iced::widget::scrollable::{Direction, Id as ScrollableId, Scrollbar};
+use iced::widget::{button, column, row, scrollable, text};
 use iced::Element;
-use iced::Length::{Fill, FillPortion, Shrink};
+use iced::Length::Fill;
 
 use crate::app::Action;
 use crate::core::nfo_data::NfoData;
@@ -68,7 +70,7 @@ impl InfektMainView {
 
     fn rendered_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, Message> {
         scrollable(NfoViewRendered::new(7, 12, current_nfo))
-            .id(Id::new("main view rendered"))
+            .id(ScrollableId::new("main view rendered"))
             .direction(Direction::Both {
                 vertical: Scrollbar::default(),
                 horizontal: Scrollbar::default(),
@@ -76,91 +78,5 @@ impl InfektMainView {
             .width(Fill)
             .height(Fill)
             .into()
-    }
-
-    fn classic_tab<'a>(
-        &self,
-        current_nfo: &'a NfoData,
-        stripped: bool,
-    ) -> Element<'a, Message> {
-        let _has_blocks = !stripped && current_nfo.has_blocks();
-
-        scrollable(
-            container(
-                text(if stripped {
-                    current_nfo.get_stripped_text()
-                } else {
-                    current_nfo.get_classic_text()
-                })
-                .font(iced::Font::with_name("Cascadia Mono"))
-                .size(14.0)
-                .line_height(text::LineHeight::Relative(1.0))
-                .shaping(text::Shaping::Advanced)
-                .wrapping(text::Wrapping::None),
-            )
-            .center_x(Shrink)
-            .padding(25),
-        )
-        //.id(Id::new("main view classic"))
-        .direction(Direction::Both {
-            vertical: Scrollbar::default(),
-            horizontal: Scrollbar::default(),
-        })
-        .width(Fill)
-        .height(Fill)
-        .into()
-    }
-
-    fn file_info_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, Message> {
-        if !current_nfo.is_loaded() {
-            return column![].into();
-        }
-
-        fn label<'a, T>(s: T) -> Element<'a, Message>
-        where
-            T: text::IntoFragment<'a>,
-        {
-            text(s)
-                .width(FillPortion(1))
-                .align_x(Horizontal::Right)
-                .into()
-        }
-
-        fn value<'a, T>(s: T) -> Element<'a, Message>
-        where
-            T: text::IntoFragment<'a>,
-        {
-            text(s).width(FillPortion(4)).into()
-        }
-
-        const ROW_SPACING: u16 = 10;
-
-        column![
-            row![
-                label("File path:"),
-                value(
-                    current_nfo
-                        .get_file_path()
-                        .map(|p| p.to_string_lossy())
-                        .unwrap_or_default()
-                )
-            ]
-            .spacing(ROW_SPACING),
-            row![label("Charset:"), value(current_nfo.get_charset_name())].spacing(ROW_SPACING),
-            row![
-                label("Dimensions:"),
-                value(format!(
-                    "{} columns x {} lines",
-                    current_nfo.get_renderer_grid().unwrap().width,
-                    current_nfo.get_renderer_grid().unwrap().height
-                ))
-            ]
-            .spacing(ROW_SPACING),
-        ]
-        .spacing(2)
-        .padding(10)
-        .width(Fill)
-        .height(Fill)
-        .into()
     }
 }
