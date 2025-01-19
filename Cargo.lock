@@ -4101,6 +4101,7 @@ dependencies = [
  "iced",
  "ico",
  "image",
+ "palette",
  "rfd",
  "rustc-hash 2.1.0",
  "serde",

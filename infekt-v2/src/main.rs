@@ -1,6 +1,7 @@
 mod app;
 mod core;
 mod gui;
+mod settings;
 
 use app::InfektApp;
 use iced::window::{self, icon};

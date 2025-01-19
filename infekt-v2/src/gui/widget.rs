@@ -1,1 +1,1 @@
-pub mod nfo_view_rendered;
+pub mod enhanced_nfo_view;

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use iced::advanced::layout;
 use iced::advanced::renderer::{Quad, Style};
 use iced::advanced::widget::tree::{self, Tree};
@@ -10,23 +12,22 @@ use iced::{Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
 
 use crate::core::nfo_data::NfoData;
 use crate::core::nfo_renderer_grid::{NfoRendererBlockShape, NfoRendererGrid, NfoRendererLine};
+use crate::settings::NfoRenderSettings;
 
-pub struct NfoViewRendered<'a> {
-    block_width: u32,
+pub struct EnhancedNfoView<'a> {
+    render_settings: Arc<NfoRenderSettings>,
     block_width_float: f32,
-    block_height: u32,
     block_height_float: f32,
     renderer_grid: Option<&'a NfoRendererGrid>,
 }
 
-impl<'a> NfoViewRendered<'a> {
-    pub fn new(block_width: u32, block_height: u32, current_nfo: &'a NfoData) -> Self {
+impl<'a> EnhancedNfoView<'a> {
+    pub fn new(render_settings: Arc<NfoRenderSettings>, current_nfo: &'a NfoData) -> Self {
         Self {
-            block_width,
-            block_width_float: block_width as f32,
-            block_height,
-            block_height_float: block_height as f32,
             renderer_grid: current_nfo.get_renderer_grid(),
+            block_width_float: render_settings.enhanced_view_block_width as f32,
+            block_height_float: render_settings.enhanced_view_block_height as f32,
+            render_settings,
         }
     }
 }
@@ -40,7 +41,7 @@ struct State {
 // Number of lines in one geometry cache entry:
 const CACHE_STRIDE_LINES: usize = 100;
 
-impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
+impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
     }
@@ -117,7 +118,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         }
 
         /*println!(
-            "NfoViewRendered::draw() - viewport: {:?} - bounds: {:?}",
+            "NfoViewEnhanced::draw() - viewport: {:?} - bounds: {:?}",
             viewport,
             layout.bounds()
         );*/
@@ -128,7 +129,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
         let bounds = layout.bounds();
 
         if state.cache.is_empty() {
-            eprintln!("NfoViewRendered::draw() - cache is uninitialized");
+            eprintln!("NfoViewEnhanced::draw() - cache is uninitialized");
 
             return;
         }
@@ -195,8 +196,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
                                 .iter()
                                 .filter(|l| l.row >= first_line && l.row <= last_line),
                             y_offset,
-                            self.block_width,
-                            self.block_height,
+                            self.render_settings.enhanced_view_block_width,
+                            self.render_settings.enhanced_view_block_height,
                             Color::from_rgb8(50, 50, 200),
                             frame,
                         );
@@ -234,8 +235,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for NfoViewRendered<'_> {
 fn render_blocks(
     lines: &mut dyn Iterator<Item = &NfoRendererLine>,
     y_offset: f32,
-    block_width: u32,
-    block_height: u32,
+    block_width: u16,
+    block_height: u16,
     block_color: Color,
     frame: &mut Frame,
 ) {
@@ -332,8 +333,8 @@ fn draw_block(
     }
 }
 
-impl<'a, Message, Theme> From<NfoViewRendered<'a>> for Element<'a, Message, Theme, Renderer> {
-    fn from(w: NfoViewRendered<'a>) -> Self {
+impl<'a, Message, Theme> From<EnhancedNfoView<'a>> for Element<'a, Message, Theme, Renderer> {
+    fn from(w: EnhancedNfoView<'a>) -> Self {
         Self::new(w)
     }
 }

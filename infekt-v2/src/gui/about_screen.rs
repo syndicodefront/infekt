@@ -13,7 +13,6 @@ pub struct InfektAboutScreen {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    _Dummy,
     FetchInformation(Box<system::Information>),
 }
 
@@ -22,8 +21,10 @@ const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x2
 
 impl InfektAboutScreen {
     pub fn update(&mut self, message: Message) -> Action {
-        if let Message::FetchInformation(sysinfo) = message {
-            self.sysinfo = Some(*sysinfo);
+        match message {
+            Message::FetchInformation(sysinfo) => {
+                self.sysinfo = Some(*sysinfo);
+            }
         }
 
         Action::None
@@ -31,10 +32,7 @@ impl InfektAboutScreen {
 
     pub fn on_before_shown(&mut self) -> Option<Task<Message>> {
         if self.sysinfo.is_none() {
-            Some(
-                system::fetch_information()
-                    .map(|info| Message::FetchInformation(Box::new(info))),
-            )
+            Some(system::fetch_information().map(|info| Message::FetchInformation(Box::new(info))))
         } else {
             None
         }
@@ -50,7 +48,7 @@ impl InfektAboutScreen {
                 span(format!("Version {}\n", env!("CARGO_PKG_VERSION"))),
                 span("© syndicode.org 2010-2025\n"),
                 span("Project Homepage: "),
-                span("infekt.ws").underline(true), // XXX: does not work: .link("https://infekt.ws"),
+                span("infekt.ws").underline(true), // behaves buggily: .link(Message::OpenInfektWebsite),
                 span("\n\n"),
                 span("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.")
             ]),
