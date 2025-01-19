@@ -1,14 +1,17 @@
 mod file_operations;
 mod utils;
 mod view;
+mod theme;
 
-use iced::Task;
+use iced::{Task, Theme};
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use crate::core::nfo_data::NfoData;
 use crate::gui::about_screen::{self, InfektAboutScreen};
 use crate::gui::main_view::{self, InfektMainView};
 use crate::gui::sidebar::{self, InfektSidebar};
+use crate::settings::NfoRenderSettings;
 
 #[derive(Debug, Clone)]
 #[allow(clippy::enum_variant_names)]
@@ -20,6 +23,7 @@ pub(crate) enum Message {
     MainViewMessage(main_view::Message),
     AboutScreenMessage(about_screen::Message),
     OpenFile(Option<PathBuf>),
+    RenderSettingsChanged(Arc<NfoRenderSettings>),
 }
 
 #[derive(Debug, Clone)]
@@ -41,16 +45,23 @@ pub(crate) enum ActiveScreen {
 #[derive(Default)]
 pub(crate) struct InfektApp {
     main_window_id: Option<iced::window::Id>,
+
     active_screen: ActiveScreen,
     sidebar: InfektSidebar,
     main_view: InfektMainView,
     about_screen: InfektAboutScreen,
+
+    theme: Theme,
+    active_render_settings: Arc<NfoRenderSettings>,
     current_nfo: NfoData,
 }
 
 impl InfektApp {
     pub fn new() -> (Self, Task<Message>) {
-        let app = Self::default();
+        let app = Self {
+            theme: Theme::Dark,
+            ..Self::default()
+        };
         let load_font = |data: &'static [u8]| iced::font::load(data).map(Message::FontLoaded);
 
         let task = Task::batch(vec![
@@ -84,6 +95,7 @@ impl InfektApp {
 
             Message::MainWindowCreated(window_id) => {
                 self.main_window_id = window_id;
+                self.theme = theme::create_theme(self.active_render_settings.clone());
                 Action::None
             }
             Message::FontLoaded(_) => Action::None,
@@ -93,6 +105,18 @@ impl InfektApp {
             Message::AboutScreenMessage(message) => self.about_screen.update(message),
 
             Message::OpenFile(file) => self.action_load_new_nfo(file),
+
+            Message::RenderSettingsChanged(settings) => {
+                self.active_render_settings = settings;
+
+                self.theme = theme::create_theme(self.active_render_settings.clone());
+
+                // XXX: improve?
+                self.main_view
+                    .update(main_view::Message::RenderSettingsChanged(
+                        self.active_render_settings.clone(),
+                    ))
+            }
         };
 
         match action {
@@ -121,5 +145,9 @@ impl InfektApp {
         }
 
         task
+    }
+
+    pub fn theme(&self) -> Theme {
+        self.theme.clone()
     }
 }

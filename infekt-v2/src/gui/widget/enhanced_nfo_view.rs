@@ -175,13 +175,13 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                                     content: flight.text.clone(),
                                     position: Point { x, y },
                                     size: iced::Pixels(self.block_height_float),
-                                    color: Color::BLACK,
+                                    color: Color::from(self.render_settings.text_color),
                                     horizontal_alignment: alignment::Horizontal::Left,
                                     vertical_alignment: alignment::Vertical::Top,
                                     line_height: advanced::text::LineHeight::Absolute(
                                         iced::Pixels(self.block_height_float),
                                     ),
-                                    font: iced::Font::with_name("Cascadia Mono"),
+                                    font: iced::Font::with_name("Cascadia Mono"), // XXX: how to take from settings?
                                     shaping: advanced::text::Shaping::Basic,
                                 });
                             });
@@ -198,7 +198,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                             y_offset,
                             self.render_settings.enhanced_view_block_width,
                             self.render_settings.enhanced_view_block_height,
-                            Color::from_rgb8(50, 50, 200),
+                            Color::from(self.render_settings.art_color),
                             frame,
                         );
                     });
@@ -213,7 +213,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                     },
                     ..Quad::default()
                 },
-                Color::WHITE,
+                Color::from(self.render_settings.back_color),
             );
 
             let nfo_width_float = self.block_width_float * self.renderer_grid.unwrap().width as f32;
