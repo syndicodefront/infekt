@@ -1,7 +1,7 @@
 mod file_operations;
+mod theme;
 mod utils;
 mod view;
-mod theme;
 
 use iced::{Task, Theme};
 use std::path::PathBuf;
@@ -10,6 +10,7 @@ use std::sync::Arc;
 use crate::core::nfo_data::NfoData;
 use crate::gui::about_screen::{self, InfektAboutScreen};
 use crate::gui::main_view::{self, InfektMainView};
+use crate::gui::preferences::{self, InfektPreferencesScreen};
 use crate::gui::sidebar::{self, InfektSidebar};
 use crate::settings::NfoRenderSettings;
 
@@ -21,6 +22,7 @@ pub(crate) enum Message {
     FontLoaded(Result<(), iced::font::Error>),
     SidebarMessage(sidebar::Message),
     MainViewMessage(main_view::Message),
+    PreferencesScreenMessage(preferences::Message),
     AboutScreenMessage(about_screen::Message),
     OpenFile(Option<PathBuf>),
     RenderSettingsChanged(Arc<NfoRenderSettings>),
@@ -49,6 +51,7 @@ pub(crate) struct InfektApp {
     active_screen: ActiveScreen,
     sidebar: InfektSidebar,
     main_view: InfektMainView,
+    preferences_screen: InfektPreferencesScreen,
     about_screen: InfektAboutScreen,
 
     theme: Theme,
@@ -96,12 +99,14 @@ impl InfektApp {
             Message::MainWindowCreated(window_id) => {
                 self.main_window_id = window_id;
                 self.theme = theme::create_theme(self.active_render_settings.clone());
+
                 Action::None
             }
             Message::FontLoaded(_) => Action::None,
 
             Message::SidebarMessage(message) => self.sidebar.update(message),
             Message::MainViewMessage(message) => self.main_view.update(message),
+            Message::PreferencesScreenMessage(message) => self.preferences_screen.update(message),
             Message::AboutScreenMessage(message) => self.about_screen.update(message),
 
             Message::OpenFile(file) => self.action_load_new_nfo(file),
@@ -126,7 +131,13 @@ impl InfektApp {
 
                 match self.active_screen {
                     ActiveScreen::MainView => {}
-                    ActiveScreen::Preferences => {}
+                    ActiveScreen::Preferences => {
+                        let result = self.preferences_screen.on_before_shown();
+
+                        if let Some(new_task) = result {
+                            task = new_task.map(Message::PreferencesScreenMessage);
+                        }
+                    }
                     ActiveScreen::About => {
                         let result = self.about_screen.on_before_shown();
 

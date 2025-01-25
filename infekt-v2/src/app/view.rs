@@ -2,18 +2,22 @@ use iced::widget::{column, row, text};
 use iced::Length::Fill;
 use iced::{Alignment, Element};
 
-use super::{InfektApp, Message, ActiveScreen};
+use super::{ActiveScreen, InfektApp, Message};
 
 impl InfektApp {
     pub fn view(&self) -> Element<Message> {
         let sidebar = self.sidebar.view().map(Message::SidebarMessage);
         let content = column![]
             .push(match self.active_screen {
-                ActiveScreen::MainView => self.main_view.view(&self.current_nfo).map(Message::MainViewMessage),
-                ActiveScreen::Preferences => text("Preferences").into(),
-                ActiveScreen::About => {
-                    self.about_screen.view().map(Message::AboutScreenMessage)
-                }
+                ActiveScreen::MainView => self
+                    .main_view
+                    .view(&self.current_nfo)
+                    .map(Message::MainViewMessage),
+                ActiveScreen::Preferences => self
+                    .preferences_screen
+                    .view()
+                    .map(Message::PreferencesScreenMessage),
+                ActiveScreen::About => self.about_screen.view().map(Message::AboutScreenMessage),
             })
             .height(Fill)
             .width(Fill);
