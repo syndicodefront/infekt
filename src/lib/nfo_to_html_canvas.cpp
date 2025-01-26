@@ -199,7 +199,7 @@ const std::string CNFOToHTMLCanvas::GetRenderJSONString()
 
 			if (l_buf_link != nullptr)
 			{
-				j["links"].emplace_back(json{ {"row", row}, {"col", l_buf_first_col}, {"t", l_line_buf}, {"href", l_buf_link->GetHrefUtf8() });
+				j["links"].emplace_back(json{ {"row", row}, {"col", l_buf_first_col}, {"t", l_line_buf}, {"href", l_buf_link->GetHrefUtf8() } });
 			}
 			else
 			{
