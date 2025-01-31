@@ -6,7 +6,7 @@ pub struct NfoRenderSettings {
     pub enhanced_view_block_width: u16,
     pub enhanced_view_block_height: u16,
     pub classic_font_size: f32,
-    pub back_color: Rgb,
+    pub background_color: Rgb,
     pub text_color: Rgba,
     pub art_color: Rgba,
     pub font_name: String,
@@ -24,7 +24,7 @@ impl Default for NfoRenderSettings {
             enhanced_view_block_width: 7,
             enhanced_view_block_height: 12,
             classic_font_size: 14.0,
-            back_color: Rgb::new(1.0, 1.0, 1.0),
+            background_color: Rgb::new(1.0, 1.0, 1.0),
             text_color: Rgba::new(0.0, 0.0, 0.0, 1.0),
             art_color: Rgba::new(0.529, 0.808, 0.922, 1.0),
             font_name: String::from("Cascadia Mono"),
@@ -46,7 +46,7 @@ impl NfoRenderSettings {
         hasher.write_u16(self.enhanced_view_block_height);
         hasher.write_i64((self.classic_font_size * 10000.0) as i64);
 
-        hash_rgb(&mut hasher, self.back_color);
+        hash_rgb(&mut hasher, self.background_color);
         hash_rgba(&mut hasher, self.text_color);
         hash_rgba(&mut hasher, self.art_color);
 

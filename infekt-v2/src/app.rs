@@ -132,7 +132,7 @@ impl InfektApp {
                 match self.active_screen {
                     ActiveScreen::MainView => {}
                     ActiveScreen::Preferences => {
-                        let result = self.preferences_screen.on_before_shown();
+                        let result = self.preferences_screen.on_before_shown(self.active_render_settings.clone());
 
                         if let Some(new_task) = result {
                             task = new_task.map(Message::PreferencesScreenMessage);

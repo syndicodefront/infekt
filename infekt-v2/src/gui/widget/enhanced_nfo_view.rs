@@ -213,7 +213,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                     },
                     ..Quad::default()
                 },
-                Color::from(self.render_settings.back_color),
+                Color::from(self.render_settings.background_color),
             );
 
             let nfo_width_float = self.block_width_float * self.renderer_grid.unwrap().width as f32;

@@ -6,7 +6,7 @@ use palette::{FromColor, Hsl};
 use std::sync::Arc;
 
 pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
-    let inspiration = if is_dark(settings.back_color) {
+    let inspiration = if is_dark(settings.background_color) {
         Theme::Dark
     } else {
         Theme::Light
@@ -18,7 +18,7 @@ pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
         "iNfekt".to_owned(),
         // format!("iNFekt-{}", settings.hash()),
         Palette {
-            background: Color::from(settings.back_color),
+            background: Color::from(settings.background_color),
             text: Color::from(settings.text_color), // XXX: should actually depend on the background color to ensure constrast
             primary: Color::from(settings.art_color),
             success: inspiration.success,
