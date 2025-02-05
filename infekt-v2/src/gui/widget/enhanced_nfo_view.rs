@@ -79,7 +79,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
     fn update(
         &mut self,
         tree: &mut Tree,
-        _event: Event,
+        _event: &Event,
         _layout: Layout<'_>,
         _cursor: mouse::Cursor,
         _renderer: &Renderer,

@@ -1,4 +1,4 @@
-use iced::widget::{column, row, text};
+use iced::widget::{column, row};
 use iced::Length::Fill;
 use iced::{Alignment, Element};
 

@@ -9,7 +9,18 @@ use iced::window::{self, icon};
 pub fn main() -> iced::Result {
     iced::application(InfektApp::title, InfektApp::update, InfektApp::view)
         .window(initial_window_settings())
-        .antialiasing(true)
+        .settings(iced::Settings {
+            antialiasing: true,
+            fonts: vec![
+                include_bytes!("../assets/fonts/CascadiaMono.ttf").into(), // font name: Cascadia Mono
+                include_bytes!("../assets/fonts/Andale Mono.ttf").into(),  // font name: Andale Mono
+                include_bytes!(
+                    "../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
+                ).into(),
+                include_bytes!("../assets/fonts/FiraMono-Regular.ttf").into(), // font name: Fira Mono
+            ],
+            ..iced::Settings::default()
+        })
         .scale_factor(|_| 1.0) // https://github.com/iced-rs/iced/issues/2657#issuecomment-2566536858
         .window_size(iced::Size::new(850.0, 700.0))
         .centered()

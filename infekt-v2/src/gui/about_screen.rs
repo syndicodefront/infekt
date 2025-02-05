@@ -14,6 +14,7 @@ pub struct InfektAboutScreen {
 #[derive(Debug, Clone)]
 pub enum Message {
     FetchInformation(Box<system::Information>),
+    OpenInfektWebsite(u64),
 }
 
 const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x256x32.png");
@@ -25,6 +26,7 @@ impl InfektAboutScreen {
             Message::FetchInformation(sysinfo) => {
                 self.sysinfo = Some(*sysinfo);
             }
+            Message::OpenInfektWebsite(_) => {}
         }
 
         Action::None
@@ -44,23 +46,27 @@ impl InfektAboutScreen {
 
         let right = column![
             text("iNFekt NFO Viewer").size(32),
-            rich_text([
+            rich_text![
                 span(format!("Version {}\n", env!("CARGO_PKG_VERSION"))),
                 span("© syndicode.org 2010-2025\n"),
                 span("Project Homepage: "),
-                span("infekt.ws").underline(true), // behaves buggily: .link(Message::OpenInfektWebsite),
+                span("infekt.ws").underline(true).link(0u64),
                 span("\n\n"),
                 span("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.")
-            ]),
+            ]
+            .on_link_click(Message::OpenInfektWebsite)
+            .font(iced::Font::DEFAULT),
             Space::with_height(Fill),
             match self.sysinfo {
                 Some(ref sysinfo) => {
-                    rich_text([
+                    rich_text![
                         span(sysinfo_line("Operating System", &sysinfo.system_version)),
                         span(format!("Graphics Backend: {}\n", sysinfo.graphics_backend)),
-                    ])
+                    ]
+                    .on_link_click(Message::OpenInfektWebsite)
+                    .font(iced::Font::DEFAULT)
                 }
-                None => rich_text([]),
+                None => rich_text![],
             },
             Space::with_height(Fill),
             text("GUI built with"),

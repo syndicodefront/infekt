@@ -19,7 +19,6 @@ use crate::settings::NfoRenderSettings;
 pub(crate) enum Message {
     NoOp,
     MainWindowCreated(Option<iced::window::Id>),
-    FontLoaded(Result<(), iced::font::Error>),
     SidebarMessage(sidebar::Message),
     MainViewMessage(main_view::Message),
     PreferencesScreenMessage(preferences::Message),
@@ -65,14 +64,8 @@ impl InfektApp {
             theme: Theme::Dark,
             ..Self::default()
         };
-        let load_font = |data: &'static [u8]| iced::font::load(data).map(Message::FontLoaded);
 
         let task = Task::batch(vec![
-            load_font(include_bytes!("../assets/fonts/CascadiaMono.ttf")), // font name: Cascadia Mono
-            load_font(include_bytes!("../assets/fonts/Andale Mono.ttf")),  // font name: Andale Mono
-            load_font(include_bytes!(
-                "../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
-            )),
             iced::window::get_oldest().map(Message::MainWindowCreated),
         ]);
 
@@ -102,7 +95,6 @@ impl InfektApp {
 
                 Action::None
             }
-            Message::FontLoaded(_) => Action::None,
 
             Message::SidebarMessage(message) => self.sidebar.update(message),
             Message::MainViewMessage(message) => self.main_view.update(message),

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use iced::widget::{column, container, pick_list, rich_text, row, span, text, Space};
+use iced::widget::{column, container, pick_list, row, text, PickList};
 use iced::Length::Fill;
 use iced::{Element, Task};
 
@@ -17,6 +17,10 @@ pub struct InfektPreferencesScreen {
     text_color: Option<colornames::Color>,
     art_color: Option<colornames::Color>,
     hyperlink_color: Option<colornames::Color>,
+
+    font_name: Option<String>,
+    //all_fonts: fontique::Collection,
+    all_font_names: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -25,6 +29,8 @@ pub enum Message {
     TextColorSelected(colornames::Color),
     ArtColorSelected(colornames::Color),
     HyperlinkColorSelected(colornames::Color),
+    FontNamesLoaded(Box<Vec<String>>),
+    FontNameSelected(String),
 }
 
 impl InfektPreferencesScreen {
@@ -41,6 +47,12 @@ impl InfektPreferencesScreen {
             }
             Message::HyperlinkColorSelected(color) => {
                 self.hyperlink_color = Some(color);
+            }
+            Message::FontNameSelected(name) => {
+                self.font_name = Some(name);
+            }
+            Message::FontNamesLoaded(names) => {
+                self.all_font_names = *names;
             }
         }
 
@@ -69,6 +81,30 @@ impl InfektPreferencesScreen {
         self.art_color = named_colors::from_palette_rgba(self.temporary_settings.art_color);
         self.hyperlink_color =
             named_colors::from_palette_rgba(self.temporary_settings.hyperlink_color);
+
+        if self.all_font_names.is_empty() {
+            return Some(Task::perform(
+                async {
+                    let mut db = fontdb::Database::new();
+
+                    db.load_system_fonts();
+
+                    let mut all_font_names = db
+                        .faces()
+                        .filter(|face| (*face).monospaced)
+                        .filter(|face| (*face).families.len() > 0)
+                        .map(|face| (*face).families[0].0.to_string())
+                        .filter(|name| !name.is_empty() && !name.starts_with("."))
+                        .collect::<Vec<String>>();
+
+                    all_font_names.sort();
+                    all_font_names.dedup();
+
+                    Box::new(all_font_names)
+                },
+                Message::FontNamesLoaded,
+            ));
+        }
 
         None
     }
@@ -104,6 +140,13 @@ impl InfektPreferencesScreen {
             Message::HyperlinkColorSelected,
         );
 
+        let font_family_pick_list: PickList<'_, String, Vec<String>, String, Message> = pick_list(
+            self.all_font_names.clone(),
+            self.font_name.clone(),
+            Message::FontNameSelected,
+        )
+        .text_shaping(text::Shaping::Advanced);
+
         container(column![
             row![
                 text("Background Color").width(Fill),
@@ -111,7 +154,8 @@ impl InfektPreferencesScreen {
             ],
             row![text("Text Color").width(Fill), text_color_pick_list,],
             row![text("Block Art Color").width(Fill), art_color_pick_list,],
-            row![text("Links Color").width(Fill), hyperlink_color_pick_list,]
+            row![text("Links Color").width(Fill), hyperlink_color_pick_list,],
+            row![text("Font Family").width(Fill), font_family_pick_list,]
         ])
         .style(container::rounded_box)
         .into()
