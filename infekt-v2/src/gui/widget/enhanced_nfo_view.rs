@@ -134,6 +134,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
             return;
         }
 
+        renderer.start_layer(*viewport);
+
         let first_visible_line =
             ((viewport.y - bounds.y) / self.block_height_float).floor() as usize;
         let last_visible_line =
@@ -229,6 +231,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                 renderer.draw_geometry(geometry);
             });
         });
+
+        renderer.end_layer();
     }
 }
 
