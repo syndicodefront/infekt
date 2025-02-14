@@ -30,7 +30,7 @@ impl InfektMainView {
             text(s).width(FillPortion(4)).into()
         }
 
-        const ROW_SPACING: u16 = 10;
+        const ROW_SPACING: f32 = 10.0;
 
         column![
             row![

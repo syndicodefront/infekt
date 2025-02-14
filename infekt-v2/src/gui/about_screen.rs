@@ -14,11 +14,15 @@ pub struct InfektAboutScreen {
 #[derive(Debug, Clone)]
 pub enum Message {
     FetchInformation(Box<system::Information>),
-    OpenInfektWebsite(u64),
+    HyperlinkClicked(LinkTarget),
+}
+
+#[derive(Debug, Clone)]
+pub enum LinkTarget {
+    InfektWebsite,
 }
 
 const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x256x32.png");
-// const LOGO_SVG: &[u8] = include_bytes!("../../assets/infekt-icons/logo_v2.svg");
 
 impl InfektAboutScreen {
     pub fn update(&mut self, message: Message) -> Action {
@@ -26,7 +30,9 @@ impl InfektAboutScreen {
             Message::FetchInformation(sysinfo) => {
                 self.sysinfo = Some(*sysinfo);
             }
-            Message::OpenInfektWebsite(_) => {}
+            Message::HyperlinkClicked(_) => {
+                open::that_detached("https://infekt.ws").unwrap();
+            }
         }
 
         Action::None
@@ -50,11 +56,11 @@ impl InfektAboutScreen {
                 span(format!("Version {}\n", env!("CARGO_PKG_VERSION"))),
                 span("© syndicode.org 2010-2025\n"),
                 span("Project Homepage: "),
-                span("infekt.ws").underline(true).link(0u64),
+                span("infekt.ws").underline(true).link(LinkTarget::InfektWebsite),
                 span("\n\n"),
                 span("This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.")
             ]
-            .on_link_click(Message::OpenInfektWebsite)
+            .on_link_click(Message::HyperlinkClicked)
             .font(iced::Font::DEFAULT),
             Space::with_height(Fill),
             match self.sysinfo {
@@ -63,7 +69,7 @@ impl InfektAboutScreen {
                         span(sysinfo_line("Operating System", &sysinfo.system_version)),
                         span(format!("Graphics Backend: {}\n", sysinfo.graphics_backend)),
                     ]
-                    .on_link_click(Message::OpenInfektWebsite)
+                    .on_link_click(Message::HyperlinkClicked)
                     .font(iced::Font::DEFAULT)
                 }
                 None => rich_text![],
