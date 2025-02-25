@@ -95,10 +95,10 @@ impl InfektAboutScreen {
 fn sysinfo_line(label: &str, value: &Option<String>) -> String {
     match value {
         Some(value) => {
-            format!("{}: {}\n", label, value)
+            format!("{label}: {value}\n")
         }
         None => {
-            format!("{}: <unknown>\n", label)
+            format!("{label}: <unknown>\n")
         }
     }
 }

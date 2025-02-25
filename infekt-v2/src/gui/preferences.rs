@@ -91,10 +91,10 @@ impl InfektPreferencesScreen {
 
                     let mut all_font_names = db
                         .faces()
-                        .filter(|face| (*face).monospaced)
-                        .filter(|face| (*face).families.len() > 0)
-                        .map(|face| (*face).families[0].0.to_string())
-                        .filter(|name| !name.is_empty() && !name.starts_with("."))
+                        .filter(|face| face.monospaced)
+                        .filter(|face| !face.families.is_empty())
+                        .map(|face| face.families[0].0.to_string())
+                        .filter(|name| !name.is_empty() && !name.starts_with('.'))
                         .collect::<Vec<String>>();
 
                     all_font_names.sort();
@@ -117,25 +117,25 @@ impl InfektPreferencesScreen {
 
     fn view_settings_row(&self) -> Element<Message> {
         let background_color_pick_list = pick_list(
-            &named_colors::ALL[..],
+            named_colors::ALL,
             self.background_color,
             Message::BackgroundColorSelected,
         );
 
         let text_color_pick_list = pick_list(
-            &named_colors::ALL[..],
+            named_colors::ALL,
             self.text_color,
             Message::TextColorSelected,
         );
 
         let art_color_pick_list = pick_list(
-            &named_colors::ALL[..],
+            named_colors::ALL,
             self.art_color,
             Message::ArtColorSelected,
         );
 
         let hyperlink_color_pick_list = pick_list(
-            &named_colors::ALL[..],
+            named_colors::ALL,
             self.hyperlink_color,
             Message::HyperlinkColorSelected,
         );

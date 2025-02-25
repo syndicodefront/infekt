@@ -14,7 +14,8 @@ pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
     .palette();
 
     // Most probably some more fancy logic will be needed here.
-    let theme = Theme::custom(
+
+    Theme::custom(
         "iNfekt".to_owned(),
         // format!("iNFekt-{}", settings.hash()),
         Palette {
@@ -25,9 +26,7 @@ pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
             warning: inspiration.warning,
             danger: inspiration.danger,
         },
-    );
-
-    theme
+    )
 }
 
 fn is_dark(color: Rgb) -> bool {

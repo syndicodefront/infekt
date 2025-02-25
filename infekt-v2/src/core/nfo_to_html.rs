@@ -1,5 +1,5 @@
 use cxx::UniquePtr;
-use htmlentity::entity::*;
+use htmlentity::entity::{CharacterSet, EncodeType, ICodedDataTrait, encode, encode_char};
 
 use super::cpp::ffi;
 use super::nfo_renderer_grid::{get_block_shape, NfoRendererBlockShape};

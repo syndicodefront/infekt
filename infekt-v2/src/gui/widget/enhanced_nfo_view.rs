@@ -51,8 +51,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
     }
 
     fn size(&self) -> Size<Length> {
-        let rows = self.renderer_grid.map(|g| g.height as f32).unwrap_or(0.0);
-        let columns = self.renderer_grid.map(|g| g.width as f32).unwrap_or(0.0);
+        let rows = self.renderer_grid.map_or(0.0, |g| g.height as f32);
+        let columns = self.renderer_grid.map_or(0.0, |g| g.width as f32);
 
         Size {
             width: Length::Fixed(columns * self.block_width_float),
@@ -66,8 +66,8 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let rows = self.renderer_grid.map(|g| g.height as f32).unwrap_or(0.0);
-        let columns = self.renderer_grid.map(|g| g.width as f32).unwrap_or(0.0);
+        let rows = self.renderer_grid.map_or(0.0, |g| g.height as f32);
+        let columns = self.renderer_grid.map_or(0.0, |g| g.width as f32);
 
         layout::atomic(
             limits,
@@ -163,7 +163,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                     .draw(renderer, cache_bounds, |frame| {
                         let grid = self.renderer_grid.unwrap();
 
-                        for line in grid.lines.iter() {
+                        for line in &grid.lines {
                             if line.row < first_line || line.row > last_line {
                                 continue;
                             }

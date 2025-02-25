@@ -5,7 +5,7 @@ pub fn from_palette_rgb(color: palette::rgb::Rgb) -> Option<Color> {
     let r = (r * 255.0) as u8;
     let g = (g * 255.0) as u8;
     let b = (b * 255.0) as u8;
-    let hex = format!("#{:02X}{:02X}{:02X}", r, g, b);
+    let hex = format!("#{r:02X}{g:02X}{b:02X}");
     Color::convert_str(hex.as_str())
 }
 
@@ -15,7 +15,7 @@ pub fn from_palette_rgba(color: palette::rgb::Rgba) -> Option<Color> {
     let r = (r * 255.0) as u8;
     let g = (g * 255.0) as u8;
     let b = (b * 255.0) as u8;
-    let hex = format!("#{:02X}{:02X}{:02X}", r, g, b);
+    let hex = format!("#{r:02X}{g:02X}{b:02X}");
     Color::convert_str(hex.as_str())
 }
 
