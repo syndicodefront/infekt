@@ -1,12 +1,12 @@
 use std::sync::Arc;
 
+use iced::advanced::graphics::geometry::{Frame, Text, Cache};
 use iced::advanced::layout;
 use iced::advanced::renderer::{Quad, Style};
 use iced::advanced::widget::tree::{self, Tree};
 use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::alignment;
 use iced::mouse;
-use iced::widget::canvas::{self, Frame, Text};
 use iced::Point;
 use iced::{Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
 
@@ -35,7 +35,7 @@ impl<'a> EnhancedNfoView<'a> {
 #[derive(Default)]
 struct State {
     nfo_id: u64,
-    cache: Vec<canvas::Cache>,
+    cache: Vec<Cache<Renderer>>,
 }
 
 // Number of lines in one geometry cache entry:
@@ -178,8 +178,10 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                                     position: Point { x, y },
                                     size: iced::Pixels(self.block_height_float),
                                     color: Color::from(self.render_settings.text_color),
-                                    horizontal_alignment: alignment::Horizontal::Left,
-                                    vertical_alignment: alignment::Vertical::Top,
+                                    align_x: alignment::Horizontal::Left,
+                                    align_y: alignment::Vertical::Top,
+                                    // horizontal_alignment: alignment::Horizontal::Left,
+                                    // vertical_alignment: alignment::Vertical::Top,
                                     line_height: advanced::text::LineHeight::Absolute(
                                         iced::Pixels(self.block_height_float),
                                     ),
@@ -242,7 +244,7 @@ fn render_blocks(
     block_width: u16,
     block_height: u16,
     block_color: Color,
-    frame: &mut Frame,
+    frame: &mut Frame<Renderer>,
 ) {
     let block_size = Size::new(block_width as f32, block_height as f32);
 
@@ -279,7 +281,7 @@ fn draw_block(
     block_size: Size,
     block_shape: &NfoRendererBlockShape,
     color: Color,
-    frame: &mut Frame,
+    frame: &mut Frame<Renderer>,
 ) {
     let half_block_size = Size::new(block_size.width * 0.5, block_size.height * 0.5);
     let half_vertical_block_size = Size::new(half_block_size.width, block_size.height);
