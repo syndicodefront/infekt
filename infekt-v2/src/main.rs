@@ -7,7 +7,7 @@ use app::InfektApp;
 use iced::window::{self, icon};
 
 pub fn main() -> iced::Result {
-    iced::application(InfektApp::title, InfektApp::update, InfektApp::view)
+    iced::application(InfektApp::new, InfektApp::update, InfektApp::view)
         .window(initial_window_settings())
         .settings(iced::Settings {
             antialiasing: true,
@@ -24,8 +24,9 @@ pub fn main() -> iced::Result {
         .scale_factor(|_| 1.0) // https://github.com/iced-rs/iced/issues/2657#issuecomment-2566536858
         .window_size(iced::Size::new(850.0, 700.0))
         .centered()
-        .theme(InfektApp::theme)
-        .run_with(InfektApp::new)
+        .title(InfektApp::title)
+        // .theme(InfektApp::theme)
+        .run()
 }
 
 fn initial_window_settings() -> window::Settings {

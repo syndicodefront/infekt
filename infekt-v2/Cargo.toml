@@ -25,6 +25,7 @@ iced = { version = "0.14.0-dev", features = [
     "advanced",
     "canvas",
     "web-colors",
+    "crisp",
 ] }
 rfd = "0.15.2"
 ico = "0.3.0"

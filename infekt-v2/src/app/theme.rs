@@ -5,6 +5,7 @@ use palette::rgb::Rgb;
 use palette::{FromColor, Hsl};
 use std::sync::Arc;
 
+/*
 pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
     let inspiration = if is_dark(settings.background_color) {
         Theme::Dark
@@ -27,7 +28,7 @@ pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
             danger: inspiration.danger,
         },
     )
-}
+}*/
 
 fn is_dark(color: Rgb) -> bool {
     // copied from iced codebase

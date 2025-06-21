@@ -91,7 +91,7 @@ impl InfektApp {
 
             Message::MainWindowCreated(window_id) => {
                 self.main_window_id = window_id;
-                self.theme = theme::create_theme(self.active_render_settings.clone());
+                // self.theme = theme::create_theme(self.active_render_settings.clone());
 
                 Action::None
             }
@@ -106,7 +106,7 @@ impl InfektApp {
             Message::RenderSettingsChanged(settings) => {
                 self.active_render_settings = settings;
 
-                self.theme = theme::create_theme(self.active_render_settings.clone());
+                // self.theme = theme::create_theme(self.active_render_settings.clone());
 
                 // XXX: improve?
                 self.main_view
@@ -150,7 +150,7 @@ impl InfektApp {
         task
     }
 
-    pub fn theme(&self) -> Theme {
+    /*pub fn theme(&self) -> Theme {
         self.theme.clone()
-    }
+    }*/
 }
