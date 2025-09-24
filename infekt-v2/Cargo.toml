@@ -21,7 +21,6 @@ image = "0.25.5"
 iced = { version = "0.14.0-dev", features = [
     "image",
     "svg",
-    "system",
     "advanced",
     "canvas",
     "web-colors",
