@@ -1,7 +1,7 @@
 # CMake build file for the GTK port
 # not to be used on Windows
 
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.5)
 project (INFEKT)
 
 option (OPTION_GTK "Building iNFEKT-GTK")
