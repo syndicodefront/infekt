@@ -16,7 +16,8 @@ pub fn main() -> iced::Result {
                 include_bytes!("../assets/fonts/Andale Mono.ttf").into(),  // font name: Andale Mono
                 include_bytes!(
                     "../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
-                ).into(),
+                )
+                .into(),
                 include_bytes!("../assets/fonts/FiraMono-Regular.ttf").into(), // font name: Fira Mono
             ],
             ..iced::Settings::default()
@@ -25,7 +26,7 @@ pub fn main() -> iced::Result {
         .window_size(iced::Size::new(850.0, 700.0))
         .centered()
         .title(InfektApp::title)
-        // .theme(InfektApp::theme)
+        .theme(InfektApp::theme)
         .run()
 }
 

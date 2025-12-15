@@ -1,4 +1,4 @@
-use iced::widget::{button, column, container, image, row, svg, text, Space};
+use iced::widget::{button, column, container, image, row, svg, text, space};
 use iced::Length::{self, Fill};
 use iced::{Alignment, Element, Theme};
 
@@ -47,7 +47,7 @@ impl InfektSidebar {
         }
     }
 
-    pub fn view(&self) -> Element<Message> {
+    pub fn view(&self) -> Element<'_, Message> {
         let column = column![
             container(self.logo()).center_x(Fill).center_y(48.0),
             self.top_level_button(
@@ -70,7 +70,7 @@ impl InfektSidebar {
                 include_bytes!("../../assets/tabler-icons/outline/info-hexagon.svg"),
                 Message::ShowAboutScreen
             ),
-            Space::with_height(Fill),
+            space::vertical(),
             button(svg(self.toggle_icon()))
                 .width(Fill)
                 .on_press(Message::ToggleSidebar),

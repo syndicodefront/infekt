@@ -1,5 +1,5 @@
 use iced::widget::{
-    column, container, iced as iced_logo, image, rich_text, row, span, text, Space,
+    column, container, iced as iced_logo, image, rich_text, row, span, text, space,
 };
 use iced::Length::Fill;
 use iced::{system, Element, Task};
@@ -40,13 +40,13 @@ impl InfektAboutScreen {
 
     pub fn on_before_shown(&mut self) -> Option<Task<Message>> {
         if self.sysinfo.is_none() {
-            Some(system::fetch_information().map(|info| Message::FetchInformation(Box::new(info))))
+            Some(system::information().map(|info| Message::FetchInformation(Box::new(info))))
         } else {
             None
         }
     }
 
-    pub fn view(&self) -> Element<Message> {
+    pub fn view(&self) -> Element<'_, Message> {
         let padding = 15;
         let left = column![container(self.logo()),].padding(padding);
 
@@ -62,7 +62,7 @@ impl InfektAboutScreen {
             ]
             .on_link_click(Message::HyperlinkClicked)
             .font(iced::Font::DEFAULT),
-            Space::with_height(Fill),
+            space::vertical(),
             match self.sysinfo {
                 Some(ref sysinfo) => {
                     rich_text![
@@ -74,7 +74,7 @@ impl InfektAboutScreen {
                 }
                 None => rich_text![],
             },
-            Space::with_height(Fill),
+            space::vertical(),
             text("GUI built with"),
             iced_logo(28)
         ]

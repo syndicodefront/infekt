@@ -109,13 +109,13 @@ impl InfektPreferencesScreen {
         None
     }
 
-    pub fn view(&self) -> Element<Message> {
+    pub fn view(&self) -> Element<'_, Message> {
         column![self.view_settings_row(), self.view_preview_row(),]
             .width(Fill)
             .into()
     }
 
-    fn view_settings_row(&self) -> Element<Message> {
+    fn view_settings_row(&self) -> Element<'_, Message> {
         let background_color_pick_list = pick_list(
             named_colors::ALL,
             self.background_color,
@@ -161,7 +161,7 @@ impl InfektPreferencesScreen {
         .into()
     }
 
-    fn view_preview_row(&self) -> Element<Message> {
+    fn view_preview_row(&self) -> Element<'_, Message> {
         row![
             container(text("Enhanced").size(32)).width(Fill),
             container(text("Classic").size(32)).width(Fill)

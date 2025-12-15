@@ -10,5 +10,3 @@ log = "0.4"
 strip = true
 lto = "fat"
 
-[patch.crates-io]
-iced = { git = "https://github.com/flakes/iced.git", branch = "master-infekt" }

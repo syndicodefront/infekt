@@ -5,7 +5,7 @@ use super::{Action, InfektApp, Message};
 
 impl InfektApp {
     pub(super) fn task_open_nfo_file_dialog(&mut self) -> Task<Message> {
-        iced::window::run_with_window_handles(self.main_window_id.unwrap(), move |w| {
+        iced::window::run(self.main_window_id.unwrap(), move |w| {
             let path = rfd::FileDialog::new()
                 .set_parent(&w)
                 .add_filter("Block Art Files", &["nfo", "diz", "asc", "txt"])

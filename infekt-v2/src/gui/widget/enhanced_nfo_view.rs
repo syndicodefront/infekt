@@ -62,7 +62,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
     }
 
     fn layout(
-        &self,
+        &mut self,
         _tree: &mut Tree,
         _renderer: &Renderer,
         limits: &layout::Limits,

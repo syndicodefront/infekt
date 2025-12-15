@@ -3,8 +3,8 @@ mod file_info;
 
 use std::sync::Arc;
 
-use iced::widget::scrollable::{Direction, Id as ScrollableId, Scrollbar};
-use iced::widget::{button, column, row, scrollable, text};
+use iced::widget::scrollable::{Direction, Scrollbar};
+use iced::widget::{self, button, column, row, scrollable, text};
 use iced::Element;
 use iced::Length::Fill;
 
@@ -76,7 +76,7 @@ impl InfektMainView {
 
     fn enhanced_tab<'a>(&self, current_nfo: &'a NfoData) -> Element<'a, Message> {
         scrollable(EnhancedNfoView::new(self.active_render_settings.clone(), current_nfo))
-            .id(ScrollableId::new("enhanced view"))
+            .id(widget::Id::new("enhanced view"))
             .direction(Direction::Both {
                 vertical: Scrollbar::default(),
                 horizontal: Scrollbar::default(),

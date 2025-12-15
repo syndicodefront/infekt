@@ -1,7 +1,7 @@
 use super::{InfektMainView, Message};
 
-use iced::widget::scrollable::{Direction, Id as ScrollableId, Scrollbar};
-use iced::widget::{container, scrollable, text, Text};
+use iced::widget::scrollable::{Direction, Scrollbar};
+use iced::widget::{self, Text, container, scrollable, text};
 use iced::Element;
 use iced::Length::{Fill, Shrink};
 
@@ -13,7 +13,7 @@ impl InfektMainView {
         current_nfo: &'a NfoData,
         stripped: bool,
     ) -> Element<'a, Message> {
-        let scrollable_id = ScrollableId::new(if stripped {
+        let scrollable_id = widget::Id::new(if stripped {
             "main view stripped"
         } else {
             "main view classic"

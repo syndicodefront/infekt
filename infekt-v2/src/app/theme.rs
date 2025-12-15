@@ -5,7 +5,6 @@ use palette::rgb::Rgb;
 use palette::{FromColor, Hsl};
 use std::sync::Arc;
 
-/*
 pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
     let inspiration = if is_dark(settings.background_color) {
         Theme::Dark
@@ -20,15 +19,27 @@ pub(super) fn create_theme(settings: Arc<NfoRenderSettings>) -> Theme {
         "iNfekt".to_owned(),
         // format!("iNFekt-{}", settings.hash()),
         Palette {
-            background: Color::from(settings.background_color),
-            text: Color::from(settings.text_color), // XXX: should actually depend on the background color to ensure constrast
-            primary: Color::from(settings.art_color),
+            background: Color::from_rgb(
+                settings.background_color.red,
+                settings.background_color.green,
+                settings.background_color.blue,
+            ),
+            text: Color::from_rgb(
+                settings.text_color.red,
+                settings.text_color.green,
+                settings.text_color.blue,
+            ), // XXX: should actually depend on the background color to ensure constrast
+            primary: Color::from_rgb(
+                settings.art_color.red,
+                settings.art_color.green,
+                settings.art_color.blue,
+            ),
             success: inspiration.success,
             warning: inspiration.warning,
             danger: inspiration.danger,
         },
     )
-}*/
+}
 
 fn is_dark(color: Rgb) -> bool {
     // copied from iced codebase

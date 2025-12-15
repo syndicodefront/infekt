@@ -53,7 +53,7 @@ pub(crate) struct InfektApp {
     preferences_screen: InfektPreferencesScreen,
     about_screen: InfektAboutScreen,
 
-    theme: Theme,
+    theme: Option<Theme>,
     active_render_settings: Arc<NfoRenderSettings>,
     current_nfo: NfoData,
 }
@@ -61,13 +61,11 @@ pub(crate) struct InfektApp {
 impl InfektApp {
     pub fn new() -> (Self, Task<Message>) {
         let app = Self {
-            theme: Theme::Dark,
+            theme: Some(Theme::Dark),
             ..Self::default()
         };
 
-        let task = Task::batch(vec![
-            iced::window::get_oldest().map(Message::MainWindowCreated),
-        ]);
+        let task = Task::batch(vec![iced::window::oldest().map(Message::MainWindowCreated)]);
 
         (app, task)
     }
@@ -91,7 +89,7 @@ impl InfektApp {
 
             Message::MainWindowCreated(window_id) => {
                 self.main_window_id = window_id;
-                // self.theme = theme::create_theme(self.active_render_settings.clone());
+                self.theme = Some(theme::create_theme(self.active_render_settings.clone()));
 
                 Action::None
             }
@@ -105,8 +103,7 @@ impl InfektApp {
 
             Message::RenderSettingsChanged(settings) => {
                 self.active_render_settings = settings;
-
-                // self.theme = theme::create_theme(self.active_render_settings.clone());
+                self.theme = Some(theme::create_theme(self.active_render_settings.clone()));
 
                 // XXX: improve?
                 self.main_view
@@ -124,7 +121,9 @@ impl InfektApp {
                 match self.active_screen {
                     ActiveScreen::MainView => {}
                     ActiveScreen::Preferences => {
-                        let result = self.preferences_screen.on_before_shown(self.active_render_settings.clone());
+                        let result = self
+                            .preferences_screen
+                            .on_before_shown(self.active_render_settings.clone());
 
                         if let Some(new_task) = result {
                             task = new_task.map(Message::PreferencesScreenMessage);
@@ -150,7 +149,7 @@ impl InfektApp {
         task
     }
 
-    /*pub fn theme(&self) -> Theme {
+    pub fn theme(&self) -> Option<Theme> {
         self.theme.clone()
-    }*/
+    }
 }

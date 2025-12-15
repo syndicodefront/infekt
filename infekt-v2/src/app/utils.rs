@@ -4,7 +4,7 @@ use super::{InfektApp, Message};
 
 impl InfektApp {
     pub(super) fn show_error_message_popup(&mut self, message: String) -> Task<Message> {
-        iced::window::run_with_window_handles(self.main_window_id.unwrap(), move |w| {
+        iced::window::run(self.main_window_id.unwrap(), move |w| {
             rfd::MessageDialog::new()
                 .set_parent(&w)
                 .set_level(rfd::MessageLevel::Error)

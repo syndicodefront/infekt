@@ -5,7 +5,7 @@ use iced::{Alignment, Element};
 use super::{ActiveScreen, InfektApp, Message};
 
 impl InfektApp {
-    pub fn view(&self) -> Element<Message> {
+    pub fn view(&self) -> Element<'_, Message> {
         let sidebar = self.sidebar.view().map(Message::SidebarMessage);
         let content = column![]
             .push(match self.active_screen {
