@@ -1,7 +1,8 @@
 mod app;
-mod core;
 mod gui;
 mod settings;
+
+pub use infekt_nfo_viewer::core;
 
 use app::InfektApp;
 use iced::window::{self, icon};
