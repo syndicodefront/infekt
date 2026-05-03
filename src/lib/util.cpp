@@ -101,6 +101,14 @@ bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 
 #else /* _WIN32 */
 
+/* "wchar_t" is a GNU libiconv extension not supported by macOS system iconv.
+ * Use the equivalent explicit UTF-32 encoding based on native byte order. */
+#if defined(__BYTE_ORDER__) && (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
+#define WCHAR_T_ICONV_ENCODING "UTF-32BE"
+#else
+#define WCHAR_T_ICONV_ENCODING "UTF-32LE"
+#endif
+
 string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePage)
 {
 	const char* l_targetCodePage;
@@ -114,7 +122,7 @@ string CUtil::FromWideStr(const wstring& a_wideStr, unsigned int a_targetCodePag
 	}
 
 	char *l_sResult = nullptr;
-	if (iconv_string(l_targetCodePage, "wchar_t", (char*)a_wideStr.c_str(),
+	if (iconv_string(l_targetCodePage, WCHAR_T_ICONV_ENCODING, (char*)a_wideStr.c_str(),
 		(char*)(a_wideStr.c_str() + a_wideStr.size() + 1), &l_sResult, nullptr) >= 0)
 	{
 		string l_result = l_sResult;
@@ -139,7 +147,7 @@ wstring CUtil::ToWideStr(const string& a_str, unsigned int a_originCodePage)
 	}
 
 	wchar_t *l_wResult = nullptr;
-	if (iconv_string("wchar_t", l_originCodePage,
+	if (iconv_string(WCHAR_T_ICONV_ENCODING, l_originCodePage,
 		a_str.c_str(), a_str.c_str() + a_str.size() + 1,
 		(char**)&l_wResult, nullptr) >= 0)
 	{
@@ -159,7 +167,7 @@ bool CUtil::OneCharWideToUtf8(wchar_t a_char, char* a_buf)
 	size_t l_len = 9;
 	wchar_t l_tmp[2] = { a_char, 0 };
 
-	if (iconv_string("UTF-8", "wchar_t", (char*)&l_tmp, (char*)(&l_tmp + 1), &l_buf, &l_len) >= 0)
+	if (iconv_string("UTF-8", WCHAR_T_ICONV_ENCODING, (char*)&l_tmp, (char*)(&l_tmp + 1), &l_buf, &l_len) >= 0)
 	{
 		strncpy(a_buf, l_buf, l_len);
 

@@ -21,6 +21,6 @@ add_executable (infekt-cli
 	${INFEKT_SOURCE_DIR}/src/lib/cairo_box_blur.cpp
 	${INFEKT_SOURCE_DIR}/src/lib-posix/iconv_string.c)
 
-target_link_libraries (infekt-cli ${LIBS})
+target_link_libraries (infekt-cli PUBLIC ${LIBS} OpenMP::OpenMP_CXX)
 
 install (PROGRAMS ${INFEKT_BINARY_DIR}/src/console/infekt-cli DESTINATION bin)

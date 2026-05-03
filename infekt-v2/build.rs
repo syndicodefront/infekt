@@ -38,10 +38,11 @@ fn compile_infekt_cpp() {
     }
 
     c_build.compile("infekt-core-c");
+
+    #[cfg(not(target_os = "windows"))]
+    println!("cargo:rustc-link-lib=iconv");
 }
 
 fn main() {
-    println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.12");
-
     compile_infekt_cpp();
 }
