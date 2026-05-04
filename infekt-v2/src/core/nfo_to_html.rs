@@ -1,7 +1,6 @@
-use cxx::UniquePtr;
-use htmlentity::entity::{CharacterSet, EncodeType, ICodedDataTrait, encode, encode_char};
+use htmlentity::entity::{encode, encode_char, CharacterSet, EncodeType, ICodedDataTrait};
 
-use super::cpp::ffi;
+use super::nfo_data::NfoData;
 use super::nfo_renderer_grid::{get_block_shape, NfoRendererBlockShape};
 
 #[derive(PartialEq, Clone, Copy)]
@@ -12,17 +11,17 @@ enum CharFlightType {
     Link,
 }
 
-pub(super) fn nfo_to_html_classic(nfo: &UniquePtr<ffi::CNFOData>) -> String {
-    let mut html = String::with_capacity(nfo.GetGridHeight() * 80);
+pub(super) fn nfo_to_html_classic(nfo: &NfoData) -> String {
+    let mut html = String::with_capacity(nfo.grid_height() * 80);
 
-    let width = nfo.GetGridWidth();
-    let height = nfo.GetGridHeight();
+    let width = nfo.grid_width();
+    let height = nfo.grid_height();
 
     for row in 0..height {
         let mut previous_type = CharFlightType::Unknown;
 
         for col in 0..width {
-            let grid_char = nfo.GetGridCharUint32(row, col);
+            let grid_char = nfo.grid_char(row, col).map(|c| c as u32).unwrap_or(0);
 
             if grid_char == 0 {
                 // EOL
@@ -48,10 +47,10 @@ pub(super) fn nfo_to_html_classic(nfo: &UniquePtr<ffi::CNFOData>) -> String {
             }
 
             if could_be_text {
-                let raw_link_url = nfo.GetLinkUrlUtf8(row, col);
+                let raw_link_url = nfo.link_url(row, col).unwrap_or("");
 
                 if !raw_link_url.is_empty() {
-                    link_url = raw_link_url.to_string();
+                    link_url = raw_link_url.to_owned();
                     new_type = CharFlightType::Link;
                 } else {
                     new_type = CharFlightType::Text;

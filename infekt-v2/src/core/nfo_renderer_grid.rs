@@ -1,8 +1,6 @@
 use std::hash::Hasher;
 
-use cxx::UniquePtr;
-
-use super::cpp;
+use super::nfo_data::NfoData;
 
 // XXX: these members are all public for now, but they should be private.
 #[derive(Clone, serde::Serialize)]
@@ -87,9 +85,9 @@ pub(super) fn get_block_shape(char: u32, in_text: bool) -> NfoRendererBlockShape
     }
 }
 
-pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRendererGrid {
-    let width = nfo.GetGridWidth();
-    let height = nfo.GetGridHeight();
+pub(super) fn make_renderer_grid(nfo: &NfoData) -> NfoRendererGrid {
+    let width = nfo.grid_width();
+    let height = nfo.grid_height();
 
     let mut renderer_grid = NfoRendererGrid {
         width,
@@ -121,7 +119,7 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
         let mut block_group_buf: Vec<NfoRendererBlockShape> = Vec::new();
 
         for col in 0..width {
-            let grid_char = nfo.GetGridCharUint32(row, col);
+            let grid_char = nfo.grid_char(row, col).map(|c| c as u32).unwrap_or(0);
 
             if grid_char == 0 {
                 // EOL
@@ -142,8 +140,8 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
                     text_buf_first_col = col;
                 }
 
-                let link = nfo.GetLinkUrlUtf8(row, col);
-                let now_in_link = !link.is_empty();
+                let link = nfo.link_url(row, col);
+                let now_in_link = link.is_some();
                 let buffer_is_link = link_url.is_some();
 
                 if now_in_link != buffer_is_link {
@@ -166,11 +164,10 @@ pub(super) fn make_renderer_grid(nfo: &UniquePtr<cpp::ffi::CNFOData>) -> NfoRend
 
                     text_buf = String::with_capacity(128);
                     text_buf_first_col = col;
-                    link_url = now_in_link.then(|| link.to_string());
+                    link_url = link.map(ToOwned::to_owned);
                 }
 
-                text_buf
-                    .push(char::from_u32(grid_char).unwrap_or(char::REPLACEMENT_CHARACTER));
+                text_buf.push(char::from_u32(grid_char).unwrap_or(char::REPLACEMENT_CHARACTER));
             } else if block_shape != NfoRendererBlockShape::Whitespace {
                 // It's a block!
 

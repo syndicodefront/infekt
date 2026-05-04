@@ -1,6 +1,7 @@
 use clap::{ArgAction, Parser};
 use infekt_nfo_viewer::core;
-use std::fs;
+use std::fs::File;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process;
 
@@ -101,7 +102,12 @@ fn main() {
         .clone()
         .unwrap_or_else(|| make_default_out_file(&args.input_file));
 
-    if let Err(err) = fs::write(&out_file, text.as_bytes()) {
+    const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
+    let write_result = File::create(&out_file).and_then(|mut f| {
+        f.write_all(UTF8_BOM)
+            .and_then(|_| f.write_all(text.as_bytes()))
+    });
+    if let Err(err) = write_result {
         eprintln!("ERROR: Unable to write to `{}`: {err}", out_file.display());
         process::exit(1);
     }
