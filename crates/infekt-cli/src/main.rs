@@ -1,5 +1,6 @@
 use clap::{ArgAction, Parser};
 use infekt_core as core;
+use infekt_core::nfo_to_html_canvas::{NfoHtmlCanvasSettings, NfoHtmlColor};
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -26,9 +27,9 @@ struct CliArgs {
     cp_437: bool,
     #[arg(short = 'm', long = "html", action = ArgAction::SetTrue, hide = true)]
     html: bool,
-    #[arg(short = 'M', long = "html-canvas", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 'M', long = "html-canvas", action = ArgAction::SetTrue)]
     html_canvas: bool,
-    #[arg(short = 'J', long = "json", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 'J', long = "json", action = ArgAction::SetTrue)]
     json: bool,
     #[arg(short = 'd', long = "pdf", action = ArgAction::SetTrue, hide = true)]
     pdf: bool,
@@ -37,27 +38,27 @@ struct CliArgs {
     #[arg(short = 't', long = "utf-16", action = ArgAction::SetTrue, hide = true)]
     utf16: bool,
 
-    #[arg(short = 'T', long = "text-color", hide = true)]
+    #[arg(short = 'T', long = "text-color", value_name = "RRGGBB")]
     text_color: Option<String>,
-    #[arg(short = 'B', long = "back-color", hide = true)]
+    #[arg(short = 'B', long = "back-color", value_name = "RRGGBB")]
     back_color: Option<String>,
-    #[arg(short = 'A', long = "block-color", hide = true)]
+    #[arg(short = 'A', long = "block-color", value_name = "RRGGBB")]
     block_color: Option<String>,
-    #[arg(short = 'g', long = "no-glow", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 'g', long = "no-glow", action = ArgAction::SetTrue)]
     no_glow: bool,
-    #[arg(short = 'G', long = "glow-color", hide = true)]
+    #[arg(short = 'G', long = "glow-color", value_name = "RRGGBB")]
     glow_color: Option<String>,
-    #[arg(short = 'L', long = "hilight-links", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 'L', long = "hilight-links", action = ArgAction::SetTrue)]
     hilight_links: bool,
-    #[arg(short = 'U', long = "link-color", hide = true)]
+    #[arg(short = 'U', long = "link-color", value_name = "RRGGBB")]
     link_color: Option<String>,
-    #[arg(short = 'u', long = "no-link-underl", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 'u', long = "no-link-underl", action = ArgAction::SetTrue)]
     no_link_underl: bool,
-    #[arg(short = 'W', long = "block-width", hide = true)]
+    #[arg(short = 'W', long = "block-width", value_name = "PIXELS")]
     block_width: Option<String>,
-    #[arg(short = 'H', long = "block-height", hide = true)]
+    #[arg(short = 'H', long = "block-height", value_name = "PIXELS")]
     block_height: Option<String>,
-    #[arg(short = 'R', long = "glow-radius", hide = true)]
+    #[arg(short = 'R', long = "glow-radius", value_name = "PIXELS")]
     glow_radius: Option<String>,
     #[arg(
         short = 'c',
@@ -80,10 +81,15 @@ fn main() {
         process::exit(1);
     }
 
-    if !args.utf8 {
+    if !args.utf8 && !args.html_canvas && !args.json {
         eprintln!("ERROR: Only --utf-8 output mode is implemented right now.");
         process::exit(1);
     }
+
+    let canvas_settings = make_canvas_settings(&args).unwrap_or_else(|err| {
+        eprintln!("ERROR: {err}");
+        process::exit(1);
+    });
 
     let mut nfo_data = core::nfo_data::NfoData::new();
     if let Err(err) = nfo_data.load_from_file(&args.input_file) {
@@ -91,22 +97,30 @@ fn main() {
         process::exit(1);
     }
 
-    let text = if args.text_only {
-        nfo_data.get_stripped_text()
+    let (text, default_extension, write_bom) = if args.html_canvas {
+        (nfo_data.get_canvas_html(&canvas_settings), "html", false)
+    } else if args.json {
+        (nfo_data.get_canvas_render_json(), "json", false)
+    } else if args.text_only {
+        (nfo_data.get_stripped_text(), "nfo", true)
     } else {
-        nfo_data.get_classic_text()
+        (nfo_data.get_classic_text(), "nfo", true)
     };
 
     let out_file = args
         .out_file
         .clone()
-        .unwrap_or_else(|| make_default_out_file(&args.input_file));
+        .unwrap_or_else(|| make_default_out_file(&args.input_file, default_extension));
 
-    const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
     let write_result = File::create(&out_file).and_then(|mut f| {
-        f.write_all(UTF8_BOM)
-            .and_then(|_| f.write_all(text.as_bytes()))
+        if write_bom {
+            const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
+            f.write_all(UTF8_BOM)?;
+        }
+
+        f.write_all(text.as_bytes())
     });
+
     if let Err(err) = write_result {
         eprintln!("ERROR: Unable to write to `{}`: {err}", out_file.display());
         process::exit(1);
@@ -119,7 +133,80 @@ fn main() {
     );
 }
 
+fn make_canvas_settings(args: &CliArgs) -> Result<NfoHtmlCanvasSettings, String> {
+    let mut settings = NfoHtmlCanvasSettings::default();
+
+    if let Some(color) = &args.text_color {
+        settings.color_text = parse_color("--text-color/-T", color)?;
+    }
+    if let Some(color) = &args.back_color {
+        settings.color_back = parse_color("--back-color/-B", color)?;
+    }
+    if let Some(color) = &args.block_color {
+        settings.color_art = parse_color("--block-color/-A", color)?;
+    }
+    if args.no_glow {
+        settings.shadow_enable = false;
+    }
+    if let Some(color) = &args.glow_color {
+        settings.shadow_color = parse_color("--glow-color/-G", color)?;
+    }
+    if args.hilight_links {
+        settings.hyperlinks_highlight = true;
+    }
+    if let Some(color) = &args.link_color {
+        settings.hyperlinks_color = parse_color("--link-color/-U", color)?;
+    }
+    if args.no_link_underl {
+        settings.hyperlinks_underline = false;
+    }
+    if let Some(width) = &args.block_width {
+        settings.block_width = parse_limited_usize("--block-width/-W", width, 1, 199)?;
+    }
+    if let Some(height) = &args.block_height {
+        settings.block_height = parse_limited_usize("--block-height/-H", height, 1, 199)?;
+    }
+    if let Some(radius) = &args.glow_radius {
+        settings.shadow_radius = parse_limited_usize("--glow-radius/-R", radius, 0, 100)?;
+    }
+
+    Ok(settings)
+}
+
+fn parse_color(option_name: &str, value: &str) -> Result<NfoHtmlColor, String> {
+    let trimmed = value.trim();
+    let prefixed;
+    let color = if trimmed.starts_with('#') {
+        trimmed
+    } else {
+        prefixed = format!("#{trimmed}");
+        &prefixed
+    };
+
+    NfoHtmlColor::parse_rgb(color)
+        .map_err(|_| format!("{option_name} expects an RGB hex color such as ff00aa or #ff00aa"))
+}
+
+fn parse_limited_usize(
+    option_name: &str,
+    value: &str,
+    min: usize,
+    max: usize,
+) -> Result<usize, String> {
+    let parsed = value
+        .parse::<usize>()
+        .map_err(|_| format!("{option_name} expects an integer"))?;
+
+    if parsed < min || parsed > max {
+        return Err(format!("{option_name} must be between {min} and {max}"));
+    }
+
+    Ok(parsed)
+}
+
 fn first_not_implemented_option(args: &CliArgs) -> Option<&'static str> {
+    let canvas_export = args.html_canvas || args.json;
+
     if args.png {
         return Some("--png/-P");
     }
@@ -132,12 +219,6 @@ fn first_not_implemented_option(args: &CliArgs) -> Option<&'static str> {
     if args.html {
         return Some("--html/-m");
     }
-    if args.html_canvas {
-        return Some("--html-canvas/-M");
-    }
-    if args.json {
-        return Some("--json/-J");
-    }
     if args.pdf {
         return Some("--pdf/-d");
     }
@@ -147,37 +228,37 @@ fn first_not_implemented_option(args: &CliArgs) -> Option<&'static str> {
     if args.utf16 {
         return Some("--utf-16/-t");
     }
-    if args.text_color.is_some() {
+    if !canvas_export && args.text_color.is_some() {
         return Some("--text-color/-T");
     }
-    if args.back_color.is_some() {
+    if !canvas_export && args.back_color.is_some() {
         return Some("--back-color/-B");
     }
-    if args.block_color.is_some() {
+    if !canvas_export && args.block_color.is_some() {
         return Some("--block-color/-A");
     }
-    if args.no_glow {
+    if !canvas_export && args.no_glow {
         return Some("--no-glow/-g");
     }
-    if args.glow_color.is_some() {
+    if !canvas_export && args.glow_color.is_some() {
         return Some("--glow-color/-G");
     }
-    if args.hilight_links {
+    if !canvas_export && args.hilight_links {
         return Some("--hilight-links/-L");
     }
-    if args.link_color.is_some() {
+    if !canvas_export && args.link_color.is_some() {
         return Some("--link-color/-U");
     }
-    if args.no_link_underl {
+    if !canvas_export && args.no_link_underl {
         return Some("--no-link-underl/-u");
     }
-    if args.block_width.is_some() {
+    if !canvas_export && args.block_width.is_some() {
         return Some("--block-width/-W");
     }
-    if args.block_height.is_some() {
+    if !canvas_export && args.block_height.is_some() {
         return Some("--block-height/-H");
     }
-    if args.glow_radius.is_some() {
+    if !canvas_export && args.glow_radius.is_some() {
         return Some("--glow-radius/-R");
     }
     if args.compound_whitespace {
@@ -190,13 +271,19 @@ fn first_not_implemented_option(args: &CliArgs) -> Option<&'static str> {
     None
 }
 
-fn make_default_out_file(input_file: &Path) -> PathBuf {
+fn make_default_out_file(input_file: &Path, extension: &str) -> PathBuf {
     let mut base = input_file.to_string_lossy().to_string();
 
     if base.ends_with(".nfo") {
         base.truncate(base.len() - 4);
     }
 
-    base.push_str("-utf8.nfo");
+    if extension == "nfo" {
+        base.push_str("-utf8.nfo");
+    } else {
+        base.push('.');
+        base.push_str(extension);
+    }
+
     PathBuf::from(base)
 }
