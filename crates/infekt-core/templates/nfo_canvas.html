@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+    <link href="https://fonts.cdnfonts.com/css/sf-mono" rel="stylesheet">
+</head>
+<body>
+<div id="nfo"></div>
+<script>
+const renderSettings = {{ render_settings|json|safe }};
+const nfoData = {{ nfo_data|json|safe }};
+{{ renderer_code|safe }}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const renderer = new NfoRenderer(document.getElementById('nfo'), nfoData, renderSettings);
+
+    if (window.matchMedia) {
+        (function updatePixelRatio() {
+            matchMedia('(resolution: ' + window.devicePixelRatio + 'dppx)')
+                .addEventListener('change', updatePixelRatio, { once: true });
+
+            renderer.render();
+        })();
+    } else {
+        renderer.render();
+    }
+});
+</script>
+</body>
+</html>

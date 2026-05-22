@@ -5,6 +5,8 @@ edition = "2024"
 description = "Core NFO parsing and rendering logic for iNFekt."
 
 [dependencies]
+askama = { version = "0.14", features = ["serde_json"] }
+hex_color = "3.0"
 htmlentity = "1.3"
 regex = "1.11"
 rustc-hash = "2.1.0"
