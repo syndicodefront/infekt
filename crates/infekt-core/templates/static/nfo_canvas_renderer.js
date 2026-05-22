@@ -29,8 +29,8 @@ const NfoRenderer = class {
             'position: absolute;' +
             'margin: 0; padding: 0;' +
             'white-space: pre;' +
-            'font-family: "SF Mono";' +
-            'font-size: 13px;' +
+            'font-family: "' + this.#renderSettings.fontFace + '";' +
+            'font-size: ' + this.#renderSettings.fontSize + 'px;' +
             'font-weight: ' + (this.#renderSettings.fontBold ? 'bold' : 'normal') + ';' +
             'text-rendering: geometricPrecision;' +
             'font-kerning: none; font-stretch: normal; font-size-adjust: none; font-optical-sizing: none;' +

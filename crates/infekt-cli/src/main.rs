@@ -1,6 +1,6 @@
 use clap::{ArgAction, Parser};
 use infekt_core as core;
-use infekt_core::nfo_to_html_canvas::{NfoHtmlCanvasSettings, NfoHtmlColor};
+use infekt_core::nfo_html_exporter::{NfoHtmlColor, NfoHtmlExporter, NfoHtmlSettings};
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -25,7 +25,7 @@ struct CliArgs {
     png_classic: bool,
     #[arg(short = 'e', long = "cp-437", action = ArgAction::SetTrue, hide = true)]
     cp_437: bool,
-    #[arg(short = 'm', long = "html", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 'm', long = "html", action = ArgAction::SetTrue)]
     html: bool,
     #[arg(short = 'M', long = "html-canvas", action = ArgAction::SetTrue)]
     html_canvas: bool,
@@ -73,23 +73,83 @@ struct CliArgs {
     input_file: PathBuf,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum OutputMode {
+    ClassicHtml,
+    CanvasHtml,
+    CanvasJson,
+    StrippedText,
+    ClassicText,
+}
+
+impl OutputMode {
+    fn from_args(args: &CliArgs) -> Result<Self, String> {
+        let modes = enabled_output_modes(args);
+
+        match modes.as_slice() {
+            [] if args.text_only => Err("Option --text-only/-S requires --utf-8/-f.".to_string()),
+            [] => Err(
+                "Choose an output mode: --utf-8/-f, --html/-m, --html-canvas/-M, or --json/-J."
+                    .to_string(),
+            ),
+            [(mode, _)] => Ok(*mode),
+            _ => Err(format!(
+                "Choose only one output mode; found {}.",
+                modes
+                    .iter()
+                    .map(|(_, name)| *name)
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )),
+        }
+    }
+
+    fn uses_html_settings(self) -> bool {
+        matches!(
+            self,
+            Self::ClassicHtml | Self::CanvasHtml | Self::CanvasJson
+        )
+    }
+
+    fn default_extension(self) -> &'static str {
+        match self {
+            Self::ClassicHtml | Self::CanvasHtml => "html",
+            Self::CanvasJson => "json",
+            Self::StrippedText | Self::ClassicText => "nfo",
+        }
+    }
+
+    fn writes_bom(self) -> bool {
+        matches!(self, Self::StrippedText | Self::ClassicText)
+    }
+}
+
 fn main() {
     let args = CliArgs::parse();
 
-    if let Some(option_name) = first_not_implemented_option(&args) {
+    if let Some(option_name) = first_unimplemented_output_option(&args) {
         eprintln!("ERROR: Option {option_name} is not implemented yet.");
         process::exit(1);
     }
 
-    if !args.utf8 && !args.html_canvas && !args.json {
-        eprintln!("ERROR: Only --utf-8 output mode is implemented right now.");
-        process::exit(1);
-    }
-
-    let canvas_settings = make_canvas_settings(&args).unwrap_or_else(|err| {
+    let output_mode = OutputMode::from_args(&args).unwrap_or_else(|err| {
         eprintln!("ERROR: {err}");
         process::exit(1);
     });
+
+    if let Err(err) = validate_args(&args, output_mode) {
+        eprintln!("ERROR: {err}");
+        process::exit(1);
+    }
+
+    let html_settings = if output_mode.uses_html_settings() {
+        Some(make_html_settings(&args).unwrap_or_else(|err| {
+            eprintln!("ERROR: {err}");
+            process::exit(1);
+        }))
+    } else {
+        None
+    };
 
     let mut nfo_data = core::nfo_data::NfoData::new();
     if let Err(err) = nfo_data.load_from_file(&args.input_file) {
@@ -97,23 +157,17 @@ fn main() {
         process::exit(1);
     }
 
-    let (text, default_extension, write_bom) = if args.html_canvas {
-        (nfo_data.get_canvas_html(&canvas_settings), "html", false)
-    } else if args.json {
-        (nfo_data.get_canvas_render_json(), "json", false)
-    } else if args.text_only {
-        (nfo_data.get_stripped_text(), "nfo", true)
-    } else {
-        (nfo_data.get_classic_text(), "nfo", true)
-    };
+    let text = render_output(output_mode, &nfo_data, html_settings).unwrap_or_else(|err| {
+        eprintln!("ERROR: {err}");
+        process::exit(1);
+    });
 
-    let out_file = args
-        .out_file
-        .clone()
-        .unwrap_or_else(|| make_default_out_file(&args.input_file, default_extension));
+    let out_file = args.out_file.clone().unwrap_or_else(|| {
+        make_default_out_file(&args.input_file, output_mode.default_extension())
+    });
 
     let write_result = File::create(&out_file).and_then(|mut f| {
-        if write_bom {
+        if output_mode.writes_bom() {
             const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
             f.write_all(UTF8_BOM)?;
         }
@@ -133,8 +187,8 @@ fn main() {
     );
 }
 
-fn make_canvas_settings(args: &CliArgs) -> Result<NfoHtmlCanvasSettings, String> {
-    let mut settings = NfoHtmlCanvasSettings::default();
+fn make_html_settings(args: &CliArgs) -> Result<NfoHtmlSettings, String> {
+    let mut settings = NfoHtmlSettings::default();
 
     if let Some(color) = &args.text_color {
         settings.color_text = parse_color("--text-color/-T", color)?;
@@ -173,6 +227,30 @@ fn make_canvas_settings(args: &CliArgs) -> Result<NfoHtmlCanvasSettings, String>
     Ok(settings)
 }
 
+fn render_output(
+    mode: OutputMode,
+    nfo_data: &core::nfo_data::NfoData,
+    html_settings: Option<NfoHtmlSettings>,
+) -> Result<String, String> {
+    if mode.uses_html_settings() {
+        let settings = html_settings.ok_or_else(|| "Missing HTML export settings".to_string())?;
+        let exporter = NfoHtmlExporter::new(nfo_data, settings);
+
+        return Ok(match mode {
+            OutputMode::ClassicHtml => exporter.export_html(),
+            OutputMode::CanvasHtml => exporter.export_canvas_html(),
+            OutputMode::CanvasJson => exporter.export_canvas_json(),
+            OutputMode::StrippedText | OutputMode::ClassicText => unreachable!(),
+        });
+    }
+
+    Ok(match mode {
+        OutputMode::StrippedText => nfo_data.get_stripped_text(),
+        OutputMode::ClassicText => nfo_data.get_classic_text(),
+        OutputMode::ClassicHtml | OutputMode::CanvasHtml | OutputMode::CanvasJson => unreachable!(),
+    })
+}
+
 fn parse_color(option_name: &str, value: &str) -> Result<NfoHtmlColor, String> {
     let trimmed = value.trim();
     let prefixed;
@@ -204,71 +282,99 @@ fn parse_limited_usize(
     Ok(parsed)
 }
 
-fn first_not_implemented_option(args: &CliArgs) -> Option<&'static str> {
-    let canvas_export = args.html_canvas || args.json;
+fn validate_args(args: &CliArgs, output_mode: OutputMode) -> Result<(), String> {
+    if let Some(option_name) = first_unimplemented_option(args) {
+        return Err(format!("Option {option_name} is not implemented yet."));
+    }
 
-    if args.png {
-        return Some("--png/-P");
+    if !matches!(output_mode, OutputMode::CanvasHtml | OutputMode::CanvasJson) {
+        if let Some(option_name) = first_canvas_only_option(args) {
+            return Err(format!(
+                "Option {option_name} is only supported for --html-canvas/-M and --json/-J."
+            ));
+        }
     }
-    if args.png_classic {
-        return Some("--png-classic/-p");
+
+    if !output_mode.uses_html_settings() {
+        if let Some(option_name) = first_html_style_option(args) {
+            return Err(format!(
+                "Option {option_name} is only supported for HTML and JSON exports."
+            ));
+        }
     }
-    if args.cp_437 {
-        return Some("--cp-437/-e");
+
+    Ok(())
+}
+
+fn enabled_output_modes(args: &CliArgs) -> Vec<(OutputMode, &'static str)> {
+    let mut modes = Vec::with_capacity(4);
+
+    if args.utf8 {
+        modes.push((
+            if args.text_only {
+                OutputMode::StrippedText
+            } else {
+                OutputMode::ClassicText
+            },
+            "--utf-8/-f",
+        ));
     }
     if args.html {
-        return Some("--html/-m");
+        modes.push((OutputMode::ClassicHtml, "--html/-m"));
     }
-    if args.pdf {
-        return Some("--pdf/-d");
+    if args.html_canvas {
+        modes.push((OutputMode::CanvasHtml, "--html-canvas/-M"));
     }
-    if args.pdf_din {
-        return Some("--pdf-din/-D");
-    }
-    if args.utf16 {
-        return Some("--utf-16/-t");
-    }
-    if !canvas_export && args.text_color.is_some() {
-        return Some("--text-color/-T");
-    }
-    if !canvas_export && args.back_color.is_some() {
-        return Some("--back-color/-B");
-    }
-    if !canvas_export && args.block_color.is_some() {
-        return Some("--block-color/-A");
-    }
-    if !canvas_export && args.no_glow {
-        return Some("--no-glow/-g");
-    }
-    if !canvas_export && args.glow_color.is_some() {
-        return Some("--glow-color/-G");
-    }
-    if !canvas_export && args.hilight_links {
-        return Some("--hilight-links/-L");
-    }
-    if !canvas_export && args.link_color.is_some() {
-        return Some("--link-color/-U");
-    }
-    if !canvas_export && args.no_link_underl {
-        return Some("--no-link-underl/-u");
-    }
-    if !canvas_export && args.block_width.is_some() {
-        return Some("--block-width/-W");
-    }
-    if !canvas_export && args.block_height.is_some() {
-        return Some("--block-height/-H");
-    }
-    if !canvas_export && args.glow_radius.is_some() {
-        return Some("--glow-radius/-R");
-    }
-    if args.compound_whitespace {
-        return Some("--compound-whitespace/-c");
-    }
-    if args.wrap {
-        return Some("--wrap/-w");
+    if args.json {
+        modes.push((OutputMode::CanvasJson, "--json/-J"));
     }
 
-    None
+    modes
+}
+
+fn first_unimplemented_output_option(args: &CliArgs) -> Option<&'static str> {
+    first_enabled(&[
+        (args.png, "--png/-P"),
+        (args.png_classic, "--png-classic/-p"),
+        (args.cp_437, "--cp-437/-e"),
+        (args.pdf, "--pdf/-d"),
+        (args.pdf_din, "--pdf-din/-D"),
+        (args.utf16, "--utf-16/-t"),
+    ])
+}
+
+fn first_unimplemented_option(args: &CliArgs) -> Option<&'static str> {
+    first_enabled(&[
+        (args.compound_whitespace, "--compound-whitespace/-c"),
+        (args.wrap, "--wrap/-w"),
+    ])
+}
+
+fn first_html_style_option(args: &CliArgs) -> Option<&'static str> {
+    first_enabled(&[
+        (args.text_color.is_some(), "--text-color/-T"),
+        (args.back_color.is_some(), "--back-color/-B"),
+        (args.block_color.is_some(), "--block-color/-A"),
+        (args.no_glow, "--no-glow/-g"),
+        (args.glow_color.is_some(), "--glow-color/-G"),
+        (args.hilight_links, "--hilight-links/-L"),
+        (args.link_color.is_some(), "--link-color/-U"),
+        (args.no_link_underl, "--no-link-underl/-u"),
+        (args.glow_radius.is_some(), "--glow-radius/-R"),
+    ])
+}
+
+fn first_canvas_only_option(args: &CliArgs) -> Option<&'static str> {
+    first_enabled(&[
+        (args.block_width.is_some(), "--block-width/-W"),
+        (args.block_height.is_some(), "--block-height/-H"),
+    ])
+}
+
+fn first_enabled(options: &[(bool, &'static str)]) -> Option<&'static str> {
+    options
+        .iter()
+        .find_map(|(enabled, name)| enabled.then_some(*name))
 }
 
 fn make_default_out_file(input_file: &Path, extension: &str) -> PathBuf {

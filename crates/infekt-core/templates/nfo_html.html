@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ settings.title }}</title>
+  <style>
+  body { font-family: sans-serif; margin: 0; padding: 5px 15px; background: #fff; }
+
+  /** NFO STYLES BEGIN **/
+  .infekt_nfo {
+    background: #{{ settings.color_back }};
+    padding: 7px;
+  }
+  .infekt_nfo pre {
+    margin: 0; padding: 0;
+    text-align: left; text-transform: none; font-style: normal;
+    text-decoration: none; font-weight: {{ settings.font_weight }};
+    font-family: '{{ settings.font_face_css|safe }}', monospace;
+    font-size: {{ settings.font_size }}px;
+    line-height: {{ settings.font_size }}px;
+  }
+
+{% if settings.hyperlinks_highlight %}
+  .infekt_nfo .nfo_text {
+{% else %}
+  .infekt_nfo .nfo_text, .infekt_nfo .nfo_link {
+    text-decoration: none;
+{% endif %}
+    color: #{{ settings.color_text }};
+  }
+
+  .infekt_nfo .nfo_block {
+    color: #{{ settings.color_art }};
+{% if settings.shadow_enable %}
+   text-shadow: 0px 0px {{ settings.shadow_radius }}px #{{ settings.shadow_color }};
+{% endif %}
+  }
+
+{% if settings.hyperlinks_highlight %}
+  .infekt_nfo a.nfo_link {
+    color: #{{ settings.hyperlinks_color }};
+    text-decoration: {{ settings.hyperlinks_text_decoration }};
+  }
+{% endif %}
+  /** NFO STYLES END **/
+
+  </style>
+</head>
+<body>
+  <h1>{{ settings.title }}</h1>
+
+<div class="infekt_nfo"><pre>{{ content_html|safe }}</pre></div>
+<div style="clear: both;"></div>
+
+</body>
+</html>

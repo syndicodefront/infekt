@@ -5,10 +5,6 @@ use regex::Regex;
 
 use super::codepage_437;
 use super::nfo_renderer_grid::{NfoRendererGrid, make_renderer_grid};
-use super::nfo_to_html::nfo_to_html_classic;
-use super::nfo_to_html_canvas::{
-    nfo_to_html_canvas_full_html, nfo_to_html_canvas_render_json, NfoHtmlCanvasSettings,
-};
 
 const SIZE_LIMIT: u64 = 1024 * 1024 * 3;
 const LINES_LIMIT: usize = 10_000;
@@ -186,30 +182,6 @@ impl NfoData {
         }
 
         self.renderer_grid.as_ref()
-    }
-
-    pub fn get_classic_html(&self) -> String {
-        if !self.loaded {
-            return String::new();
-        }
-
-        nfo_to_html_classic(self)
-    }
-
-    pub fn get_canvas_render_json(&self) -> String {
-        if !self.loaded {
-            return String::new();
-        }
-
-        nfo_to_html_canvas_render_json(self)
-    }
-
-    pub fn get_canvas_html(&self, settings: &NfoHtmlCanvasSettings) -> String {
-        if !self.loaded {
-            return String::new();
-        }
-
-        nfo_to_html_canvas_full_html(self, settings)
     }
 
     pub fn get_classic_text(&self) -> String {
