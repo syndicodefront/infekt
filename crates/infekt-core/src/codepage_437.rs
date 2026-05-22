@@ -113,4 +113,9 @@ mod tests {
     fn encode_prefers_later_high_table_duplicate_mappings() {
         assert_eq!(encode('\''), Some(0x92));
     }
+
+    #[test]
+    fn encode_returns_none_for_unmapped_characters() {
+        assert_eq!(encode('\u{1F600}'), None);
+    }
 }
