@@ -113,7 +113,7 @@ fn bundle_settings(workspace_dir: &Path, manifest: &Package) -> BundleSettings {
 fn macos_settings() -> MacOsSettings {
     MacOsSettings {
         minimum_system_version: Some("10.12".into()),
-        signing_identity: Some("-".into()),           // ad-hoc signing
+        signing_identity: Some("-".into()), // ad-hoc signing
         ..Default::default()
     }
 }

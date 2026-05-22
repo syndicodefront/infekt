@@ -1,8 +1,8 @@
-use iced::widget::{
-    column, container, iced as iced_logo, image, rich_text, row, span, text, space,
-};
 use iced::Length::Fill;
-use iced::{system, Element, Task};
+use iced::widget::{
+    column, container, iced as iced_logo, image, rich_text, row, space, span, text,
+};
+use iced::{Element, Task, system};
 
 use crate::app::Action;
 

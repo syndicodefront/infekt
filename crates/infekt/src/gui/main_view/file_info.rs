@@ -1,9 +1,9 @@
 use super::{InfektMainView, Message};
 
-use iced::alignment::Horizontal;
-use iced::widget::{column, row, text};
 use iced::Element;
 use iced::Length::{Fill, FillPortion};
+use iced::alignment::Horizontal;
+use iced::widget::{column, row, text};
 
 use crate::core::nfo_data::NfoData;
 

@@ -1,5 +1,5 @@
-use iced::widget::{column, row};
 use iced::Length::Fill;
+use iced::widget::{column, row};
 use iced::{Alignment, Element};
 
 use super::{ActiveScreen, InfektApp, Message};
