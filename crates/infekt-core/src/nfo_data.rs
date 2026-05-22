@@ -14,6 +14,9 @@ const SAUCE_COMMENT_LINE_SIZE: usize = 64;
 const SAUCE_HEADER_ID_SIZE: usize = 5;
 const SAUCE_MAX_COMMENTS: u8 = 255;
 const SAUCE_EOF: u8 = 0x1A;
+pub const UTF8_SIGNATURE: [u8; 3] = [0xEF, 0xBB, 0xBF];
+pub const UTF16_LE_BOM: [u8; 2] = [0xFF, 0xFE];
+pub const UTF16_BE_BOM: [u8; 2] = [0xFE, 0xFF];
 
 #[allow(dead_code)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -332,11 +335,11 @@ impl NfoData {
     }
 
     fn try_load_utf8_signature(&mut self, data: &[u8]) -> bool {
-        if data.len() < 3 || data[..3] != [0xEF, 0xBB, 0xBF] {
+        if data.len() < UTF8_SIGNATURE.len() || data[..UTF8_SIGNATURE.len()] != UTF8_SIGNATURE {
             return false;
         }
 
-        if self.try_load_utf8(&data[3..], DecodeApproach::Try) {
+        if self.try_load_utf8(&data[UTF8_SIGNATURE.len()..], DecodeApproach::Try) {
             if self.source_charset == NfoCharset::Utf8 {
                 self.source_charset = NfoCharset::Utf8Signature;
             }
@@ -380,11 +383,11 @@ impl NfoData {
     }
 
     fn try_load_utf16_le(&mut self, data: &[u8], approach: DecodeApproach) -> bool {
-        if data.len() < 2 || data[0] != 0xFF || data[1] != 0xFE {
+        if data.len() < UTF16_LE_BOM.len() || data[..UTF16_LE_BOM.len()] != UTF16_LE_BOM {
             return false;
         }
 
-        let raw = &data[2..];
+        let raw = &data[UTF16_LE_BOM.len()..];
 
         // The current C++ reference is built on a platform where wchar_t is 32-bit.
         // For UTF-16LE ASCII files it rejects the UTF-16 path and falls back to CP437,
@@ -483,8 +486,11 @@ impl NfoData {
         }
 
         let mut start = 0;
-        if end >= 3 && approach == DecodeApproach::Try && data[..3] == [0xEF, 0xBB, 0xBF] {
-            start = 3;
+        if end >= UTF8_SIGNATURE.len()
+            && approach == DecodeApproach::Try
+            && data[..UTF8_SIGNATURE.len()] == UTF8_SIGNATURE
+        {
+            start = UTF8_SIGNATURE.len();
         }
 
         let data = &data[start..end];
