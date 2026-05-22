@@ -1,5 +1,6 @@
 use clap::{ArgAction, Parser};
 use infekt_core as core;
+use infekt_core::nfo_data::{UTF8_SIGNATURE, UTF16_LE_BOM};
 use infekt_core::nfo_html_exporter::{NfoHtmlColor, NfoHtmlExporter, NfoHtmlSettings};
 use std::fs::File;
 use std::io::Write;
@@ -35,7 +36,7 @@ struct CliArgs {
     pdf: bool,
     #[arg(short = 'D', long = "pdf-din", action = ArgAction::SetTrue, hide = true)]
     pdf_din: bool,
-    #[arg(short = 't', long = "utf-16", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 't', long = "utf-16", action = ArgAction::SetTrue)]
     utf16: bool,
 
     #[arg(short = 'T', long = "text-color", value_name = "RRGGBB")]
@@ -78,8 +79,10 @@ enum OutputMode {
     ClassicHtml,
     CanvasHtml,
     CanvasJson,
-    StrippedText,
-    ClassicText,
+    Utf8StrippedText,
+    Utf8ClassicText,
+    Utf16StrippedText,
+    Utf16ClassicText,
 }
 
 impl OutputMode {
@@ -87,9 +90,11 @@ impl OutputMode {
         let modes = enabled_output_modes(args);
 
         match modes.as_slice() {
-            [] if args.text_only => Err("Option --text-only/-S requires --utf-8/-f.".to_string()),
+            [] if args.text_only => {
+                Err("Option --text-only/-S requires --utf-8/-f or --utf-16/-t.".to_string())
+            }
             [] => Err(
-                "Choose an output mode: --utf-8/-f, --html/-m, --html-canvas/-M, or --json/-J."
+                "Choose an output mode: --utf-8/-f, --utf-16/-t, --html/-m, --html-canvas/-M, or --json/-J."
                     .to_string(),
             ),
             [(mode, _)] => Ok(*mode),
@@ -111,16 +116,23 @@ impl OutputMode {
         )
     }
 
-    fn default_extension(self) -> &'static str {
+    fn default_extension(self) -> Option<&'static str> {
         match self {
-            Self::ClassicHtml | Self::CanvasHtml => "html",
-            Self::CanvasJson => "json",
-            Self::StrippedText | Self::ClassicText => "nfo",
+            Self::ClassicHtml | Self::CanvasHtml => Some("html"),
+            Self::CanvasJson => Some("json"),
+            Self::Utf8StrippedText
+            | Self::Utf8ClassicText
+            | Self::Utf16StrippedText
+            | Self::Utf16ClassicText => None,
         }
     }
 
-    fn writes_bom(self) -> bool {
-        matches!(self, Self::StrippedText | Self::ClassicText)
+    fn default_nfo_suffix(self) -> &'static str {
+        match self {
+            Self::Utf8StrippedText | Self::Utf8ClassicText => "-utf8.nfo",
+            Self::Utf16StrippedText | Self::Utf16ClassicText => "-utf16.nfo",
+            Self::ClassicHtml | Self::CanvasHtml | Self::CanvasJson => unreachable!(),
+        }
     }
 }
 
@@ -162,18 +174,13 @@ fn main() {
         process::exit(1);
     });
 
-    let out_file = args.out_file.clone().unwrap_or_else(|| {
-        make_default_out_file(&args.input_file, output_mode.default_extension())
-    });
+    let out_file = args
+        .out_file
+        .clone()
+        .unwrap_or_else(|| make_default_out_file(&args.input_file, output_mode));
 
-    let write_result = File::create(&out_file).and_then(|mut f| {
-        if output_mode.writes_bom() {
-            const UTF8_BOM: &[u8] = b"\xEF\xBB\xBF";
-            f.write_all(UTF8_BOM)?;
-        }
-
-        f.write_all(text.as_bytes())
-    });
+    let output_bytes = encode_output(output_mode, &text);
+    let write_result = File::create(&out_file).and_then(|mut f| f.write_all(&output_bytes));
 
     if let Err(err) = write_result {
         eprintln!("ERROR: Unable to write to `{}`: {err}", out_file.display());
@@ -240,15 +247,40 @@ fn render_output(
             OutputMode::ClassicHtml => exporter.export_html(),
             OutputMode::CanvasHtml => exporter.export_canvas_html(),
             OutputMode::CanvasJson => exporter.export_canvas_json(),
-            OutputMode::StrippedText | OutputMode::ClassicText => unreachable!(),
+            OutputMode::Utf8StrippedText
+            | OutputMode::Utf8ClassicText
+            | OutputMode::Utf16StrippedText
+            | OutputMode::Utf16ClassicText => unreachable!(),
         });
     }
 
     Ok(match mode {
-        OutputMode::StrippedText => nfo_data.get_stripped_text(),
-        OutputMode::ClassicText => nfo_data.get_classic_text(),
+        OutputMode::Utf8StrippedText | OutputMode::Utf16StrippedText => {
+            nfo_data.get_stripped_text()
+        }
+        OutputMode::Utf8ClassicText | OutputMode::Utf16ClassicText => nfo_data.get_classic_text(),
         OutputMode::ClassicHtml | OutputMode::CanvasHtml | OutputMode::CanvasJson => unreachable!(),
     })
+}
+
+fn encode_output(mode: OutputMode, text: &str) -> Vec<u8> {
+    match mode {
+        OutputMode::Utf8StrippedText | OutputMode::Utf8ClassicText => {
+            let mut bytes = Vec::with_capacity(UTF8_SIGNATURE.len() + text.len());
+            bytes.extend_from_slice(&UTF8_SIGNATURE);
+            bytes.extend_from_slice(text.as_bytes());
+            bytes
+        }
+        OutputMode::Utf16StrippedText | OutputMode::Utf16ClassicText => {
+            let mut bytes = Vec::with_capacity(UTF16_LE_BOM.len() + text.len() * 2);
+            bytes.extend_from_slice(&UTF16_LE_BOM);
+            bytes.extend(text.encode_utf16().flat_map(u16::to_le_bytes));
+            bytes
+        }
+        OutputMode::ClassicHtml | OutputMode::CanvasHtml | OutputMode::CanvasJson => {
+            text.as_bytes().to_vec()
+        }
+    }
 }
 
 fn parse_color(option_name: &str, value: &str) -> Result<NfoHtmlColor, String> {
@@ -307,16 +339,26 @@ fn validate_args(args: &CliArgs, output_mode: OutputMode) -> Result<(), String> 
 }
 
 fn enabled_output_modes(args: &CliArgs) -> Vec<(OutputMode, &'static str)> {
-    let mut modes = Vec::with_capacity(4);
+    let mut modes = Vec::with_capacity(5);
 
     if args.utf8 {
         modes.push((
             if args.text_only {
-                OutputMode::StrippedText
+                OutputMode::Utf8StrippedText
             } else {
-                OutputMode::ClassicText
+                OutputMode::Utf8ClassicText
             },
             "--utf-8/-f",
+        ));
+    }
+    if args.utf16 {
+        modes.push((
+            if args.text_only {
+                OutputMode::Utf16StrippedText
+            } else {
+                OutputMode::Utf16ClassicText
+            },
+            "--utf-16/-t",
         ));
     }
     if args.html {
@@ -339,7 +381,6 @@ fn first_unimplemented_output_option(args: &CliArgs) -> Option<&'static str> {
         (args.cp_437, "--cp-437/-e"),
         (args.pdf, "--pdf/-d"),
         (args.pdf_din, "--pdf-din/-D"),
-        (args.utf16, "--utf-16/-t"),
     ])
 }
 
@@ -377,19 +418,65 @@ fn first_enabled(options: &[(bool, &'static str)]) -> Option<&'static str> {
         .find_map(|(enabled, name)| enabled.then_some(*name))
 }
 
-fn make_default_out_file(input_file: &Path, extension: &str) -> PathBuf {
+fn make_default_out_file(input_file: &Path, output_mode: OutputMode) -> PathBuf {
     let mut base = input_file.to_string_lossy().to_string();
 
     if base.ends_with(".nfo") {
         base.truncate(base.len() - 4);
     }
 
-    if extension == "nfo" {
-        base.push_str("-utf8.nfo");
-    } else {
+    if let Some(extension) = output_mode.default_extension() {
         base.push('.');
         base.push_str(extension);
+    } else {
+        base.push_str(output_mode.default_nfo_suffix());
     }
 
     PathBuf::from(base)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn encodes_utf8_text_with_bom() {
+        let mut expected = UTF8_SIGNATURE.to_vec();
+        expected.extend_from_slice(&[0x41, 0xE2, 0x96, 0x88, 0x0A]);
+
+        assert_eq!(
+            encode_output(OutputMode::Utf8ClassicText, "A\u{2588}\n"),
+            expected
+        );
+    }
+
+    #[test]
+    fn encodes_utf16_text_as_little_endian_with_bom() {
+        let mut expected = UTF16_LE_BOM.to_vec();
+        expected.extend_from_slice(&[0x41, 0x00, 0x88, 0x25, 0x0A, 0x00]);
+
+        assert_eq!(
+            encode_output(OutputMode::Utf16ClassicText, "A\u{2588}\n"),
+            expected
+        );
+    }
+
+    #[test]
+    fn encodes_utf16_surrogate_pairs() {
+        let mut expected = UTF16_LE_BOM.to_vec();
+        expected.extend_from_slice(&[0x3D, 0xD8, 0x00, 0xDE]);
+
+        assert_eq!(
+            encode_output(OutputMode::Utf16ClassicText, "\u{1F600}"),
+            expected
+        );
+    }
+
+    #[test]
+    fn uses_utf16_default_suffix_for_text_exports() {
+        assert_eq!(
+            make_default_out_file(Path::new("demo.nfo"), OutputMode::Utf16ClassicText),
+            PathBuf::from("demo-utf16.nfo")
+        );
+    }
 }
