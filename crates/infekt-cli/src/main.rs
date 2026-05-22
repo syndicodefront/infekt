@@ -79,6 +79,7 @@ enum OutputMode {
     ClassicHtml,
     CanvasHtml,
     CanvasJson,
+    Cp437Text,
     Utf8StrippedText,
     Utf8ClassicText,
     Utf16StrippedText,
@@ -94,7 +95,7 @@ impl OutputMode {
                 Err("Option --text-only/-S requires --utf-8/-f or --utf-16/-t.".to_string())
             }
             [] => Err(
-                "Choose an output mode: --utf-8/-f, --utf-16/-t, --html/-m, --html-canvas/-M, or --json/-J."
+                "Choose an output mode: --utf-8/-f, --utf-16/-t, --cp-437/-e, --html/-m, --html-canvas/-M, or --json/-J."
                     .to_string(),
             ),
             [(mode, _)] => Ok(*mode),
@@ -122,6 +123,7 @@ impl OutputMode {
             Self::CanvasJson => Some("json"),
             Self::Utf8StrippedText
             | Self::Utf8ClassicText
+            | Self::Cp437Text
             | Self::Utf16StrippedText
             | Self::Utf16ClassicText => None,
         }
@@ -131,6 +133,7 @@ impl OutputMode {
         match self {
             Self::Utf8StrippedText | Self::Utf8ClassicText => "-utf8.nfo",
             Self::Utf16StrippedText | Self::Utf16ClassicText => "-utf16.nfo",
+            Self::Cp437Text => "-dos.nfo",
             Self::ClassicHtml | Self::CanvasHtml | Self::CanvasJson => unreachable!(),
         }
     }
@@ -169,7 +172,7 @@ fn main() {
         process::exit(1);
     }
 
-    let text = render_output(output_mode, &nfo_data, html_settings).unwrap_or_else(|err| {
+    let output = render_output(output_mode, &nfo_data, html_settings).unwrap_or_else(|err| {
         eprintln!("ERROR: {err}");
         process::exit(1);
     });
@@ -179,12 +182,18 @@ fn main() {
         .clone()
         .unwrap_or_else(|| make_default_out_file(&args.input_file, output_mode));
 
-    let output_bytes = encode_output(output_mode, &text);
-    let write_result = File::create(&out_file).and_then(|mut f| f.write_all(&output_bytes));
+    let write_result = File::create(&out_file).and_then(|mut f| f.write_all(&output.bytes));
 
     if let Err(err) = write_result {
         eprintln!("ERROR: Unable to write to `{}`: {err}", out_file.display());
         process::exit(1);
+    }
+
+    if output.cp437_chars_not_converted > 0 {
+        eprintln!(
+            "WARNING: {} characters in NFO do not have a CP 437 equivalent and were dropped.",
+            output.cp437_chars_not_converted
+        );
     }
 
     println!(
@@ -238,29 +247,59 @@ fn render_output(
     mode: OutputMode,
     nfo_data: &core::nfo_data::NfoData,
     html_settings: Option<NfoHtmlSettings>,
-) -> Result<String, String> {
+) -> Result<RenderedOutput, String> {
+    if mode == OutputMode::Cp437Text {
+        let (bytes, cp437_chars_not_converted) = nfo_data.get_cp437_bytes();
+        return Ok(RenderedOutput {
+            bytes,
+            cp437_chars_not_converted,
+        });
+    }
+
     if mode.uses_html_settings() {
         let settings = html_settings.ok_or_else(|| "Missing HTML export settings".to_string())?;
         let exporter = NfoHtmlExporter::new(nfo_data, settings);
 
-        return Ok(match mode {
+        let text = match mode {
             OutputMode::ClassicHtml => exporter.export_html(),
             OutputMode::CanvasHtml => exporter.export_canvas_html(),
             OutputMode::CanvasJson => exporter.export_canvas_json(),
-            OutputMode::Utf8StrippedText
+            OutputMode::Cp437Text
+            | OutputMode::Utf8StrippedText
             | OutputMode::Utf8ClassicText
             | OutputMode::Utf16StrippedText
             | OutputMode::Utf16ClassicText => unreachable!(),
-        });
+        };
+
+        return Ok(RenderedOutput::from_text(mode, &text));
     }
 
-    Ok(match mode {
+    let text = match mode {
         OutputMode::Utf8StrippedText | OutputMode::Utf16StrippedText => {
             nfo_data.get_stripped_text()
         }
         OutputMode::Utf8ClassicText | OutputMode::Utf16ClassicText => nfo_data.get_classic_text(),
-        OutputMode::ClassicHtml | OutputMode::CanvasHtml | OutputMode::CanvasJson => unreachable!(),
-    })
+        OutputMode::Cp437Text
+        | OutputMode::ClassicHtml
+        | OutputMode::CanvasHtml
+        | OutputMode::CanvasJson => unreachable!(),
+    };
+
+    Ok(RenderedOutput::from_text(mode, &text))
+}
+
+struct RenderedOutput {
+    bytes: Vec<u8>,
+    cp437_chars_not_converted: usize,
+}
+
+impl RenderedOutput {
+    fn from_text(mode: OutputMode, text: &str) -> Self {
+        Self {
+            bytes: encode_output(mode, text),
+            cp437_chars_not_converted: 0,
+        }
+    }
 }
 
 fn encode_output(mode: OutputMode, text: &str) -> Vec<u8> {
@@ -280,6 +319,7 @@ fn encode_output(mode: OutputMode, text: &str) -> Vec<u8> {
         OutputMode::ClassicHtml | OutputMode::CanvasHtml | OutputMode::CanvasJson => {
             text.as_bytes().to_vec()
         }
+        OutputMode::Cp437Text => unreachable!(),
     }
 }
 
@@ -319,6 +359,10 @@ fn validate_args(args: &CliArgs, output_mode: OutputMode) -> Result<(), String> 
         return Err(format!("Option {option_name} is not implemented yet."));
     }
 
+    if output_mode == OutputMode::Cp437Text && args.text_only {
+        return Err("Option --text-only/-S requires --utf-8/-f or --utf-16/-t.".to_string());
+    }
+
     if !matches!(output_mode, OutputMode::CanvasHtml | OutputMode::CanvasJson)
         && let Some(option_name) = first_canvas_only_option(args)
     {
@@ -339,7 +383,7 @@ fn validate_args(args: &CliArgs, output_mode: OutputMode) -> Result<(), String> 
 }
 
 fn enabled_output_modes(args: &CliArgs) -> Vec<(OutputMode, &'static str)> {
-    let mut modes = Vec::with_capacity(5);
+    let mut modes = Vec::with_capacity(6);
 
     if args.utf8 {
         modes.push((
@@ -370,6 +414,9 @@ fn enabled_output_modes(args: &CliArgs) -> Vec<(OutputMode, &'static str)> {
     if args.json {
         modes.push((OutputMode::CanvasJson, "--json/-J"));
     }
+    if args.cp_437 {
+        modes.push((OutputMode::Cp437Text, "--cp-437/-e"));
+    }
 
     modes
 }
@@ -378,7 +425,6 @@ fn first_unimplemented_output_option(args: &CliArgs) -> Option<&'static str> {
     first_enabled(&[
         (args.png, "--png/-P"),
         (args.png_classic, "--png-classic/-p"),
-        (args.cp_437, "--cp-437/-e"),
         (args.pdf, "--pdf/-d"),
         (args.pdf_din, "--pdf-din/-D"),
     ])
@@ -478,5 +524,41 @@ mod tests {
             make_default_out_file(Path::new("demo.nfo"), OutputMode::Utf16ClassicText),
             PathBuf::from("demo-utf16.nfo")
         );
+    }
+
+    #[test]
+    fn selects_cp437_output_mode() {
+        let args = CliArgs::try_parse_from(["infekt-cli", "--cp-437", "demo.nfo"]).unwrap();
+
+        assert_eq!(OutputMode::from_args(&args).unwrap(), OutputMode::Cp437Text);
+    }
+
+    #[test]
+    fn uses_cp437_default_suffix_for_text_exports() {
+        assert_eq!(
+            make_default_out_file(Path::new("demo.nfo"), OutputMode::Cp437Text),
+            PathBuf::from("demo-dos.nfo")
+        );
+    }
+
+    #[test]
+    fn renders_cp437_without_unicode_signature() {
+        let mut path = std::env::temp_dir();
+        path.push(format!(
+            "infekt-cli-cp437-test-{}-no-bom.nfo",
+            std::process::id()
+        ));
+        std::fs::write(&path, b"A\xDB\n").unwrap();
+
+        let mut data = core::nfo_data::NfoData::new();
+        data.load_from_file(&path).unwrap();
+        let _ = std::fs::remove_file(&path);
+
+        let output = render_output(OutputMode::Cp437Text, &data, None).unwrap();
+
+        assert_eq!(output.bytes, vec![0x41, 0xDB, 0x0A]);
+        assert!(!output.bytes.starts_with(&UTF8_SIGNATURE));
+        assert!(!output.bytes.starts_with(&UTF16_LE_BOM));
+        assert_eq!(output.cp437_chars_not_converted, 0);
     }
 }

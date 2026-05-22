@@ -70,3 +70,21 @@ pub(super) fn decode_strict_high(byte: u8) -> char {
 pub(super) fn decode_strict_control(byte: u8) -> char {
     CP437_STRICT_CONTROL[byte as usize]
 }
+
+pub(super) fn encode(ch: char) -> Option<u8> {
+    let mut encoded = None;
+
+    for (idx, &mapped) in CP437_CONTROL.iter().enumerate() {
+        if mapped == ch {
+            encoded = Some(idx as u8);
+        }
+    }
+
+    for (idx, &mapped) in CP437_HIGH.iter().enumerate() {
+        if mapped == ch {
+            encoded = Some(idx as u8 + 0x7F);
+        }
+    }
+
+    encoded
+}
