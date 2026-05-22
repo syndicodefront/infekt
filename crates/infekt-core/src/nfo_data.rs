@@ -203,6 +203,14 @@ impl NfoData {
         self.cached_stripped_text.clone().unwrap_or_default()
     }
 
+    pub fn get_cp437_bytes(&self) -> (Vec<u8>, usize) {
+        if !self.loaded {
+            return (Vec::new(), 0);
+        }
+
+        encode_cp437_text(&self.text_content)
+    }
+
     pub(super) fn grid_width(&self) -> usize {
         self.grid_width
     }
@@ -1401,6 +1409,25 @@ fn cp437_strict_control(byte: u8) -> char {
     codepage_437::decode_strict_control(byte)
 }
 
+fn encode_cp437_text(text: &str) -> (Vec<u8>, usize) {
+    let mut bytes = Vec::with_capacity(text.len());
+    let mut chars_not_converted = 0usize;
+
+    for ch in text.chars() {
+        let code = ch as u32;
+        if (code > 0x1F && code < 0x7F) || ch == '\n' || ch == '\r' {
+            bytes.push(ch as u8);
+        } else if let Some(byte) = codepage_437::encode(ch) {
+            bytes.push(byte);
+        } else {
+            bytes.push(b' ');
+            chars_not_converted += 1;
+        }
+    }
+
+    (bytes, chars_not_converted)
+}
+
 fn char_to_byte_idx(s: &str, char_idx: usize) -> usize {
     s.char_indices()
         .nth(char_idx)
@@ -1492,5 +1519,36 @@ mod tests {
     fn detects_links() {
         let data = load_bytes("sample.nfo", b"visit hxxp://example.com/test\n").unwrap();
         assert_eq!(data.link_url(0, 8), Some("http://example.com/test"));
+    }
+
+    #[test]
+    fn encodes_cp437_ascii_newlines_and_table_chars() {
+        let (bytes, not_converted) = encode_cp437_text("A\r\n\u{2588}\u{263A}\u{E9}");
+
+        assert_eq!(bytes, vec![0x41, 0x0D, 0x0A, 0xDB, 0x01, 0x82]);
+        assert_eq!(not_converted, 0);
+    }
+
+    #[test]
+    fn encodes_cp437_unsupported_chars_as_spaces() {
+        let (bytes, not_converted) = encode_cp437_text("A\u{1F600}B");
+
+        assert_eq!(bytes, b"A B");
+        assert_eq!(not_converted, 1);
+    }
+
+    #[test]
+    fn encodes_cp437_apostrophe_as_ascii() {
+        let (bytes, not_converted) = encode_cp437_text("'");
+
+        assert_eq!(bytes, vec![0x27]);
+        assert_eq!(not_converted, 0);
+    }
+
+    #[test]
+    fn exposes_cp437_export_bytes() {
+        let data = load_bytes("sample.nfo", b"A\xDB\n").unwrap();
+
+        assert_eq!(data.get_cp437_bytes(), (vec![0x41, 0xDB, 0x0A], 0));
     }
 }
