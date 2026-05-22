@@ -1,0 +1,9 @@
+[package]
+name = "infekt-cli"
+version = "2.0.0-alpha1"
+edition = "2024"
+description = "Command-line interface for iNFekt."
+
+[dependencies]
+clap = { version = "4.5", features = ["derive"] }
+infekt-core = { path = "../infekt-core" }

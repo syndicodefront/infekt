@@ -15,7 +15,7 @@ use uuid::Uuid;
 use crate::args::BundleArgs;
 use crate::utils;
 
-const TARGET_PACKAGE: &str = "infekt-v2";
+const TARGET_PACKAGE: &str = "crates/infekt";
 
 const PRODUCT_NAME: &str = "iNFekt";
 const BUNDLE_IDENTIFIER: &str = "org.syndicode.infekt2";
@@ -92,9 +92,8 @@ fn package_settings(manifest: &Package) -> Result<PackageSettings> {
 
 fn bundle_settings(workspace_dir: &Path, manifest: &Package) -> BundleSettings {
     let icon = workspace_dir
-        .join("infekt-v2")
         .join("assets")
-        .join("infekt-icons")
+        .join("icons")
         .join("*")
         .to_string_lossy()
         .to_string();
@@ -113,7 +112,7 @@ fn bundle_settings(workspace_dir: &Path, manifest: &Package) -> BundleSettings {
 
 fn macos_settings() -> MacOsSettings {
     MacOsSettings {
-        minimum_system_version: Some("10.12".into()), // MACOSX_DEPLOYMENT_TARGET - sync with infekt-v2/build.rs
+        minimum_system_version: Some("10.12".into()),
         signing_identity: Some("-".into()),           // ad-hoc signing
         ..Default::default()
     }
@@ -134,9 +133,8 @@ fn dmg_settings() -> DmgSettings {
 #[allow(deprecated)]
 fn windows_settings(workspace_dir: &Path, manifest: &Package) -> WindowsSettings {
     let ico_path = workspace_dir
-        .join("infekt-v2")
         .join("assets")
-        .join("infekt-icons")
+        .join("icons")
         .join("iNFekt.ico");
 
     WindowsSettings {
