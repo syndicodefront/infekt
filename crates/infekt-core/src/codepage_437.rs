@@ -3,6 +3,9 @@
 //! The regular table intentionally preserves historical iNFekt behavior rather
 //! than strict IBM CP437 in a few places, most notably byte 0x92.
 
+use std::collections::HashMap;
+use std::sync::OnceLock;
+
 const CP437_HIGH: [char; 129] = [
     '\u{2302}', '\u{C7}', '\u{FC}', '\u{E9}', '\u{E2}', '\u{E4}', '\u{E0}', '\u{E5}', '\u{E7}',
     '\u{EA}', '\u{EB}', '\u{E8}', '\u{EF}', '\u{EE}', '\u{EC}', '\u{C4}', '\u{C5}', '\u{C9}',
@@ -72,19 +75,42 @@ pub(super) fn decode_strict_control(byte: u8) -> char {
 }
 
 pub(super) fn encode(ch: char) -> Option<u8> {
-    let mut encoded = None;
+    cp437_encode_map().get(&ch).copied()
+}
 
+fn cp437_encode_map() -> &'static HashMap<char, u8> {
+    static ENCODE_MAP: OnceLock<HashMap<char, u8>> = OnceLock::new();
+
+    ENCODE_MAP.get_or_init(|| {
+        let mut map = HashMap::with_capacity(CP437_CONTROL.len() + CP437_HIGH.len());
+
+        // Keep the historical C++ insertion order so duplicate mappings prefer
+        // the later high-table byte.
+        insert_cp437_control_mappings(&mut map);
+        insert_cp437_high_mappings(&mut map);
+
+        map
+    })
+}
+
+fn insert_cp437_control_mappings(map: &mut HashMap<char, u8>) {
     for (idx, &mapped) in CP437_CONTROL.iter().enumerate() {
-        if mapped == ch {
-            encoded = Some(idx as u8);
-        }
+        map.insert(mapped, idx as u8);
     }
+}
 
+fn insert_cp437_high_mappings(map: &mut HashMap<char, u8>) {
     for (idx, &mapped) in CP437_HIGH.iter().enumerate() {
-        if mapped == ch {
-            encoded = Some(idx as u8 + 0x7F);
-        }
+        map.insert(mapped, idx as u8 + 0x7F);
     }
+}
 
-    encoded
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn encode_prefers_later_high_table_duplicate_mappings() {
+        assert_eq!(encode('\''), Some(0x92));
+    }
 }
