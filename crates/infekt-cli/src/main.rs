@@ -287,20 +287,20 @@ fn validate_args(args: &CliArgs, output_mode: OutputMode) -> Result<(), String> 
         return Err(format!("Option {option_name} is not implemented yet."));
     }
 
-    if !matches!(output_mode, OutputMode::CanvasHtml | OutputMode::CanvasJson) {
-        if let Some(option_name) = first_canvas_only_option(args) {
-            return Err(format!(
-                "Option {option_name} is only supported for --html-canvas/-M and --json/-J."
-            ));
-        }
+    if !matches!(output_mode, OutputMode::CanvasHtml | OutputMode::CanvasJson)
+        && let Some(option_name) = first_canvas_only_option(args)
+    {
+        return Err(format!(
+            "Option {option_name} is only supported for --html-canvas/-M and --json/-J."
+        ));
     }
 
-    if !output_mode.uses_html_settings() {
-        if let Some(option_name) = first_html_style_option(args) {
-            return Err(format!(
-                "Option {option_name} is only supported for HTML and JSON exports."
-            ));
-        }
+    if !output_mode.uses_html_settings()
+        && let Some(option_name) = first_html_style_option(args)
+    {
+        return Err(format!(
+            "Option {option_name} is only supported for HTML and JSON exports."
+        ));
     }
 
     Ok(())
