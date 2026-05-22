@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
-use iced::advanced::graphics::geometry::{Frame, Text, Cache};
+use iced::Point;
+use iced::advanced::graphics::geometry::{Cache, Frame, Text};
 use iced::advanced::layout;
 use iced::advanced::renderer::{Quad, Style};
 use iced::advanced::widget::tree::{self, Tree};
 use iced::advanced::{self, Clipboard, Layout, Shell, Widget};
 use iced::alignment;
 use iced::mouse;
-use iced::Point;
 use iced::{Color, Element, Event, Length, Rectangle, Renderer, Size, Vector};
 
 use crate::core::nfo_data::NfoData;
@@ -90,15 +90,15 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
     ) {
         let state = tree.state.downcast_mut::<State>();
 
-        if let Some(grid) = self.renderer_grid {
-            if grid.id != state.nfo_id {
-                state.nfo_id = grid.id;
-                state.cache.clear();
-                state
-                    .cache
-                    .resize_with(grid.height / CACHE_STRIDE_LINES + 1, Default::default);
-                shell.request_redraw();
-            }
+        if let Some(grid) = self.renderer_grid
+            && grid.id != state.nfo_id
+        {
+            state.nfo_id = grid.id;
+            state.cache.clear();
+            state
+                .cache
+                .resize_with(grid.height / CACHE_STRIDE_LINES + 1, Default::default);
+            shell.request_redraw();
         }
     }
 
@@ -180,7 +180,7 @@ impl<Message, Theme> Widget<Message, Theme, Renderer> for EnhancedNfoView<'_> {
                                     size: iced::Pixels(self.block_height_float),
                                     color: to_iced_color(self.render_settings.text_color),
                                     align_x: alignment::Horizontal::Left.into(),
-                                    align_y: alignment::Vertical::Top.into(),
+                                    align_y: alignment::Vertical::Top,
                                     // horizontal_alignment: alignment::Horizontal::Left,
                                     // vertical_alignment: alignment::Vertical::Top,
                                     line_height: advanced::text::LineHeight::Absolute(

@@ -14,7 +14,7 @@ pub fn main() -> iced::Result {
             antialiasing: true,
             fonts: vec![
                 include_bytes!("../../../assets/fonts/CascadiaMono.ttf").into(), // font name: Cascadia Mono
-                include_bytes!("../../../assets/fonts/Andale Mono.ttf").into(),  // font name: Andale Mono
+                include_bytes!("../../../assets/fonts/Andale Mono.ttf").into(), // font name: Andale Mono
                 include_bytes!(
                     "../../../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
                 )

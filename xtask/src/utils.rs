@@ -49,8 +49,7 @@ pub fn get_target_dir(project_root: &Path, target: &Option<String>, release: boo
 pub fn get_target_os(target: &Option<String>) -> String {
     target
         .as_ref()
-        .map(|t| t.split('-').nth(2))
-        .flatten()
+        .and_then(|t| t.split('-').nth(2))
         .unwrap_or(OS)
         .replace("darwin", "macos")
 }

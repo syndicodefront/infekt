@@ -24,6 +24,7 @@ pub(crate) enum Message {
     PreferencesScreenMessage(preferences::Message),
     AboutScreenMessage(about_screen::Message),
     OpenFile(Option<PathBuf>),
+    #[allow(dead_code)]
     RenderSettingsChanged(Arc<NfoRenderSettings>),
 }
 

@@ -1,8 +1,8 @@
-use iced::widget::{button, column, container, image, row, svg, text, space};
 use iced::Length::{self, Fill};
+use iced::widget::{button, column, container, image, row, space, svg, text};
 use iced::{Alignment, Element, Theme};
 
-use crate::app::{ActiveScreen, Action};
+use crate::app::{Action, ActiveScreen};
 
 #[derive(Default)]
 pub struct InfektSidebar {
@@ -34,15 +34,9 @@ impl InfektSidebar {
                 self.expanded = !self.expanded;
                 Action::None
             }
-            Message::ShowMainView => {
-                Action::ShowScreen(ActiveScreen::MainView)
-            }
-            Message::ShowPreferences => {
-                Action::ShowScreen(ActiveScreen::Preferences)
-            }
-            Message::ShowAboutScreen => {
-                Action::ShowScreen(ActiveScreen::About)
-            }
+            Message::ShowMainView => Action::ShowScreen(ActiveScreen::MainView),
+            Message::ShowPreferences => Action::ShowScreen(ActiveScreen::Preferences),
+            Message::ShowAboutScreen => Action::ShowScreen(ActiveScreen::About),
             Message::OpenFileDialog => Action::SelectFileForOpening,
         }
     }

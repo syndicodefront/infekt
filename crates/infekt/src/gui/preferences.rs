@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use iced::widget::{column, container, pick_list, row, text, PickList};
 use iced::Length::Fill;
+use iced::widget::{PickList, column, container, pick_list, row, text};
 use iced::{Element, Task};
 
 use crate::app::Action;
@@ -29,7 +29,7 @@ pub enum Message {
     TextColorSelected(colornames::Color),
     ArtColorSelected(colornames::Color),
     HyperlinkColorSelected(colornames::Color),
-    FontNamesLoaded(Box<Vec<String>>),
+    FontNamesLoaded(Vec<String>),
     FontNameSelected(String),
 }
 
@@ -52,7 +52,7 @@ impl InfektPreferencesScreen {
                 self.font_name = Some(name);
             }
             Message::FontNamesLoaded(names) => {
-                self.all_font_names = *names;
+                self.all_font_names = names;
             }
         }
 
@@ -100,7 +100,7 @@ impl InfektPreferencesScreen {
                     all_font_names.sort();
                     all_font_names.dedup();
 
-                    Box::new(all_font_names)
+                    all_font_names
                 },
                 Message::FontNamesLoaded,
             ));
@@ -128,11 +128,8 @@ impl InfektPreferencesScreen {
             Message::TextColorSelected,
         );
 
-        let art_color_pick_list = pick_list(
-            named_colors::ALL,
-            self.art_color,
-            Message::ArtColorSelected,
-        );
+        let art_color_pick_list =
+            pick_list(named_colors::ALL, self.art_color, Message::ArtColorSelected);
 
         let hyperlink_color_pick_list = pick_list(
             named_colors::ALL,

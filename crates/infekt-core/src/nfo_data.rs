@@ -4,7 +4,7 @@ use std::sync::OnceLock;
 use regex::Regex;
 
 use super::codepage_437;
-use super::nfo_renderer_grid::{make_renderer_grid, NfoRendererGrid};
+use super::nfo_renderer_grid::{NfoRendererGrid, make_renderer_grid};
 use super::nfo_to_html::nfo_to_html_classic;
 
 const SIZE_LIMIT: u64 = 1024 * 1024 * 3;
@@ -101,7 +101,7 @@ impl NfoData {
     pub fn has_blocks(&self) -> bool {
         self.renderer_grid
             .as_ref()
-            .map_or(false, |grid| grid.has_blocks)
+            .is_some_and(|grid| grid.has_blocks)
     }
 
     pub fn get_file_path(&self) -> Option<&Path> {
@@ -471,13 +471,14 @@ impl NfoData {
                 if i > 0 && data[i - 1] == b'\r' {
                     contains_crlf = true;
                 }
-            } else if approach == DecodeApproach::Try && i > 0 && data.first() != Some(&0x1B) {
-                if (byte == 0x9A && data[i - 1] == 0x9A)
+            } else if approach == DecodeApproach::Try
+                && i > 0
+                && data.first() != Some(&0x1B)
+                && ((byte == 0x9A && data[i - 1] == 0x9A)
                     || (byte == 0xFD && data[i - 1] == 0xFD)
-                    || (byte == 0xE1 && data[i - 1] == 0xE1)
-                {
-                    approach = DecodeApproach::Force;
-                }
+                    || (byte == 0xE1 && data[i - 1] == 0xE1))
+            {
+                approach = DecodeApproach::Force;
             }
 
             if contains_crlf && approach != DecodeApproach::Try {
@@ -845,7 +846,7 @@ fn fix_ansi_escape_codes(text: &mut String) {
                     .clamp(1, 1024);
 
                 if final_char == 'C' {
-                    out.extend(std::iter::repeat(' ').take(number));
+                    out.extend(std::iter::repeat_n(' ', number));
                 }
 
                 idx = p + 1;
@@ -1005,10 +1006,10 @@ fn find_hyperlinks(lines: &[String]) -> Vec<NfoHyperLink> {
                 prev_link_url = found.url;
                 prev_link_index = Some(index);
             } else {
-                if let Some(prev_idx) = prev_link_index {
-                    if let Some(prev) = result.get_mut(prev_idx) {
-                        prev.href = found.url.clone();
-                    }
+                if let Some(prev_idx) = prev_link_index
+                    && let Some(prev) = result.get_mut(prev_idx)
+                {
+                    prev.href = found.url.clone();
                 }
                 prev_link_url.clear();
             }
@@ -1067,7 +1068,7 @@ fn find_link(line: &str, offset_chars: usize, prev_line_link: &str) -> Option<Fo
         };
         let new_pos = offset_chars + line_remainder[..start].chars().count();
 
-        if link_start.map_or(true, |old| new_pos < old) {
+        if link_start.is_none_or(|old| new_pos < old) {
             link_start = Some(new_pos);
             match_continues_link = trigger.continuation;
             if trigger.mail {
@@ -1275,10 +1276,10 @@ fn strip_single_line(line: &str) -> String {
     }
 
     let mut chars = line.chars();
-    if let Some(first) = chars.next() {
-        if chars.all(|c| c == first) {
-            return String::new();
-        }
+    if let Some(first) = chars.next()
+        && chars.all(|c| c == first)
+    {
+        return String::new();
     }
 
     let mut work = strip_repeated_prefix(line).unwrap_or_else(|| line.to_string());

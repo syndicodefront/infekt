@@ -1,7 +1,7 @@
-use htmlentity::entity::{encode, encode_char, CharacterSet, EncodeType, ICodedDataTrait};
+use htmlentity::entity::{CharacterSet, EncodeType, ICodedDataTrait, encode, encode_char};
 
 use super::nfo_data::NfoData;
-use super::nfo_renderer_grid::{get_block_shape, NfoRendererBlockShape};
+use super::nfo_renderer_grid::{NfoRendererBlockShape, get_block_shape};
 
 #[derive(PartialEq, Clone, Copy)]
 enum CharFlightType {

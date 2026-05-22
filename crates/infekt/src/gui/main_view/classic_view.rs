@@ -1,9 +1,9 @@
 use super::{InfektMainView, Message};
 
-use iced::widget::scrollable::{Direction, Scrollbar};
-use iced::widget::{self, Text, container, scrollable, text};
 use iced::Element;
 use iced::Length::{Fill, Shrink};
+use iced::widget::scrollable::{Direction, Scrollbar};
+use iced::widget::{self, Text, container, scrollable, text};
 
 use crate::core::nfo_data::NfoData;
 

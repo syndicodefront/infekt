@@ -1,6 +1,6 @@
-pub mod sidebar;
-pub mod main_view;
 pub mod about_screen;
+pub mod main_view;
 pub mod preferences;
-mod widget;
+pub mod sidebar;
 mod utils;
+mod widget;
