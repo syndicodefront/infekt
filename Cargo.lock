@@ -3484,25 +3484,38 @@ dependencies = [
 ]
 
 [[package]]
-name = "infekt-nfo-viewer"
+name = "infekt"
+version = "2.0.0-alpha1"
+dependencies = [
+ "colornames",
+ "fontdb",
+ "iced",
+ "ico",
+ "infekt-core",
+ "open",
+ "palette",
+ "rfd",
+ "rustc-hash 2.1.2",
+]
+
+[[package]]
+name = "infekt-cli"
 version = "2.0.0-alpha1"
 dependencies = [
  "clap",
- "colornames",
- "fontdb",
+ "infekt-core",
+]
+
+[[package]]
+name = "infekt-core"
+version = "2.0.0-alpha1"
+dependencies = [
  "htmlentity",
- "iced",
- "ico",
- "image",
- "open",
- "palette",
  "regex",
- "rfd",
  "rustc-hash 2.1.2",
  "serde",
  "serde_json",
  "serde_repr",
- "tiny-skia",
 ]
 
 [[package]]

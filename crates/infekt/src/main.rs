@@ -2,7 +2,7 @@ mod app;
 mod gui;
 mod settings;
 
-pub use infekt_nfo_viewer::core;
+pub use infekt_core as core;
 
 use app::InfektApp;
 use iced::window::{self, icon};
@@ -13,13 +13,13 @@ pub fn main() -> iced::Result {
         .settings(iced::Settings {
             antialiasing: true,
             fonts: vec![
-                include_bytes!("../assets/fonts/CascadiaMono.ttf").into(), // font name: Cascadia Mono
-                include_bytes!("../assets/fonts/Andale Mono.ttf").into(),  // font name: Andale Mono
+                include_bytes!("../../../assets/fonts/CascadiaMono.ttf").into(), // font name: Cascadia Mono
+                include_bytes!("../../../assets/fonts/Andale Mono.ttf").into(),  // font name: Andale Mono
                 include_bytes!(
-                    "../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
+                    "../../../assets/fonts/Menlo-Regular-NormalMono.ttf" // font name: Menlo Nerd Font Mono
                 )
                 .into(),
-                include_bytes!("../assets/fonts/FiraMono-Regular.ttf").into(), // font name: Fira Mono
+                include_bytes!("../../../assets/fonts/FiraMono-Regular.ttf").into(), // font name: Fira Mono
             ],
             ..iced::Settings::default()
         })
@@ -40,7 +40,7 @@ fn initial_window_settings() -> window::Settings {
 }
 
 fn window_settings_application_icon() -> Option<icon::Icon> {
-    let bytes = std::io::Cursor::new(include_bytes!("../assets/infekt-icons/iNFekt.ico"));
+    let bytes = std::io::Cursor::new(include_bytes!("../../../assets/icons/iNFekt.ico"));
     let icon_dir = ico::IconDir::read(bytes).unwrap();
 
     let idx = icon_dir.entries().iter().find(|e| e.width() == 48);

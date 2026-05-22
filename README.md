@@ -5,14 +5,28 @@ iNFekt
 
 A text viewer application that has been carefully designed around its main task: viewing and presenting [NFO files](http://en.wikipedia.org/wiki/.nfo). It comes with three different view modes (Rendered, Classic and Text Only), export functionality and lots of options!
 
-The GUI version works on Windows 10 and up. You can use previous iNFekt versions for Windows 2000, XP, 7. The CLI version is supported on Windows and Linux.
+iNFekt 2.x is the soon-to-be-current Rust implementation. The previous C++ 1.x codebase remains in this repository for patch maintenance under [`legacy/cpp`](docs/legacy-cpp.md).
 
-iNFekt is a native application written in C++. It uses the Cairo open source graphics libraries. Where available, rendering uses multi-core CPUs and is accelerated by GPU hardware.
+The Rust workspace is the default entrypoint:
+
+```sh
+cargo build --workspace
+cargo run -p infekt
+cargo run -p infekt-cli -- --help
+cargo run -p xtask -- bundle --release
+```
+
+The C++ 1.x maintenance tree can still be configured explicitly:
+
+```sh
+cmake -S legacy/cpp -B build/legacy-cpp
+```
 
 - [Official website](https://infekt.ws/)
 - [Downloads](https://infekt.ws/index.html#downloads)
 - [FAQ](FAQ.md)
-- [Changelog](ChangeLog.md)
+- [Changelog](CHANGELOG.md)
+- [Legacy C++ maintenance notes](docs/legacy-cpp.md)
 
 ## Screenshots
 

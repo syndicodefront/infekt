@@ -21,11 +21,11 @@ pub enum Message {
 const EXPANDED_WIDTH: Length = Length::Fixed(200.0);
 const COLLAPSED_WIDTH: Length = Length::Fixed(50.0);
 
-const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x256x32.png");
+const LOGO_256: &[u8] = include_bytes!("../../../../assets/icons/iNFekt_6_256x256x32.png");
 const EXPAND_ICON: &[u8] =
-    include_bytes!("../../assets/tabler-icons/outline/layout-sidebar-left-expand.svg");
+    include_bytes!("../../../../third_party/tabler-icons/outline/layout-sidebar-left-expand.svg");
 const COLLAPSE_ICON: &[u8] =
-    include_bytes!("../../assets/tabler-icons/outline/layout-sidebar-left-collapse.svg");
+    include_bytes!("../../../../third_party/tabler-icons/outline/layout-sidebar-left-collapse.svg");
 
 impl InfektSidebar {
     pub fn update(&mut self, message: Message) -> Action {
@@ -52,22 +52,22 @@ impl InfektSidebar {
             container(self.logo()).center_x(Fill).center_y(48.0),
             self.top_level_button(
                 "Home",
-                include_bytes!("../../assets/tabler-icons/outline/home.svg"),
+                include_bytes!("../../../../third_party/tabler-icons/outline/home.svg"),
                 Message::ShowMainView
             ),
             self.top_level_button(
                 "Open...",
-                include_bytes!("../../assets/tabler-icons/outline/folder-open.svg"),
+                include_bytes!("../../../../third_party/tabler-icons/outline/folder-open.svg"),
                 Message::OpenFileDialog
             ),
             self.top_level_button(
                 "Preferences",
-                include_bytes!("../../assets/tabler-icons/outline/settings.svg"),
+                include_bytes!("../../../../third_party/tabler-icons/outline/settings.svg"),
                 Message::ShowPreferences
             ),
             self.top_level_button(
                 "About",
-                include_bytes!("../../assets/tabler-icons/outline/info-hexagon.svg"),
+                include_bytes!("../../../../third_party/tabler-icons/outline/info-hexagon.svg"),
                 Message::ShowAboutScreen
             ),
             space::vertical(),

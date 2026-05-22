@@ -23,7 +23,7 @@ kept=0
 usage() {
     cat <<'USAGE'
 Usage:
-  tools/compare-cli-utf8.sh \
+  compare-cli-utf8.sh \
     --cpp-bin /path/to/cpp/infekt-cli \
     --rust-bin /path/to/rust/infekt-cli \
     [--out-dir /tmp/infekt-cli-compare] \

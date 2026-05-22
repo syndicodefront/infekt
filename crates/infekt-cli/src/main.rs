@@ -1,5 +1,5 @@
 use clap::{ArgAction, Parser};
-use infekt_nfo_viewer::core;
+use infekt_core as core;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};

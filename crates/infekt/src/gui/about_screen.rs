@@ -22,7 +22,7 @@ pub enum LinkTarget {
     InfektWebsite,
 }
 
-const LOGO_256: &[u8] = include_bytes!("../../assets/infekt-icons/iNFekt_6_256x256x32.png");
+const LOGO_256: &[u8] = include_bytes!("../../../../assets/icons/iNFekt_6_256x256x32.png");
 
 impl InfektAboutScreen {
     pub fn update(&mut self, message: Message) -> Action {

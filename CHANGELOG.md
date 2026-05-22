@@ -1,3 +1,12 @@
+## v2.x
+  * Rust 2.x is now the primary repository layout.
+  * Rust code lives under `crates/`, with separate `infekt`, `infekt-core`, and `infekt-cli` workspace packages.
+  * Shared product assets moved to `assets/`; vendored third-party assets moved to `third_party/`.
+
+## v1.x maintenance
+  * C++ 1.x source, project files, dependencies, tools, release assets, and build-output helpers moved under `legacy/cpp/`.
+  * C++ maintenance builds now configure explicitly with `cmake -S legacy/cpp -B build/legacy-cpp`.
+
 ## v1.3.0 (July 7th 2023)
   * Слава Україні! Смерть окупантам!
   * NEW: Export into HTML `<canvas>`.
