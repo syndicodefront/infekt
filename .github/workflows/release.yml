@@ -83,7 +83,7 @@ jobs:
           mv target/${{ matrix.target }}/release/bundle/rpm/*.rpm dist/iNFekt-${{ github.ref_name }}-${{ matrix.outputname }}.rpm
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target }}
           path: dist
