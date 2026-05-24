@@ -67,6 +67,8 @@ pub struct NfoData {
     source_charset: NfoCharset,
     line_wrap: bool,
     is_ansi: bool,
+    has_ansi_escape_sequences: bool,
+    has_control_art_bytes: bool,
     ansi_hint_width: usize,
     ansi_hint_height: usize,
     hyperlinks: Vec<NfoHyperLink>,
@@ -87,6 +89,8 @@ impl NfoData {
             source_charset: NfoCharset::Auto,
             line_wrap: false,
             is_ansi: false,
+            has_ansi_escape_sequences: false,
+            has_control_art_bytes: false,
             ansi_hint_width: 0,
             ansi_hint_height: 0,
             hyperlinks: Vec::new(),
@@ -239,6 +243,8 @@ impl NfoData {
         self.file_path = None;
         self.source_charset = NfoCharset::Auto;
         self.is_ansi = false;
+        self.has_ansi_escape_sequences = false;
+        self.has_control_art_bytes = false;
         self.ansi_hint_width = 0;
         self.ansi_hint_height = 0;
         self.hyperlinks.clear();
@@ -253,6 +259,8 @@ impl NfoData {
         self.ansi_hint_width = sauce.ansi_hint_width;
         self.ansi_hint_height = sauce.ansi_hint_height;
         let data = &data[..sauce.data_len];
+        self.has_ansi_escape_sequences = has_ansi_escape_bytes(data);
+        self.has_control_art_bytes = has_control_art_bytes(data);
 
         let loaded = match self.source_charset {
             NfoCharset::Auto => {
@@ -290,13 +298,29 @@ impl NfoData {
     }
 
     fn post_process_loaded_content(&mut self) -> Result<(), String> {
-        if self.is_ansi {
+        if self.source_charset != NfoCharset::Cp437Strict
+            && (self.is_ansi || self.has_ansi_escape_sequences)
+            && let Some(ansi_text) = render_ansi_classic_text(
+                &self.text_content,
+                self.ansi_hint_width,
+                self.ansi_hint_height,
+            )
+        {
+            self.text_content = ansi_text;
+            if self.is_ansi && !self.has_ansi_escape_sequences {
+                trim_right_chars(&mut self.text_content, "\n");
+            }
+        } else if self.is_ansi {
             return Err("Internal problem during ANSI processing. This could be a bug, please file a report and attach the file you were trying to open.".to_string());
-        }
-
-        if self.source_charset != NfoCharset::Cp437Strict {
+        } else if self.source_charset != NfoCharset::Cp437Strict {
             normalize_whitespace(&mut self.text_content);
             fix_ansi_escape_codes(&mut self.text_content);
+            if !self.is_ansi
+                && !self.has_ansi_escape_sequences
+                && self.text_content.ends_with("\u{2190}\n")
+            {
+                self.text_content.pop();
+            }
         }
 
         let (mut lines, mut max_line_len) = split_into_lines(&self.text_content);
@@ -397,18 +421,8 @@ impl NfoData {
 
         let raw = &data[UTF16_LE_BOM.len()..];
 
-        // The current C++ reference is built on a platform where wchar_t is 32-bit.
-        // For UTF-16LE ASCII files it rejects the UTF-16 path and falls back to CP437,
-        // producing the historically expected spaced output. Preserve that behavior.
-        let raw_has_ascii_letters = raw.iter().any(|b| b.is_ascii_alphabetic());
-        let faux_wchar_has_ascii_letters = raw
-            .chunks_exact(4)
-            .filter_map(|chunk| {
-                char::from_u32(u32::from_le_bytes([chunk[0], chunk[1], chunk[2], chunk[3]]))
-            })
-            .any(|c| c.is_ascii_alphabetic());
-
-        if raw_has_ascii_letters && !faux_wchar_has_ascii_letters {
+        let sampled_len = raw.len().min(512);
+        if sampled_len >= 16 && !raw[..sampled_len].contains(&0) {
             return false;
         }
 
@@ -510,12 +524,7 @@ impl NfoData {
                 if approach != DecodeApproach::Force {
                     cp437_high(byte)
                 } else {
-                    let temp = cp437_high(byte);
-                    if (temp as u32) >= 0x7F && (temp as u32) <= 0xFF {
-                        cp437_high(temp as u8)
-                    } else {
-                        temp
-                    }
+                    double_decode_cp437_high(byte, self.has_control_art_bytes)
                 }
             } else if byte <= 0x1F {
                 if byte == 0 {
@@ -738,6 +747,237 @@ impl Default for NfoData {
     }
 }
 
+#[derive(Debug)]
+struct AnsiCommand {
+    command: Option<char>,
+    data: String,
+}
+
+fn has_ansi_escape_bytes(data: &[u8]) -> bool {
+    data.windows(2).any(|window| window == [0x1B, b'['])
+}
+
+fn has_control_art_bytes(data: &[u8]) -> bool {
+    data.iter()
+        .filter(|&&byte| matches!(byte, 0x01..=0x08 | 0x0B..=0x0C | 0x0E..=0x19 | 0x1C..=0x1F))
+        .take(9)
+        .count()
+        > 8
+}
+
+fn render_ansi_classic_text(text: &str, hint_width: usize, hint_height: usize) -> Option<String> {
+    if text.contains("\u{2190}[D") {
+        return None;
+    }
+
+    let commands = parse_ansi_commands(text)?;
+    let width = hint_width.clamp(80, WIDTH_LIMIT);
+    let height = if hint_height > 0 {
+        hint_height.min(LINES_LIMIT)
+    } else {
+        100
+    };
+    let mut screen = vec![vec![' '; width]; height];
+    let mut saved_positions = Vec::new();
+    let mut x = 0usize;
+    let mut y = 0usize;
+
+    for command in commands {
+        let mut x_delta = 0isize;
+        let mut y_delta = 0isize;
+        let mut n = 0usize;
+        let mut m = 0usize;
+
+        if !matches!(command.command, None | Some('m')) {
+            n = parse_ansi_number(&command.data).unwrap_or(0).max(1);
+            m = command
+                .data
+                .split_once(';')
+                .and_then(|(_, value)| parse_ansi_number(value))
+                .unwrap_or(0)
+                .max(1);
+        }
+
+        match command.command {
+            None => {
+                for ch in command.data.chars() {
+                    if ch == '\r' {
+                        continue;
+                    }
+
+                    let wrap_at_hint = x == width - 1;
+                    if ch == '\n' || wrap_at_hint {
+                        ensure_ansi_cell(&mut screen, x, y)?;
+
+                        if ch != '\n' {
+                            screen[y][x] = ch;
+                        }
+
+                        y += 1;
+                        x = 0;
+                        ensure_ansi_cell(&mut screen, x, y)?;
+                    } else {
+                        ensure_ansi_cell(&mut screen, x, y)?;
+                        screen[y][x] = ch;
+                        x += 1;
+                    }
+                }
+            }
+            Some('A') => y_delta = -(n as isize),
+            Some('B') => y_delta = n as isize,
+            Some('C') => x_delta = n as isize,
+            Some('D') => x_delta = -(n as isize),
+            Some('E') => {
+                y_delta = n as isize;
+                x = 0;
+            }
+            Some('F') => {
+                y_delta = -(n as isize);
+                x = 0;
+            }
+            Some('G') => x = n.saturating_sub(1),
+            Some('H') | Some('f') => {
+                y = n.saturating_sub(1);
+                x = m.saturating_sub(1);
+            }
+            Some('J') => {
+                if n == 2 {
+                    x = 0;
+                    y = 0;
+                }
+            }
+            Some('s') => saved_positions.push((x, y)),
+            Some('u') => {
+                if let Some((saved_x, saved_y)) = saved_positions.pop() {
+                    x = saved_x;
+                    y = saved_y;
+                }
+            }
+            Some('K' | 'm' | 'h' | 'l' | 'S' | 'T' | 'n') => {}
+            Some(_) => {}
+        }
+
+        y = apply_ansi_delta(y, y_delta);
+        x = apply_ansi_delta(x, x_delta);
+        ensure_ansi_cell(&mut screen, x, y)?;
+    }
+
+    let mut lines: Vec<String> = screen
+        .iter()
+        .map(|line| {
+            let used = line
+                .iter()
+                .rposition(|&ch| ch != ' ')
+                .map(|idx| idx + 1)
+                .unwrap_or(0);
+            line[..used].iter().collect::<String>()
+        })
+        .collect();
+
+    while lines.last().is_some_and(|line| line.trim().is_empty()) {
+        lines.pop();
+    }
+
+    if lines.is_empty() {
+        return None;
+    }
+
+    let mut rendered = lines.join("\n");
+    rendered.push('\n');
+    Some(rendered)
+}
+
+fn parse_ansi_commands(text: &str) -> Option<Vec<AnsiCommand>> {
+    let mut commands = Vec::new();
+    let mut data = String::new();
+    let mut chars = text.chars().peekable();
+
+    while let Some(ch) = chars.next() {
+        if ch != '\u{2190}' {
+            data.push(ch);
+            continue;
+        }
+
+        if chars.peek() != Some(&'[') {
+            data.push(ch);
+            continue;
+        }
+
+        chars.next();
+        if !data.is_empty() {
+            commands.push(AnsiCommand {
+                command: None,
+                data: std::mem::take(&mut data),
+            });
+        }
+
+        let mut sequence_data = String::new();
+        loop {
+            let sequence_ch = chars.next()?;
+            if sequence_ch.is_ascii_digit() || matches!(sequence_ch, ';' | '?') {
+                sequence_data.push(sequence_ch);
+            } else if sequence_ch.is_ascii_alphabetic() {
+                commands.push(AnsiCommand {
+                    command: Some(sequence_ch),
+                    data: sequence_data,
+                });
+                break;
+            } else if sequence_ch.is_whitespace() {
+                break;
+            } else {
+                return None;
+            }
+        }
+    }
+
+    if !data.is_empty() {
+        commands.push(AnsiCommand {
+            command: None,
+            data,
+        });
+    }
+
+    (!commands.is_empty()).then_some(commands)
+}
+
+fn parse_ansi_number(value: &str) -> Option<usize> {
+    let digits = value
+        .trim_start_matches('?')
+        .split(';')
+        .next()
+        .unwrap_or_default();
+    digits.parse().ok()
+}
+
+fn apply_ansi_delta(value: usize, delta: isize) -> usize {
+    if delta < 0 {
+        value.saturating_sub(delta.unsigned_abs())
+    } else {
+        value.saturating_add(delta as usize)
+    }
+}
+
+fn ensure_ansi_cell(screen: &mut Vec<Vec<char>>, x: usize, y: usize) -> Option<()> {
+    if x >= WIDTH_LIMIT || y >= LINES_LIMIT {
+        return None;
+    }
+
+    let current_cols = screen.first().map_or(0, Vec::len);
+    if y >= screen.len() {
+        let new_rows = (y + 1).min(LINES_LIMIT);
+        screen.resize_with(new_rows, || vec![' '; current_cols.max(1)]);
+    }
+
+    if x >= screen[0].len() {
+        let new_cols = (x + 1).min(WIDTH_LIMIT);
+        for line in screen {
+            line.resize(new_cols, ' ');
+        }
+    }
+
+    Some(())
+}
+
 fn normalize_whitespace(text: &mut String) {
     trim_right_chars(text, "\t\r\n ");
 
@@ -860,6 +1100,9 @@ fn fix_ansi_escape_codes(text: &mut String) {
                 && (matches!(final_char, 'A'..='G' | 'J' | 'K' | 'S' | 'T' | 's' | 'u'))
             {
                 idx = p + 1;
+                continue;
+            } else if num_buf.is_empty() && chars[idx] == '\u{2190}' {
+                idx = p;
                 continue;
             } else if chars[idx] == '\u{00A2}' {
                 out.push(chars[idx]);
@@ -1401,6 +1644,83 @@ fn cp437_control(byte: u8) -> char {
     codepage_437::decode_control(byte)
 }
 
+fn double_decode_cp437_high(byte: u8, _use_low_byte_compat: bool) -> char {
+    let temp = cp437_high(byte);
+    let code = temp as u32;
+
+    if code < 0x7F {
+        return temp;
+    }
+
+    if code <= 0xFF {
+        return cp437_high(temp as u8);
+    }
+
+    if let Some(ch) = double_decode_low_byte_compat(byte) {
+        return ch;
+    }
+
+    let low = temp as u8;
+    if low >= 0x7F {
+        return cp437_high(low);
+    } else if low <= 0x1F {
+        return cp437_control(low);
+    }
+
+    temp
+}
+
+fn double_decode_low_byte_compat(byte: u8) -> Option<char> {
+    Some(match byte {
+        0x7F => '\u{00AC}',
+        0xA9 | 0xBF => '\u{2555}',
+        0xB3 => '\u{00AC}',
+        0xB4 => '\u{2560}',
+        0xB5 => '\u{263B}',
+        0xB6 => '\u{2665}',
+        0xB7 => '\u{25A0}',
+        0xB8 => '\u{00B2}',
+        0xB9 => '\u{2666}',
+        0xBA => '\u{2219}',
+        0xBB => ' ',
+        0xBC | 0xBD | 0xBE | 0xC6 | 0xC7 | 0xC8 | 0xD3 | 0xD4 => '\0',
+        0xC0 => '\u{255D}',
+        0xC1 => '\u{2584}',
+        0xC2 => '\u{2558}',
+        0xC3 | 0xE7 => '\u{2500}',
+        0xC4 => '\u{00BF}',
+        0xC5 => '\u{03A3}',
+        0xC9 => '\u{207F}',
+        0xCA => '\u{25D9}',
+        0xCB => '\u{2022}',
+        0xCC => '\u{263A}',
+        0xCD => '\u{00B0}',
+        0xCE => '\u{266A}',
+        0xCF => '\u{25D8}',
+        0xD0 => '\u{25CB}',
+        0xD1 => '\u{2663}',
+        0xD2 => '\u{2660}',
+        0xD5 => '\u{00B7}',
+        0xD6 => '\u{221A}',
+        0xD7 => '\u{2640}',
+        0xD8 => '\u{2642}',
+        0xD9 | 0xE3 => '\u{2514}',
+        0xDA => '\u{2524}',
+        0xEC | 0xED => '\u{255E}',
+        0xEE => '\u{2561}',
+        0xEF => '\u{2564}',
+        0xF0 => '\u{263B}',
+        0xF2 => '\u{2660}',
+        0xF3 => '\u{2663}',
+        0xF4 => '\u{255A}',
+        0xF5 => '\u{2554}',
+        0xF7 => '\u{2261}',
+        0xF9 => '\u{2534}',
+        0xFB => '\u{252C}',
+        _ => return None,
+    })
+}
+
 fn cp437_strict_high(byte: u8) -> char {
     codepage_437::decode_strict_high(byte)
 }
@@ -1497,10 +1817,10 @@ mod tests {
     }
 
     #[test]
-    fn falls_back_to_cp437_for_utf16le_like_reference_build() {
+    fn decodes_utf16le_text_with_bom() {
         let data = load_bytes("sample.nfo", b"\xFF\xFEG\0o\0\n\0").unwrap();
-        assert_eq!(data.get_charset_name(), "CP 437");
-        assert!(data.text_content.starts_with(" \u{25A0}G o"));
+        assert_eq!(data.get_charset_name(), "UTF-16");
+        assert_eq!(data.text_content, "Go\n");
     }
 
     #[test]

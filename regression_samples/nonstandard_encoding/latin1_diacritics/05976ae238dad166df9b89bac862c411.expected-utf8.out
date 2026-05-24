@@ -1,0 +1,59 @@
+﻿Eine gerΣumige Fabriketage in den 80ern. Den 12jΣhrigen Alex (Adrian G÷ssel) und seine Eltern Carlos (Rafael Ferro) und Lizzy (Erica Rivas) hat es auf der Flucht vor der argentinischen MilitΣrjunta nach Westberlin verschlagen. WΣhrend seine Eltern mit unterschiedlichem Erfolg versuchen, sich an die neuen LebensumstΣnde fern der Heimat zu gew÷hnen, lernt Alex, dass auch eine skurrile WG eine ärichtigeô Familie sein kann. Weder seine sich langsam entwickelnden, geheimnisvollen telekinetischen FΣhigkeiten, noch die erste Liebe k÷nnen jedoch verhindern, dass Alex' Eltern sich nach und nach voneinander entfernen: Lizzy fⁿhlt sich in Deutschland und mit ihrer Arbeit als Journalistin wohl, Carlos dagegen zieht sich immer mehr in sein Kⁿnstler-Schneckenhaus zurⁿck. Dass ausgerechnet Anita (Toni Gomis Chaparro), die spanische Freundin von Mitbewohner Jⁿrgen (Joachim Paul Assb÷ck), zu Carlos durchzudringen scheint, passt Alex gar nicht in den Kram... 
+
+
+
+-x-x-x-x-x-x-x
+
+ormat                                   : AVI
+Format/Info                              : Audio Video Interleave
+Dateigr÷▀e                               : 698 MiB
+Dauer                                    : 1h 30min
+Modus der Gesamtbitrate                  : variabel
+Gesamte Bitrate                          : 1 078 Kbps
+Kodierendes Programm                     : VirtualDubMod 1.5.10.2 (build 2540/release)
+verwendete Encoder-Bibliothek            : VirtualDubMod build 2540/release
+
+Video
+ID                                       : 0
+Format                                   : MPEG-4 Visual
+Format-Profil                            : Advanced Simple@L5
+Format-Einstellungen fⁿr BVOP            : 2
+Format-Einstellungen fⁿr Qpel            : Nein
+Format-Einstellungen fⁿr GMC             :  Keine warppoints
+Format-Einstellungen fⁿr Matrix          : Default (H.263)
+Codec-ID                                 : XVID
+Codec-ID/Hinweis                         : XviD
+Dauer                                    : 1h 30min
+Bitrate                                  : 939 Kbps
+Breite                                   : 640 Pixel
+H÷he                                     : 352 Pixel
+BildseitenverhΣltnis                     : 16:9
+Bildwiederholungsrate                    : 25,000 FPS
+ColorSpace                               : YUV
+ChromaSubsampling                        : 4:2:0
+BitDepth/String                          : 8 bits
+Scantyp                                  : progressiv
+Bits/(Pixel*Frame)                       : 0.167
+Stream-Gr÷▀e                             : 608 MiB (87%)
+verwendete Encoder-Bibliothek            : XviD 1.2.1 (UTC 2008-12-04)
+
+Audio
+ID                                       : 1
+Format                                   : MPEG Audio
+Format-Version                           : Version 1
+Format-Profil                            : Layer 3
+Format_Settings_Mode                     : Joint stereo
+Format_Settings_ModeExtension            : MS Stereo
+Codec-ID                                 : 55
+Codec-ID/Hinweis                         : MP3
+Dauer                                    : 1h 30min
+Bitraten-Modus                           : variabel
+Bitrate                                  : 128 Kbps
+KanΣle                                   : 2 KanΣle
+Samplingrate                             : 48,0 KHz
+Stream-Gr÷▀e                             : 81,9 MiB (12%)
+Ausrichtung                              : Ausgerichtet an Interleaves
+Interleave, Dauer                        : 24 ms (0,60 Video-Frame)
+Interleave, Vorlaufsdauer                : 145 ms
+verwendete Encoder-Bibliothek            : LAME3.90.
+Kodierungseinstellungen                  : -m j -V 4 -q 2 -lowpass 17.6 --abr 128
