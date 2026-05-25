@@ -7,6 +7,9 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process;
 
+#[cfg(test)]
+mod regression_samples;
+
 #[derive(Debug, Parser)]
 #[command(name = "infekt-cli")]
 #[command(about = "Rust CLI for iNFekt (first-iteration compatibility)")]

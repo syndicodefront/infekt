@@ -1,0 +1,90 @@
+ÔªøAllgemein
+Der.grosse.Schleim-Film.2023.German.EAC3.1080p.AMZN.WebDL.AVC-l69\Der.grosse.Schleim-Film.2023.German.EAC3.800p.AMZN.WebDL.AVC-l69.mkv
+Format                                   : Matroska
+Format-Version                           : Version 4
+Dateigrî·e                               : 4,63 GiB
+Dauer                                    : 1 h 19 min
+Gesamte Bitrate                          : 8 294 kb/s
+Bildwiederholungsrate                    : 25,000 FPS
+Kodierungs-Datum                         : 2023-10-18 08:02:35 UTC
+Kodierendes Programm                     : mkvmerge v63.0.0 ('Everything') 32-bit
+verwendete Encoder-Bibliothek            : libebml v1.4.2 + libmatroska v1.6.4
+
+Video
+ID                                       : 1
+Format                                   : AVC
+Format/Info                              : Advanced Video Codec
+Format-Profil                            : High@L4
+Format-Einstellungen                     : CABAC / 4 Ref Frames
+Format-Einstellungen fÅr CABAC           : Ja
+Format-Einstellungen fÅr RefFrames       : 4 frames
+Codec-ID                                 : V_MPEG4/ISO/AVC
+Dauer                                    : 1 h 19 min
+Bitraten-Modus                           : konstant
+Bitrate                                  : 7 652 kb/s
+nominale Bitrate                         : 10 000 kb/s
+Breite                                   : 1 920 Pixel
+Hîhe                                     : 800 Pixel
+BildseitenverhÑltnis                     : 2,40:1
+Modus der Bildwiederholungsrate          : konstant
+Bildwiederholungsrate                    : 25,000 FPS
+Color space                              : YUV
+Chroma subsampling                       : 4:2:0
+Bit depth                                : 8 bits
+Scantyp                                  : progressiv
+Bits/(Pixel*Frame)                       : 0.199
+Stream-Grî·e                             : 4,27 GiB (92%)
+Default                                  : Ja
+Forced                                   : Nein
+Color range                              : Limited
+Color primaries                          : BT.709
+Transfer characteristics                 : BT.709
+Matrix coefficients                      : BT.709
+
+Audio
+ID                                       : 2
+Format                                   : E-AC-3
+Format/Info                              : Enhanced AC-3
+Commercial name                          : Dolby Digital Plus
+Codec-ID                                 : A_EAC3
+Dauer                                    : 1 h 19 min
+Bitraten-Modus                           : konstant
+Bitrate                                  : 640 kb/s
+KanÑle                                   : 6 KanÑle
+Channel layout                           : L R C LFE Ls Rs
+Samplingrate                             : 48,0 kHz
+Bildwiederholungsrate                    : 31,250 FPS (1536 SPF)
+Compression mode                         : Lossy
+Stream-Grî·e                             : 366 MiB (8%)
+Sprache                                  : Deutsch
+Service kind                             : Complete Main
+Default                                  : Ja
+Forced                                   : Nein
+
+Text #1
+ID                                       : 3
+Format                                   : UTF-8
+Codec-ID                                 : S_TEXT/UTF8
+Codec-ID/Info                            : UTF-8 Plain Text
+Dauer                                    : 1 h 16 min
+Bitrate                                  : 78 b/s
+Bildwiederholungsrate                    : 0,268 FPS
+Count of elements                        : 1225
+Stream-Grî·e                             : 43,8 KiB (0%)
+Sprache                                  : Deutsch
+Default                                  : Nein
+Forced                                   : Nein
+
+Text #2
+ID                                       : 4
+Format                                   : UTF-8
+Codec-ID                                 : S_TEXT/UTF8
+Codec-ID/Info                            : UTF-8 Plain Text
+Dauer                                    : 1 h 10 min
+Bitrate                                  : 0 b/s
+Bildwiederholungsrate                    : 0,002 FPS
+Count of elements                        : 7
+Stream-Grî·e                             : 195 Bytes (0%)
+Sprache                                  : Deutsch
+Default                                  : Ja
+Forced                                   : Ja

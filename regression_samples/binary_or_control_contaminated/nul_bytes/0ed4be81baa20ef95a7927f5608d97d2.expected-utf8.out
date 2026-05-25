@@ -1,0 +1,354 @@
+﻿
+██▓▒▓▒░
+  █▓▓██▓▒░
+   █▓▒███▓▒░
+    ██▓█▓ ██▓
+     ██░▒██ ░█▒
+      █▒  ██▓ ░█▒
+      ██ ▓  ██░ █▒
+       ██ ▓░ ██░ █▒
+        █▒ ▓░ ░██▓▓█▓
+        █▓ ▓▓░ ░██  ▓█▒░                                                       ▒
+         █ ▒▓▓░ ░▓█░  ██▒░░                                                 ░ ██
+        ░█▒ ▒▓▓▒  ░██░  ▓██▒░                                              ░▓█▓
+         █▓ ░▒▓▓▓░ ░▓██▒  ░██░▒▒░                                         ▒█ ▓
+          █  ░▒▒▓▓░  ▒▓██▒   ▓▒██▓▒                                     ░▓▓░█
+          █▓ ░░▒░▒▓▓▒░  ▒██▓░ ░█▓▒█▒                                   ░█▓░▓█
+           █ ▒▓▓░▒░▓▓░▒  ░▒██████  ▓█░                                ░█ ▒█ █
+          ▒█ ▓░▒▓░░▒▓▓░▓▓  ▒█ ░█▒██ ▓██                              ░█ ░█ ▒▓
+          ▒█  ░▒▓▒   ▓▓░▒▓░ ▒▓░░ ███  ▓█░                           ░█ ░█ ░█
+           ██ ▒▓░ ░▒ ▒█▓▒ ▓░ ██ ▓ ▓██▓ ░█░                         ░█░ █▒ ▒█░
+           ░█ ░▒░░  ▒▓██▓▓ ▓░ ░▒█  ▓███ ░█                         ██ ▓▓ ░▓▒
+           ▓█ ▒▓▒  ░▓█▓▓░▒░ ▓░ ░█▒  ████░ █                       ▒▓░ █▓ ▒█
+           ▒█ ░  ▒▓▓█▓▒░▒▒▒▒ ▓ ░▒██░ ████  █                      ██ ▓▓░ ▓█░
+          ░█░  ▒▓▓██▓░▒▒▒▓▓▓▓ ▒░░▒▓█░ ▓██▒ ▒█                     ▓█░█▒  █▒
+          █▒ ▒▓▓░██▓▒█████████▓▓▒░▒▓██░▓██░ ▓█░                   ▓█ █▓ ░█░
+         █▒▓▓▓███████▓▒▒░░▓█████▓▓▓▓▒▓█████ ░█░                   ▓▓ █▓ ▒█
+       █████████▓▒░░ ░▓▒   ░░▓▓█████▓░░▓████ ▒█░                  ░█░█▒ ░█░
+      ███▓▒░ ░▒░   ░▒ ▒▓░░▓ ░   ░░▒███▒░░▒███░█                  ▓▒▒█▒█▒ █░
+    ██▓▓▒░░ ░ ░▓▓▓▒ ░░▒▓▒▓▒░▓▒░░    ░▓██▒░▒▓██▓█                 ▓░▒█░█▒ █▒
+  █████████▒▒░▓░░░▓▓▒ ░▒▓░▓▓░ ░▓▓▓▓░  ▒██▒░▒████                 ▒█▓ ░▓█ █▓
+ ███      ░██▓░ ▒▒▒░▓▒ ░▓▒ ░▓▓▓░ ▒▒▓▓▓ ░▒██░▒████                ▒█ ░█▓░█ █░
+█            ██▒ ▓░░░▓▒ ▓▒▓▓▒░ ▒▒░░▒▒▒░▒▓███░▒███               ▓█▒ █▓░ ▒██
+              ▓█▒ ░▒░▓ ▓▒▓▒░░▒▒░ ░▒▓▓████████▒▓█▓█              ▒█░▒█▓ ▓▓▒█
+              ▒█▒ ▒▓▒ ▓▒▓▒░  ░▒▓█████▓    ▒▓▓▒▒██               ░█▒▓▓ ▓▓▒▓██
+               ▓▓▒░▒ ▓▒░▒▓▒░▓███▓░    ░▒▒▓███▓▒██▓█  ████       ▒█░█▓ ▓▒░█
+               █▓▒▒ ▓▒░▒▓ ▓██▓    ░░▒▒▓███████▓███▒██▓▒▒▓█      ▒█░█▓ ▓░█
+               █▓▒░▓▒░▒▓ ░█▓  ░░▒░▒▓███▓▓▓ ░▒▓██▓░ ▒▒░███▒█    ▒█ █▓ ▒ ▓█░
+               ██ ░▒▓▒▓ ░█▓ ░▓▓▓░███▓▓░  ▒████░░▒███░█   █░█   ██ █▓ ▓░█░
+               █▓ ░░▒▓ ░█▓ ░▓▒░██▓▓▓░  ░▒██  ░░██████ █▄  ██  ▒█▒ █▓ ▓▒▓█▒
+              █▓ ░▒▓▓ ░█▓ ░▓▒███▓▓░▒▒ ▒▓█  ████▓▒░  ▓███▌  █ ▒█░▓▓░█░ ▓▓█░
+              ██ ▒▓░ ░█▓ ▒▒██▓█▓▓░▒░ ▒█░ ░██▒░     ░   ▀█   ██░█▓ ▒██ ░█▓
+              ██ ▓ ▒▓█▓ ▒██▓▒▒█▓▒▒░ ▒▓▒ ▒█░        █      ▓▒██▓ ▒ ▓▓█▓▒█░
+              ██▒ ░██▓ ▒█▓▒░ ██▓▒░▒░▓█ ▓█░     ▒   █░  ▒ ▒██▓▒ █ ▒█▒▓█▓█▒
+              ██▒░█▓░ ░█▓▒▒ ░▓▓▒▒ ░▒▓▓ █▓      █▒  █▓  █ █▓▒ ██▓░ ▒▓▓██▒░
+              ▓░▓█▓░ ░█▓▒▓ ▒ ▓▓▒ ░ ▒█ ░█░      █▓  ██░░▓░█▒▓██▓  ▓▓██▒█
+             ██▒█▓░ ░██░ ▓ ▒░▒▓▓░ ▒▓▒ ██   ▒  ░▓█ ▒█░██ ██▒█▓▒ ▒▓█▓█  █▓
+             █▒▓█░ ▓██▓░ ▓▓░ ░█▓▓░▓█  █▓   █▒ █▓░▒█░ █▒ █▒▓▓ █▒▓██    ▒░
+             ▒██░ ░██▓░ ▓▒▒▓░ ▒█▓▒▓█   █   ▓█░█░ █░ ░█░ █ █  ██▓▓
+             ░█░ ░██░ ░▓▒▓▓▒▓ ░██▓░█ ░ ░█░ █▓▓█░▓░█ ░█ ░▓ ░█▒ ██
+            ░█░ ▒██████████▓▒▓ ▒▓███▒ ░ ░█▓█▓██ █ ▓░█▒ █  ▒▓▒██    █▒
+            ▒█ ▓██▒ ░░▒▒▓█▓█▓▒▓ ▒▓▓██ ▒░ ▒█▓ ▓▒█▓  ██░ █  ▒ ░█   ▄██
+           ▒▓▒██▓         ░▓█▓░▓░ ▓▓█░ ▒░░█▓█▒ █░ █▓ █ ░ ▒▓▓ ▓ ▄█▀▄▌
+           ░███░           ░█▓▒▓▒░▒▓█▒░ ▒▓█▓█▓ █░ █░ █  █▓██ ░▐█▀▒█
+          ░███              █▓▒░▓▒░▓██▒░▒█▓▓ ▓▒▄████ ██ ▒█░  ▄█ ░█░
+          ██░               ░█▓▒░▓ ▒▓█▒▒▓█▓▓ ▄█▓▒▓▒▒███  ▒  ██ ░█▌
+         ░█                  █▓▒░░░ ▓▓░█░▓█░██▓▒▓▒░░▒█░█   ██  ██░
+        ░█                   █▓ ▒▓░ ▓██▒▒█░██▓░░▓▒░░░█░██ ██  ▒█░█
+       ░█                    ░█▓█░ ▓██▒░░▒██▓░▒░▒▓▒░▒█░░ ▐█  ▒█▒▓█
+      ▒█                      ███ ▓█▓▒▒░░▓██▓▒░ ░▒▓▒█░ ▄▄█▌  ▒█▒▓█
+                               █▓▒▓█▒█░░▒██▓▓▒░ ░▒▒█ ▄█▀▒▓▀  ███▓░░▄
+                                ██▓█▓░█░▓██▒░▓▒░▒▒█░▐▒░▄█▀  ▀   ▓█▀
+                                 ░██░▒█▒██▓░░▒▓▒░▒█ █ ▐▒▌     ░█▀
+                                  ▒█░█░▓██▓░ ░▒▓▒▒██░░▀▀    ▄██░▄
+                      ▄▄██▀▀█▄▄░  █ █░▒██▓▒▒░  ░▓▒█░     ▄▄█▀░▓█
+                        ░▀██▄░██▄░ ░█░▒██▒▓▓▒░░░▒█░    ▄██▀▀███
+                           ▀██░▒██▓ ██▓░█▒▒░▓▓▓▓█░   ▄█▀▐▓█ █▒
+                            ▒▀█▓░▓███▒▓███░▒░░░▒█░  ▐█  ▐▒█░█░    ░
+                             ▓██▓░█▓░ ░▒▓████▄ ░▒█░▄█▐  ▐░██▓   ░████▄▄ ▄██▄░
+                            ░█▓ ░█▒░      ░▒▒█▒░▒█▄█░▐ ░█ █ ██▄▄█▓▓ ░▓░█▓░░▓█░
+                            ██▒  ▓░  ▒▓ ░░    █▒▒▒██░▌░█ █ ░░ ▓█▓ ▒░  ▓   ▄█▓█
+                            ▓█▓░ █▒░ ▓█▓  ░█▓ █▓▓▒█░█ █ ░█ ▒█▓█░███▄  ░░▒░█ ▒█
+                            ░▓██ ░█░█▓░█▓ █▒██░░▒▓▒░▐▌ ░█ ░░▒▓ ▒▓▓▓██ ▓███ █ ▓
+                              ▓██▓▓███░█ █▓▒▀░ ░░▓▒░░▀█▀ █░█▄ ▒░▒█  █▓▒█ ░█░█
+                               ▓█▓▒░▒░▓██▓░▓▓▒░░░▓▒▒▓█▒   ██▓▒░▓█░  ▒█▓▌  ▐ ▓
+                               ▓█▓░░░▒██▓▒▓▒▒▓▓▓▓▓▓▓░█░  ▓█░▒█▓▀      ▀▓▄
+                              ███▓▒░▒▓██▓▓▒▒  ░▒▓▒░░░█  ▄█░█▀░
+                            █▓▒▓██▒░░▓██▓▒▓▒░  ░▓▒░▒█▓  █▒▀
+                          ██░░▓░▓█▓▒▒░██▓░▒▓▓▒ ▒▓▒▒▓█▒ ▀
+                         █▒▒ ▓▒▒███▓▒▒▓██▒░░▒▓▓▓▓▓▓▒█░
+                        █▒▓ ▓░▒█▓▓██▓▓▒██▒▒░  ░▒▓░▒█▓
+                       ▓▒▒▓▓░▒█▓▓▒▓███▓▒██▒▒░  ░▓▒▓██▓
+                      ▒███▓░▒██▓▒░▒░░██▓▒██▒▒░▒▓▒▓█████
+                     ▓█ ░ █▒█▓▓█▒▒░  ░▒█▓▓██▒▒▒▓▓███▓▒▓█
+                     █▒    █▓███▓▒▒░   ▒██▓ ██▓████▓░▒▒▓█
+                    █▒    █▓█░░░█▒░ ░▓▓ ▒▒█▓░░█░██▓▓░▒░▒▓█
+                    ░     ██▒▒▓▓██▒░ ░▒▓ ░▒█▓ ▒ ▓█▒█▓▒░░░▒█
+                         ▓█▓█▓▓▒█▓▒   ░▒▓ ░▒█▒ ▓██░▒█▓▒░▓░▒█
+                         █▒  █░▒█▒░░    ▒▓ ▒█▓▒███▒░▒█▓▓░ ░█▒
+                         █  ▓█▒░█▒░    ░ ▓▒▒▓█████▓░░▒▒░ ░ ░█░
+                          ░ ▐████▒▒░    ░░░▓████▓█▓▒░   ░░ ░█▒
+         ░████▓   █▒        ▐▌  █▓▒░▓░ ░░▒▒▓█████▓█░     ░ ▒▓█
+        █▓▒░░▒▒█░ ▓█▒        ░   █▒▓▒░▓░▒▒▓▓██▓██▓░▓░    ░░▒░█
+       ██████▓░▒█▓▓█░            █▒▒▓▓▒▒▓▓▓██▓▒█ █▒▓▒░  ░▒░░▒█
+      ██▒   ░█▓░▓███             ▐█▒▒░▒▓▓███░█▓▒██▒▒▓▓▒▒▓▒░▒░█
+      █░      ▓█▒▒▓█             ▐██▒▒▒▒▓░░▓█▓▒▓█▀█▒▒▓▓▓▒░▒░▒█
+     ▒█       █▓░░▒█  █           ███▒▓▒▓▒░▒█░▒██  █▄▒▒▒░▒░▒▓█
+    ░█         █▒█▒█░▓█            ███▓▓░ ░█▒▒░▒█▐▄ ███▓█▒▒▓█
+    ░          █▒█▓▒███ █         ░█▓█▌▒  ▒░█▒▒░█ ███▒░▓░█▓▓█
+                █▒░▒██▓░█         ░█▓█▒▒░   ░░██  ▐█▒█▒░░▒▓█
+                ▓█░███▓▓█  ░       ██▓█▒▒░░  ▀░▒█▒ █░ ▀▀ ▒█▓░
+                 ▒█▒▒▓█▓█ ░█        █▒█▓▓░ ░  ▄░▒█ ▒█░  ░█░▐▓
+                  █▓░▒██▓ ▒█        █▒░█▓▓ ▄  ░█░▓█ ▓█  █▓ ▐█▒
+                  █░▒█▓█▓▓██         █▒░█▓▒░█ ░█▒▓█  █▒░ ░▒▓██░
+                  ▓▒█▒░░▒▓█▓▓ ▒   ▒  █▒▓░█▓██▓▒▓█ ▀  ▐█░░   ░▓█▓░
+                   █▒░░▒▓▒▓▓█ █  ▒█  ▓▒▓░ █ ██▓█▓█    █▒░░   ░▓██▓
+                   ░▒▓██░█▒▒█▓█  ░█░  █▒▓░ ▒░███░█    ▐█▒▒░░ ░ ░▓██▒
+                    ██▒▒█░▒█▓▓█░ ░█▓▓██▒▓▒ ▓▒░█░▒▓     █▒█▓▒░░█▒░▓██▓
+                    █░░░▒▓██▓▒▓█ ▒█░██▓░▒ ▓▒█░▓▒█      ▒█▓█▓▒▓░██▓█▓██▄
+                    ░█░▓█▓█░▒█▓█ ░▓▓░░█░ ▓▒█▓░░▒█░      ░█ ██ ▒▓█▓██▌░▀
+                     █░██▒▒▓██▒█▒▓░█░▓█▒ ▓▓▒░░▒▓▓         ▀ ▓█▓░▓█▒▀█
+                     ███▒░░▓█▓▓▒████░▒█▒░▓░█▒░▒█             ░███░  ░
+                      ██░░░▒████░▓░▓█░▒█▓▓█▒░▒█▒                █
+                      ██▒░▒██░▒▓▒░░░▒▓▒▓█▓▒░▒▒█
+                       ██▒▓█▒░░▒██░▒▒▓█▒░██▓▒█▒
+                       █▓██▒░░░░▒▓█▒▓▓█░▒░▒█▓░
+                        █▒▓█▄▄▒▒▄████▓▓█░▒▓█▓
+                         █▒▓▀▀██▀░▒█▒▒░▓█▓██
+                          █▄▓▒▒░░░░░░░▒▒▓█▓
+                           ▀█▓▒░▒░░▒▓█▓██
+                             █▄▄▓▒▓▓█▓█▓
+                              ▀▀█████▀
+                                                                             █▓
+    ▒█                                              ░▒▒▓   ▒▓█    ▒        ▒█ █░
+   ██▒▒              ░                  ░   ░▒▒    ░████▓ █▓█     ▓█      ██  ░▒
+  ▒█░ █           ░▓█▓    █░         ░▓█▓ ▓▓███▓  ▒█  ░▒▓█░ █    █▓█    ░█▒    ▓
+  █░   █         ▓██░█  ██ ▒ █▓▒░   ▓██░█  █▓░▒█▒ █░   ░█░ █▒   █  █  ▒██      ▓
+ ▒▓░    █       ▓█░  ░██   ▓ █▒██▓ ▓█▒  ░█ █░  █▓ █    ░█░ █░  █  ░█▓█▓        █
+ ▒█░     █░    ▓█    ░█░   ▓ █▒  █▓█░   ░█ █░  ░█░█   ░█▒  █  ░█  █▓░        ▒█
+  ▒█░     ██   █     ░█░   █ █▒  ██     ░█ █▒   █▓█ ░ ░█░ ░█  ░█░ █░        ██
+   ░█░     ░█▒ █   █ ░█░▒  █ █▒  █    █ ░█ █▒   ░█▒ ▒ ░█░ ▒█  ░█░ █░ ░▓█▓   ▒▓
+   ▒█░ ░▓█▄ ▒▓ █  ▓█▓ ░█▒  █░█░  █   ▓█▓ ░██░ ░  █░ ▓░░█░ ▓█  ░█▒ █░█▓▒▓▓   ░█
+   ▓█░ ░█ █ █ █▓ ░█ █ ░█▓ ░█▓█░  █  ░█ █ ░██░ ▒  ▒  █▒░█░ ▓█  ░█▒ ▓██  █░    █
+   ▓█░  ██░ █ █▒ ▒   █ ░█       ░█  ▒   █ ░█ ▒▓  ░  █▓░█░ ▒█  ░█▓  ░▓   ▓   ░█
+   ▓█░      █ █░ █  ░█ ░█   ░▒  ▓█  █  ░█ ░█ ▓█░    █▓░▓▓  █▒ ░▓█  ░█   ▓   ▒█
+   ▓█░       ██░ █░██▒  ░█▓███  █   █░██▒  ░█▓█▓   ▓█▓ ░█   ▒████  ░▓█ █▓   ▓█
+   ▓█░        ▒█▒▓█     ░██░▒█  █░  ▓█     ░█░██▒ ▒██▒ ░█░    ░▒▓  ░▒█ █   ░█
+   ▒█░  ██▓    ▒█░   ▓█ ░██ ░█  █▒      ▓█ ░█░█▀█▒█▀█░  ▓█▒░       ▒█▓█▓   ░█
+    █░  █ ██   ░█░███▓░  ██ ▒█  █▓   ███▓   █░▓ ▀█▀ █  ░▒▓██▒░░    ▓█ █▒   ▒█
+  ███░  ▓█▀▀    ██▓ ░█   ▓█ ▓█  █▓ ░█▓ ░█  █▓░▒  ░  ▓    ░█░█████  █░ █▓░  ▓█
+ ▓▒░          ░▓██  ▒█░ ▒░█ █▓   █░▒█  ▒█ █▒██▓    █▒ ░▒█▓▓    ▒▓█ █   █▓░░█
+░ ███░ ▒██████▓██░░  ▓█▓██▓ ████▓███    ▓█   ░█     ▓███         ▓█     ██▓▓   ░
+▒   █▒░▄█                 ░                   ░                   ▒       █    ▒
+▓▓   ██▀       ...BAHAMUT has been summoned to proudly bring you...       ▒   ▓▓
+████ █                                                                      ████
+   █                 SNK_Arcade_Classics_Vol_1_EUR_PSP-BAHAMUT              █
+   ▓                                                                        ▓
+   ▒ Title: SNK Arcade Classics Vol.1                                     ▒
+   ░                                                                        ░
+     Country......: Europe                       Languages....: English
+     Release Date.: 2008/10/25                   Street Date..: 2008/10/25
+     System.......: PlayStation Portable         Format.......: .iso
+     Size.........: 49 * 20 MB                   Filename.....: b-snkacv1
+     Disc Serial..: ULES-01105
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██ ▀▓█████▄ ▀▓█▀▀█▄ ▀▓▄   ▄█ ▀▓████▄   ▀█▓ ▀▓█▀▀█▄ ▀▓████▄ ▀▓█████▄ ██▀  ▀
+    ▐█▓ ▓██▀   ▀ ▓██ ▄██ ▓██▀▄▀▓█ ▓██  ▀    ▓██ ▓██  ██ ▓██  ▀  ▓██▀ ▀██ ▓█▌
+   ▄█▌█ ▓██  ▀█▄ ▓██▀ ██ ▓██   ▓█ ▓██▀▀     ▓██ ▓██  ██ ▓██▀▀   ▓██   ██ █▐█▄
+  ███▐▌  ▓██▄▄██ ▓█▀  ██ ▓█▀   ▓█ ▓██▄▄█▄   ▓█▀ ██▀  ██ ▓█▀      ▓██▄███ ▐▌███
+ ▐██▌ █▄  ▀▀▀▀▀  ▀    ▀  ▀     ▀  ▀▀▀▀▀▀    ▀   ▀    ▀  ▀         ▀▀▀▀▀ ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+ SNK has collected a large variety of exciting fighting, action and sports
+ NEOGEO games for your Sony PSP, now you can play these games either in the
+ comfort of your home or on the go. The software organizes the games according
+ to alphabetical order and features a multiplayer mode that makes use of the
+ wireless feature of your Sony PSP.
+
+ The software contains a total of sixteen games, some of them are well known
+ like Fatal Fury and King of Fighters. The others are lesser known and some
+ have only appeared in the arcades in a flash before they disappeared, so
+ there is something familiar and something surprisingly new for all the gamers.
+
+    http://www.us.playstation.com/PSP/Games/SNK_Arcade_Classics_Volume_1
+
+             ▀▓█▀█▄ ▀▓████▄ ▀▓█     ▀▓████▄ ▀▓█▀▀█▄ ▀▓████▄ ▀▓████▄
+             ▓██▄█▀ ▓██  ▀  ▓██     ▓██  ▀  ▓██ ▄██ ▓█▄  ▀▀ ▓██  ▀
+             ▓██ ██ ▓██▀▀   ▓██     ▓██▀▀   ▓██▀ ██  ▀▀▀██▄ ▓██▀▀
+             ▓█▀ ██ ▓██▄▄█▄ ▓█▀▄▄██ ▓██▄▄█▄ ▓█▀  ██ ▓█▄▄▄██ ▓██▄▄█▄
+  ▄██▄       ▀   ▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀  ▀    ▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀        ▄██▄
+ ▀  ▀██            ▀▓█▀▀█▄ ▀▓█████▄ ▀▓████▄ ▀▓████▄ ▀▓████▄              ██▀  ▀
+    ▐█▓            ▓██  ██ ▓██▀ ▀██    ▓█   ▓██  ▀  ▓█▄  ▀▀              ▓█▌
+   ▄█▌█            ▓██  ██ ▓██   ██    ▓█   ▓██▀▀    ▀▀▀██▄              █▐█▄
+  ███▐▌            ██▀  ██  ▓██▄███    ▓█   ▓██▄▄█▄ ▓█▄▄▄██              ▐▌███
+ ▐██▌ █▄           ▀    ▀    ▀▀▀▀▀     ▀    ▀▀▀▀▀▀  ▀▀▀▀▀▀              ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+ Nice day, nice 350th release!
+
+ This game contains:
+ ~ ART OF FIGHTING ~ BASEBALL STARS 2 ~ BURNING FIGHT ~ FATAL FURY ~
+ ~ KING OF THE FIGHTERS 4 ~ KING OF THE MONSTERS ~ LAST RESORT ~ MAGICIAN LORD ~
+ ~ METAL SLUG ~ NEO TURF MASTERS ~ SAMURAI SHODOWN ~ SENGOKU ~ SHOCK TROOPERS ~
+ ~ SUPER SIDEKICKS 3 ~ TOP HUNTER ~ WORLD HEROES ~
+
+ Enjoy!
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██                 ▀▓████▄ ▀▓█████▄ ▀█▓ ▀▓█▀▀█▄                     ██▀  ▀
+    ▐█▓                     ██  ▓██▀ ▀██ ▓██ ▓██  ██                     ▓█▌
+   ▄█▌█                     ██  ▓██   ██ ▓██ ▓██  ██                     █▐█▄
+  ███▐▌                 ▓█▄▄██   ▓██▄███ ▓█▀ ██▀  ██                     ▐▌███
+ ▐██▌ █▄                ▀▀▀▀▀     ▀▀▀▀▀  ▀   ▀    ▀                     ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+ Interested in joining one of the most active console groups? We are looking 
+ for talented and motivated new members to help us on our goal. We are a group
+ built on friendship, devotion, respect and fun. If you are interested only in
+ the glory and releases, then you are not welcome. Hard work and dedication is
+ what has brought us to where we are today and we aim to continue that method.
+
+ SUPPLIERS
+ It is preferable that you work at a game store or have access to games on the
+ day of release. We are looking for suppliers from Hong Kong, Japan, Korea, 
+ USA and all European regions who are willing to contribute. One time suppliers
+ are not welcome, as a steady and consistent supply is required.
+ We are still interested in older, unreleased games from any region, so if you
+ have a game that has no release yet, and you match the consistency criteria,
+ you may be welcome. Suppliers must be able to do any of the following systems:
+ * PSP * PS3 * Wii * PS2 * X360 * NDS *
+
+ CODERS
+ Anybody interested in creating intros, trainers, cracks or anything else game
+ related are welcome. If you can code an application or tool designed for 
+ Windows based systems that can provide a benefit or aid for us, we are also
+ interested. Knowledge in C/C++/ASM is a must and experience with coding in a
+ game related field is not required, but preferable. If you have experience
+ with utilities or the game scene, dealing with encrypted files, we could also
+ use your help. If you are a demo maker and can do intros, trainers or even 
+ prods, we want you!
+
+ SITES
+ If you run a dedicated site, on a 100mbit line or faster, with good up-time 
+ and decent affiliation. Then your site might be of interest to us.
+
+ HARDWARE
+ If you can provide game systems, memory sticks, flash kits and even beta
+ versions of games, there could be a spot for you. We are also interested in
+ people with access to the latest SDK's and relevant programming tools, so
+ feel free to contact us.
+
+ If you fulfill any of the above criteria and are interested in joining us,
+ or if you want to contact us for any other reason, then feel free to do so.
+ Requests for files or anything related to our releases are automatically
+ ignored through a filter, so you can send them, but we won't receive them.
+
+                       EMAIL : team.bahamut@hushmail.com
+
+             ▀▓█▀█▄ ▀▓████▄ ▀▓█     ▀▓████▄ ▀▓█▀▀█▄ ▀▓████▄ ▀▓████▄
+             ▓██▄█▀ ▓██  ▀  ▓██     ▓██  ▀  ▓██ ▄██ ▓█▄  ▀▀ ▓██  ▀
+             ▓██ ██ ▓██▀▀   ▓██     ▓██▀▀   ▓██▀ ██  ▀▀▀██▄ ▓██▀▀
+             ▓█▀ ██ ▓██▄▄█▄ ▓█▀▄▄██ ▓██▄▄█▄ ▓█▀  ██ ▓█▄▄▄██ ▓██▄▄█▄
+  ▄██▄       ▀   ▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀  ▀    ▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀        ▄██▄
+ ▀  ▀██        ▀▓█  █▄ ▀█▓ ▀▓████▄ ▀▓████▄ ▀▓█████▄ ▀▓█▀█▄ ▀▓  ▄█        ██▀  ▀
+    ▐█▓        ▓██▄▄██ ▓██ ▓█▄  ▀▀    ▓█   ▓██▀ ▀██ ▓██▄█▀ ██▄▄▀█        ▓█▌
+   ▄█▌█        ▓██  ██ ▓██  ▀▀▀██▄    ▓█   ▓██   ██ ▓██ ██  ▀▀▀██        █▐█▄
+  ███▐▌        ██▀  ██ ▓█▀ ▓█▄▄▄██    ▓█    ▓██▄███ ▓█▀ ██ ▓█▄▄██        ▐▌███
+ ▐██▌ █▄       ▀    ▀  ▀   ▀▀▀▀▀▀     ▀      ▀▀▀▀▀  ▀   ▀  ▀▀▀▀▀        ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+ ### NAME                                            SYSTEM  REGION  DATE
+
+ 350 SNK Arcade Classics Vol.1                       PSP     EUR     2oo8-1o-25 
+ 349 Wagamama Fashion Girls Mode                     NDS     JPN     2oo8-1o-23
+ 348 Ratatouille                                     PSP     EUR-GRE 2oo8-1o-22
+ 347 Vampire Rain - Altered Species                  PS3     JPN     2oo8-1o-21
+ 346 FIFA 08                                         PSP     ASIA    2oo8-1o-19
+ 345 FIFA 08                                         PSP     EUR-POR 2oo8-1o-19
+ 344 FIFA 09                                         PSP     EUR-POR 2oo8-1o-19
+ 343 Winning Post 7 Maximum 2008                     PS3     JPN     2oo8-1o-19
+ 342 LEGO Batman - The Videogame                     PSP     EUR     2oo8-1o-15
+ 341 John Woo Presents Stranglehold                  PS3     JPN     2oo8-1o-14
+ 340 NBA Live 09                                     PSP     EUR     2oo8-1o-13
+ 339 Stuntman - Ignition                             PS3     JPN     2oo8-1o-12
+ 338 World Soccer Winning Eleven 2008                PS3     JPN     2oo8-1o-o8
+ 337 Hanshin Tigers DS                               NDS     JPN     2oo8-1o-o7
+ 336 The Incredible Hulk                             PS3     USA     2oo8-1o-o2
+ 335 Unreal Tournament III                           PS3     JPN     2oo8-1o-o1
+ 334 Blazing Angels 2 - Secret Missions of WWII      PS3     USA     2oo8-1o-o1
+ 333 Haze                                            PS3     USA     2oo8-1o-o1
+ 332 Haze                                            PS3     JPN     2oo8-1o-o1
+ 331 Kane And Lynch - Dead Men                       PS3     JPN     2oo8-o9-28
+ 330 Disgaea 3 - Absence of Justice                  PS3     USA     2oo8-o9-26
+ 329 Conan                                           PS3     USA     2oo8-o9-26
+ 328 Genji - Kamui Souran                            PS3     JPN     2oo8-o9-25
+ 327 Rock Band                                       Wii     PAL     2oo8-09-24
+ 326 SEGA Superstars Tennis                          PS3     USA     2oo8-o9-24
+ 325 Ferrari Challenge Trofeo Pirelli                PS3     USA     2oo8-o9-24
+ --- Medal of Honor - Airborne                       PS3     USA     2oo8-o9-23
+ 324 Untold Legends - Dark Kingdom                   PS3     JPN     2oo8-o9-23
+ 323 Wall-E                                          PSP     EUR     2oo8-o9-22
+ 322 John Woo Presents Stranglehold (Collector's)    PS3     USA     2oo8-o9-21
+ --- Madden NFL 07                                   PS3     JPN     2oo8-o9-20
+ 321 Burnout - Paradise                              PS3     USA     2oo8-o9-15
+ 320 Lost Via Domus                                  PS3     USA     2oo8-o9-13
+ 319 History Channel - Battle for the Pacific        PS3     USA     2oo8-o9-12
+ 318 Condemned 2 - Bloodshot                         PS3     USA     2oo8-o9-12
+ 317 Turok                                           PS3     USA     2oo8-o9-11
+ 316 Dark Sector                                     PS3     USA     2oo8-o9-11
+ 315 Neutopia 2                                      Wii-VC  USA     2oo8-o9-11
+ 314 The Elder Scroll IV - Oblivion (GoTY Edition)   PS3     USA     2oo8-o9-o9
+ 313 Resistance - Jinrui Botsuraku no Hi             PS3     JPN     2oo8-o9-o7
+ 312 Siren - New Translation                         PS3     ASIA    2oo8-o9-o6
+ 311 Need for Speed - Carbon                         PS3     JPN     2oo8-o9-o5
+ 310 Spiderman 3                                     PS3     JPN     2oo8-o9-o5
+ 309 Miyazato Sankyoudai Naizou - Sega Golf Club     PS3     JPN     2oo8-o9-o2
+ 308 Tom Clancy's Rainbow Six Vegas                  PS3     JPN     2oo8-o9-o1
+ 307 TimeShift                                       PS3     USA     2oo8-o8-31
+ 306 Princess Lillifee                               NDS     EUR     2oo8-o8-3o
+ 305 Metal Gear Online                               PS3     JPN     2oo8-o8-3o
+ 304 Kidou Senshi Gundam Target In Sight             PS3     JPN     2oo8-o8-29
+ 303 The Eye of Judgment                             PS3     USA     2oo8-o8-26
+ 302 Juiced 2 - Hot Import Nights                    PS3     USA     2oo8-o8-22
+ 301 Rainbow Six Vegas 2 - Bonus Material            PS3     USA     2oo8-o8-2o
+ 300 Ratchet and Clank Future Tools of Destruction   PS3     USA     2oo8-o8-14
+
+ ...and many more still to come. If you have a game that hasn't been dumped yet,
+ let us know and you may be rewarded!
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██          ▀▓█████▄ ▀▓█▀█▄ ▀▓████▄ ▀▓████▄ ▀▓████▄ ▀▓████▄         ██▀  ▀
+    ▐█▓          ▓██▀   ▀ ▓██▄█▀ ▓██  ▀  ▓██  ▀     ▓█   ▓█▄  ▀▀         ▓█▌
+   ▄█▌█          ▓██  ▀█▄ ▓██ ██ ▓██▀▀   ▓██▀▀      ▓█    ▀▀▀██▄         █▐█▄
+  ███▐▌           ▓██▄▄██ ▓█▀ ██ ▓██▄▄█▄ ▓██▄▄█▄    ▓█   ▓█▄▄▄██         ▐▌███
+ ▐██▌ █▄           ▀▀▀▀▀  ▀   ▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀     ▀    ▀▀▀▀▀▀         ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+     ▄                                                                     ▄
+        ▀▄                                                             ▄▀
+         ▐▌    ~ ARTiSAN ~ Booster ~ Caravan ~ DMU ~ LiGHTFORCE ~     ▐▌
+       ▀▄▀       ~ PARADOX ~ pSyPSP ~ REAL ~ Start2 ~ WRG ~            ▀▄▀
+    ▄▀▄▓▌                                                               ▐▓▄▀▄
+   ▐▌ ▓█                                                                 █▓ ▐▌
+    ▓▄ ▀█▄▄          ░                                     ░          ▄▄█▀ ▄▓
+   ▀ ▀█▄▄█████▄▄▄▄▄     ▄▓████████▄▄         ▄▄█████████▓     ▄▄▄▄▄█████▄▄█▀ ▀
+     ▀▄▄▀▀▀▓█▀▄▀   ▀ ░ ▓███▀ ▄█▀    ▀       ▀    ▀█▄ ▀███▓ ░ ▀   ▀▄▀█▓▀▀▀▄▄▀
+   ▄▓▄ ▄▀▄▓█▌▐▌ ▄▓▄  ▒ ▓██▌ ▐█▌ ▄▓▄  BAHAMUT  ▄▓▄ ▐█▌ ▐██▓ ▒  ▄▓▄ ▐▌▐█▓▄▀▄ ▄▓▄
+    ▀  ▀▄▀█▓▓▄▀▄ ▀   ▓ ▐▓██▄ ▀█▄ ▀ ▄   2k8   ▄ ▀ ▄█▀ ▄██▓▌ ▓   ▀ ▄▀▄▓▓█▀▄▀  ▀
+     ▀     ▀▀▀▀▀▀▀▀▀▀█  ▀▓▓██▄▄ ▀▀      ▄      ▀▀ ▄▄██▓▓▀  █▀▀▀▀▀▀▀▀▀▀     ▀
+                     █▄▄▄▄ ▀▀▀▓███▄▄▄▀     ▀▄▄▄███▓▀▀▀ ▄▄▄▄█
+                     ▀    ▀▄                         ▄▀    ▀
+                       ▄▓▄ █                         █ ▄▓▄
+                        ▀  ▓                         ▓  ▀
+                           ▒                         ▒
+                           ░                         ░

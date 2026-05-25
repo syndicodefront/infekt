@@ -1,0 +1,235 @@
+Jahr: 2013
+Genre: Action | Krimi | Drama
+Sprache: Englisch DTS | Deutsch AC3
+Laufzeit: 1h 52min
+Bitrate: 10,1 Mbps
+Format: mkv
+Größe: 8,00 GiB
+Release:
+
+Beschreibung:
+
+Los Angeles 1949: Der skrupellose Gangsterboss Mickey Cohen aus Brooklyn beherrscht die Stadt und sahnt bei allen illegalen Geschäften ab: Drogen, Waffenhandel, Prostitution. Wenn es nach ihm ginge, würde er auch bei jeder Pferdewette westlich von Chicago seinen Anteil kassieren. Mickeys Imperium gründet sich nicht nur auf die von ihm bezahlte Schlägertruppe – auch die Polizei und die Politik tanzen nach seiner Pfeife. Das reicht, um selbst die unerschrockensten, mit allen Wassern gewaschenen ehrlichen Cops einzuschüchtern … außer vielleicht eine kleine geheime Einheit von Außenseitern des LAPD unter der Leitung von Sgt. John O’Mara und Jerry Wooters, die Cohen gemeinsam von seinem Thron stürzen wollen. Regisseur Ruben Fleischer schildert in “Gangster Squad” die schillernden Ereignisse im Zuge der Bemühungen des LAPD, einem der gefährlichsten Mafiosi aller Zeiten die Kontrolle über die schnell wachsende Stadt wieder abzujagen.
+
+
+
+Retail !!!
+
+
+Allgemein
+
+Vollständiger Name : Gangster.Squad.2012.German.RETAiL.AC3D.5.1.DL.1080p.BluRay.x264-PS
+
+Format : Matroska
+
+Format-Version : Version 4 / Version 2
+
+Dateigröße : 8,00 GiB
+
+Dauer : 1h 52min
+
+Gesamte Bitrate : 10,1 Mbps
+
+Kodierungs-Datum : UTC 2013-05-04 18:40:12
+
+Kodierendes Programm : mkvmerge v6.1.0 ('Old Devil') built on Mar 2 2013 14:32:37
+
+verwendete Encoder-Bibliothek : libebml v1.3.0 + libmatroska v1.4.0
+
+
+
+Video
+
+ID : 1
+
+Format : AVC
+
+Format/Info : Advanced Video Codec
+
+Format-Profil : High@L4.1
+
+Format-Einstellungen für CABAC : Ja
+
+Format-Einstellungen für ReFrames : 5 frames
+
+Codec-ID : V_MPEG4/ISO/AVC
+
+Dauer : 1h 52min
+
+Bitrate : 8 188 Kbps
+
+Breite : 1 920 Pixel
+
+Höhe : 800 Pixel
+
+Bildseitenverhältnis : 2,40:1
+
+Modus der Bildwiederholungsrate : konstant
+
+Bildwiederholungsrate : 23,976 FPS
+
+ColorSpace : YUV
+
+ChromaSubsampling : 4:2:0
+
+BitDepth/String : 8 bits
+
+Scantyp : progressiv
+
+Bits/(Pixel*Frame) : 0.222
+
+Stream-Größe : 6,30 GiB (79%)
+
+verwendete Encoder-Bibliothek : x264 core 130 r2273 b3065e6
+
+Kodierungseinstellungen : cabac=1 / ref=5 / deblock=1:0:0 / analyse=0x3:0x133 / me=umh / subme=7 / psy=1 / psy_rd=1.00:0.00 / mixed_ref=1 / me_range=16 / chroma_me=1 / trellis=1 / 8x8dct=1 / cqm=0 / deadzone=21,11 / fast_pskip=0 / chroma_qp_offset=-2 / threads=18 / lookahead_threads=3 / sliced_threads=0 / nr=0 / decimate=1 / interlaced=0 / bluray_compat=0 / constrained_intra=0 / bframes=3 / b_pyramid=2 / b_adapt=1 / b_bias=0 / direct=1 / weightb=1 / open_gop=0 / weightp=2 / keyint=250 / keyint_min=23 / scenecut=40 / intra_refresh=0 / rc_lookahead=40 / rc=2pass / mbtree=1 / bitrate=8188 / ratetol=1.0 / qcomp=0.60 / qpmin=0 / qpmax=69 / qpstep=4 / cplxblur=20.0 / qblur=0.5 / ip_ratio=1.40 / aq=1:1.00
+
+Sprache : Deutsch
+
+Default : Ja
+
+Forced : Ja
+
+
+
+Audio #1
+
+ID : 2
+
+Format : AC-3
+
+Format/Info : Audio Coding 3
+
+Format_Settings_ModeExtension : CM (complete main)
+
+Format-Einstellungen für Endianess : Big
+
+Codec-ID : A_AC3
+
+Dauer : 1h 52min
+
+Bitraten-Modus : konstant
+
+Bitrate : 448 Kbps
+
+Kanäle : 6 Kanäle
+
+Kanal-Positionen : Front: L C R, Side: L R, LFE
+
+Samplingrate : 48,0 KHz
+
+BitDepth/String : 16 bits
+
+Stream-Größe : 362 MiB (4%)
+
+Sprache : Deutsch
+
+Default : Ja
+
+Forced : Ja
+
+
+
+Audio #2
+
+ID : 3
+
+Format : DTS
+
+Format/Info : Digital Theater Systems
+
+Format_Settings_Mode : 16
+
+Format-Einstellungen für Endianess : Big
+
+Codec-ID : A_DTS
+
+Dauer : 1h 52min
+
+Bitraten-Modus : konstant
+
+Bitrate : 1 509 Kbps
+
+Kanäle : 6 Kanäle
+
+Kanal-Positionen : Front: L C R, Side: L R, LFE
+
+Samplingrate : 48,0 KHz
+
+BitDepth/String : 24 bits
+
+Stream-Größe : 1,19 GiB (15%)
+
+Sprache : Englisch
+
+Default : Nein
+
+Forced : Nein
+
+
+
+Text #1
+
+ID : 4
+
+Format : UTF-8
+
+Codec-ID : S_TEXT/UTF8
+
+Codec-ID/Info : UTF-8 Plain Text
+
+Titel : Forced
+
+Sprache : Deutsch
+
+Default : Ja
+
+Forced : Ja
+
+
+
+Text #2
+
+ID : 5
+
+Format : UTF-8
+
+Codec-ID : S_TEXT/UTF8
+
+Codec-ID/Info : UTF-8 Plain Text
+
+Titel : SDH
+
+Sprache : Englisch
+
+Default : Nein
+
+Forced : Nein
+
+
+
+Menü
+
+00:00:00.000 : en:00:00:00.000
+
+00:09:53.635 : en:00:09:53.635
+
+00:20:51.167 : en:00:20:51.167
+
+00:28:36.173 : en:00:28:36.173
+
+00:39:22.860 : en:00:39:22.860
+
+00:49:25.462 : en:00:49:25.462
+
+00:59:59.262 : en:00:59:59.262
+
+01:09:23.493 : en:01:09:23.493
+
+01:20:05.259 : en:01:20:05.259
+
+01:31:01.539 : en:01:31:01.539
+
+01:38:50.341 : en:01:38:50.341
+
+01:44:11.370 : en:01:44:11.370
