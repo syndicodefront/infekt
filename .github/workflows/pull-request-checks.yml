@@ -6,6 +6,8 @@ on:
 
 permissions:
   contents: read
+  checks: write
+  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -31,6 +33,9 @@ jobs:
           cache: true
           cache-shared-key: pr-rust-ubuntu
 
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@2b5ff364fb2a09b0cb2738f3c46eb77ae3a4db59 # nextest
+
       - name: Check Formatting
         run: cargo fmt --all -- --check
 
@@ -38,4 +43,13 @@ jobs:
         run: cargo clippy --workspace --all-targets -- -D warnings
 
       - name: Run Tests
-        run: cargo test --workspace --all-targets
+        run: cargo nextest run --workspace --all-targets --profile ci
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@2ceeed2b8f26e15b06c3846719f75354febd9e7b # v2
+        if: ${{ !cancelled() }}
+        with:
+          files: target/nextest/ci/junit.xml
+          check_name: Rust Test Results
+          comment_title: Rust Test Results
+          comment_mode: always
