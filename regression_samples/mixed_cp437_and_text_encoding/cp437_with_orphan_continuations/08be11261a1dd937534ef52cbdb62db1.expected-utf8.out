@@ -1,0 +1,467 @@
+﻿
+                                       ░
+                                       ░
+                                       ▒
+                       ░               ▒░
+                       ░    ░         ░▒░    ░   ░
+                       ▒          ░  ▒▓█▓▒     ░░        ░
+                       ▓▒           ▒▓▓█▓▓▒▒▒▒▒▒▓    ░   ░
+                      ░█▓▓▒▒▒▒▓▓   ▓█████████████▓       ▒
+                ░     ▓█████████▒ ▓█▀▀▀▀▀▀▀▀▀▀▀▀▀█▓▓    ▓▒░
+                    ▓▓██▀▀▀▀▀▀▀▀█▓█ ████████████  ██▓  ▓▒█░   ░   ░       ░
+         ░        ▒▒██ ▄████████ █ ▐█▓▓▒▒▒░░░░░▓██  █▓▒▒███▓▓    ░
+              ░  ▒██ ▄██▓▓░░░░▒█   █░░░░▒░░█░░░░▓▓██ █▓█▀▀▀██▒▒▒░░▒   ░   ░
+         ░    ░░▓█ ▄██░░░░░░░░▓█ ░▐█░░░░░░█▀█░░░░░▓█ ██ ███ ▀███▓▓▒   ▒   ░
+         ░    ░▓█▐██░░███░░░░░█▌░ █░░░░░░█▌ ▐█░░░░▒█    █▓▓██ ▀▀██▒▒  ▒
+              ▓█▐█░░░█▀▀▀█░░░░█ ░ █░░░▒░█▌░ █░░░▒░▓█ ▓░▐█░░░▓███ ▀██▒▓█░  ░
+         ░   ▓█▐█░▒░░█ ░▐█░░▒▓█ ▓▐█░░░░░█ ░▐█░░░░░▓█ ░ █░░░░░░░▓██ ▀███▒░ ▒
+            ▓█ █░░░░█▌░ █░░▓▓█▌░ █░▒░░░█▌░ █░░░▒░░█▌░▓▐█░░▒░░░░█▓▓██ ▀██▒ ░
+      ░  ░  ▓█▐█░░░░█ ▓ ██████ ░▐█░░░░░█ ▓ █░░▒▒░░█ ░ █░░▒░░░░█▀█░░▓██ █▒ ▒ ░ ░
+         ░ ▓█▐█░░░░█▌▒░▓      ▒ █░░░░░░█ ░▐█░░░░░█▌░▓▐█░░░░░░█▌░▐█░░▒▓█ █▒▒   ░
+    ░   ░▒░█ █░░▒░░█ ▒░▓░▓▓▒░░▓▐█░░░░░█▌░ █░░░░░░█ ▓ █░░░░░░█▌░ █░▒░░░▓█ █▓▓
+    ░  ░▒▒▓█▐█░░░▒█▌▓▓░▒▒▓▓▒▒▓ █░░░░▒▒█ ▒▐█░░░░▒█▌░▒▐█░░░▒▒▒█ ▓▐█░░░░░▓▓█ █▓
+        ▓▒█ █░░▒▒▒█ ▓▓▒▓▓▓▓▓▒▓▐█░░▒▒▒█▌▒ █░░░▒▒▒█ ▒ █░░▒▒▒▒█▌░▐█░░░░░▒▒▓█ █▓  ░
+        ▓▓█▐█▒▒▒▒█▌▓▓▓▒▓▓▓▓▓▒ █▒▒▒▒▒▓█ ▓ █▒▒▒▒▓█▌▓▒▐█▒▒▒▒▒█▌▒ █▒▒▒▒▒▒▓▒█▌█▒▒ ░░
+     ░  ▓█▐█▓▒▒▓▒█ ▓▒▒▒▓▓▒▓▓▓ █▓▒▒▒▒▒█ ▒▐█▒▒▒▒▒█ ▒ █▒▓▒▒▒▒█ ▒▐█▒▒▒▒▓▒▒█▌█▓░░
+   ░   ▓█ █▒▒▒▒▒█▌▓▓▒▓▓▓▓▓▒▓▓▐█▒▒▒▒▒█▌▓ █▓▒▒▓▒▒█ ▒▐█▒▒▒▒▓█▌▒ █▒▒▒▒▒▒▒█▌█▓▒░   ░
+     ░ ▒█▐█▒▒▓▒▒█ ▓▓▓▓  ▓▓▓▓ █▒▒▒▓▒▒█ ▒▐█▒▒▒▒▒█▌▒ █▓▒▒▒▒▒█ ▓▐█▓▒▒▒▒▒█▌█▓▒░
+   ░ ░▒█ █▓▒▒▒▒█▌▓▓   ██▌▓▓▓▐█▒▓▒▒▒█▌▒ █▒▒▒▓▓█▌ ▒ █▒▒▒▒▒█▌▒ █▒▒▒▒▒▓▓█ █▓▒ ░
+     ░▒█▐█▒▒▒▓▓█ ▓ ███▓▓█ ▓ █▒▒▒▒▓▓█ ▒▐█▓▓▓▓▓█ ▓▓▐█▒▒▒▓▓█ ▓▐█▓▓▓▓▓░█▌█▓▒░    ░
+    ░▒█▐█▓▓▒▓▓█▌▓▓▐█▒▓▓▓█ ▓ █▓▒▒▓▓█▌▓ █▓▒▓▓▓▓█ ▓▐█▓▒▓▓▓█▌▓ █▓▒▓▓▓▓█▌█▓▓▒  ░ ░░░
+   ░▓█ █▓▒▓▒▓▓█ ▓ █▓▒▓▓▓█ ▓▐█▓▓▓▓▓█ ▓ █▓▓▓▒▓█▌▓ █▓▒▓▓▓▓█ ▓▐█▓▒▓▒▓█▌█▓▓▒░ ░░ ░ ░
+    ▒█▐█▓▓▓▓▓█▌▓▓▐█▓▓▒▓█▌▓ █▓▓▓▒▓▓█ ▓▐█▓▓▓▒▓█ ▓ █▓▒▓▓▓█▌▓▐█▓▓▓▓▓█▌█▓▓▓▒░
+   ▒█ █▓▓▓▓▓▒█▄▄▄█▓▓▓▓▓█ ▓▐█▓▓▓▓▓█▌▓▐█▓▓▓▓▓█▌▓ ▐█▓▓▓▒▓▓█▄█▓▓▓▒▓█▌█▓▓▒▒ ░ ░ ░
+   ▒█ ██▓▓▓▓▓▓███▓▓▓▓▓█▌▓ █▓▓▓▓▓▒▓█▄█▓▓▓▓▓██ ▓ █▓▓▓▓▒▓▒▓█▓▓▓▓██▌█▓▒▒▒▒░   ░░ ░
+   ▓██ ▀█████▓▓▓▓█████▌ ▓ █▓▓▓▓▓▒▓▓█▓▓▓▓██▀ ▓▓ █▓▓▓▓▓▓▓▓▓▓███▀ █▓▒▒▒▒░░   ░  ░
+ ░ ░▓██     ▀████▀    ██ ██████▓▓▓▓▓▓███▀ █ ▓ ████████████▀    █▓▒▒▒▒░  ░
+   ░ ▒███████▄▄▄▄████████▄▄▄▄ ▀██████▀ ▄███████▄▄▄▄▄▄▄▄▄▄▄████  █▓▒▒▒░ ░░░░
+ ░ ░▒▒▓░▒▒▓▓█████▓░▒▓▓▓▓███████▄▄▄▄▄▄████▓▒▒▒▓█████████████████  █▓▓░░ ░   ░
+ ░ ░██████▒▒▒▒▓▒░▒░ ▒▓▓▒▒▒▒▓▒▓▓██████░▒▒▒  ▒  ░▓▒▓▒▒░▓███████████ █▓▒ ░       ░
+ ░░█▀    ▀█░░▓▓▒▓▒░░░▓▓▒▒▒  ░  ▓░▒▓▒▓░   ░    ░  ░  ░   ▓█████████ █▓ ░  ░░
+ ▒█▌C.D.D.▐██████████▒▓▒▒▒▒ ░ ░░   ░        ░  ░  ░  ░    ▓░░▒████▄ █▓▒░░
+ ▓▒█                ▀█▒▒▒▒   ░░                            ░ ▓░░██▓▓ █▓       ░ 
+  ▓█▌proudly presents▐█▒▒   ░░                                  ▓▒██▓▓ ▓▒   ░
+                        ░ ░░ ░             Robots                ▒██▓▓ ▒░
+                                          (Robots)                ░█▓▓▓ ░
+                                           (2005)                 ░█▓█▓ ░  ░░
+                                                                  ░█▓█▓ ░
+       CDD Release Date   :  12-2006                              ░▒██▓▓     ░
+                                                                  ░███▓█░   ░
+                                                                  ░▒██▓▓░░
+       Size               :  55x200mb                              ░██▓▓
+                                                                   ░██▓▓░░
+                                                                   ░██▓▓ ░
+       Video Bitrate      :  17925 VBR                             ░█▓▓▓
+                                                                    █▓█▓ ░
+                                                                    ██▓▓    ░
+       iMDB Rating        :  6.4/10 (11,908 votes)                  █▓▓▓ ░
+                                                                   ░██▓▓
+                                                                   ░██▓▓
+       iMDB Link          :  http://imdb.com/title/tt0358082/       ██▓█     ░
+                                                                   ░██▓█
+                                                                    ██▓▓   ░
+                                                                    ██▓▓
+                 · ·· ── HDTV iNFO ── ·· ·                          ██▓▓
+                                                                   ░██▓▓
+       Video              :  RE-ENCODED         [ ]                 ██▓▓
+                             UNTOUCHED          [x]                 ██▓▓
+                                                                    ██▓▓
+       Audio              :  ENGLISH DD5.1      [x]                 ██▓▓     ░
+                             GERMAN  DD5.1      [x]                 ██▓▓
+                             ENGLISH DD2.0      [ ]                ░██▓▓
+                             GERMAN  DD2.0      [ ]                ░██▓▓
+                             SPANISH DD2.0      [ ]                 ██▓▓
+                             OTHER   DD2.0      [ ]                 ██▓▓
+                                                                    ██▓▓
+       Resolution         :  (1080i)  PAL       [x]                 ██▓▓
+                          :  (1080i)  NTSC      [ ]                 ██▓▓       
+                          :  (720p)   NTSC      [ ]                 ██▓▓
+                                                                    ██▓▓
+                                                                   ░██▓▓
+       Aspect Ratio       :  16:9               [x]                ░██▓▓
+                              4:3               [ ]                 ██▓▓
+                                                                    ██▓▓  ░
+                                                                     ██▓
+       Image Type         :  MPEG               [ ]                   █
+                             WMV                [ ]                   ▓
+                             TS                 [ ]
+                             h264               [x]                             
+                             X264               [ ]
+
+       Subtitles          :  ALL                [ ]
+                             GERMAN             [ ]
+                             ENGLISH            [ ]
+                             N/A                [x]
+
+       Region Code        :                     [0]
+
+       Tested on          :  MPC with CoreAVC 1.1.0.5 Pro
+                             (VLC 0.8.5-final), PowerDVD7
+
+
+                 · ·· ── MOViE PLOT ── ·· ·
+                                                                        ▓
+            http://www.kino.de/kinofilm.php4?nr=76278                   █
+                                                                        ██▓
+                                                                        ░██▓▓
+                · ·· ── RELEASE NOTES ── ·· ·                            ░██▓▓
+                                                                          ░██▓▓
+                                                                           ░██▓▓
+                                                                            ░██▓▓
+                                                                             ░██▓▓
+                                                                              ░██▓▓ 
+                                                                               ░██▓▓ 
+                                                                                ░██▓▓  
+                                                                                 ░██▓▓
+               · ·· ── 292th HDTV Release ── ·· ·                                 ░██▓▓
+                                                                                    ░██▓▓
+    001. Star.Wars.Episode.2.German.2002.AC3.Dubbed.HDTV-CDD                         ░██▓▓
+    002. Kill.Bill.2.German.2004.AC3.Dubbed.HDTV-CDD                                  ░██▓▓░░
+    003. Terminator.3.German.2003.AC3.Dubbed.HDTV-CDD                                  ░██▓▓ ░
+    004. Island.Fever.3.2004.iNTERNAL.XXX.HDTV-CDD                                       ░██▓▓ ░
+    005. Shrek.2.2004.German.AC3.Dubbed.HDTV-CDD                                          ░██▓▓ ░
+    006. Star.Trek.der.Aufstand.1998.German.AC3.Dubbed.HDTV-CDD                            ░██▓▓ ░
+    007. Ice.Age.2002.German.AC3.Dubbed.iNTERNAL.HDTV-CDD                                   ░██▓▓ ░ 
+    008. Wir.waren.Helden.2002.German.DL.Complete.PAL.iNTERNAL.HDTV-CDD                      ░██▓▓ ░
+    009. Texas.Chainsaw.Massacre.2003.German.AC3.5.1.Dubbed.iNTERNAL.HDTV-CDD                 ░██▓▓ ░
+    010. Species.1995.German.AC3.5.1.Dubbed.iNTERNAL.HDTV-CDD                                  ░██▓▓ ░
+    011. Tomb.Raider.die.Wiege.des.Lebens.2003.German.Complete.DL.PAL.iNTERNAL.HDTV-CDD         ░██▓▓ ░
+    012. Braveheart.German.1995.AC3.5.1.Dubbed.iNTERNAL.HDTV-CDD                                 ░██▓▓ ░
+    013. Matrix.German.1999.AC3.5.1.Dubbed.iNTERNAL.HDTV-CDD                                      ░██▓▓ ░
+    014. Total.Recall.German.1990.Complete.PAL.DL.iNTERNAL.HDTV-CDD                                ░██▓▓ ░ 
+    015. Starship.Troopers.German.1997.AC3.5.1.Dubbed.iNTERNAL.HDTV-CDD                             ░██▓▓ ░
+    016. Bikini.Destination.Fantasy.XXX.iNTERNAL.HDTV-CDD                                            ░██▓▓ ░
+    017. Herr.der.Ringe.die.zwei.Tuerme.Special.Extended.Edition.2002.German.AC3.Dubbed.1080i.HDTV-CDD░██▓▓ ░
+    018. Und.dann.kam.Polly.German.2004.AC3.Dubbed.iNTERNAL.Read.NFO.1080i.HDTV-CDD                   ░██▓▓ ░
+    019. The.Girl.Next.Door.German.2004.AC3.Dubbed.1080i.HDTV-CDD                                     ░██▓▓ ░
+    020. Riddick.Chroniken.eines.Kriegers.German.2004.AC3.Dubbed.HDTV-CDD                            ░██▓▓ ░
+    021. The.Day.After.Tomorrow.2004.German.AC3D.1080i.HDTV-CDD                                     ░██▓▓ ░
+    022. Bad.Boys.2.2003.German.AC3D.1080i.HDTV-CDD                                                ░██▓▓ ░
+    023. Butterfly.Effect.2004.German.AC3D.720p.HDTV-CDD                                           ░██▓▓ ░
+    024. Das.Fuenfte Element.1997.German.DL.AC3.1080i.HDTV-CDD                                     ░██▓▓ ░
+    025. Spiderman.2.2004.German.AC3D.1080i.HDTV-CDD                                               ░██▓▓ ░
+    026. Spiderman.2002.German.AC3D.1080i.HDTV-CDD                                                 ░██▓▓ ░
+    027. Blade.2.2002.German.AC3D.1080i.HDTV-CDD                                                  ░██▓▓ ░
+    028. Troja.2004.German.AC3D.1080i.HDTV-CDD                                                   ░██▓▓ ░
+    029. I.Robot.2004.German.AC3D.1080i.HDTV-CDD                                                ░██▓▓ ░
+    030. Die.Bourne.Verschwoerung.2004.German.AC3D.1080i.HDTV-CDD                              ░██▓▓ ░
+    031. Der.Herr.der.Ringe.die.Rueckkehr.des.Koenigs.2003.German.AC3D.1080i.HDTV-CDD         ░██▓▓ ░
+    032. Der.Herr.der.Ringe.die.Gefaehrten.2001.German.AC3D.1080i.HDTV-CDD                   ░██▓▓ ░
+    033. Britney.Spears.Live.from.Miami.2004.AC3.1080i.HDTV-CDD                             ░██▓▓ ░
+    034. Final.Destination.2000.German.AC3D.1080i.HDTV-CDD                                 ░██▓▓ ░
+    035. Eurotrip.2004.German.AC3D.1080i.HDTV-CDD                                         ░██▓▓ ░
+    036. Scary.Movie.3.2003.German.AC3D.1080i.HDTV-CDD                                   ░██▓▓ ░
+    037. Harry.Potter.und.der.Gefangene.von.Askaban.2004.German.AC3D.1080i.HDTV-CDD     ░██▓▓ ░
+    038. Swat.2003.German.AC3D.1080i.HDTV-CDD                                          ░██▓▓ ░ 
+    039. Last.Samurai.2003.German.AC3.1080i.HDTV-CDD                                  ░██▓▓ ░
+    040. James.Bond.007.-.Die.Welt.ist.nicht.genug.1999.German.AC3D.1080i.HDTV-CDD   ░██▓▓ ░
+    041. Traenen.der.Sonne.2003.German.AC3D.720p.HDTV-CDD                           ░██▓▓ 
+    042. The.Italian.Job.-.Jagd.auf.Millionen.2003.German.AC3D.720p.HDTV-CDD       ░██▓▓
+    043. Eiskalte.Engel.1999.German.AC3D.1080i.HDTV-CDD                           ░██▓▓
+    044. Pink.-.Live.in.Europe.2005.AC3.720p.HDTV-CDD                            ░██▓▓
+    045. Glimmer.Man.1996.German.AC3D.720p.HDTV-CDD                             ░██▓▓
+    046. Final.Fantasy.-.Die.Maechte.in.Dir.German.2001.AC3D.720p.HDTV-CDD      ░██▓▓
+    047. Bad.Boys.1995.FSK18.German.AC3D.1080i.HDTV-CDD                       ░██▓▓
+    048. Pirates.XXX.Complete.NTSC.720p.HDTV-CDD                             ░██▓▓
+    049. Crimson.Tide.-.In.tiefster.Gefahr.1995.German.AC3D.720p.HDTV-CDD    ░██▓▓
+    050. Lights.Camera.Girls.XXX.AC3.1080i.HDTV-CDD                           ░██▓▓
+    051. New.York.Taxi.2004.German.AC3D.1080i.HDTV-CDD                         ░██▓▓
+    052. S1m0ne.2002.German.AC3D.1080i.HDTV-CDD                                ░██▓▓
+    053. Mord.im.Weissen.Haus.1997.German.AC3D.720p.HDTV-CDD                   ░██▓▓
+    054. Tage.des.Donners.1990.German.AC3D.1080i.HDTV-CDD                      ░██▓▓
+    055. Dreizehn.2003.German.AC3D.1080i.HDTV-CDD                              ░██▓▓
+    056. Oceans.Twelve.2004.German.AC3D.1080i.HDTV-CDD                         ░██▓▓
+    057. Spanglish.2004.German.AC3D.1080i.HDTV-CDD                             ░██▓▓
+    058. Der.Manchurian.Kandidat.2004.German.AC3D.1080i.HDTV-CDD               ░██▓▓
+    059. Eminem.Live.From.New.York.2005.AC3.1080i-HDTV                         ░██▓▓
+    060. Die.Kuehe.sind.los.2004.German.AC3D.1080i.HDTV-CDD                    ░██▓▓
+    061. Independence.Day.1996.German.AC3D.DL.1080i.HDTV-CDD                    ░██▓▓
+    062. The.Rock.-.Fels.der.Entscheidung.1996.FSK18.German.AC3D.1080i.HDTV-CDD  ░██▓▓
+    063. Das.Vermaechtnis.der.Tempelritter.2004.German.AC3D.1080i.HDTV-CDD        ░██▓▓
+    064. Mission.Impossible.II.2000.German.AC3D.1080i.HDTV-CDD                   ░██▓▓
+    065. Gangs.of.New.York.2003.German.AC3D.720p.HDTV.iNTERNAL-CDD              ░██▓▓
+    066. Assault.on.Precinct.13.2005.German.AC3D.1080i.HDTV-CDD                 ░██▓▓
+    067. Madagascar.2005.German.AC3D.DL.720p.HDTV-CDD                           ░██▓▓
+    068. Titanic.1997.German.AC3D.1080i.HDTV-CDD                                ░██▓▓
+    069. Aviator.2004.German.AC3D.1080i.HDTV.iNTERNAL-CDD                       ░██▓▓
+    070. Die.Insel.2005.German.AC3D.720p.HDTV-CDD                               ░██▓▓
+    071. Harry.Potter.und.der.Stein.der.Weisen.2001.German.AC3D.1080i.HDTV-CDD  ░██▓▓
+    072. Ritter.aus.Leidenschaft.2001.German.AC3D.DL.1080i.HDTV-CDD              ░██▓▓
+    073. Hostage.2005.German.AC3D.1080i.HDTV-CDD                                  ░██▓▓
+    074. Paycheck.-.Die.Abrechnung.2003.German.AC3D.1080i.HDTV-CDD                 ░██▓▓
+    075. Sin.City.2005.German.AC3D.1080i.HDTV.iNTERNAL-CDD                          ░██▓▓
+    076. Im.Auftrag.des.Teufels.1997.German.AC3D.720p.HDTV-CDD                       ░██▓▓
+    077. Amadeus.1984.Directors.Cut.German.AC3D.720p.x264.HDTV-CDD                    ░██▓▓
+    078. Die.Stunde.des.Jaegers.2003.German.COMPLETE.PAL.720p.WMVHD.READ.NFO.HDTV-CDD  ░██▓▓
+    079. After.the.Sunset.2004.German.DL.AC3D.1080i.HDTV-CDD                          ░██▓▓
+    080. Shrek.2.2004.German.AC3D.DL.720p.HDTV.x264-CDD                              ░██▓▓
+    081. Das.Phantom.1996.German.AC3D.DL.1080i.HDTV-CDD                             ░██▓▓
+    082. 2.Fast.2.Furious.2003.German.AC3D.DL.720p.HDTV.x264-CDD                   ░██▓▓
+    083. Walking.Tall.-.Auf.eigene.Faust.2004.German.AC3D.DL.1080i.HDTV-CDD       ░██▓▓
+    084. Frequency.2000.German.AC3D.DL.1080i.HDTV-CDD                            ░██▓▓
+    085. After.the.Sunset.2004.German.DL.AC3D.1080i.HDTV.REPACK-CDD             ░██▓▓
+    086. Der.SpongeBob.Schwammkopf.Film.2004.German.AC3D.1080i.HDTV-CDD        ░██▓▓
+    087. Blade.Runner.1982.German.AC3D.DL.1080i.HDTV-CDD                       ░██▓▓
+    088. Black.Hawk.Down.2001.German.AC3D.DL.720p.HDTV.x264-CDD                ░██▓▓
+    089. Fight.Club.1999.German.AC3D.DL.720p.HDTV.x264-CDD                     ░██▓▓
+    090. Face.Off.1997.German.AC3D.1080i.HDTV-CDD                              ░██▓▓
+    091. Speed.1994.German.AC3D.DL.720p.HDTV.x264-CDD                          ░██▓▓
+    092. Blade.Runner.1982.German.AC3D.DL.720p.HDTV.x264-CDD                   ░██▓▓
+    093. Der.Englische.Patient.1996.German.AC3D.DL.1080i.HDTV-CDD              ░██▓▓
+    094. The.Fast.and.the.Furious.2001.German.DL.AC3D.1080i.HDTV-CDD           ░██▓▓
+    095. Snatch.2000.German.AC3D.1080i.HDTV-CDD                                ░██▓▓
+    096. Kung.Fu.Hustle.2004.German.AC3D.720p.HDTV.x264-CDD                    ░██▓▓
+    097. Million.Dollar.Baby.2004.German.AC3D.DL.720p.HDTV.x264-CDD            ░██▓▓
+    098. Resident.Evil.2002.German.AC3D.DL.720p.HDTV.x264-CDD                  ░██▓▓
+    099. Saw.2004.German.AC3D.DL.1080i.HDTV-CDD                                 ░██▓▓
+    100. Twister.1996.German.AC3D.DL.1080i.HDTV-CDD                                ░██▓▓
+    101. Constantine.2005.German.AC3D.DL.1080i.HDTV-CDD                             ░██▓▓
+    102. The.Devils.Rejects.2005.German.AC3D.DL.1080i.HDTV-CDD                       ░██▓▓
+    103. Zurueck.in.die.Zukunft.1985.German.AC3D.DL.720p.HDTV.x264-CDD                ░██▓▓
+    104. An.Evening.with.James.Blunt.2006.AC3.1080i.HDTV-CDD                         ░██▓▓
+    105. Meine.Frau.ihre.Schwiegereltern.und.Ich.2004.German.AC3D.DL.1080i.HDTV-CDD ░██▓▓
+    106. Blade.Trinity.2004.German.AC3D.DL.1080i.HDTV-CDD                          ░██▓▓
+    107. Zurueck.in.die.Zukunft.1985.German.AC3D.DL.1080i.HDTV-CDD                ░██▓▓
+    108. X-Men.2000.German.AC3D.DL.720p.HDTV.x264-CDD                            ░██▓▓
+    109. Der.Untergang.2004.German.AC3.1080i.HDTV.READ.NFO-CDD                   ░██▓▓
+    110. Avril.Lavigne.Live.in.South.Korea.2006.AC3.1080i.HDTV-CDD               ░██▓▓
+    111. Der.SpongeBob.Schwammkopf.Film.2004.German.AC3D.DL.720p.HDTV.x264-CDD  ░██▓▓
+    112. Zurueck.in.die.Zukunft.2.1989.German.AC3D.DL.1080i.HDTV-CDD           ░██▓▓
+    113. Layer.Cake.2004.German.AC3D.DL.720p.HDTV.x264-CDD                     ░██▓▓
+    114. Robbie.Williams.Live.At.the.Albert.2001.AC3.1080i.HDTV-CDD            ░██▓▓
+    115. Constantine.2005.German.AC3D.DL.720p.HDTV.x264-CDD                    ░██▓▓
+    116. Zurueck.in.die.Zukunft.3.1990.German.AC3D.DL.1080i.HDTV-CDD           ░██▓▓
+    117. Die.Dolmetscherin.2005.German.AC3D.DL.1080i.HDTV-CDD                  ░██▓▓
+    118. U2.Live.from.Chicago.2005.AC3.1080i.HDTV-CDD                          ░██▓▓
+    119. Pink.-.Live.in.Europe.2005.AC3.1080i.HDTV-CDD                         ░██▓▓
+    120. Sarah.McLachlan.-.Afterglow.Live.2004.AC3.1080i.HDTV-CDD              ░██▓▓
+    121. Snatch.2000.German.AC3D.DL.720p.HDTV.x264-CDD                         ░██▓▓
+    122. Donnie.Darko.2001.German.AC3D.DL.720p.HDTV.x264-CDD                   ░██▓▓
+    123. Per.Anhalter.durch.die.Galaxis.2005.German.AC3D.DL.1080i.HDTV-CDD     ░██▓▓
+    124. The.13th.Floor.1999.German.AC3D.DL.720p.HDTV.x264-CDD                 ░██▓▓
+    125. Cabin.Fever.2002.German.AC3D.DL.720p.HDTV.x264-CDD                     ░██▓▓
+    126. Die.Bourne.Identitaet.German.2002.German.AC3D.DL.1080i.HDTV-CDD         ░██▓▓
+    127. Enemy.at.the.Gates.2001.German.AC3D.DL.720p.HDTV.x264-CDD                ░██▓▓
+    128. Irgendwann.in.Mexico.2003.German.AC3D.DL.720p.HDTV.x264-CDD               ░██▓▓
+    129. Waynes.World.1992.German.AC3D.DL.720p.HDTV.x264-CDD                        ░██▓▓
+    130. Girls.Club.2004.German.AC3D.DL.1080i.HDTV-CDD                               ░██▓▓
+    131. Donnie.Darko.2001.German.AC3D.DL.1080i.HDTV-CDD                              ░██▓▓
+    132. Die.Liga.Der.Aussergewoehnlichen.Gentleman.2003.German.AC3D.DL.1080i.HDTV-CDD ░██▓▓
+    133. Casino.Royale.1967.German.AC3D.DL.1080i.HDTV-CDD                             ░██▓▓
+    134. Die.Insel.2005.German.AC3D.DL.720p.HDTV.x264-CDD                            ░██▓▓
+    135. Robots.2005.German.AC3D.DL.720p.HDTV.x264-CDD                              ░██▓▓
+    136. Pulp.Fiction.1994.German.AC3D.DL.720p.HDTV.x264-CDD                       ░██▓▓
+    137. Bram.Stokers.Dracula.1992.German.AC3D.DL.1080p.HDTV-CDD                  ░██▓▓
+    138. Apocalypse.Now.Redux.2001.German.AC3D.DL.1080i.HDTV-CDD                 ░██▓▓
+    139. The.Rock.1996.German.AC3D.DL.720p.HDTV.x264-CDD                        ░██▓▓
+    140. Schnappt.Shorty.1995.German.AC3D.DL.1080i.HDTV-CDD                    ░██▓▓
+    141. Isle.Of.Wight.Festival.2005.AC3.1080i.HDTV-CDD                         ░██▓▓
+    142. Sheryl.Crow.-.Wildflower.Tour.From.New.York.2006.AC3.1080i.HDTV-CDD     ░██▓▓
+    143. The.Chronicles.of.Riddick.2004.German.AC3D.DL.720p.HDTV.x264-CDD         ░██▓▓
+    144. Der.Herr.der.Ringe.-.Die.Gefaehrten.SEE.2001.German.AC3D.DL.1080p.HDTV-CDD░██▓▓
+    145. Die.Hochzeitscrasher.2005.German.AC3D.DL.1080i.HDTV-CDD                  ░██▓▓
+    146. Die.Hochzeitscrasher.2005.German.AC3D.DL.720p.HDTV.x264-CDD             ░██▓▓
+    147. Per.Anhalter.durch.die.Galaxis.2005.German.AC3D.DL.720p.HDTV.x264-CDD  ░██▓▓
+    148. Brothers.Grimm.2005.GERMAN.COMPLETE.PAL.DL.720p.WMV.HDTV.DVD9-CDD     ░██▓▓
+    149. Terminator.1984.UNCUT.German.AC3D.DL.720p.HDTV.x264-CDD               ░██▓▓
+    150. Hackers.1995.German.AC3D.DL.1080i.HDTV-CDD                            ░██▓▓
+    151. Hackers.1995.German.AC3D.DL.720p.HDTV.x264-CDD                        ░██▓▓
+    152. The.Terminal.2004.German.AC3D.DL.1080i.HDTV-CDD                       ░██▓▓
+    153. Green.Day.at.Storytellers.2005.AC3.1080i.HDTV-CDD                     ░██▓▓
+    154. Star.Wars.Episode.3.2005.German.AC3D.DL.720p.HDTV.x264-CDD            ░██▓▓
+    155. Amistad.1997.German.AC3D.DL.1080i.HDTV-CDD                            ░██▓▓
+    156. Top.Gun.1986.German.AC3D.DL.1080i.HDTV-CDD                              ░██▓▓
+    157. Terminator.3.2003.German.AC3D.DL.720p.HDTV.x264-CDD                      ░██▓▓
+    158. I.Robot.2004.German.AC3D.DL.720p.HDTV.x264-CDD                            ░██▓▓
+    159. The.Breakfast.Club.-.Der.Fruehstuecksclub.1985.German.AC3D.DL.1080i.HDTV-CDD░██▓▓
+    160. Stealth.-.Unter.dem.Radar.2005.German.AC3D.DL.1080i.HDTV-CDD               ██▓▓
+    161. Das.Phantom.der.Oper.2004.German.AC3D.DL.1080i.HDTV-CDD                    █▓▓▓
+    162. Shrek.2001.German.AC3D.DL.720p.HDTV.x264-CDD                               █▓▓▓
+    163. Fluch.der.Karibik .2003.German.AC3D.DL.720p.HDTV.x264-CDD                  █▓▓▓
+    164. Oasis.Live.in.the.USA.2005.AC3.1080i.HDTV-CDD                              █▓▓▓
+    165. Mr.und.Mrs.Smith.2005.German.AC3D.DL.1080i.HDTV-CDD                        █▓▓▓
+    166. The.Punisher.2004.German.AC3D.DL.1080i.HDTV-CDD                            █▓▓▓
+    167. Star.Wars.Episode.2.2002.German.AC3D.DL.720p.HDTV.x264-CDD                 █▓▓▓
+    168. Mr.und.Mrs.Smith.2005.German.AC3D.DL.720p.HDTV.x264-CDD                    █▓▓▓
+    169. Passwort.Swordfish.2001.German.AC3D.DL.720p.HDTV.x264-CDD                  █▓▓▓
+    170. The.Punisher.2004.German.AC3D.DL.720p.HDTV.x264-CDD                        █▓▓▓
+    171. The.Beach.2000.German.AC3D.DL.720p.HDTV.x264-CDD                           █▓▓▓
+    172. Madagascar.2005.German.AC3D.DL.1080i.HDTV-CDD                              █▓▓▓
+    173. Top.Gun.1986.German.AC3D.DL.720p.HDTV.x264-CDD                             █▓▓▓
+    174. Be.Cool.2005.German.AC3D.DL.1080i.HDTV-CDD                                 █▓▓▓
+    175. xXx.2002.German.AC3D.DL.720p.HDTV.x264-CDD                                 █▓▓▓
+    176. Der.Verbotene.Schluessel.2005.German.AC3D.DL.1080i.HDTV-CDD                █▓▓▓
+    177. Herbie.Fully.Loaded.2005.German.AC3D.DL.1080i.HDTV-CDD                     █▓▓▓
+    178. Armageddon.1998.German.AC3D.DL.1080i.iNTERNAL.HDTV-CDD                     █▓▓▓
+    179. Apollo.13.1995.German.AC3D.DL.720p.HDTV.x264-CDD                           █▓▓▓
+    180. Layer.Cake.2004.German.AC3D.DL.1080i.HDTV-CDD                              █▓▓▓
+    181. Lord.of.War.2005.German.AC3D.DL.1080i.HDTV-CDD                             █▓▓▓
+    182. Lord.of.War.2005.German.AC3D.DL.720p.HDTV.x264-CDD                         █▓▓▓
+    183. Armageddon.1998.German.AC3D.DL.720p.HDTV.x264-CDD                          █▓▓▓
+    184. Serenity.2005.German.AC3D.DL.1080i.HDTV.iNTERNAL-CDD                       █▓▓▓
+    185. Brothers.Grimm.2005.German.AC3D.DL.720p.HDTV.x264-CDD                      █▓▓▓
+    186. Dantes.Peak.1997.German.AC3D.1080i.HDTV-CDD                                █▓▓▓
+    187. Madagascar.2005.German.AC3D.DL.720p.HDTV.x264-CDD                          █▓▓▓
+    188. Red.Planet.2000.German.AC3D.DL.1080i.HDTV-CDD                              █▓▓▓
+    189. Oceans.Twelve.2004.German.AC3D.DL.720p.HDTV.x264-CDD                       █▓▓▓
+    190. Antz.1998.German.AC3D.DL.1080i.HDTV-CDD                                    █▓▓▓
+    191. Be.Cool.2005.German.AC3D.DL.720p.HDTV.x264-CDD                             █▓▓▓
+    192. The.Big.Lebowski.1998.German.AC3D.DL.1080i.HDTV-CDD                        █▓▓▓
+    193. Das.fuenfte.Element.1997.German.AC3D.DL.720p.HDTV.x264-CDD                 █▓▓▓
+    194. Jungfrau.40.maennlich.sucht.XXL.2005.German.AC3D.DL.1080i.HDTV-CDD         █▓▓▓
+    195. Herbie.Fully.Loaded.2005.German.AC3D.DL.720p.HDTV.x264-CDD                 █▓▓▓
+    196. Kill.Bill.Volume.1.2003.German.AC3D.DL.720p.HDTV.x264-CDD                  █▓▓▓
+    197. Kill.Bill.Volume.2.2004.German.AC3D.DL.720p.HDTV.x264-CDD                  █▓▓▓
+    198. Freddy.vs.Jason.2003.German.AC3D.DL.1080i.HDTV-CDD                         █▓▓▓
+    199. Cellular.2004.AC3D.DL.720p.HDTV.x264-CDD                                   █▓▓▓
+    200. The.Aviator.2004.AC3D.DL.720p.HDTV.x264-CDD                                █▓▓▓
+    201. The.Big.Lebowski.1998.AC3D.DL.720p.HDTV.x264-CDD                           █▓▓▓
+    202. Mean.Girls.2004.AC3D.DL.720p.HDTV.x264-CDD                                 █▓▓▓
+    203. Sky.Captain.and.the.World.of.Tomorrow.2004.AC3D.DL.720p.HDTV.x264-CDD      █▓▓▓
+    204. Van.Helsing.2004.AC3D.DL.720p.HDTV.x264-CDD                                █▓▓▓
+    205. Dark.City.1998.AC3D.DL.720p.HDTV.x264-CDD                                  █▓▓▓
+    206. Dune.1984.AC3D.DL.720p.HDTV.x264-CDD                                       █▓▓▓
+    207. Get.Shorty.1995.AC3D.DL.720p.HDTV.x264-CDD                                 █▓▓▓
+    208. Ghostbusters.1984.AC3D.DL.720p.HDTV.x264-CDD                               █▓▓▓
+    209. Kingdom.of.Heaven.2005.AC3D.DL.720p.HDTV.x264-CDD                          █▓▓▓
+    210. Into.the.Blue.2005.AC3D.DL.1080i.HDTV-CDD                                  █▓▓▓
+    211. Into.the.Blue.2005.AC3D.DL.720p.HDTV.x264-CDD                              █▓▓▓
+    212. The.Great.Raid.2005.AC3D.DL.720p.HDTV.x264-CDD                             █▓▓▓
+    213. Waynes.World.2.1993.AC3D.DL.720p.HDTV.x264-CDD                             █▓▓▓
+    214. The.Sum.of.All.Fears.2002.AC3D.DL.720p.HDTV.x264-CDD                       █▓▓▓
+    215. The.Fog.2005.AC3D.DL.1080i.HDTV-CDD                                        █▓▓▓
+    216. Uncle.Buck.1989.AC3D.DL.1080i.HDTV-CDD                                     █▓▓▓
+    217. Four.Brothers.2005.AC3D.DL.1080i.HDTV-CDD                                  █▓▓▓
+    218. The.Fog.2005.AC3D.DL.720p.HDTV.x264-CDD                                    █▓▓▓
+    219. Blade.1998.UNCUT.AC3D.DL.1080i.HDTV-CDD                                    █▓▓▓
+    220. Jaws.1975.AC3D.DL.1080i.HDTV-CDD                                           █▓▓▓
+    221. Jaws.2.1978.AC3D.DL.1080i.HDTV-CDD                                         █▓▓▓
+    222. Red.Planet.2000.AC3D.DL.720p.HDTV.x264-CDD                                 █▓▓▓
+    223. Four.Brothers.2005.AC3D.DL.720p.HDTV.x264-CDD                              █▓▓▓
+    224. Terminator.2.Judgment.Day.1991.AC3D.DL.1080i.HDTV.iNTERNAL-CDD             █▓▓▓
+    225. Collateral.2004.AC3D.DL.1080i.HDTV-CDD                                     █▓▓▓
+    226. Die.Reise.des.jungen.Che.2004.German.AC3D.720p.HDTV.x264-CDD               █▓▓▓
+    227. Blade.1998.UNCUT.AC3D.DL.720p.HDTV.x264-CDD                                █▓▓▓
+    228. The.Cave.2005.AC3D.DL.1080i.HDTV-CDD                                       █▓▓▓
+    229. Collateral.2004.AC3D.DL.720p.HDTV.x264-CDD                                 █▓▓▓
+    230. Dodgeball.2004.AC3D.DL.1080i.HDTV-CDD                                      █▓▓▓
+    231. Dodgeball.2004.AC3D.DL.720p.HDTV.x264-CDD                                  █▓▓▓
+    232. Sudden.Death.1995.AC3D.DL.1080i.HDTV-CDD                                   █▓▓▓
+    233. Collateral.Damage.2002.AC3D.DL.1080i.HDTV-CDD                              █▓▓▓
+    234. The.Legend.of.Zorro.2005.AC3D.DL.1080i.HDTV-CDD                            █▓▓▓
+    235. Zathura.2005.AC3D.DL.1080i.HDTV-CDD                                        █▓▓▓
+    236. A.Night.at.the.Roxbury.1998.AC3D.DL.1080i.HDTV-CDD                         █▓▓▓
+    237. X-Files.The.Movie.1998.AC3D.DL.1080i.HDTV-CDD                              █▓▓▓
+    238. Saw.2.2005.AC3D.DL.1080i.HDTV-CDD                                          █▓▓▓
+    239. The.Legend.of.Zorro.2005.AC3D.DL.720p.HDTV.x264-CDD                        █▓▓▓
+    240. Collateral.Damage.2002.AC3D.DL.720p.HDTV.x264-CDD                          █▓▓▓
+    241. Fantastic.Four.2005.AC3D.DL.720p.HDTV.x264-CDD                             █▓▓▓
+    242. Zathura.2005.AC3D.DL.720p.HDTV.x264-CDD                                    █▓▓▓
+    243. Broken.Arrow.1996.AC3D.DL.1080i.HDTV-CDD                                   █▓▓▓
+    244. Platoon.1986.AC3D.DL.1080i.HDTV-CDD                                        █▓▓▓
+    245. A.Night.at.the.Roxbury.1998.AC3D.DL.720p.HDTV.x264-CDD                     █▓▓▓
+    246. Die.Hard.With.a.Vengeance.1995.AC3D.DL.720p.HDTV.x264-CDD                  █▓▓▓
+    247. The.40.Year.Old.Virgin.UNRATED.2005.AC3D.DL.720p.HDTV.x264-CDD             █▓▓▓
+    248. The.Constant.Gardener.2005.AC3D.DL.1080i.HDTV-CDD                          █▓▓▓
+    249. The.Lion.King.1994.AC3D.DL.720p.HDTV-CDD                                   █▓▓▓
+    250. Phil.Collins.Finally.The.First.Farewell.Tour.2004.AC3.1080i.HDTV-CDD       █▓▓▓
+    251. Man.On.Fire.2004.AC3D.DL.720p.HDTV.x264-CDD                                █▓▓▓
+    252. White.Noise.2005.AC3D.DL.1080i.HDTV-CDD                                    █▓▓▓
+    253. Blow.2001.AC3D.DL.1080i.HDTV-CDD                                           █▓▓▓
+    254. Tsubasa.Chronicle.Movie.2005.Fansubbed.720p.HDTV.x264-CDD                  █▓▓▓
+    255. Dune.-.Der.Wuestenplanet.1985.German.AC3D.1080i.HDTV-CDD                   █▓▓▓
+    256. Platoon.1986.AC3D.DL.720p.HDTV.x264-CDD                                    █▓▓▓
+    257. Abyss.-.Abgrund.des.Todes.1989.German.AC3D.1080i.HDTV.iNTERNAL-CDD         █▓▓▓
+    258. The.Chronicles.of.Narnia.The.Lion.The.Witch.and.The.Wardrobe.UNRATED.2005. █▓▓▓
+    259. Doom.UNRATED.2005.AC3D.DL.1080i.HDTV-CDD                                   █▓▓▓
+    260. xxxHOLiC.Movie.2005.Fansubbed.720p.HDTV.x264-CDD                           █▓▓▓
+    261. Green.Card.1990.AC3D.DL.1080i.HDTV-CDD                                     █▓▓▓
+    262. Young.Sherlock.Holmes.1985.AC3D.DL.1080i.HDTV-CDD                          █▓▓▓
+    263. The.Constant.Gardener.2005.AC3D.DL.720p.HDTV.x264-CDD                      █▓▓▓
+    264. Blow.2001.AC3D.DL.720p.HDTV.x264-CDD                                       █▓▓▓
+    265. Saving.Private.Ryan.1998.AC3D.DL.1080i.HDTV.READ.NFO-CDD                   █▓▓▓
+    266. Around.the.World.in.80.Days.2004.AC3D.DL.1080i.HDTV.x264-CDD               █▓▓▓
+    267. Jarhead.2005.AC3D.DL.1080i.HDTV-CDD                                        █▓▓▓
+    268. Yours.Mine.And.Ours.2005.AC3D.DL.1080i.HDTV-CDD                            █▓▓▓
+    269. Dumb.and.Dumber.1994.AC3D.DL.1080i.HDTV-CDD                                █▓▓▓
+    270. Bird.on.a.Wire.1990.AC3D.DL.1080i.HDTV-CDD                                 █▓▓▓
+    271. I.Robot.2004.AC3D.DL.1080i.HDTV.x264-CDD                                   █▓▓▓
+    272. As.Good.as.It.Gets.1997.AC3D.DL.1080i.HDTV-CDD                             █▓▓▓
+    273. Gladiator.2000.DTSD.DL.720p.HDTV.x264-CDD                                  █▓▓▓
+    274. X2.2003.AC3D.DL.720p.HDTV.x264-CDD                                         █▓▓▓
+    275. Go.1999.AC3D.DL.1080i.HDTV-CDD                                             █▓▓▓
+    276. Saw.2004.AC3D.DL.720p.HDTV.x264-CDD                                        █▓▓▓
+    277. Saw.2.2005.AC3D.DL.720p.HDTV.x264-CDD                                      █▓▓▓
+    278. Conan.der.Zerstoerer.1984.German.AC3D.1080i.HDTV-CDD                       █▓▓▓
+    279. The.Cell.2000.German.AC3D.1080i.HDTV-CDD                                   █▓▓▓
+    280. Batman.Begins.2005.AC3D.DL.1080i.HDTV.h264-CDD                             █▓▓▓
+    281. Bridget.Jones.-.The.Edge.of.Reason.2004.AC3D.DL.1080i.HDTV-CDD             █▓▓▓
+    282. Con.Air.1997.AC3D.DL.1080i.HDTV.h264-CDD                                   █▓▓▓
+    283. Batman.Begins.2005.AC3D.DL.720p.HDTV.x264-CDD                              █▓▓▓
+    284. White.Noise.2005.AC3D.DL.1080i.HDTV.x264-CDD                               █▓▓▓
+    285. Mr.and.Mrs.Smith.2005.AC3D.DL.1080i.HDTV.h264-CDD                          █▓▓▓
+    286. Mindhunters.2004.AC3D.DL.1080i.HDTV.h264-CDD                               █▓▓▓
+    287. Memoirs.of.a.Geisha.2005.AC3D.DL.1080i.HDTV.h264-CDD                       █▓▓▓
+    288. Spiderman.2.2004.AC3D.DL.1080i.HDTV.h264-CDD                               █▓▓▓
+    289. The.Matador.2005.AC3D.DL.1080i.HDTV.h264-CDD                               █▓▓▓
+    290. Independence.Day.1996.AC3D.DL.1080i.HDTV.h264-CDD                          █▓▓▓
+    291. Star.Wars.Episode.1.The.Phantom.Menace.1999.AC3D.DL.1080i.HDTV.h264-CDD    █▓▓▓    
+    292. Robots.2005.AC3D.DL.1080p.HDTV.h264-CDD                                    █▓▓▓
+                                                                                    █▓▓▓
+                       ─ TEAM NOTES ─                                               █▓▓▓
+                                                                                  ░█▓▓
+                                                                                 ░█▓
+               we are currently looking for                                    ░█▓
+               ────────────────────────────                                  ░█▓
+                                                                           ░█▓
+               - Remote Box (Windows, 10Mbit+)                          ░█▓
+               - Affil-Sites 100Mbit+ (no .de/.at)                    ░█▓
+               - TV Capper mit Premiere und schnellem Upload        ░█▓
+                 (upstream 100kb/s)                               ░█▓
+               - Grp Dump 10Mbit+                               ░█▓
+                                                                ░█▓
+                                                                ░█▓
+                                                                ░█▓
+                                                                ░█▓
+                       ─ GRETTiNGS ─                            ░█▓
+                                                                ░█▓
+               Wir gruessen alle die unsere Arbeit                ░█▓
+               zu schaetzen wissen                                  ░█▓
+               Ausserdem gruessen wir alle die                       ░█▓
+               busted wurden, wir werden euch                         ░█▓
+               vermissen.                                             ░█▓
+                                                                      ░█▓
+               Besondere Gruesse gehen an:                            ░█▓
+                                                                      ░█▓
+         ..:: RAF SOF DAW JSpec und alle Affil Sites ::..             ░█▓
+                                                                      ░█▓
+                                                                      ░█▓
+                                                                      ░█▓
+ ┌───────────────────────────────────────────────────────────┐        ░█▓
+ │Unsere Release sind ausschliesslich fuer die Szene gedacht.│        ░█▓
+ │ Wir missbilligen jegliches Publik machen unserer Release  │        ░█▓
+ └┐          in P2P sowie FXP Netzen.                       ┌┘        ░█▓
+  └─────────────────────────────────────────────────────────┘        ░██▓
+                                                                    ░░█▓▌
+                                                                    █▓▓▓▒    ░
+                                                                   ██▓█▓▓ ░
+                                                              ▄▄▄████▓█▓
+                                                             ▐█  ░  █▓▓▓  ░ ░
+                                                             ██▒  ░██▓▓░   ░
+                                                         ▄▄███▒▒ ░░▓█▓▓░   ░ ░
+                                                        ██░ █ ▓▓▒ █▓█▓▓▒ ░ ░
+                                                       ██ ░ █  ▓ █▓▓▓▓▓▒ ░▒▒ ░
+                                                       █▓▒ ░  █▓█▓▓█▓░▓▒▒░▒ ░
+                                                 ▄▄▄▄███▒▒ ░ ██▓▓▓▓▓▓▓▓█ ░
+                                             ▄▄▄██░ ░ ██▒▓▒ █▓▓▓▓██▓█▓▓▓░▒  ░
+                                             █▓▒ ░ ░░  ▓ ████▓█▓░▀▀▀▀▓▓▓░▒  ░
+                                            ██▓▒▒▒  ░░  ███▓▓▓░▓█░█████▓█   ░
+                            ▄▄             ██▓▓ ▓▒     █████▓█▓▓▓█▓██░░▓▓▒  ░
+                           ▐░████     ██████████    ██▓▓▓▓▓▓██▓█░░▓░░███▓▒  ▒
+                    ▄████▄ █▒▒  ░█   ██▒   ░ ░ █ ███▓██▓███▓▓████▓▓▓▓▓██▓░   ░
+                   ▐█▒▒░ ░█▓▓ ██████▄█▓▒▒░▒   █▒▒███▓█▓██▀▀▀▀▀▀▀▀██▓█▓▓░▓▓░  ░
+                 ▄██▓ ▒▒  ░█▓█▓▒▒▒  █▓▓▓ ▒   ███▓█▓█▒█▓██████████▒█▓▓██▓█▓▓
+ ▄▄▄██░███████████ ▓▓       █▓▓▓▐   ███  █████▒▓██▀▀▀█▓▓▓▓▓█▒▒▒▒▄▄▄▄▄▒██▓██ ░
+ █▓▓▓███▒█▒▒██░██████████████████░█████████░██▓▓▓█▓▓██████▓▓▓███▒████▒█▓██░
+  ░█▓▓█▓█████▒██▒▒██▒███▒█░░████░░███▓▓▓██░█░██▒████
+    ASCii done by .optron 2oo4         ▓▓███

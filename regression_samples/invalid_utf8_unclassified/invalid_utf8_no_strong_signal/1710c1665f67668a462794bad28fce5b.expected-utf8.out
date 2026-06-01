@@ -1,0 +1,119 @@
+﻿
+     Dark_Souls_XGD3_0800_NTSC-XBOX360-RRoD
+    ____________________________________________________________________ _ _
+   +-RELEASE.DETAiLS
+
+      ∙ReleaseDate... 2011-10-04         ∙Source Media....... XGD3 DVD9
+      ∙Filename...... rrod-das.rxx       ∙Source Region...... NTSC/U
+      ∙RarCount...... 86x100MB           ∙Playable Regions... NTSC/U, NTSC/J
+      ∙Format........ ISO                ∙Verified........... Yes
+      ∙http://marketplace.xbox.com/games
+
+    ____________________________________________________________________ _ _
+   +-RELEASE.iNFORMATION
+
+       The unexpected surprise hit and GameSpot's Best of 2009 - Game of the
+       Year Winner Demon's Souls now has its spiritual successor in Dark
+       Souls. This once-in-a-generation game will take you through an
+       experience so challenging, so punishing and yet so intensely
+       gratifying that it will leave you anguished for wanting more. Set in
+       a rich, dark fantasy world, experience tense dungeon crawling,
+       fearsome enemy encounters and groundbreaking online features for a
+       truly unforgettable gaming experience. Dark Souls breaks down
+       barriers with a seamless world design filled with the most
+       unexpected of surprises. The unerring foundation of challenge and
+       reward will engulf you and offer an unparalleled sense of
+       achievement.
+
+    ____________________________________________________________________ _ _
+   +-RELEASE.NOTES
+
+       Playable Regions: NTSC/U, NTSC/J
+
+       SplitVid, SSv2, AP2.5, and verified with abgx360!
+
+
+       This ISO is fully compatible with the new LT+ v2.0 for Phats and
+       Slims, burnable to a regular DVD+R DL disc, includes full & correct
+       AP2.5 data, and is verified in the abgx360 database. Please refer to
+       the status table on http://c4evaspeaks.com for a breakdown of which
+       drives support LT+ v2.0.
+
+
+       XGD3 BACKUPS OVERVIEW
+
+       To end the confusion once and for all, *yes*, original XGD3 discs
+       have a higher linear/track density and therefore a higher physical
+       capacity than XGD2 and regular DVD+R DL media. As a result, XGD3 ISO
+       backups are larger as well.
+
+       For XGD3 backup support, c4eva has introduced in LT+ v2.0 the LT-MAX
+       feature, which allows for XGD3 backups to use the maximum possible
+       layerbreak for regular DVD+R DL media, and therefore all of the
+       available space (8,547,991,552 bytes) of a regular DVD+R DL disc.
+
+       Since there is still not enough space on a regular DVD+R DL disc to
+       hold the entire XGD3 game partition, not to mention the Layer 1
+       Video partition, this is not at all recommended as being "safe" for
+       Xbox LIVE.
+
+       XGD3 backups will still boot and play fine on LT+ v2.0 as long as the
+       last approximately 1.7% of the game partition does not contain any of
+       the actual game assets, which it usually won't because the end of the
+       game partition is near the inner edge of the disc, and developers
+       will try to keep their game data near the outer edge (middle of the
+       game partition) to maximize read performance.
+
+       Another necessary condition to booting and playing XGD3 backups on
+       regular DVD+R DL media is that the kernel or game code itself must
+       not perform any CIV (Content Integrity Verification) checks on any
+       part of this last approximately 1.7% of the game partition (or at
+       least it must not take any action after CIV failures). Even if there
+       are no actual game assets in this area, there is still pseudo-random
+       padding data which can be checked through CIV, and such checks can
+       even be added later to the game code through title updates, or to the
+       kernel through system updates.
+
+       Just like XGD2, XGD3 backups still require the correct dashboard
+       version-specific AP2.5 replay data. As they've done previously, MS
+       has the ability to change the DAE.bin by way of a system update,
+       meaning you may need to re-patch/re-burn at some point. The abgx360
+       application and database will be updated accordingly to support XGD3.
+
+
+       BEST PRACTICES AND SETTINGS
+
+       The P2P XGD3 ISO rips that were floating around before this point are
+       for ODDEs and are not compatible as-is with LT+ v2.0. Their PFI, DMI
+       and SS sectors are in the wrong PSN (Physical Sector Number)
+       locations and they are missing the critical AP2.5 replay sector and
+       SS replay table. If you intend to play XGD3 backups on a firmware-
+       flashed 360, it's up to you to make sure you're using proper ISOs
+       made with 0800 v3.0, and to double-check by running them through
+       abgx360 before burning.
+
+       Keep in mind that this is the first of several potential disc-based
+       backup solutions for XGD3. As such, it's recommened that all
+       subsequent releases maintain the full ISO size and associated
+       layerbreak (2133520) in the .dvd, which will help to ensure that they
+       will be forward-compatible should any media manufacturers step up
+       with new larger-capacity discs (which will be necessary in order to
+       make XGD3 backups as safe as possible on Xbox LIVE).
+
+       The actual layerbreak for XGD3 ISOs is 2133520. However, when burning
+       XGD3 ISOs to regular DVD+R DL, ImgBurn will automatically reposition/
+       limit the layerbreak to 2086912 in accordance with the disc's maximum
+       Layer 0 data zone capacity (2,086,912 [LBA: 0 - 2086911]). The LT-MAX
+       feature in LT+ v2.0 will compensate for this and allow you to play
+       XGD3 backups with this wrong layerbreak, and therefore wrong game
+       partition data PSN locations.
+
+       In the case of growisofs as instructed below, in order to avoid
+       errors when burning XGD3 to regular DVD+R DL, you may choose to first
+       truncate the ISO to 8,547,991,552 bytes, and burn using a reduced
+       associated layerbreak of 2086912. This should give you exactly the
+       same end result as if you followed the instructions below for ImgBurn
+       on Windows.
+
+   \________________________________________________________________________
+   ++   RRoD - Right when you least expect it!           ++----------------'

@@ -1,0 +1,411 @@
+﻿                                                      ░
+                                                     ▐
+                                                     █
+                                                    ▐▌              ░
+                                                    █▌             ░
+                                                    █▌            █
+                                                   ▐█            ▐▓
+                                                   ██            █
+                                                   █▓        ▓  ▐▌
+                                                  ▐█▌       ▓  ░█
+                                                  ██       ▐▌  █▌
+                                                  █▓       █  ▐█
+                                                 ▐█▌      ▐▌  █▌
+                                                 ██       █  ▐█
+                                                ▐█▓      ▐▌  █▌
+                                                ██▌      █  ▐█
+                               ░               ▐██      ▐▌  █▌
+                              ░█               ██▓      ▓  ▐█
+         ▄▄                   ░█              ▐██▌     ▐▌  █▌
+          █▓                  ▒█              ▓██     ▐▓  ▐█
+           ██                 ▒█              ██▓     █  ░█▌
+            ██                ▒█▐            ▐██▌    ▐▌  ██
+            ▐█▓               ▒█▓            ▓██     █  ▐██                  ░
+           ▀▄███▄             ▓██            ███    ▐▌  ▓█▌                ░▓
+             ▀███▓            ▓██           ▐██▓    ▓  ▐██                ▓▒
+             ▀▄▀██▓          ▐███           ███▌   █  ▄▓█▓               █▓
+              ▐████▓          ▓██░         ▐███   █▌ █▒██▌              █▓
+               █████▓         ▓██▓         ▒██▒  ▄█  ▒▓██              █▓
+                █████▓        ▓▓█▓▓        ██▓▌ ▄█▌ █▒██▌             █▓
+                 █████▓     ░▓▓▓▓▓        ▐███ ▐██ █▒▓██             ▓█░      ░
+                  █████▄    ░▒▓▓▒█        ▒█▓█▌▓█▌ █▒██▓▄           ▓█▌
+                   █████▓   ▒▒▒▓▓█       ▐██▓█▓██ █▒▓██▀           ░█▓
+                    ██▓██   ▓▒▒▒▓▓  ▒    ▒██▓▓██▒▐▓▓██▓           ░██▌      ░
+                    ▐██▓█▓  ▓▓▒▒▒▓ █░   ▐████▓██ ▐▓██▓▀           ███      ░
+                     ██▓▓█▓ ▒▓▓▒▒▒▒█    ▒███▓▓█▌ █▓██            ███▓     ▐
+                     ▐██▓██ ▒▒▓▓▓▒▒█    ████▓██ ▓███▓        █▄▄████▌    ▐░
+                      ██▓██▓░▒▒▓▓▓█▒   ▐███▓██ ▐██▓█▌         ▀██▓██     ▓
+                      ▐█████▓░▒▒▓▓█    ▒██▓██▌ ▓█▓██          ▐█▓██▓    ▐▓
+                       ██████▓▓▒▒▓▓▓  ▐██▓███ ▐██▓█▓         ▄██▓██▌    █
+                      ▐███▓███▓▓▒▒▓▒█ ▒█▓███▌▐▓██▓█▌        ▓██▒▓██▌   ▓▌
+                      ▀ ████▓██▓▓▓▒▓█▐██▒███▌███▓▓█▌       ▐███▒▓██   ░█
+                        ▐████▓██░▓▓▓▓▒█▓████████▓██       ▄▀▐█▒▓██▓  ▐▓▌
+                   ▄    ▐████▓█▒▒░▓▓██▒▓█▓███▓██▓█▓        ▄▓█▒▓██▌  ▓▌
+                  █▌    ██████▓█▓█░░██░██▓██████▓█▌      ▄▓██▒▓███  ▐█
+                 ▐█    ▀ ████▓████░ ██░█▒██████▓▓█     ▄▀████▒▓██▓  █▌
+                 █▌      ▐███▓█▓██▓▒█░░█░█████▓▓█▌       ▐██▒▓███▌ ▐█
+                ▐█   ▄    ███▓█▓█████░█▒░██▓█▓▓█▀    ▄  ▄█▒▒▒██▓▀  █▓
+                ██  █▌ ▄▌ ██▓█▓█████░░█ ████▓█▀       ▓██▒▓█▒██▌  ▐█
+               ▐██▌▐▓ █▓ ▐█▓████████░██ ████▒▌  ▄▀   ▄█▒▒▓█▒▓█▓   █▌
+               ▐██▌█▓▌██▄█▒███▒████░░█▒░███▓▒█▄█  ▄▓██▒▓██▒▓██▌  █▓
+ ▐             ▐█▓▌██▓█▒█▓███▒██▓██░██ ███▒▓██▓  ▓██▒▒▓███▒▓█▓  ▐█
+  █          ▐ ▐█▓▌▐██░▓▓████░█▒██░░██ ██▓░███  ▐██▒▓████▒▓██▌  █▌
+   █         █▌ ██▓▒█▒▓██████░█ ██░▓█ ██▒▒███▌  ▓█▒▓████▒▓██▀  █▓
+   ▐█▒       ██ ▐██▓▒▓█████▒▒▒▓▓█░░█ ░█▒▒██▒█ ▄███▒▓███▒▓██▌  ██
+    ▐█▒      ▐█▓ ███▓█████▒███▒██░▓█ ██▒█▓░██▓███▒▓████▒█▓▀  █▓
+     ▐█▒      ██▓▓█▒████▒▒▒███▒█░░██████ ▓▓█████▒▓████▒▓█▌  ██
+      ▐█▒     ▐██ ▒████▒███▒██▒█░▓██▓███▓█▓████▒▓████▒▓█▀  ██
+       ▐█▓▒    █▒▓████▒▒▒███▒▒█░░██▒███░█▒████▓▒████▒██▌  ██░     ▄▄
+        ▐█▓█   ▒███▓▓▒███▒██▒██░▓██▒███░█░█▓▓▓▒▓███▓█▓▀ ███░    ▄▀
+         ▐█▓█▒ █▓▓▓▓▒██▒▒█▒▒██░░██▒███░██ ▓▓█▒▒█████▀ ▒███    ▄▓▀
+          ▐█▓▓█▓▓████▒▒██▒██▒█░▓██▒██░███▒ ▓▓▒█████▄▒████   ▄█▓      ▌
+           ▐███▓███▒▒██▒██▒█▒█░▓█▒██░░███▒▌█▓▓▓████▓███▒  ▄█▓▀      ▓
+    ▄       ▐█▓███▒██▒██▒██▒█▒░████░░███▒▓█▐▓▓▓▓█▓▓███▓ ▄███      ▄█▌
+     ▀▄▄    ▐████▓▓▓▓█▒█▒█▒██░▓███░░░▒█▒▓██▌███▓▓██████████▌    ▄██▓
+       ▀█▓▄▄██▓▓▓████▓█▀  ▀█▒░███░░░██▒▓████▐█▓██████████▓▀ ▄▄███▓▀
+         ▀██▓▓ ▄██████▌▄▌  █░▓█▓░░░██▓▒█▓▒▓█▌▀█▓▓███████▓▄█████▓▀  ▄
+           ▀█▓████▀█ ███▓ ▐█░██░░░██▓▒████▒▒   ▀▀▀  ▀████████▓▀   ▄▀
+             ▀█▀ ▀ ▄▓██▀▄ █░░█░░░██▓▒▒█▓▒▒██▌   ▄██▄▄ █████▓▀▄▀ ▄█  ░
+              ▀ ▄ ▄▓███▀  █░▓▓░░██▓▓▒█▓███▒▒   ▐████▓▓▄▄███▄▀ ▄█▀ ▄▒
+                ▓███▄   █▓█░▓░░██▓▓██░░░░░█▒ ▐▄█▓█████▓▓██▓▀▄█▀ ▄▀
+                 ▓█▀   ▒▓█▒░░░██▓▓██░▓█▓▓▒░█▌ ▀██▓▓██▓▓██▀▄██▄▓▀
+                 ▐▌    █▓█░░░██▓▓██░▓████▓▒░    ▀█▓▓▓████████▀
+                       ▒█▒░░██▓▓██░▓█▓████▓░     ▐████████▓▀
+                      ░██░░██▓▓██▒▓░▓██████▓█▌    ▓███▓▀▀
+                      ██▒░███▓█▒▓▓▓▓░▓███▓▓█▓█     ▀▀
+                     ▐█▒░▒██▓▓█▒▓█▓▓▓░▓█▓███▒▌
+                     ▐█▓▒██▓▓█▓▒█▓▓▓▓▒░▓████░▓
+                      ▀█▓▓█▓█▓▒▒█▓▓▓▒░▓█████░░▓▄ ▄
+                        ▀▓▓██▒▓█▓▓▓▒░▀▄████░░▓▓▓▀
+                          ▒░█▓▓▒▒▒▒░▓█████░░▓▓▀
+                             ▓▓▓▒░▓██████░░▓▓▌
+                              ▓░▓██████░░░▒▓█▒
+                   ▄▄▓▓██▄  ▄▄▓██████░░░▓▓██▒▒▓
+                  █▓█▀▀▀████▄█████░░░░▓▓███▓▒▓█
+                   ▀  ▄▄▄█████░░░░░▓▓▓████▓▒▒██
+                   ▄▓▓█████▓▒░▀▓▓▓███████▓▒▒▓██▌
+                  ▐▓█▀  ▄███▀  ▐█████████▓▒▒███▌
+         ▄▄▄███▄▀▄ ▀▌ ▄▓█▀     ▓████▓███▓▒▒▓███▌
+      ▄█████████▌▐▌   ▀█▌     ▐█▓▓███▓▓▓▒▒▓███▓                             ▄
+     █████▀   ▀██▐▌     ▀     ▐██▓▓█▓▓▒▒▒▓█▀▀▓▌           ▄▄▄▄▄▄▄███████▀▄▄▀▄▀
+    ▐████▌     ███            ▐███▓▓▒▒▒▓▓▀ ▄▄     ▄  ▄▄▄ ▀▄████████████████▀▄▄
+    █████▌     ███     ▄█ ▄█▄  ▀▀██▓▓▓▀▀  ███▌   ██▌ ▀██████████████████████▀
+   ▐██████     ██▌   ▄██▌ ███  █  ▀█▀ ▄█ ▐███▌  ▐██    ▀▀███████████████▀▀
+   ███████▌   ▐██▌  ▐███  ███  █▌   ▄██▌ ████▌  ██▌ ▄▄   ▐█████████████
+   ████████  ▄███   ████▌▐███  █▌  ████  █████ ▐██ ▐██▌ ▌ ▀███████████▌
+   ████████▄████▌  ▐██▀█▌▐███  █▌ ▐████▌ █████ ██▌ ███ ▐▐   ▀▀  ▀█████▌
+   ██████████████  ██▀ █▌▐███▄███ ██ ▐█▌ █████▌██▌▐██▌ ▌█        ▐████▌
+   ██████████████▌ ██ ▄█▌▐██████▌ █▌ ▄██ ████████▌▐██▌ ▐█▌       ▐████▌
+   ▐████████▀▀▀███ ▐█████ ███▀██▐███████ ▐█████▌█▌███  ██▌       █████
+    ███████▌   ▐██▌▐██▀██ ▐█▌ ██ ▀█▀ ▐█▌ ▐██▀██ █▌▐█▌  ██▌      ▐████▌
+    ▐██████    ▐███ █▌ ▐█  █▌ ▐█  █  ▐█▌  ██  ▀ █▌███▄▄██▌      █████
+     █████▌▄▀ ▄████ █  ▐█  ▐█  ▌  ▌  ▐█   █▀    ▐▌▀█████▀      ▐████▌
+     ▐████ ████████ ▌   █▌  █▌        ▌   █     ▐   ▀▀▀        █████
+   ▄▄ ████ ▄▀█████▀▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ █ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ █████▀▄▄▄▄▄▄▄▄
+▀▀███▌▐███▌▐█▄▀█▀▄████████████████████████▄█████████████████ █████▀▄█████▀▀▀▀▀
+       ████              ▄▓▓███▒██▓███▒▒▒▒▒████▄▀           ██████
+       ▐▌██▌            ▐▓▓███▓██▒███▒█████▓▒████▄         ██████▌
+        █▐██            ▐▓███▓▒██▒▓███▓▓█▒▒██▒███ ▀       ███▀▄▀▀
+         ▌██▌       ▄▄▄ ▓███▀▐█▒▒█▒▒▒█ ▄▓████▒███▄      ▄███▌
+ ▄       ▀▌██     ▄████████▌  ▀▓█████▓▓██▒█▒▒██▀ ▀▌   ▄▀██▀█                  ▄
+█         ▀▄▀█   ▐██▀ ▄▓███▓ ▄ ▒▓▓▓▓▓▒█▒▒█▒█▀▀█▄     █ ██▄▀                    █
+▓          ▀▄▀█   ▓▌ ▐▓█▀ ▀█▓█ ▒░░▒▒░░███▀▄    ▀▌  ▄▀ ██▀                      ▓
+▒  ▄        ▀▄▀▄   ▀ ▐█▌    ▀  ▒▒▒░░▒░▀▄   ▌        ▄█▀                     ▄  ▒
+░     ▀▄     ▀▄▀▄     ▀▓▄█     ▐▒▒▒▒▒░             ▄▀                   ▄▀     ░
+       ▐▌        ▀      ▀      ▓▒▒▒▒░░           ▀▀                    ▐▌      
+     ▀▄▀                      ▐█▒▒▒░▒░                                  ▀▄▀    
+  ▄▀▄▓▌                       ▓██▒▒▒░░                                   ▐▓▄▀▄  
+ ▐▌ ▓█                       ▐███▒▒░▒░                                    █▓ ▐▌ 
+  ▓▄ ▀█▄▄          ░          ▓██▓░▒░                       ░          ▄▄█▀ ▄▓ 
+ ▀ ▀█▄▄█████▄▄▄▄▄             ▐████▓▄                          ▄▄▄▄▄█████▄▄█▀ ▀
+   ▀▄▄▀▀▀▓█▀▄▀   ▀ ░           ▀█████▄                      ░ ▀   ▀▄▀█▓▀▀▀▄▄▀  
+ ▄▓▄ ▄▀▄▓█▌▐▌ ▄▓▄  ▒            ▒░▒░██▓                     ▒  ▄▓▄ ▐▌▐█▓▄▀▄ ▄▓▄
+  ▀  ▀▄▀█▓▓▄▀▄ ▀   ▓             ▒░█▌▀█▌                    ▓   ▀ ▄▀▄▓▓█▀▄▀  ▀ 
+ ░ ▀     ▀▀▀▀▀▀▀▀▀▀█             ░▒█  ▐▓                    █▀▀▀▀▀▀▀▀▀▀     ▀ ░
+ ▒    ▄▄▄▀▀    ▄ ▀ █▄▄▄▄         █▒▌   █▌               ▄▄▄▄█ ▀ ▄    ▀▀▄▄▄    ▒
+ ▓▄▄█▀▀     ▄▀     ▀    ▀▄      ▓█▒    ▐▌             ▄▀    ▀     ▀▄     ▀▀█▄▄▓
+ █▀       ▄█▌        ▄▓▄ ▓     ▐█▌▒    ▐              ▓ ▄▓▄        ▐█▄       ▀█
+ ▌       ▐▓██▄        ▀  ▒     ▓█ ▒    ▌              ▒  ▀        ▄██▓▌       ▐
+          ▀▓████▄▄       ░    ▐█▌ ▒                   ░       ▄▄████▓▀         
+ ░▒▒▓▓▓▓██████████████▓▒░■    ██  ▒                   ■░▒▓██████████████▓▓▓▓▒▒░
+          ▄▓████▀▀       ░    ██  ▒                   ░       ▀▀████▓▄         
+ ▌       ▐▓██▀        ▄  ▒    ▓█  ▒                   ▒  ▄        ▀██▓▌       ▐
+ █▄       ▀█▌        ▀▓▀ ▓    ▐█  ░                   ▓ ▀▓▀        ▐█▀       ▄█
+ ▓▀▀█▄▄     ▀▄     ▄    ▄▀    ▐█                      ▀▄    ▄     ▄▀     ▄▄█▀▀▓
+ ▒    ▀▀▀▄▄    ▀ ▄ █▀▀▀▀       █▌                       ▀▀▀▀█ ▄ ▀    ▄▄▀▀▀    ▒
+ ░ ▄     ▄▄▄▄▄▄▄▄▄▄█           ▐▓                           █▄▄▄▄▄▄▄▄▄▄     ▄ ░
+  ▄  ▄▀▄█▓▓▀▄▀ ▄   ▓            █                           ▓   ▄ ▀▄▀▓▓█▄▀▄  ▄ 
+ ▀▓▀ ▀▄▀▓█▌▐▌ ▀▓▀  ▒            ▐▌                          ▒  ▀▓▀ ▐▌▐█▓▀▄▀ ▀▓▀
+   ▄▀▀▄▄▄▓█▄▀▄   ▄ ░             █                          ░ ▄   ▄▀▄█▓▄▄▄▀▀▄  
+ ▄ ▄█▀▀█████▀▀▀▀▀                ▐                             ▀▀▀▀▀█████▀▀█▄ ▄
+  ▓▀ ▄█▀▀          ░             ▌                          ░          ▀▀█▄ ▀▓ 
+ ▐▌ ▓█                          ░                                         █▓ ▐▌
+  ▀▄▀▓▌                                                                  ▐▓▀▄▀ 
+     ▄▀▄                                                                ▄▀▄    
+       ▐▌    ... BAHAMUT has been summoned to proudly bring you ...    ▐▌      
+░     ▄▀                                                                ▀▄     ░
+▒  ▀         Nintendo_Presents_Crossword_Collection_EUR_NDS-BAHAMUT         ▀  ▒
+▓                                                                              ▓
+█    Title: Nintendo Presents - Crossword Collection                           █
+ ▀                                                                            ▀
+     Country......: Europe                       Languages....: English
+     Release Date.: 2009/12/16                   Street Date..: 2009/12/18
+     System.......: Nintendo DS                  Format.......: .nds
+     Size.........: 2 * 5 MB                     Filename.....: b-npcc
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██ ▀▓█████▄ ▀▓█▀▀█▄ ▀▓▄   ▄█ ▀▓████▄   ▀█▓ ▀▓█▀▀█▄ ▀▓████▄ ▀▓█████▄ ██▀  ▀
+    ▐█▓ ▓██▀   ▀ ▓██ ▄██ ▓██▀▄▀▓█ ▓██  ▀    ▓██ ▓██  ██ ▓██  ▀  ▓██▀ ▀██ ▓█▌
+   ▄█▌█ ▓██  ▀█▄ ▓██▀ ██ ▓██   ▓█ ▓██▀▀     ▓██ ▓██  ██ ▓██▀▀   ▓██   ██ █▐█▄
+  ███▐▌  ▓██▄▄██ ▓█▀  ██ ▓█▀   ▓█ ▓██▄▄█▄   ▓█▀ ██▀  ██ ▓█▀      ▓██▄███ ▐▌███
+ ▐██▌ █▄  ▀▀▀▀▀  ▀    ▀  ▀     ▀  ▀▀▀▀▀▀    ▀   ▀    ▀  ▀         ▀▀▀▀▀ ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+ Do you love the challenge of a good, tricky crossword? Now you can put your 
+ brain to the test whenever you like with an instant crossword compendium in 
+ the form of Nintendo presents: Crossword Collection for your Nintendo DS!
+
+ Nintendo presents: Crossword Collection offers you the choice of over 1,000 
+ crossword puzzles at three different skill levels. All puzzles have been 
+ created using everyday UK English and the software also includes extra 
+ Wordsearch and Anagram word games if you fancy something a bit different. 
+ There's no need to scrabble around in your bag for a pen either û the 
+ handwriting recognition function of the Nintendo DS means you can simply 
+ use the stylus to write in your answers on the Touch Screen.
+
+ You hold the Nintendo DS in the style of a book while playing and can adjust 
+ the orientation depending on whether you're right-handed or left-handed. And 
+ if you come across a clue that you just can't solve, you can also take 
+ advantage of the in-built help system, which will gently guide you to the 
+ answer. If you're unfamiliar with any of the word games, you can opt to view 
+ an in-depth tutorial on each mode, which you select from the title screen.
+
+ Sharing the fun with friends and family isn't a problem either û with up to 
+ four available profiles included in the game, there's no excuse for not 
+ getting involved in a bit of crossword camaraderie!
+
+ http://www.nintendo.co.uk/NOE/en_GB/games/nds/nintendo_presents_crossword_collection_15302.html
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██             ▀▓█▀▀█▄ ▀▓█████▄ ▀▓████▄ ▀▓████▄ ▀▓████▄             ██▀  ▀
+    ▐█▓             ▓██  ██ ▓██▀ ▀██    ▓█   ▓██  ▀  ▓█▄  ▀▀             ▓█▌
+   ▄█▌█             ▓██  ██ ▓██   ██    ▓█   ▓██▀▀    ▀▀▀██▄             █▐█▄
+  ███▐▌             ██▀  ██  ▓██▄███    ▓█   ▓██▄▄█▄ ▓█▄▄▄██             ▐▌███
+ ▐██▌ █▄            ▀    ▀    ▀▀▀▀▀     ▀    ▀▀▀▀▀▀  ▀▀▀▀▀▀             ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+                  BAHAMUT Presents Crossword Puzzle of Boredom
+                      (print it out for best performance)
+          ___________________________________________________________
+         |1. |   |   |2. |   |#######################################|
+         |___|___|___|___|___|#######################################|
+         |   |#######|   |###############################|3. |###|4. |
+         |___|#######|___|###############################|___|###|___|
+         |   |#######|   |###############################|   |###|   |
+         |___|#######|___|###############################|___|###|___|
+         |   |###|2. |   |   |   |   |   |   |   |   |   |   |   |   |
+         |___|###|___|___|___|___|___|___|___|___|___|___|___|___|___|
+         |   |###########################################|   |###|   |
+         |___|###########################################|___|###|___|
+         |   |#######################|5. |###############|   |###|   |
+         |___|#######################|___|###############|___|###|___|
+         |3. |6. |   |7. |   |8. |   |   |   |   |#######|   |###|   |
+         |___|___|___|___|___|___|___|___|___|___|#######|___|###|___|
+         |###|   |###|   |###|   |###|   |###########################|
+         |###|___|###|___|###|___|###|___|###########################|
+         |###|   |###|   |###|   |###|   |###########################|
+         |###|___|###|___|###|___|###|___|###########################|
+         |###|   |###|   |###|   |###|4. |   |   |   |   |   |9. |###|
+         |###|___|###|___|###|___|###|___|___|___|___|___|___|___|###|
+         |###|   |###|   |###|   |###|   |###################|   |###|
+         |###|___|###|___|###|___|###|___|###################|___|###|
+         |###|   |###################|   |###################|   |###|
+         |###|___|###################|___|###################|___|###|
+         |#######################|5. |   |   |   |   |   |###|   |###|
+         |#######################|___|___|___|___|___|___|###|___|###|
+         |###########################|   |###########################|
+         |###########################|___|###########################|
+         |#######|6. |   |   |   |   |   |   |   |   |###############|
+         |#######|___|___|___|___|___|___|___|___|___|###############|
+
+ ACROSS
+ 1. Italian Plumber
+ 2. Series with Link
+ 3. Ape that first appeared in self-titled game in 1981
+ 4. Developers of Golden Sun
+ 5. King Koopa
+ 6. Holds the Triforce of Power
+
+ DOWN
+ 1. Hunted by Samus Aran
+ 2. Chinese joint venture with Nintendo
+ 3. Captain ______
+ 4. Starfish
+ 5. Star Fox
+ 6. Commander of Pikmin, Captain ______
+ 7. Pink Ball of Dreamland
+ 8. Green dinosaur
+ 9. Mushroom servent to Princess Peach
+
+ .-----------------------------------------------------------------------------.
+ |                                 - ANSWERS -                                 |
+ |ACROSS                                                                       |
+ | 1. Mario 2. Legend of Zelda 3. Donkey Kong 4. Camelot 5. Bowser 6. Ganondorf|
+ |                                                                             |
+ |DOWN                                                                         |
+ | 1. Metroid 2. iQue 3. Falcon 4. Starfy 5. Fox McCloud 6. Olimar 7. Kirby    |
+ | 8. Yoshi 9. Toad                                                            |
+ |                                                                             |
+ '-----------------------------------------------------------------------------'
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██                   ▀▓████▄ ▀▓█████▄ ▀█▓ ▀▓█▀▀█▄                   ██▀  ▀
+    ▐█▓                       ██  ▓██▀ ▀██ ▓██ ▓██  ██                   ▓█▌
+   ▄█▌█                       ██  ▓██   ██ ▓██ ▓██  ██                   █▐█▄
+  ███▐▌                   ▓█▄▄██   ▓██▄███ ▓█▀ ██▀  ██                   ▐▌███
+ ▐██▌ █▄                  ▀▀▀▀▀     ▀▀▀▀▀  ▀   ▀    ▀                   ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+ Interested in joining one of the most active console groups? We are looking 
+ for talented and motivated new members to help us on our goal. We are a group
+ built on friendship, devotion, respect and fun. If you are interested only in
+ the glory and releases, then you are not welcome. Hard work and dedication is
+ what has brought us to where we are today and we aim to continue that method.
+
+ SUPPLIERS
+ It is preferable that you work at a game store or have access to games on the
+ day of release. We are looking for suppliers from Hong Kong, Japan, Korea, 
+ USA and all European regions who are willing to contribute. One time suppliers
+ are not welcome, as a steady and consistent supply is required.
+ We are still interested in older, unreleased games from any region, so if you
+ have a game that has no release yet, and you match the consistency criteria,
+ you may be welcome. Suppliers must be able to do any of the following systems:
+ * PSP * Wii * PS2 * X360 * NDS * PS3 * Zeebo * GP2X * iPhone *
+
+ CODERS
+ Anybody interested in creating intros, trainers, cracks or anything else game
+ related are welcome. If you can code an application or tool designed for 
+ Windows based systems that can provide a benefit or aid for us, we are also
+ interested. Knowledge in C/C++/ASM is a must and experience with coding in a
+ game related field is not required, but preferable. If you have experience
+ with utilities or the game scene, dealing with encrypted files, we could also
+ use your help. If you are a demo maker and can do intros, trainers or even 
+ prods, we want you!
+
+ SITES
+ If you run a dedicated site, on a 100mbit line or faster, with good up-time 
+ and decent affiliation. Then your site might be of interest to us.
+
+ HARDWARE
+ If you can provide game systems, memory sticks, flash kits and even beta
+ versions of games, there could be a spot for you. We are also interested in
+ people with access to the latest SDK's and relevant programming tools, so
+ feel free to contact us.
+
+ If you fulfill any of the above criteria and are interested in joining us,
+ or if you want to contact us for any other reason, then feel free to do so.
+ Requests for files or anything related to our releases are automatically
+ ignored through a filter, so you can send them, but we won't receive them.
+
+                       EMAIL : team.bahamut@hushmail.com
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██        ▀▓█  █▄ ▀█▓ ▀▓████▄ ▀▓████▄ ▀▓█████▄ ▀▓█▀█▄ ▀▓  ▄█        ██▀  ▀
+    ▐█▓        ▓██▄▄██ ▓██ ▓█▄  ▀▀    ▓█   ▓██▀ ▀██ ▓██▄█▀ ██▄▄▀█        ▓█▌
+   ▄█▌█        ▓██  ██ ▓██  ▀▀▀██▄    ▓█   ▓██   ██ ▓██ ██  ▀▀▀██        █▐█▄
+  ███▐▌        ██▀  ██ ▓█▀ ▓█▄▄▄██    ▓█    ▓██▄███ ▓█▀ ██ ▓█▄▄██        ▐▌███
+ ▐██▌ █▄       ▀    ▀  ▀   ▀▀▀▀▀▀     ▀      ▀▀▀▀▀  ▀   ▀  ▀▀▀▀▀        ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+
+ ### NAME                                            SYSTEM  REGION  DATE
+
+1061 Nintendo Presents - Crossword Collection        NDS     EUR     2oo9-12-16
+1060 Need for Speed - Nitro                          NDS     USA     2oo9-12-15
+1059 Skyscraper                                      Wii     PAL     2oo9-12-13
+1058 Dragon Ball Z - Attack of the Saiyans           NDS     USA     2oo9-12-12
+1057 Ballon Pop                                      NDS     USA     2oo9-12-12
+1056 Mytran Wars                                     PSP     USA     2oo9-12-12
+1055 Grand Trucker Aniki Shigoto to Kenka to KoimoyouNDS     JPN     2oo9-12-12
+1054 Casual Series 2980 - Petz Monkeyz               NDS     JPN     2oo9-12-12
+1053 Casual Series 2980 - Petz Horsez                NDS     JPN     2oo9-12-12
+1052 Casual Series 2980 - Petz Dogz                  NDS     JPN     2oo9-12-12
+1051 Dai Kuugun                                      PSP     JPN     2oo9-12-11
+1050 1500 DS Spirits - Shougi V                      NDS     JPN     2oo9-12-1o
+1049 1500 DS Spirits - Mahjong V                     NDS     JPN     2oo9-12-1o
+1048 James Cameron's Avatar - The Game               PSP     EUR     2oo9-12-1o
+1047 Sekaishi DS                                     NDS     JPN     2oo9-12-o9
+1046 Animal Paradise Wild                            NDS     USA     2oo9-12-o9
+1045 Animal Planet - Vet Life                        NDS     USA     2oo9-12-o8
+1044 Cruise Line Tycoon                              NDS     EUR     2oo9-12-o7
+1043 NBA Live 10                                     PS3     EUR     2oo9-12-o6
+1042 God of War Collection                           PS3     USA     2oo9-12-o6
+1041 Street Football II                              NDS     EUR     2oo9-12-o6
+1040 Barbie and the Three Musketeers                 NDS     USA     2oo9-12-o4
+1039 Ben 10 - Alien Force - Vilgax Attacks           Wii     PAL     2oo9-12-o4
+1038 Let's Play - Journalists                        NDS     EUR     2oo9-12-o4
+1037 Horrid Henry - Missions Of Mischief             NDS     EUR     2oo9-12-o4
+1036 TouchMaster 3                                   NDS     EUR     2oo9-12-o4
+1035 The Princess and the Frog                       NDS     EUR     2oo9-12-o3
+1034 Petz - Nursery                                  NDS     EUR     2oo9-12-o3
+1033 Jambo! Safari - Animal Rescue                   NDS     EUR     2oo9-12-o3
+1032 Flips - Too Ghoul for School                    NDS     EUR     2oo9-12-o3
+1031 Flips - Faraway Tree Stories                    NDS     EUR     2oo9-12-o3
+1030 Flips - Cathy Cassidy                           NDS     EUR     2oo9-12-o3
+1029 Flips - Artemis Fowl                            NDS     EUR     2oo9-12-o3
+1028 Diner Dash - Flo on the Go                      NDS     USA     2oo9-12-o1
+1027 The Secret Saturdays Beasts of the 5th Sun      PS2     PAL     2oo9-11-28
+1026 A Boy and His Blob                              Wii     PAL     2oo9-11-27
+1025 All Star Cheerleader 2                          Wii     PAL     2oo9-11-26
+1024 Aliens in the Attic                             PS2     PAL     2oo9-11-26
+1023 Fix It                                          NDS     EUR     2oo9-11-25
+1022 Petz Hamster Superstar                          NDS     EUR     2oo9-11-25
+1021 Disney's A Christmas Carol                      NDS     EUR-M3  2oo9-11-25
+1020 Pro Evolution Soccer 2010                       PS2     PAL-M5  2oo9-11-25
+1019 Teenage Mutant Ninja Turtles - Arcade Attack    NDS     EUR     2oo9-11-25
+1018 Petz - Dog Superstar                            NDS     EUR     2oo9-11-25
+1017 Dora The Explorer - Dora Puppy                  NDS     EUR     2oo9-11-25
+1016 Best Friends - My Horse                         NDS     EUR     2oo9-11-24
+1015 LEGO Rock Band                                  NDS     EUR     2oo9-11-24
+1014 Cloudy With A Chance of Meatballs               NDS     EUR     2oo9-11-24
+1013 100 All-Time Favorites                          NDS     USA     2oo9-11-24
+1012 Marvel Ultimate Alliance 2                      PS3     USA     2oo9-11-23
+1011 WWE SmackDown vs RAW 2010                       PS3     EUR     2oo9-11-22
+1010 WireWay                                         NDS     EUR     2oo9-11-21
+
+                                            BAHAMUT 2oo9 - Quality and Quantity
+
+  ▄██▄                                                                    ▄██▄
+ ▀  ▀██          ▀▓█████▄ ▀▓█▀█▄ ▀▓████▄ ▀▓████▄ ▀▓████▄ ▀▓████▄         ██▀  ▀
+    ▐█▓          ▓██▀   ▀ ▓██▄█▀ ▓██  ▀  ▓██  ▀     ▓█   ▓█▄  ▀▀         ▓█▌
+   ▄█▌█          ▓██  ▀█▄ ▓██ ██ ▓██▀▀   ▓██▀▀      ▓█    ▀▀▀██▄         █▐█▄
+  ███▐▌           ▓██▄▄██ ▓█▀ ██ ▓██▄▄█▄ ▓██▄▄█▄    ▓█   ▓█▄▄▄██         ▐▌███
+ ▐██▌ █▄           ▀▀▀▀▀  ▀   ▀  ▀▀▀▀▀▀  ▀▀▀▀▀▀     ▀    ▀▀▀▀▀▀         ▄█ ▐██▌
+  ███▄▄ ▀▀▀▀▄▄▄▄▄▄▄▄▄                                      ▄▄▄▄▄▄▄▄▄▀▀▀▀ ▄▄███
+   ▀███████▄▄▄▄▄▄▄   ▀▀▀▀▀▀▀▀▀ ▀▀ ▀▀ ▀    ▀ ▀▀ ▀▀ ▀▀▀▀▀▀▀▀▀   ▄▄▄▄▄▄▄███████▀
+      ▀▀▀██▓█▓▓▒▓▒▒▒▒░▒░░ ░                          ░ ░░▒░▒▒▒▒▓▒▓▓█▓██▀▀▀
+     ▄                                                                     ▄
+        ▀▄                                                             ▄▀
+         ▐▌  ~ ARTiSAN ~ Booster ~ Caravan ~ CLiiCHE ~ LiGHTFORCE ~   ▐▌
+       ▀▄▀      ~ OneUp ~ PARADOX ~ REV0 ~ REAL ~ Start2 ~ WRG ~       ▀▄▀
+    ▄▀▄▓▌                                                               ▐▓▄▀▄
+   ▐▌ ▓█                                                                 █▓ ▐▌
+    ▓▄ ▀█▄▄          ░                                     ░          ▄▄█▀ ▄▓
+   ▀ ▀█▄▄█████▄▄▄▄▄     ▄▓████████▄▄         ▄▄█████████▓     ▄▄▄▄▄█████▄▄█▀ ▀
+     ▀▄▄▀▀▀▓█▀▄▀   ▀ ░ ▓███▀ ▄█▀    ▀       ▀    ▀█▄ ▀███▓ ░ ▀   ▀▄▀█▓▀▀▀▄▄▀
+   ▄▓▄ ▄▀▄▓█▌▐▌ ▄▓▄  ▒ ▓██▌ ▐█▌ ▄▓▄  BAHAMUT  ▄▓▄ ▐█▌ ▐██▓ ▒  ▄▓▄ ▐▌▐█▓▄▀▄ ▄▓▄
+    ▀  ▀▄▀█▓▓▄▀▄ ▀   ▓ ▐▓██▄ ▀█▄ ▀ ▄   2k9   ▄ ▀ ▄█▀ ▄██▓▌ ▓   ▀ ▄▀▄▓▓█▀▄▀  ▀
+     ▀     ▀▀▀▀▀▀▀▀▀▀█  ▀▓▓██▄▄ ▀▀      ▄      ▀▀ ▄▄██▓▓▀  █▀▀▀▀▀▀▀▀▀▀     ▀
+                     █▄▄▄▄ ▀▀▀▓███▄▄▄▀     ▀▄▄▄███▓▀▀▀ ▄▄▄▄█
+                     ▀    ▀▄                         ▄▀    ▀
+                       ▄▓▄ █                         █ ▄▓▄
+                        ▀  ▓                         ▓  ▀
+                           ▒                         ▒
+                           ░                         ░
