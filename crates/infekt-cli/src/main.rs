@@ -42,8 +42,7 @@ struct CliArgs {
         long = "cp-437",
         value_name = "PATH",
         num_args = 0..=1,
-        require_equals = true,
-        hide = true
+        require_equals = true
     )]
     cp_437: Option<Option<PathBuf>>,
     #[arg(
