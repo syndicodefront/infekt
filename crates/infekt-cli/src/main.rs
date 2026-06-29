@@ -2,6 +2,7 @@ use clap::{ArgAction, Parser};
 use infekt_core as core;
 use infekt_core::nfo_data::{UTF8_SIGNATURE, UTF16_LE_BOM};
 use infekt_core::nfo_html_exporter::{NfoHtmlColor, NfoHtmlExporter, NfoHtmlSettings};
+use std::collections::HashSet;
 use std::fs::File;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -14,8 +15,14 @@ mod regression_samples;
 #[command(name = "infekt-cli")]
 #[command(about = "Rust CLI for iNFekt (first-iteration compatibility)")]
 struct CliArgs {
-    #[arg(short = 'f', long = "utf-8", action = ArgAction::SetTrue)]
-    utf8: bool,
+    #[arg(
+        short = 'f',
+        long = "utf-8",
+        value_name = "PATH",
+        num_args = 0..=1,
+        require_equals = true
+    )]
+    utf8: Option<Option<PathBuf>>,
 
     #[arg(short = 'S', long = "text-only", action = ArgAction::SetTrue)]
     text_only: bool,
@@ -27,20 +34,51 @@ struct CliArgs {
     png: bool,
     #[arg(short = 'p', long = "png-classic", action = ArgAction::SetTrue, hide = true)]
     png_classic: bool,
-    #[arg(short = 'e', long = "cp-437", action = ArgAction::SetTrue, hide = true)]
-    cp_437: bool,
-    #[arg(short = 'm', long = "html", action = ArgAction::SetTrue)]
-    html: bool,
-    #[arg(short = 'M', long = "html-canvas", action = ArgAction::SetTrue)]
-    html_canvas: bool,
-    #[arg(short = 'J', long = "json", action = ArgAction::SetTrue)]
-    json: bool,
+    #[arg(
+        short = 'e',
+        long = "cp-437",
+        value_name = "PATH",
+        num_args = 0..=1,
+        require_equals = true,
+        hide = true
+    )]
+    cp_437: Option<Option<PathBuf>>,
+    #[arg(
+        short = 'm',
+        long = "html",
+        value_name = "PATH",
+        num_args = 0..=1,
+        require_equals = true
+    )]
+    html: Option<Option<PathBuf>>,
+    #[arg(
+        short = 'M',
+        long = "html-canvas",
+        value_name = "PATH",
+        num_args = 0..=1,
+        require_equals = true
+    )]
+    html_canvas: Option<Option<PathBuf>>,
+    #[arg(
+        short = 'J',
+        long = "json",
+        value_name = "PATH",
+        num_args = 0..=1,
+        require_equals = true
+    )]
+    json: Option<Option<PathBuf>>,
     #[arg(short = 'd', long = "pdf", action = ArgAction::SetTrue, hide = true)]
     pdf: bool,
     #[arg(short = 'D', long = "pdf-din", action = ArgAction::SetTrue, hide = true)]
     pdf_din: bool,
-    #[arg(short = 't', long = "utf-16", action = ArgAction::SetTrue)]
-    utf16: bool,
+    #[arg(
+        short = 't',
+        long = "utf-16",
+        value_name = "PATH",
+        num_args = 0..=1,
+        require_equals = true
+    )]
+    utf16: Option<Option<PathBuf>>,
 
     #[arg(short = 'T', long = "text-color", value_name = "RRGGBB")]
     text_color: Option<String>,
@@ -89,30 +127,20 @@ enum OutputMode {
     Utf16ClassicText,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct OutputSelection {
+    mode: OutputMode,
+    option_name: &'static str,
+    explicit_out_file: Option<PathBuf>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct OutputTarget {
+    mode: OutputMode,
+    out_file: PathBuf,
+}
+
 impl OutputMode {
-    fn from_args(args: &CliArgs) -> Result<Self, String> {
-        let modes = enabled_output_modes(args);
-
-        match modes.as_slice() {
-            [] if args.text_only => {
-                Err("Option --text-only/-S requires --utf-8/-f or --utf-16/-t.".to_string())
-            }
-            [] => Err(
-                "Choose an output mode: --utf-8/-f, --utf-16/-t, --cp-437/-e, --html/-m, --html-canvas/-M, or --json/-J."
-                    .to_string(),
-            ),
-            [(mode, _)] => Ok(*mode),
-            _ => Err(format!(
-                "Choose only one output mode; found {}.",
-                modes
-                    .iter()
-                    .map(|(_, name)| *name)
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            )),
-        }
-    }
-
     fn uses_html_settings(self) -> bool {
         matches!(
             self,
@@ -150,17 +178,25 @@ fn main() {
         process::exit(1);
     }
 
-    let output_mode = OutputMode::from_args(&args).unwrap_or_else(|err| {
+    let output_selections = output_selections_from_args(&args).unwrap_or_else(|err| {
         eprintln!("ERROR: {err}");
         process::exit(1);
     });
 
-    if let Err(err) = validate_args(&args, output_mode) {
+    if let Err(err) = validate_args(&args, &output_selections) {
         eprintln!("ERROR: {err}");
         process::exit(1);
     }
 
-    let html_settings = if output_mode.uses_html_settings() {
+    let output_targets = resolve_output_targets(&args, &output_selections).unwrap_or_else(|err| {
+        eprintln!("ERROR: {err}");
+        process::exit(1);
+    });
+
+    let html_settings = if output_selections
+        .iter()
+        .any(|selection| selection.mode.uses_html_settings())
+    {
         Some(make_html_settings(&args).unwrap_or_else(|err| {
             eprintln!("ERROR: {err}");
             process::exit(1);
@@ -175,35 +211,37 @@ fn main() {
         process::exit(1);
     }
 
-    let output = render_output(output_mode, &nfo_data, html_settings).unwrap_or_else(|err| {
-        eprintln!("ERROR: {err}");
-        process::exit(1);
-    });
+    for target in output_targets {
+        let output =
+            render_output(target.mode, &nfo_data, html_settings.clone()).unwrap_or_else(|err| {
+                eprintln!("ERROR: {err}");
+                process::exit(1);
+            });
 
-    let out_file = args
-        .out_file
-        .clone()
-        .unwrap_or_else(|| make_default_out_file(&args.input_file, output_mode));
+        let write_result =
+            File::create(&target.out_file).and_then(|mut f| f.write_all(&output.bytes));
 
-    let write_result = File::create(&out_file).and_then(|mut f| f.write_all(&output.bytes));
+        if let Err(err) = write_result {
+            eprintln!(
+                "ERROR: Unable to write to `{}`: {err}",
+                target.out_file.display()
+            );
+            process::exit(1);
+        }
 
-    if let Err(err) = write_result {
-        eprintln!("ERROR: Unable to write to `{}`: {err}", out_file.display());
-        process::exit(1);
-    }
+        if output.cp437_chars_not_converted > 0 {
+            eprintln!(
+                "WARNING: {} characters in NFO do not have a CP 437 equivalent and were dropped.",
+                output.cp437_chars_not_converted
+            );
+        }
 
-    if output.cp437_chars_not_converted > 0 {
-        eprintln!(
-            "WARNING: {} characters in NFO do not have a CP 437 equivalent and were dropped.",
-            output.cp437_chars_not_converted
+        println!(
+            "Saved `{}` to `{}`!",
+            args.input_file.display(),
+            target.out_file.display()
         );
     }
-
-    println!(
-        "Saved `{}` to `{}`!",
-        args.input_file.display(),
-        out_file.display()
-    );
 }
 
 fn make_html_settings(args: &CliArgs) -> Result<NfoHtmlSettings, String> {
@@ -357,24 +395,37 @@ fn parse_limited_usize(
     Ok(parsed)
 }
 
-fn validate_args(args: &CliArgs, output_mode: OutputMode) -> Result<(), String> {
+fn validate_args(args: &CliArgs, output_selections: &[OutputSelection]) -> Result<(), String> {
     if let Some(option_name) = first_unimplemented_option(args) {
         return Err(format!("Option {option_name} is not implemented yet."));
     }
 
-    if output_mode == OutputMode::Cp437Text && args.text_only {
+    if args.text_only
+        && !output_selections.iter().any(|selection| {
+            matches!(
+                selection.mode,
+                OutputMode::Utf8StrippedText | OutputMode::Utf16StrippedText
+            )
+        })
+    {
         return Err("Option --text-only/-S requires --utf-8/-f or --utf-16/-t.".to_string());
     }
 
-    if !matches!(output_mode, OutputMode::CanvasHtml | OutputMode::CanvasJson)
-        && let Some(option_name) = first_canvas_only_option(args)
+    if !output_selections.iter().any(|selection| {
+        matches!(
+            selection.mode,
+            OutputMode::CanvasHtml | OutputMode::CanvasJson
+        )
+    }) && let Some(option_name) = first_canvas_only_option(args)
     {
         return Err(format!(
             "Option {option_name} is only supported for --html-canvas/-M and --json/-J."
         ));
     }
 
-    if !output_mode.uses_html_settings()
+    if !output_selections
+        .iter()
+        .any(|selection| selection.mode.uses_html_settings())
         && let Some(option_name) = first_html_style_option(args)
     {
         return Err(format!(
@@ -385,43 +436,133 @@ fn validate_args(args: &CliArgs, output_mode: OutputMode) -> Result<(), String> 
     Ok(())
 }
 
-fn enabled_output_modes(args: &CliArgs) -> Vec<(OutputMode, &'static str)> {
+fn output_selections_from_args(args: &CliArgs) -> Result<Vec<OutputSelection>, String> {
+    let modes = enabled_output_modes(args);
+
+    if modes.is_empty() {
+        return Err(
+            "Choose an output mode: --utf-8/-f, --utf-16/-t, --cp-437/-e, --html/-m, --html-canvas/-M, or --json/-J."
+                .to_string(),
+        );
+    }
+
+    Ok(modes)
+}
+
+fn enabled_output_modes(args: &CliArgs) -> Vec<OutputSelection> {
     let mut modes = Vec::with_capacity(6);
 
-    if args.utf8 {
-        modes.push((
-            if args.text_only {
+    if let Some(out_file) = &args.utf8 {
+        modes.push(OutputSelection {
+            mode: if args.text_only {
                 OutputMode::Utf8StrippedText
             } else {
                 OutputMode::Utf8ClassicText
             },
-            "--utf-8/-f",
-        ));
+            option_name: "--utf-8/-f",
+            explicit_out_file: out_file.clone(),
+        });
     }
-    if args.utf16 {
-        modes.push((
-            if args.text_only {
+    if let Some(out_file) = &args.utf16 {
+        modes.push(OutputSelection {
+            mode: if args.text_only {
                 OutputMode::Utf16StrippedText
             } else {
                 OutputMode::Utf16ClassicText
             },
-            "--utf-16/-t",
-        ));
+            option_name: "--utf-16/-t",
+            explicit_out_file: out_file.clone(),
+        });
     }
-    if args.html {
-        modes.push((OutputMode::ClassicHtml, "--html/-m"));
+    if let Some(out_file) = &args.html {
+        modes.push(OutputSelection {
+            mode: OutputMode::ClassicHtml,
+            option_name: "--html/-m",
+            explicit_out_file: out_file.clone(),
+        });
     }
-    if args.html_canvas {
-        modes.push((OutputMode::CanvasHtml, "--html-canvas/-M"));
+    if let Some(out_file) = &args.html_canvas {
+        modes.push(OutputSelection {
+            mode: OutputMode::CanvasHtml,
+            option_name: "--html-canvas/-M",
+            explicit_out_file: out_file.clone(),
+        });
     }
-    if args.json {
-        modes.push((OutputMode::CanvasJson, "--json/-J"));
+    if let Some(out_file) = &args.json {
+        modes.push(OutputSelection {
+            mode: OutputMode::CanvasJson,
+            option_name: "--json/-J",
+            explicit_out_file: out_file.clone(),
+        });
     }
-    if args.cp_437 {
-        modes.push((OutputMode::Cp437Text, "--cp-437/-e"));
+    if let Some(out_file) = &args.cp_437 {
+        modes.push(OutputSelection {
+            mode: OutputMode::Cp437Text,
+            option_name: "--cp-437/-e",
+            explicit_out_file: out_file.clone(),
+        });
     }
 
     modes
+}
+
+fn resolve_output_targets(
+    args: &CliArgs,
+    output_selections: &[OutputSelection],
+) -> Result<Vec<OutputTarget>, String> {
+    if args.out_file.is_some() && output_selections.len() > 1 {
+        return Err(
+            "Option --out-file/-O can only be used when exactly one output mode is selected."
+                .to_string(),
+        );
+    }
+
+    if let Some(selection) = output_selections
+        .iter()
+        .find(|selection| selection.explicit_out_file.is_some())
+        && args.out_file.is_some()
+    {
+        return Err(format!(
+            "Option --out-file/-O cannot be combined with an output filename on {}.",
+            selection.option_name
+        ));
+    }
+
+    let mut targets = Vec::with_capacity(output_selections.len());
+    let mut seen_out_files = HashSet::with_capacity(output_selections.len());
+    let use_distinct_canvas_html_default = output_selections.iter().any(|selection| {
+        selection.mode == OutputMode::ClassicHtml && selection.explicit_out_file.is_none()
+    }) && output_selections.iter().any(|selection| {
+        selection.mode == OutputMode::CanvasHtml && selection.explicit_out_file.is_none()
+    });
+
+    for selection in output_selections {
+        let out_file = selection
+            .explicit_out_file
+            .clone()
+            .or_else(|| args.out_file.clone())
+            .unwrap_or_else(|| {
+                if selection.mode == OutputMode::CanvasHtml && use_distinct_canvas_html_default {
+                    make_default_canvas_html_out_file(&args.input_file)
+                } else {
+                    make_default_out_file(&args.input_file, selection.mode)
+                }
+            });
+
+        if !seen_out_files.insert(out_file.clone()) {
+            return Err(format!(
+                "Output path `{}` is used by more than one selected format.",
+                out_file.display()
+            ));
+        }
+
+        targets.push(OutputTarget {
+            mode: selection.mode,
+            out_file,
+        });
+    }
+
+    Ok(targets)
 }
 
 fn first_unimplemented_output_option(args: &CliArgs) -> Option<&'static str> {
@@ -468,11 +609,7 @@ fn first_enabled(options: &[(bool, &'static str)]) -> Option<&'static str> {
 }
 
 fn make_default_out_file(input_file: &Path, output_mode: OutputMode) -> PathBuf {
-    let mut base = input_file.to_string_lossy().to_string();
-
-    if base.ends_with(".nfo") {
-        base.truncate(base.len() - 4);
-    }
+    let mut base = make_default_out_file_base(input_file);
 
     if let Some(extension) = output_mode.default_extension() {
         base.push('.');
@@ -484,9 +621,35 @@ fn make_default_out_file(input_file: &Path, output_mode: OutputMode) -> PathBuf 
     PathBuf::from(base)
 }
 
+fn make_default_canvas_html_out_file(input_file: &Path) -> PathBuf {
+    let mut base = make_default_out_file_base(input_file);
+    base.push_str("-canvas.html");
+    PathBuf::from(base)
+}
+
+fn make_default_out_file_base(input_file: &Path) -> String {
+    let mut base = input_file.to_string_lossy().to_string();
+
+    if base.ends_with(".nfo") {
+        base.truncate(base.len() - 4);
+    }
+
+    base
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn parse_args<const N: usize>(args: [&str; N]) -> CliArgs {
+        CliArgs::try_parse_from(args).unwrap()
+    }
+
+    fn parse_and_select<const N: usize>(args: [&str; N]) -> (CliArgs, Vec<OutputSelection>) {
+        let args = parse_args(args);
+        let selections = output_selections_from_args(&args).unwrap();
+        (args, selections)
+    }
 
     #[test]
     fn encodes_utf8_text_with_bom() {
@@ -531,9 +694,16 @@ mod tests {
 
     #[test]
     fn selects_cp437_output_mode() {
-        let args = CliArgs::try_parse_from(["infekt-cli", "--cp-437", "demo.nfo"]).unwrap();
+        let (_, selections) = parse_and_select(["infekt-cli", "--cp-437", "demo.nfo"]);
 
-        assert_eq!(OutputMode::from_args(&args).unwrap(), OutputMode::Cp437Text);
+        assert_eq!(
+            selections,
+            vec![OutputSelection {
+                mode: OutputMode::Cp437Text,
+                option_name: "--cp-437/-e",
+                explicit_out_file: None,
+            }]
+        );
     }
 
     #[test]
@@ -563,5 +733,263 @@ mod tests {
         assert!(!output.bytes.starts_with(&UTF8_SIGNATURE));
         assert!(!output.bytes.starts_with(&UTF16_LE_BOM));
         assert_eq!(output.cp437_chars_not_converted, 0);
+    }
+
+    #[test]
+    fn selects_multiple_output_modes_with_default_paths() {
+        let (_, selections) =
+            parse_and_select(["infekt-cli", "--utf-8", "--html", "--json", "demo.nfo"]);
+
+        assert_eq!(
+            selections,
+            vec![
+                OutputSelection {
+                    mode: OutputMode::Utf8ClassicText,
+                    option_name: "--utf-8/-f",
+                    explicit_out_file: None,
+                },
+                OutputSelection {
+                    mode: OutputMode::ClassicHtml,
+                    option_name: "--html/-m",
+                    explicit_out_file: None,
+                },
+                OutputSelection {
+                    mode: OutputMode::CanvasJson,
+                    option_name: "--json/-J",
+                    explicit_out_file: None,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn records_inline_output_paths() {
+        let (_, selections) = parse_and_select([
+            "infekt-cli",
+            "--utf-8=out.nfo",
+            "--html=out.html",
+            "demo.nfo",
+        ]);
+
+        assert_eq!(
+            selections,
+            vec![
+                OutputSelection {
+                    mode: OutputMode::Utf8ClassicText,
+                    option_name: "--utf-8/-f",
+                    explicit_out_file: Some(PathBuf::from("out.nfo")),
+                },
+                OutputSelection {
+                    mode: OutputMode::ClassicHtml,
+                    option_name: "--html/-m",
+                    explicit_out_file: Some(PathBuf::from("out.html")),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn resolves_mixed_default_and_inline_paths() {
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--utf-8", "--html=out.html", "demo.nfo"]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![
+                OutputTarget {
+                    mode: OutputMode::Utf8ClassicText,
+                    out_file: PathBuf::from("demo-utf8.nfo"),
+                },
+                OutputTarget {
+                    mode: OutputMode::ClassicHtml,
+                    out_file: PathBuf::from("out.html"),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn preserves_legacy_out_file_for_single_output() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--html",
+            "--out-file",
+            "legacy.html",
+            "demo.nfo",
+        ]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![OutputTarget {
+                mode: OutputMode::ClassicHtml,
+                out_file: PathBuf::from("legacy.html"),
+            }]
+        );
+    }
+
+    #[test]
+    fn rejects_no_output_modes() {
+        let args = parse_args(["infekt-cli", "demo.nfo"]);
+
+        assert!(
+            output_selections_from_args(&args)
+                .unwrap_err()
+                .contains("Choose an output mode")
+        );
+    }
+
+    #[test]
+    fn rejects_out_file_with_multiple_outputs() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--utf-8",
+            "--html",
+            "--out-file",
+            "out.html",
+            "demo.nfo",
+        ]);
+
+        assert!(
+            resolve_output_targets(&args, &selections)
+                .unwrap_err()
+                .contains("exactly one output mode")
+        );
+    }
+
+    #[test]
+    fn rejects_out_file_with_inline_path() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--html=inline.html",
+            "--out-file",
+            "legacy.html",
+            "demo.nfo",
+        ]);
+
+        assert!(
+            resolve_output_targets(&args, &selections)
+                .unwrap_err()
+                .contains("cannot be combined")
+        );
+    }
+
+    #[test]
+    fn rejects_duplicate_resolved_output_paths() {
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--html", "--json=demo.html", "demo.nfo"]);
+
+        assert!(
+            resolve_output_targets(&args, &selections)
+                .unwrap_err()
+                .contains("used by more than one")
+        );
+    }
+
+    #[test]
+    fn uses_distinct_defaults_for_classic_and_canvas_html() {
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--html", "--html-canvas", "demo.nfo"]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![
+                OutputTarget {
+                    mode: OutputMode::ClassicHtml,
+                    out_file: PathBuf::from("demo.html"),
+                },
+                OutputTarget {
+                    mode: OutputMode::CanvasHtml,
+                    out_file: PathBuf::from("demo-canvas.html"),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn text_only_selects_stripped_utf_modes() {
+        let (_, selections) = parse_and_select([
+            "infekt-cli",
+            "--text-only",
+            "--utf-8",
+            "--utf-16",
+            "demo.nfo",
+        ]);
+
+        assert_eq!(
+            selections
+                .iter()
+                .map(|selection| selection.mode)
+                .collect::<Vec<_>>(),
+            vec![OutputMode::Utf8StrippedText, OutputMode::Utf16StrippedText]
+        );
+    }
+
+    #[test]
+    fn text_only_requires_a_utf_output() {
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--text-only", "--html", "demo.nfo"]);
+
+        assert!(
+            validate_args(&args, &selections)
+                .unwrap_err()
+                .contains("requires --utf-8/-f or --utf-16/-t")
+        );
+    }
+
+    #[test]
+    fn allows_html_settings_when_any_html_output_is_selected() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--utf-8",
+            "--html",
+            "--text-color",
+            "ff00aa",
+            "demo.nfo",
+        ]);
+
+        validate_args(&args, &selections).unwrap();
+    }
+
+    #[test]
+    fn rejects_html_settings_without_html_outputs() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--utf-8",
+            "--text-color",
+            "ff00aa",
+            "demo.nfo",
+        ]);
+
+        assert!(
+            validate_args(&args, &selections)
+                .unwrap_err()
+                .contains("only supported for HTML and JSON")
+        );
+    }
+
+    #[test]
+    fn allows_canvas_settings_when_any_canvas_output_is_selected() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--html",
+            "--json",
+            "--block-width",
+            "8",
+            "demo.nfo",
+        ]);
+
+        validate_args(&args, &selections).unwrap();
+    }
+
+    #[test]
+    fn rejects_canvas_settings_without_canvas_outputs() {
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--html", "--block-width", "8", "demo.nfo"]);
+
+        assert!(
+            validate_args(&args, &selections)
+                .unwrap_err()
+                .contains("only supported for --html-canvas/-M and --json/-J")
+        );
     }
 }
