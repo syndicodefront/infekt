@@ -1,10 +1,10 @@
 use clap::{ArgAction, Parser};
 use infekt_core as core;
-use infekt_core::nfo_data::{UTF8_SIGNATURE, UTF16_LE_BOM};
+use infekt_core::nfo_data::{NFO_SIZE_LIMIT_BYTES, UTF8_SIGNATURE, UTF16_LE_BOM};
 use infekt_core::nfo_html_exporter::{NfoHtmlColor, NfoHtmlExporter, NfoHtmlSettings};
 use std::collections::HashSet;
 use std::fs::File;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process;
 
@@ -29,6 +29,9 @@ struct CliArgs {
 
     #[arg(short = 'O', long = "out-file", value_name = "PATH")]
     out_file: Option<PathBuf>,
+
+    #[arg(long = "compression", action = ArgAction::SetTrue)]
+    compression: bool,
 
     #[arg(short = 'P', long = "png", action = ArgAction::SetTrue, hide = true)]
     png: bool,
@@ -205,11 +208,10 @@ fn main() {
         None
     };
 
-    let mut nfo_data = core::nfo_data::NfoData::new();
-    if let Err(err) = nfo_data.load_from_file(&args.input_file) {
+    let nfo_data = load_nfo_data(&args.input_file, args.compression).unwrap_or_else(|err| {
         eprintln!("ERROR: Unable to load NFO file: {err}");
         process::exit(1);
-    }
+    });
 
     for target in output_targets {
         let output =
@@ -218,8 +220,17 @@ fn main() {
                 process::exit(1);
             });
 
+        let output_bytes =
+            maybe_compress_output(&output.bytes, args.compression).unwrap_or_else(|err| {
+                eprintln!(
+                    "ERROR: Unable to compress output for `{}`: {err}",
+                    target.out_file.display()
+                );
+                process::exit(1);
+            });
+
         let write_result =
-            File::create(&target.out_file).and_then(|mut f| f.write_all(&output.bytes));
+            File::create(&target.out_file).and_then(|mut f| f.write_all(&output_bytes));
 
         if let Err(err) = write_result {
             eprintln!(
@@ -241,6 +252,58 @@ fn main() {
             args.input_file.display(),
             target.out_file.display()
         );
+    }
+}
+
+fn load_nfo_data(input_file: &Path, compression: bool) -> Result<core::nfo_data::NfoData, String> {
+    let mut nfo_data = core::nfo_data::NfoData::new();
+
+    if compression {
+        let compressed = File::open(input_file).map_err(|err| {
+            format!(
+                "Unable to open compressed NFO file '{}' (error {err})",
+                input_file.to_string_lossy()
+            )
+        })?;
+        let decompressed = decompress_zstd_input(&compressed)?;
+        nfo_data.load_from_bytes(&logical_input_file(input_file), &decompressed)?;
+    } else {
+        nfo_data.load_from_file(input_file)?;
+    }
+
+    Ok(nfo_data)
+}
+
+fn decompress_zstd_input<R: Read>(compressed: R) -> Result<Vec<u8>, String> {
+    let mut decoder = zstd::stream::read::Decoder::new(compressed)
+        .map_err(|err| format!("Unable to initialize zstd decompressor: {err}"))?;
+    let mut decompressed = Vec::new();
+    let mut buffer = [0u8; 8192];
+
+    loop {
+        let bytes_read = decoder
+            .read(&mut buffer)
+            .map_err(|err| format!("Unable to decompress zstd input: {err}"))?;
+
+        if bytes_read == 0 {
+            break;
+        }
+
+        if decompressed.len() + bytes_read > NFO_SIZE_LIMIT_BYTES {
+            return Err("NFO file is too large (> 3 MB)".to_string());
+        }
+
+        decompressed.extend_from_slice(&buffer[..bytes_read]);
+    }
+
+    Ok(decompressed)
+}
+
+fn maybe_compress_output(bytes: &[u8], compression: bool) -> Result<Vec<u8>, String> {
+    if compression {
+        zstd::stream::encode_all(bytes, 0).map_err(|err| err.to_string())
+    } else {
+        Ok(bytes.to_vec())
     }
 }
 
@@ -530,6 +593,11 @@ fn resolve_output_targets(
 
     let mut targets = Vec::with_capacity(output_selections.len());
     let mut seen_out_files = HashSet::with_capacity(output_selections.len());
+    let default_input_file = if args.compression {
+        logical_input_file(&args.input_file)
+    } else {
+        args.input_file.clone()
+    };
     let use_distinct_canvas_html_default = output_selections.iter().any(|selection| {
         selection.mode == OutputMode::ClassicHtml && selection.explicit_out_file.is_none()
     }) && output_selections.iter().any(|selection| {
@@ -542,10 +610,18 @@ fn resolve_output_targets(
             .clone()
             .or_else(|| args.out_file.clone())
             .unwrap_or_else(|| {
-                if selection.mode == OutputMode::CanvasHtml && use_distinct_canvas_html_default {
-                    make_default_canvas_html_out_file(&args.input_file)
+                let out_file = if selection.mode == OutputMode::CanvasHtml
+                    && use_distinct_canvas_html_default
+                {
+                    make_default_canvas_html_out_file(&default_input_file)
                 } else {
-                    make_default_out_file(&args.input_file, selection.mode)
+                    make_default_out_file(&default_input_file, selection.mode)
+                };
+
+                if args.compression {
+                    append_zstd_extension(out_file)
+                } else {
+                    out_file
                 }
             });
 
@@ -637,6 +713,30 @@ fn make_default_out_file_base(input_file: &Path) -> String {
     base
 }
 
+fn logical_input_file(input_file: &Path) -> PathBuf {
+    if !has_zstd_extension(input_file) {
+        return input_file.to_path_buf();
+    }
+
+    let Some(file_stem) = input_file.file_stem() else {
+        return input_file.to_path_buf();
+    };
+
+    let mut logical = input_file.to_path_buf();
+    logical.set_file_name(file_stem);
+    logical
+}
+
+fn has_zstd_extension(path: &Path) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("zstd"))
+}
+
+fn append_zstd_extension(path: PathBuf) -> PathBuf {
+    PathBuf::from(format!("{}.zstd", path.to_string_lossy()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -649,6 +749,19 @@ mod tests {
         let args = parse_args(args);
         let selections = output_selections_from_args(&args).unwrap();
         (args, selections)
+    }
+
+    fn temp_path(name: &str) -> PathBuf {
+        let mut path = std::env::temp_dir();
+        path.push(format!(
+            "infekt-cli-test-{}-{}-{name}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        path
     }
 
     #[test]
@@ -689,6 +802,29 @@ mod tests {
         assert_eq!(
             make_default_out_file(Path::new("demo.nfo"), OutputMode::Utf16ClassicText),
             PathBuf::from("demo-utf16.nfo")
+        );
+    }
+
+    #[test]
+    fn parses_compression_flag() {
+        let args = parse_args(["infekt-cli", "--compression", "--utf-8", "demo.nfo.zstd"]);
+
+        assert!(args.compression);
+    }
+
+    #[test]
+    fn strips_zstd_extension_for_logical_input_file() {
+        assert_eq!(
+            logical_input_file(Path::new("demo.nfo.zstd")),
+            PathBuf::from("demo.nfo")
+        );
+        assert_eq!(
+            logical_input_file(Path::new("demo.nfo.ZSTD")),
+            PathBuf::from("demo.nfo")
+        );
+        assert_eq!(
+            logical_input_file(Path::new("demo.nfo")),
+            PathBuf::from("demo.nfo")
         );
     }
 
@@ -809,6 +945,87 @@ mod tests {
     }
 
     #[test]
+    fn appends_zstd_to_default_output_paths_when_compression_is_enabled() {
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--compression", "--utf-8", "demo.nfo"]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![OutputTarget {
+                mode: OutputMode::Utf8ClassicText,
+                out_file: PathBuf::from("demo-utf8.nfo.zstd"),
+            }]
+        );
+
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--compression", "--html", "demo.nfo.zstd"]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![OutputTarget {
+                mode: OutputMode::ClassicHtml,
+                out_file: PathBuf::from("demo.html.zstd"),
+            }]
+        );
+    }
+
+    #[test]
+    fn appends_zstd_to_distinct_html_defaults_when_compression_is_enabled() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--compression",
+            "--html",
+            "--html-canvas",
+            "demo.nfo",
+        ]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![
+                OutputTarget {
+                    mode: OutputMode::ClassicHtml,
+                    out_file: PathBuf::from("demo.html.zstd"),
+                },
+                OutputTarget {
+                    mode: OutputMode::CanvasHtml,
+                    out_file: PathBuf::from("demo-canvas.html.zstd"),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn preserves_explicit_output_paths_when_compression_is_enabled() {
+        let (args, selections) =
+            parse_and_select(["infekt-cli", "--compression", "--utf-8=out.nfo", "demo.nfo"]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![OutputTarget {
+                mode: OutputMode::Utf8ClassicText,
+                out_file: PathBuf::from("out.nfo"),
+            }]
+        );
+
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--compression",
+            "--html",
+            "--out-file",
+            "legacy.html",
+            "demo.nfo",
+        ]);
+
+        assert_eq!(
+            resolve_output_targets(&args, &selections).unwrap(),
+            vec![OutputTarget {
+                mode: OutputMode::ClassicHtml,
+                out_file: PathBuf::from("legacy.html"),
+            }]
+        );
+    }
+
+    #[test]
     fn preserves_legacy_out_file_for_single_output() {
         let (args, selections) = parse_and_select([
             "infekt-cli",
@@ -877,6 +1094,23 @@ mod tests {
     fn rejects_duplicate_resolved_output_paths() {
         let (args, selections) =
             parse_and_select(["infekt-cli", "--html", "--json=demo.html", "demo.nfo"]);
+
+        assert!(
+            resolve_output_targets(&args, &selections)
+                .unwrap_err()
+                .contains("used by more than one")
+        );
+    }
+
+    #[test]
+    fn rejects_duplicate_paths_after_compression_default_suffixes() {
+        let (args, selections) = parse_and_select([
+            "infekt-cli",
+            "--compression",
+            "--html",
+            "--json=demo.html.zstd",
+            "demo.nfo",
+        ]);
 
         assert!(
             resolve_output_targets(&args, &selections)
@@ -990,6 +1224,35 @@ mod tests {
             validate_args(&args, &selections)
                 .unwrap_err()
                 .contains("only supported for --html-canvas/-M and --json/-J")
+        );
+    }
+
+    #[test]
+    fn compresses_output_bytes_with_zstd() {
+        let original = b"\xEF\xBB\xBFhello\n";
+
+        let compressed = maybe_compress_output(original, true).unwrap();
+        let decompressed = zstd::stream::decode_all(&compressed[..]).unwrap();
+
+        assert_eq!(decompressed, original);
+        assert_eq!(maybe_compress_output(original, false).unwrap(), original);
+    }
+
+    #[test]
+    fn loads_compressed_input_and_compresses_rendered_output() {
+        let path = temp_path("input.nfo.zstd");
+        let compressed_input = zstd::stream::encode_all(&b"A\xDB\n"[..], 0).unwrap();
+        std::fs::write(&path, compressed_input).unwrap();
+
+        let data = load_nfo_data(&path, true).unwrap();
+        let _ = std::fs::remove_file(&path);
+        let output = render_output(OutputMode::Utf8ClassicText, &data, None).unwrap();
+        let compressed_output = maybe_compress_output(&output.bytes, true).unwrap();
+        let decompressed_output = zstd::stream::decode_all(&compressed_output[..]).unwrap();
+
+        assert_eq!(
+            decompressed_output,
+            encode_output(OutputMode::Utf8ClassicText, "A\u{2588}\n")
         );
     }
 }
