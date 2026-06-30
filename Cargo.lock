@@ -3593,6 +3593,7 @@ version = "2.0.0-alpha1"
 dependencies = [
  "clap",
  "infekt-core",
+ "zstd",
 ]
 
 [[package]]

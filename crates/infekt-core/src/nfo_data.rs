@@ -6,7 +6,7 @@ use regex::Regex;
 use super::codepage_437;
 use super::nfo_renderer_grid::{NfoRendererGrid, make_renderer_grid};
 
-const SIZE_LIMIT: u64 = 1024 * 1024 * 3;
+pub const NFO_SIZE_LIMIT_BYTES: usize = 1024 * 1024 * 3;
 const LINES_LIMIT: usize = 10_000;
 const WIDTH_LIMIT: usize = 2_000;
 const SAUCE_RECORD_SIZE: usize = 128;
@@ -137,16 +137,26 @@ impl NfoData {
             return Err("stat() on NFO file failed.".to_string());
         }
 
-        if metadata.len() > SIZE_LIMIT {
+        if metadata.len() > NFO_SIZE_LIMIT_BYTES as u64 {
             return Err("NFO file is too large (> 3 MB)".to_string());
         }
 
         let data = std::fs::read(path)
             .map_err(|_| "An error occured while reading from the NFO file.".to_string())?;
 
+        self.load_from_bytes(path, &data)
+    }
+
+    pub fn load_from_bytes(&mut self, path: &Path, data: &[u8]) -> Result<(), String> {
+        self.clear_loaded_state();
+
+        if data.len() > NFO_SIZE_LIMIT_BYTES {
+            return Err("NFO file is too large (> 3 MB)".to_string());
+        }
+
         self.file_path = Some(path.to_path_buf());
 
-        match self.load_from_memory_internal(&data) {
+        match self.load_from_memory_internal(data) {
             Ok(()) => {
                 self.loaded = true;
                 self.cached_classic_text = Some(self.text_content.clone());
@@ -1796,9 +1806,7 @@ mod tests {
 
     fn load_bytes(name: &str, bytes: &[u8]) -> Result<NfoData, String> {
         let mut data = NfoData::new();
-        data.file_path = Some(PathBuf::from(name));
-        data.load_from_memory_internal(bytes)?;
-        data.loaded = true;
+        data.load_from_bytes(Path::new(name), bytes)?;
         Ok(data)
     }
 
@@ -1814,6 +1822,28 @@ mod tests {
         let data = load_bytes("sample.nfo", "Grüße\n".as_bytes()).unwrap();
         assert_eq!(data.get_charset_name(), "UTF-8");
         assert_eq!(data.text_content, "Grüße\n");
+    }
+
+    #[test]
+    fn load_from_bytes_preserves_extension_based_charset_detection() {
+        let nfo_data = load_bytes("sample.nfo", "Grüße\n".as_bytes()).unwrap();
+        let txt_data = load_bytes("sample.txt", "Grüße\n".as_bytes()).unwrap();
+
+        assert_eq!(nfo_data.get_charset_name(), "UTF-8");
+        assert_eq!(txt_data.get_charset_name(), "CP 437");
+    }
+
+    #[test]
+    fn load_from_bytes_rejects_oversized_input() {
+        let too_large = vec![b'A'; NFO_SIZE_LIMIT_BYTES + 1];
+        let mut data = NfoData::new();
+
+        assert!(
+            data.load_from_bytes(Path::new("sample.nfo"), &too_large)
+                .unwrap_err()
+                .contains("too large")
+        );
+        assert!(!data.is_loaded());
     }
 
     #[test]
