@@ -106,13 +106,6 @@ struct CliArgs {
     glow_radius: Option<String>,
     #[arg(long = "max-line-length", value_name = "CHARS")]
     max_line_length: Option<String>,
-    #[arg(
-        short = 'c',
-        long = "compound-whitespace",
-        action = ArgAction::SetTrue,
-        hide = true
-    )]
-    compound_whitespace: bool,
     #[arg(short = 'w', long = "wrap", action = ArgAction::SetTrue)]
     wrap: bool,
 
@@ -441,10 +434,6 @@ fn parse_positive_usize(option_name: &str, value: &str) -> Result<usize, String>
 }
 
 fn validate_args(args: &CliArgs, output_selections: &[OutputSelection]) -> Result<(), String> {
-    if let Some(option_name) = first_unimplemented_option(args) {
-        return Err(format!("Option {option_name} is not implemented yet."));
-    }
-
     if args.text_only
         && !output_selections.iter().any(|selection| {
             matches!(
@@ -625,10 +614,6 @@ fn first_unimplemented_output_option(args: &CliArgs) -> Option<&'static str> {
         (args.pdf, "--pdf/-d"),
         (args.pdf_din, "--pdf-din/-D"),
     ])
-}
-
-fn first_unimplemented_option(args: &CliArgs) -> Option<&'static str> {
-    first_enabled(&[(args.compound_whitespace, "--compound-whitespace/-c")])
 }
 
 fn first_html_style_option(args: &CliArgs) -> Option<&'static str> {
