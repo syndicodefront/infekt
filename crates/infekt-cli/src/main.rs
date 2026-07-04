@@ -104,6 +104,8 @@ struct CliArgs {
     block_height: Option<String>,
     #[arg(short = 'R', long = "glow-radius", value_name = "PIXELS")]
     glow_radius: Option<String>,
+    #[arg(long = "max-line-length", value_name = "CHARS")]
+    max_line_length: Option<String>,
     #[arg(
         short = 'c',
         long = "compound-whitespace",
@@ -208,6 +210,15 @@ fn main() {
     };
 
     let mut nfo_data = core::nfo_data::NfoData::new();
+    if let Some(max_line_length) = &args.max_line_length {
+        let max_line_length = parse_positive_usize("--max-line-length", max_line_length)
+            .unwrap_or_else(|err| {
+                eprintln!("ERROR: {err}");
+                process::exit(1);
+            });
+        nfo_data.set_max_line_length(max_line_length);
+    }
+
     if let Err(err) = nfo_data.load_from_file(&args.input_file) {
         eprintln!("ERROR: Unable to load NFO file: {err}");
         process::exit(1);
@@ -409,6 +420,18 @@ fn parse_limited_usize(
 
     if parsed < min || parsed > max {
         return Err(format!("{option_name} must be between {min} and {max}"));
+    }
+
+    Ok(parsed)
+}
+
+fn parse_positive_usize(option_name: &str, value: &str) -> Result<usize, String> {
+    let parsed = value
+        .parse::<usize>()
+        .map_err(|_| format!("{option_name} expects an integer"))?;
+
+    if parsed == 0 {
+        return Err(format!("{option_name} must be at least 1"));
     }
 
     Ok(parsed)
@@ -741,6 +764,36 @@ mod tests {
         let args = parse_args(["infekt-cli", "--compress", "--utf-8", "demo.nfo"]);
 
         assert!(args.compress);
+    }
+
+    #[test]
+    fn parses_max_line_length_option() {
+        let args = parse_args([
+            "infekt-cli",
+            "--max-line-length",
+            "4096",
+            "--utf-8",
+            "demo.nfo",
+        ]);
+
+        assert_eq!(args.max_line_length.as_deref(), Some("4096"));
+        assert_eq!(
+            parse_positive_usize(
+                "--max-line-length",
+                args.max_line_length.as_deref().unwrap()
+            )
+            .unwrap(),
+            4096
+        );
+    }
+
+    #[test]
+    fn rejects_zero_max_line_length() {
+        assert!(
+            parse_positive_usize("--max-line-length", "0")
+                .unwrap_err()
+                .contains("at least 1")
+        );
     }
 
     #[test]

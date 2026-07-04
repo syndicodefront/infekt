@@ -8,7 +8,7 @@ use super::nfo_renderer_grid::{NfoRendererGrid, make_renderer_grid};
 
 const SIZE_LIMIT: u64 = 1024 * 1024 * 3;
 const LINES_LIMIT: usize = 10_000;
-const WIDTH_LIMIT: usize = 2_000;
+const DEFAULT_MAX_LINE_LENGTH: usize = 2_000;
 const SAUCE_RECORD_SIZE: usize = 128;
 const SAUCE_COMMENT_LINE_SIZE: usize = 64;
 const SAUCE_HEADER_ID_SIZE: usize = 5;
@@ -75,6 +75,7 @@ pub struct NfoData {
     cached_classic_text: Option<String>,
     cached_stripped_text: Option<String>,
     last_error: String,
+    max_line_length: usize,
 }
 
 impl NfoData {
@@ -97,6 +98,7 @@ impl NfoData {
             cached_classic_text: None,
             cached_stripped_text: None,
             last_error: String::new(),
+            max_line_length: DEFAULT_MAX_LINE_LENGTH,
         }
     }
 
@@ -121,6 +123,10 @@ impl NfoData {
                 .to_string_lossy()
                 .to_string()
         })
+    }
+
+    pub fn set_max_line_length(&mut self, max_line_length: usize) {
+        self.max_line_length = max_line_length;
     }
 
     pub fn load_from_file(&mut self, path: &Path) -> Result<(), String> {
@@ -347,9 +353,10 @@ impl NfoData {
             return Err("Unable to find any lines in this file.".to_string());
         }
 
-        if max_line_len > WIDTH_LIMIT {
+        if max_line_len > self.max_line_length {
             return Err(format!(
-                "This file contains a line longer than {WIDTH_LIMIT} chars. To prevent damage and lock-ups, we do not load it."
+                "This file contains a line longer than {} chars. To prevent damage and lock-ups, we do not load it.",
+                self.max_line_length
             ));
         }
 
@@ -716,7 +723,7 @@ impl NfoData {
         Ok(SauceInfo {
             data_len,
             is_ansi: file_type == 1 || (incomplete && file_type == 0),
-            ansi_hint_width: if width > 0 && width < WIDTH_LIMIT * 2 {
+            ansi_hint_width: if width > 0 && width < DEFAULT_MAX_LINE_LENGTH * 2 {
                 width
             } else {
                 0
@@ -771,7 +778,7 @@ fn render_ansi_classic_text(text: &str, hint_width: usize, hint_height: usize) -
     }
 
     let commands = parse_ansi_commands(text)?;
-    let width = hint_width.clamp(80, WIDTH_LIMIT);
+    let width = hint_width.clamp(80, DEFAULT_MAX_LINE_LENGTH);
     let height = if hint_height > 0 {
         hint_height.min(LINES_LIMIT)
     } else {
@@ -958,7 +965,7 @@ fn apply_ansi_delta(value: usize, delta: isize) -> usize {
 }
 
 fn ensure_ansi_cell(screen: &mut Vec<Vec<char>>, x: usize, y: usize) -> Option<()> {
-    if x >= WIDTH_LIMIT || y >= LINES_LIMIT {
+    if x >= DEFAULT_MAX_LINE_LENGTH || y >= LINES_LIMIT {
         return None;
     }
 
@@ -969,7 +976,7 @@ fn ensure_ansi_cell(screen: &mut Vec<Vec<char>>, x: usize, y: usize) -> Option<(
     }
 
     if x >= screen[0].len() {
-        let new_cols = (x + 1).min(WIDTH_LIMIT);
+        let new_cols = (x + 1).min(DEFAULT_MAX_LINE_LENGTH);
         for line in screen {
             line.resize(new_cols, ' ');
         }
@@ -1795,7 +1802,16 @@ mod tests {
     use super::*;
 
     fn load_bytes(name: &str, bytes: &[u8]) -> Result<NfoData, String> {
+        load_bytes_with_max_line_length(name, bytes, DEFAULT_MAX_LINE_LENGTH)
+    }
+
+    fn load_bytes_with_max_line_length(
+        name: &str,
+        bytes: &[u8],
+        max_line_length: usize,
+    ) -> Result<NfoData, String> {
         let mut data = NfoData::new();
+        data.set_max_line_length(max_line_length);
         data.file_path = Some(PathBuf::from(name));
         data.load_from_memory_internal(bytes)?;
         data.loaded = true;
@@ -1827,6 +1843,22 @@ mod tests {
     fn decodes_cp437_blocks() {
         let data = load_bytes("sample.nfo", &[0xDB, b'\n']).unwrap();
         assert_eq!(data.text_content, "\u{2588}\n");
+    }
+
+    #[test]
+    fn rejects_lines_longer_than_configured_limit() {
+        let err = match load_bytes_with_max_line_length("sample.nfo", b"abcd\n", 3) {
+            Ok(_) => panic!("expected configured line length limit to reject sample"),
+            Err(err) => err,
+        };
+
+        assert!(err.contains("longer than 3 chars"));
+    }
+
+    #[test]
+    fn accepts_lines_at_configured_limit() {
+        let data = load_bytes_with_max_line_length("sample.nfo", b"abcd\n", 4).unwrap();
+        assert_eq!(data.text_content, "abcd\n");
     }
 
     #[test]
