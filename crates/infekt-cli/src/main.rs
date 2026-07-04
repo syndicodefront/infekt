@@ -113,7 +113,7 @@ struct CliArgs {
         hide = true
     )]
     compound_whitespace: bool,
-    #[arg(short = 'w', long = "wrap", action = ArgAction::SetTrue, hide = true)]
+    #[arg(short = 'w', long = "wrap", action = ArgAction::SetTrue)]
     wrap: bool,
 
     input_file: PathBuf,
@@ -210,6 +210,9 @@ fn main() {
     };
 
     let mut nfo_data = core::nfo_data::NfoData::new();
+    if args.wrap {
+        nfo_data.set_line_wrap(true);
+    }
     if let Some(max_line_length) = &args.max_line_length {
         let max_line_length = parse_positive_usize("--max-line-length", max_line_length)
             .unwrap_or_else(|err| {
@@ -625,10 +628,7 @@ fn first_unimplemented_output_option(args: &CliArgs) -> Option<&'static str> {
 }
 
 fn first_unimplemented_option(args: &CliArgs) -> Option<&'static str> {
-    first_enabled(&[
-        (args.compound_whitespace, "--compound-whitespace/-c"),
-        (args.wrap, "--wrap/-w"),
-    ])
+    first_enabled(&[(args.compound_whitespace, "--compound-whitespace/-c")])
 }
 
 fn first_html_style_option(args: &CliArgs) -> Option<&'static str> {
@@ -764,6 +764,14 @@ mod tests {
         let args = parse_args(["infekt-cli", "--compress", "--utf-8", "demo.nfo"]);
 
         assert!(args.compress);
+    }
+
+    #[test]
+    fn accepts_wrap_flag() {
+        let (args, selections) = parse_and_select(["infekt-cli", "--wrap", "--utf-8", "demo.nfo"]);
+
+        assert!(args.wrap);
+        validate_args(&args, &selections).unwrap();
     }
 
     #[test]

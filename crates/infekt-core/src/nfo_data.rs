@@ -129,6 +129,10 @@ impl NfoData {
         self.max_line_length = max_line_length;
     }
 
+    pub fn set_line_wrap(&mut self, line_wrap: bool) {
+        self.line_wrap = line_wrap;
+    }
+
     pub fn load_from_file(&mut self, path: &Path) -> Result<(), String> {
         self.clear_loaded_state();
 
@@ -1810,8 +1814,18 @@ mod tests {
         bytes: &[u8],
         max_line_length: usize,
     ) -> Result<NfoData, String> {
+        load_bytes_with_settings(name, bytes, max_line_length, false)
+    }
+
+    fn load_bytes_with_settings(
+        name: &str,
+        bytes: &[u8],
+        max_line_length: usize,
+        line_wrap: bool,
+    ) -> Result<NfoData, String> {
         let mut data = NfoData::new();
         data.set_max_line_length(max_line_length);
+        data.set_line_wrap(line_wrap);
         data.file_path = Some(PathBuf::from(name));
         data.load_from_memory_internal(bytes)?;
         data.loaded = true;
@@ -1859,6 +1873,21 @@ mod tests {
     fn accepts_lines_at_configured_limit() {
         let data = load_bytes_with_max_line_length("sample.nfo", b"abcd\n", 4).unwrap();
         assert_eq!(data.text_content, "abcd\n");
+    }
+
+    #[test]
+    fn wraps_long_lines_when_enabled() {
+        let input = "word ".repeat(30);
+        let data = load_bytes_with_settings(
+            "sample.nfo",
+            input.as_bytes(),
+            DEFAULT_MAX_LINE_LENGTH,
+            true,
+        )
+        .unwrap();
+
+        assert!(data.grid_width <= 100);
+        assert!(data.grid_height() > 1);
     }
 
     #[test]
