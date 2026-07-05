@@ -985,6 +985,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63044e1ae8e69f3b5a92c736ca6269b8d12fa7efe39bf34ddb06d102cf0e2cab"
 dependencies = [
  "memchr",
+ "regex-automata",
  "serde",
 ]
 
@@ -3462,6 +3463,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "icy_sauce"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a81513cf7059f3c9466e44308569c1967b6826e1958368ab28e06eadc1ae59c"
+dependencies = [
+ "bstr",
+ "log",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "id-arena"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3603,6 +3615,7 @@ dependencies = [
  "askama",
  "hex_color",
  "htmlentity",
+ "icy_sauce",
  "regex",
  "rustc-hash 2.1.2",
  "serde",

@@ -1,6 +1,10 @@
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
+use icy_sauce::{
+    CharacterCapabilities, CharacterFormat, SauceDataType, SauceError, SauceRecord, StripMode,
+    header::SauceHeader, strip_sauce_ex,
+};
 use regex::Regex;
 
 use super::codepage_437;
@@ -10,9 +14,6 @@ const SIZE_LIMIT: u64 = 1024 * 1024 * 3;
 const LINES_LIMIT: usize = 10_000;
 const DEFAULT_MAX_LINE_LENGTH: usize = 2_000;
 const SAUCE_RECORD_SIZE: usize = 128;
-const SAUCE_COMMENT_LINE_SIZE: usize = 64;
-const SAUCE_HEADER_ID_SIZE: usize = 5;
-const SAUCE_MAX_COMMENTS: u8 = 255;
 const SAUCE_EOF: u8 = 0x1A;
 pub const UTF8_SIGNATURE: [u8; 3] = [0xEF, 0xBB, 0xBF];
 pub const UTF16_LE_BOM: [u8; 2] = [0xFF, 0xFE];
@@ -55,6 +56,17 @@ struct SauceInfo {
     is_ansi: bool,
     ansi_hint_width: usize,
     ansi_hint_height: usize,
+}
+
+impl SauceInfo {
+    fn plain(data_len: usize) -> Self {
+        Self {
+            data_len,
+            is_ansi: false,
+            ansi_hint_width: 0,
+            ansi_hint_height: 0,
+        }
+    }
 }
 
 pub struct NfoData {
@@ -631,113 +643,12 @@ impl NfoData {
     }
 
     fn read_sauce(&mut self, data: &[u8]) -> Result<SauceInfo, String> {
-        if data.len() <= SAUCE_RECORD_SIZE {
-            return Ok(SauceInfo {
-                data_len: data.len(),
-                is_ansi: false,
-                ansi_hint_width: 0,
-                ansi_hint_height: 0,
-            });
-        }
+        let Some(header) = SauceHeader::from_bytes(data).map_err(sauce_error_message)? else {
+            return read_incomplete_sauce(data)
+                .map(|info| info.unwrap_or_else(|| SauceInfo::plain(data.len())));
+        };
 
-        let mut record = [0u8; SAUCE_RECORD_SIZE];
-        record.copy_from_slice(&data[data.len() - SAUCE_RECORD_SIZE..]);
-        let mut incomplete = false;
-        let mut record_len = SAUCE_RECORD_SIZE;
-
-        if &record[0..5] != b"SAUCE" {
-            for i in 0..SAUCE_RECORD_SIZE - b"SAUCE00".len() {
-                let start = data.len() - SAUCE_RECORD_SIZE + i;
-                if data[start..].starts_with(b"SAUCE00") {
-                    incomplete = true;
-                    record_len = SAUCE_RECORD_SIZE - i;
-                    record = [0u8; SAUCE_RECORD_SIZE];
-                    record[..record_len].copy_from_slice(&data[start..start + record_len]);
-                    break;
-                }
-            }
-
-            if !incomplete {
-                return Ok(SauceInfo {
-                    data_len: data.len(),
-                    is_ansi: false,
-                    ansi_hint_width: 0,
-                    ansi_hint_height: 0,
-                });
-            }
-        }
-
-        if &record[5..7] != b"00" {
-            return Err("SAUCE: Unsupported file version.".to_string());
-        }
-
-        let data_type = record[94];
-        let file_type = record[95];
-        let comments = record[104];
-
-        if data_type != 1 || (file_type != 0 && file_type != 1) {
-            if incomplete && data_type == 0 && file_type == 0 {
-                let mut len = data.len() - record_len;
-                if len > 0 && data[len - 1] == SAUCE_EOF {
-                    len -= 1;
-                }
-                return Ok(SauceInfo {
-                    data_len: len,
-                    is_ansi: true,
-                    ansi_hint_width: 0,
-                    ansi_hint_height: 0,
-                });
-            }
-
-            if data_type == 1 && file_type == b' ' && comments == b' ' {
-                let mut len = data.len() - record_len;
-                if len > 0 && data[len - 1] == SAUCE_EOF {
-                    len -= 1;
-                }
-                return Ok(SauceInfo {
-                    data_len: len,
-                    is_ansi: false,
-                    ansi_hint_width: 0,
-                    ansi_hint_height: 0,
-                });
-            }
-
-            return Err("SAUCE: Unsupported file format type.".to_string());
-        }
-
-        let bytes_to_trim = record_len
-            + if comments > 0 {
-                comments as usize * SAUCE_COMMENT_LINE_SIZE + SAUCE_HEADER_ID_SIZE
-            } else {
-                0
-            };
-
-        if comments == SAUCE_MAX_COMMENTS || data.len() < bytes_to_trim {
-            return Err("SAUCE: Bad comments definition.".to_string());
-        }
-
-        let mut data_len = data.len() - bytes_to_trim;
-        while data_len > 0 && data[data_len - 1] == SAUCE_EOF {
-            data_len -= 1;
-        }
-
-        let width = u16::from_le_bytes([record[96], record[97]]) as usize;
-        let height = u16::from_le_bytes([record[98], record[99]]) as usize;
-
-        Ok(SauceInfo {
-            data_len,
-            is_ansi: file_type == 1 || (incomplete && file_type == 0),
-            ansi_hint_width: if width > 0 && width < DEFAULT_MAX_LINE_LENGTH * 2 {
-                width
-            } else {
-                0
-            },
-            ansi_hint_height: if height > 0 && height < LINES_LIMIT * 2 {
-                height
-            } else {
-                0
-            },
-        })
+        make_sauce_info(data, &header)
     }
 
     fn has_nfo_or_diz_extension(&self) -> bool {
@@ -749,6 +660,112 @@ impl NfoData {
                 extension.eq_ignore_ascii_case("nfo") || extension.eq_ignore_ascii_case("diz")
             })
             .unwrap_or(false)
+    }
+}
+
+fn make_sauce_info(data: &[u8], header: &SauceHeader) -> Result<SauceInfo, String> {
+    if header.data_type == SauceDataType::Character
+        && header.file_type == b' '
+        && header.comments == b' '
+    {
+        let mut data_len = data.len().saturating_sub(SAUCE_RECORD_SIZE);
+        if data_len > 0 && data[data_len - 1] == SAUCE_EOF {
+            data_len -= 1;
+        }
+        return Ok(SauceInfo::plain(data_len));
+    }
+
+    if header.data_type != SauceDataType::Character || !matches!(header.file_type, 0 | 1) {
+        let data_type = u8::from(header.data_type);
+        let file_type = header.file_type;
+        return Err(format!(
+            "SAUCE: Unsupported file format type (data_type={data_type}, file_type={file_type})."
+        ));
+    }
+
+    let capabilities = CharacterCapabilities::try_from(header).map_err(sauce_error_message)?;
+    let format = CharacterFormat::from_sauce(header.file_type);
+
+    let Some(_record) = SauceRecord::from_bytes(data).map_err(sauce_error_message)? else {
+        return Ok(SauceInfo::plain(data.len()));
+    };
+
+    let mut data_len = strip_sauce_ex(data, StripMode::LastStripFinalEof)
+        .data
+        .len();
+    while data_len > 0 && data[data_len - 1] == SAUCE_EOF {
+        data_len -= 1;
+    }
+
+    Ok(SauceInfo {
+        data_len,
+        is_ansi: format == CharacterFormat::Ansi,
+        ansi_hint_width: sauce_dimension_hint(
+            capabilities.columns as usize,
+            DEFAULT_MAX_LINE_LENGTH * 2,
+        ),
+        ansi_hint_height: sauce_dimension_hint(capabilities.lines as usize, LINES_LIMIT * 2),
+    })
+}
+
+fn read_incomplete_sauce(data: &[u8]) -> Result<Option<SauceInfo>, String> {
+    if data.len() <= SAUCE_RECORD_SIZE {
+        return Ok(None);
+    }
+
+    for i in 0..SAUCE_RECORD_SIZE - b"SAUCE00".len() {
+        let start = data.len() - SAUCE_RECORD_SIZE + i;
+        if !data[start..].starts_with(b"SAUCE00") {
+            continue;
+        }
+
+        let record_len = SAUCE_RECORD_SIZE - i;
+        let mut record = [0u8; SAUCE_RECORD_SIZE];
+        record[..record_len].copy_from_slice(&data[start..start + record_len]);
+        let Some(header) = SauceHeader::from_bytes(&record).map_err(sauce_error_message)? else {
+            return Ok(None);
+        };
+
+        let mut data_len = data.len() - record_len;
+        if data_len > 0 && data[data_len - 1] == SAUCE_EOF {
+            data_len -= 1;
+        }
+
+        if header.data_type == SauceDataType::None && header.file_type == 0 {
+            return Ok(Some(SauceInfo {
+                data_len,
+                is_ansi: true,
+                ansi_hint_width: 0,
+                ansi_hint_height: 0,
+            }));
+        }
+
+        if header.data_type == SauceDataType::Character
+            && header.file_type == b' '
+            && header.comments == b' '
+        {
+            return Ok(Some(SauceInfo::plain(data_len)));
+        }
+
+        let data_type = u8::from(header.data_type);
+        let file_type = header.file_type;
+        return Err(format!(
+            "SAUCE: Unsupported file format type (data_type={data_type}, file_type={file_type})."
+        ));
+    }
+
+    Ok(None)
+}
+
+fn sauce_dimension_hint(value: usize, limit: usize) -> usize {
+    if value > 0 && value < limit { value } else { 0 }
+}
+
+fn sauce_error_message(err: SauceError) -> String {
+    match err {
+        SauceError::UnsupportedSauceVersion(_) => "SAUCE: Unsupported file version.".to_string(),
+        SauceError::InvalidCommentBlock => "SAUCE: Bad comments definition.".to_string(),
+        err => format!("SAUCE: {err}"),
     }
 }
 
@@ -1832,6 +1849,24 @@ mod tests {
         Ok(data)
     }
 
+    fn sauce_header(
+        data_type: u8,
+        file_type: u8,
+        width: u16,
+        height: u16,
+        comments: u8,
+    ) -> [u8; SAUCE_RECORD_SIZE] {
+        let mut sauce = [0u8; SAUCE_RECORD_SIZE];
+        sauce[0..5].copy_from_slice(b"SAUCE");
+        sauce[5..7].copy_from_slice(b"00");
+        sauce[94] = data_type;
+        sauce[95] = file_type;
+        sauce[96..98].copy_from_slice(&width.to_le_bytes());
+        sauce[98..100].copy_from_slice(&height.to_le_bytes());
+        sauce[104] = comments;
+        sauce
+    }
+
     #[test]
     fn decodes_utf8_with_signature() {
         let data = load_bytes("sample.nfo", b"\xEF\xBB\xBFhello\r\n").unwrap();
@@ -1900,6 +1935,38 @@ mod tests {
     fn detects_links() {
         let data = load_bytes("sample.nfo", b"visit hxxp://example.com/test\n").unwrap();
         assert_eq!(data.link_url(0, 8), Some("http://example.com/test"));
+    }
+
+    #[test]
+    fn reports_unsupported_sauce_format_fields() {
+        let mut bytes = b"hello\n".to_vec();
+        let sauce = sauce_header(2, 7, 0, 0, 0);
+        bytes.extend_from_slice(&sauce);
+
+        let err = load_bytes("sample.nfo", &bytes).err().unwrap();
+
+        assert_eq!(
+            err,
+            "SAUCE: Unsupported file format type (data_type=2, file_type=7)."
+        );
+    }
+
+    #[test]
+    fn strips_sauce_comment_block_and_reads_dimensions() {
+        let mut bytes = b"hello\n".to_vec();
+        bytes.push(SAUCE_EOF);
+        bytes.extend_from_slice(b"COMNT");
+        let mut comment = [b' '; 64];
+        comment[..4].copy_from_slice(b"note");
+        bytes.extend_from_slice(&comment);
+        bytes.extend_from_slice(&sauce_header(1, 0, 80, 25, 1));
+
+        let data = load_bytes("sample.nfo", &bytes).unwrap();
+
+        assert_eq!(data.text_content, "hello\n");
+        assert_eq!(data.ansi_hint_width, 80);
+        assert_eq!(data.ansi_hint_height, 25);
+        assert!(!data.is_ansi);
     }
 
     #[test]
