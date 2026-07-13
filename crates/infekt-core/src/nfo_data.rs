@@ -14,7 +14,7 @@ const SIZE_LIMIT: u64 = 1024 * 1024 * 3;
 const LINES_LIMIT: usize = 10_000;
 const DEFAULT_MAX_LINE_LENGTH: usize = 2_000;
 const SAUCE_RECORD_SIZE: usize = 128;
-const LEGACY_SHORT_SAUCE_MIN_SIZE: usize = 97;
+const NUL_STRIPPED_SAUCE_MIN_SIZE: usize = 97;
 const SAUCE_EOF: u8 = 0x1A;
 pub const UTF8_SIGNATURE: [u8; 3] = [0xEF, 0xBB, 0xBF];
 pub const UTF16_LE_BOM: [u8; 2] = [0xFF, 0xFE];
@@ -713,8 +713,12 @@ fn read_incomplete_sauce(data: &[u8]) -> Result<Option<SauceInfo>, String> {
     };
 
     let record_len = data.len() - start;
-    if let Some(info) = read_legacy_short_sauce(data, start, record_len)? {
-        return Ok(Some(info));
+    if let Some(normalized) = normalize_nul_stripped_sauce(data, start, record_len) {
+        let Some(header) = SauceHeader::from_bytes(&normalized).map_err(sauce_error_message)?
+        else {
+            return Ok(None);
+        };
+        return make_sauce_info(&normalized, &header).map(Some);
     }
 
     let mut record = [0u8; SAUCE_RECORD_SIZE];
@@ -746,45 +750,42 @@ fn read_incomplete_sauce(data: &[u8]) -> Result<Option<SauceInfo>, String> {
     Err(unsupported_sauce_format_message(data_type, file_type))
 }
 
-fn read_legacy_short_sauce(
-    data: &[u8],
-    start: usize,
-    record_len: usize,
-) -> Result<Option<SauceInfo>, String> {
-    if !(LEGACY_SHORT_SAUCE_MIN_SIZE..SAUCE_RECORD_SIZE).contains(&record_len) {
-        return Ok(None);
+fn normalize_nul_stripped_sauce(data: &[u8], start: usize, record_len: usize) -> Option<Vec<u8>> {
+    if !(NUL_STRIPPED_SAUCE_MIN_SIZE..SAUCE_RECORD_SIZE).contains(&record_len) {
+        return None;
     }
 
     let record = &data[start..];
     if matches!((record[94], record[95]), (0 | 1, 0 | 1)) {
-        return Ok(None);
+        return None;
     }
 
     let data_type = record[92];
-    let file_type = record[93];
-    if data_type != 1 {
-        return Err(unsupported_sauce_format_message(data_type, file_type));
+    let (file_type, width, height, tail_start) = if record[93] <= 7 {
+        (record[93], record[94], record[95], 96)
+    } else {
+        (0, record[93], record[94], 95)
+    };
+    let (&t_flags, t_info_s) = record[tail_start..].split_first()?;
+    if t_info_s.len() > 22 {
+        return None;
     }
 
-    if matches!(file_type, 0 | 1) {
-        return Ok(Some(SauceInfo {
-            data_len: data_len_before_trailing_sauce(data, start),
-            is_ansi: file_type == 1,
-            ansi_hint_width: sauce_dimension_hint(record[94] as usize, DEFAULT_MAX_LINE_LENGTH * 2),
-            ansi_hint_height: sauce_dimension_hint(record[95] as usize, LINES_LIMIT * 2),
-        }));
-    }
+    // Restore the fixed-width zero bytes removed by a text-oriented conversion.
+    let mut header = [0u8; SAUCE_RECORD_SIZE];
+    header[..90].copy_from_slice(&record[..90]);
+    header[90..92].copy_from_slice(&record[90..92]);
+    header[94] = data_type;
+    header[95] = file_type;
+    header[96] = width;
+    header[98] = height;
+    header[105] = t_flags;
+    header[106..106 + t_info_s.len()].copy_from_slice(t_info_s);
 
-    if file_type <= 7 {
-        return Err(unsupported_sauce_format_message(data_type, file_type));
-    }
-
-    Ok(Some(SauceInfo {
-        data_len: data_len_before_trailing_sauce(data, start),
-        is_ansi: false,
-        ansi_hint_width: sauce_dimension_hint(file_type as usize, DEFAULT_MAX_LINE_LENGTH * 2),
-        ansi_hint_height: sauce_dimension_hint(record[94] as usize, LINES_LIMIT * 2),
-    }))
+    let mut normalized = Vec::with_capacity(start + SAUCE_RECORD_SIZE);
+    normalized.extend_from_slice(&data[..start]);
+    normalized.extend_from_slice(&header);
+    Some(normalized)
 }
 
 fn find_sauce_marker_in_tail(data: &[u8]) -> Option<usize> {
@@ -1917,7 +1918,7 @@ mod tests {
         sauce
     }
 
-    fn legacy_short_sauce(data_type: u8, file_type: u8, width: u8, height: u8) -> Vec<u8> {
+    fn nul_stripped_sauce(data_type: u8, file_type: u8, width: u8, height: u8) -> Vec<u8> {
         let mut sauce = Vec::new();
         sauce.extend_from_slice(b"SAUCE00");
         sauce.extend_from_slice(&[b' '; 35 + 20 + 20]);
@@ -1932,7 +1933,7 @@ mod tests {
         sauce
     }
 
-    fn legacy_short_sauce_without_file_type(data_type: u8, width: u8, height: u8) -> Vec<u8> {
+    fn nul_stripped_sauce_without_file_type(data_type: u8, width: u8, height: u8) -> Vec<u8> {
         let mut sauce = Vec::new();
         sauce.extend_from_slice(b"SAUCE00");
         sauce.extend_from_slice(&[b' '; 35 + 20 + 20]);
@@ -2049,10 +2050,10 @@ mod tests {
     }
 
     #[test]
-    fn reads_legacy_short_sauce_trailer() {
+    fn reads_nul_stripped_sauce_trailer() {
         let mut bytes = b"hello".to_vec();
         bytes.push(SAUCE_EOF);
-        bytes.extend_from_slice(&legacy_short_sauce(1, 1, 80, 25));
+        bytes.extend_from_slice(&nul_stripped_sauce(1, 1, 80, 25));
 
         let data = load_bytes("sample.nfo", &bytes).unwrap();
 
@@ -2063,10 +2064,10 @@ mod tests {
     }
 
     #[test]
-    fn reads_legacy_short_sauce_trailer_without_file_type() {
+    fn reads_nul_stripped_sauce_trailer_without_file_type() {
         let mut bytes = b"hello\n".to_vec();
         bytes.push(SAUCE_EOF);
-        bytes.extend_from_slice(&legacy_short_sauce_without_file_type(1, 102, 13));
+        bytes.extend_from_slice(&nul_stripped_sauce_without_file_type(1, 102, 13));
 
         let data = load_bytes("sample.nfo", &bytes).unwrap();
 
@@ -2077,10 +2078,10 @@ mod tests {
     }
 
     #[test]
-    fn reports_unsupported_legacy_short_sauce_format_fields() {
+    fn reports_unsupported_nul_stripped_sauce_format_fields() {
         let mut bytes = b"hello\n".to_vec();
         bytes.push(SAUCE_EOF);
-        bytes.extend_from_slice(&legacy_short_sauce(2, 7, 80, 25));
+        bytes.extend_from_slice(&nul_stripped_sauce(2, 7, 80, 25));
 
         let err = load_bytes("sample.nfo", &bytes).err().unwrap();
 
@@ -2091,10 +2092,10 @@ mod tests {
     }
 
     #[test]
-    fn reports_unsupported_legacy_short_sauce_character_file_type() {
+    fn reports_unsupported_nul_stripped_sauce_character_file_type() {
         let mut bytes = b"hello\n".to_vec();
         bytes.push(SAUCE_EOF);
-        bytes.extend_from_slice(&legacy_short_sauce(1, 2, 80, 25));
+        bytes.extend_from_slice(&nul_stripped_sauce(1, 2, 80, 25));
 
         let err = load_bytes("sample.nfo", &bytes).err().unwrap();
 
