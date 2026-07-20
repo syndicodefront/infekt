@@ -721,33 +721,8 @@ fn read_incomplete_sauce(data: &[u8]) -> Result<Option<SauceInfo>, String> {
         return make_sauce_info(&normalized, &header).map(Some);
     }
 
-    let mut record = [0u8; SAUCE_RECORD_SIZE];
-    record[..record_len].copy_from_slice(&data[start..start + record_len]);
-    let Some(header) = SauceHeader::from_bytes(&record).map_err(sauce_error_message)? else {
-        return Ok(None);
-    };
-
     let data_len = data_len_before_trailing_sauce(data, start);
-
-    if header.data_type == SauceDataType::None && header.file_type == 0 {
-        return Ok(Some(SauceInfo {
-            data_len,
-            is_ansi: true,
-            ansi_hint_width: 0,
-            ansi_hint_height: 0,
-        }));
-    }
-
-    if header.data_type == SauceDataType::Character
-        && header.file_type == b' '
-        && header.comments == b' '
-    {
-        return Ok(Some(SauceInfo::plain(data_len)));
-    }
-
-    let data_type = u8::from(header.data_type);
-    let file_type = header.file_type;
-    Err(unsupported_sauce_format_message(data_type, file_type))
+    Ok(Some(SauceInfo::plain(data_len)))
 }
 
 fn normalize_nul_stripped_sauce(data: &[u8], start: usize, record_len: usize) -> Option<Vec<u8>> {
@@ -761,6 +736,10 @@ fn normalize_nul_stripped_sauce(data: &[u8], start: usize, record_len: usize) ->
     }
 
     let data_type = record[92];
+    if data_type > 8 {
+        return None;
+    }
+
     let (file_type, width, height, tail_start) = if record[93] <= 7 {
         (record[93], record[94], record[95], 96)
     } else {
@@ -1947,6 +1926,29 @@ mod tests {
         sauce
     }
 
+    fn damaged_sauce_with_expanded_file_size_lf(width: u8, height: u8) -> Vec<u8> {
+        let mut sauce = Vec::new();
+        sauce.extend_from_slice(b"SAUCE00");
+        sauce.extend_from_slice(&[b' '; 35 + 20 + 20]);
+        sauce.extend_from_slice(b"20250101");
+        sauce.extend_from_slice(b"\xCD\r\n");
+        sauce.push(1);
+        sauce.push(width);
+        sauce.push(height);
+        sauce.push(0x13);
+        sauce.extend_from_slice(b"Amiga P0T-NOoDLE");
+        sauce
+    }
+
+    fn damaged_space_filled_sauce(width: u8, height: u8) -> Vec<u8> {
+        let mut sauce = Vec::new();
+        sauce.extend_from_slice(b"SAUCE00");
+        sauce.extend_from_slice(&[b' '; 35 + 20 + 20]);
+        sauce.extend_from_slice(b"20250101");
+        sauce.extend_from_slice(&[0xCE, 0x26, b' ', b' ', 1, b' ', width, b' ', height]);
+        sauce
+    }
+
     #[test]
     fn decodes_utf8_with_signature() {
         let data = load_bytes("sample.nfo", b"\xEF\xBB\xBFhello\r\n").unwrap();
@@ -2075,6 +2077,34 @@ mod tests {
         assert!(!data.is_ansi);
         assert_eq!(data.ansi_hint_width, 102);
         assert_eq!(data.ansi_hint_height, 13);
+    }
+
+    #[test]
+    fn strips_damaged_sauce_with_expanded_file_size_lf() {
+        let mut bytes = b"hello\n".to_vec();
+        bytes.push(SAUCE_EOF);
+        bytes.extend_from_slice(&damaged_sauce_with_expanded_file_size_lf(80, 40));
+
+        let data = load_bytes("sample.nfo", &bytes).unwrap();
+
+        assert_eq!(data.text_content, "hello\n");
+        assert!(!data.is_ansi);
+        assert_eq!(data.ansi_hint_width, 0);
+        assert_eq!(data.ansi_hint_height, 0);
+    }
+
+    #[test]
+    fn strips_damaged_space_filled_sauce() {
+        let mut bytes = b"hello\n".to_vec();
+        bytes.push(SAUCE_EOF);
+        bytes.extend_from_slice(&damaged_space_filled_sauce(80, 131));
+
+        let data = load_bytes("sample.nfo", &bytes).unwrap();
+
+        assert_eq!(data.text_content, "hello\n");
+        assert!(!data.is_ansi);
+        assert_eq!(data.ansi_hint_width, 0);
+        assert_eq!(data.ansi_hint_height, 0);
     }
 
     #[test]
