@@ -4,13 +4,12 @@ members = [
     "crates/infekt",
     "crates/infekt-core",
     "crates/infekt-cli",
-    "xtask",
 ]
-
-[workspace.dependencies]
-anyhow = "1.0"
-log = "0.4"
 
 [profile.release]
 strip = true
 lto = "fat"
+
+# The profile that dist uses for shippable binaries.
+[profile.dist]
+inherits = "release"

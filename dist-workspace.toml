@@ -1,0 +1,30 @@
+[workspace]
+members = ["cargo:."]
+
+# Config for 'dist'
+[dist]
+# The preferred dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.32.0"
+# CI backends to support
+ci = "github"
+# The installers to generate for each app
+installers = []
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["aarch64-apple-darwin", "aarch64-unknown-linux-gnu", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+# Validate release planning on pull requests without building artifacts.
+pr-run-mode = "plan"
+# Where to host release artifacts.
+hosting = "github"
+# Generate SHA-256 checksums for release archives.
+checksum = "sha256"
+# Signing and attestations are not part of this migration.
+github-attestations = false
+# Keep the generated WiX source under source control so the MSI can retain the
+# established iNFekt product branding, which cargo-wix cannot configure.
+allow-dirty = ["msi"]
+
+# Pin every third-party action used by the generated release workflow.
+[dist.github-action-commits]
+"actions/checkout" = "9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0"
+"actions/upload-artifact" = "043fb46d1a93c77aae656e7c1c64a875d1fc6a0a"
+"actions/download-artifact" = "3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c"

@@ -13,8 +13,13 @@ The Rust workspace is the default entrypoint:
 cargo build --workspace
 cargo run -p infekt
 cargo run -p infekt-cli -- --help
-cargo run -p xtask -- bundle --release
+dist plan --tag=v2.0.0-alpha1
+dist build --tag=v2.0.0-alpha1
 ```
+
+Release tags build Apple Silicon macOS, ARM64 and x86-64 Linux, and
+x86-64 Windows archives for both applications. The Windows release also
+includes an MSI installer for the iNFekt desktop application.
 
 The C++ 1.x maintenance tree can still be configured explicitly:
 

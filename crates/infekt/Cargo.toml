@@ -3,6 +3,21 @@ name = "infekt"
 version = "2.0.0-alpha1"
 edition = "2024"
 description = "The ultimate best NFO viewer, ever!"
+authors = ["syndicode"]
+homepage = "https://infekt.ws/"
+repository = "https://github.com/syndicodefront/infekt"
+
+[package.metadata.dist]
+display-name = "iNFekt"
+installers = ["msi"]
+
+[package.metadata.wix]
+name = "iNFekt"
+upgrade-guid = "CB7688D1-2B89-4636-B32C-A43932B43139"
+path-guid = "3377E7BA-8C88-44F2-A199-A5AE5BCC99E5"
+product-icon = "../../assets/icons/iNFekt.ico"
+license = false
+eula = false
 
 [dependencies]
 infekt-core = { path = "../infekt-core" }
